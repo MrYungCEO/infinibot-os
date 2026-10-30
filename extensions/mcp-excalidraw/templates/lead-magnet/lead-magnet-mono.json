@@ -1,0 +1,55 @@
+{
+  "id": "lead-magnet-mono",
+  "category": "lead-magnet",
+  "name": "Lead magnet · Mono",
+  "width": 1080,
+  "height": 1350,
+  "background": "#f5f5fa",
+  "createdAt": "2026-06-09",
+  "scene": {
+    "elements": [
+      {
+        "id": "lead-magnet-mono-bg-accent",
+        "type": "rectangle",
+        "x": 0,
+        "y": 1053,
+        "width": 1080,
+        "height": 81,
+        "backgroundColor": "#a855f7",
+        "fillStyle": "solid",
+        "strokeColor": "transparent",
+        "strokeWidth": 0,
+        "roughness": 0
+      },
+      {
+        "id": "lead-magnet-mono-title",
+        "type": "text",
+        "x": 108,
+        "y": 472.49999999999994,
+        "width": 864,
+        "height": 96,
+        "text": "Lead magnet title",
+        "fontSize": 64,
+        "fontFamily": 1,
+        "textAlign": "center",
+        "strokeColor": "#1a1a2e"
+      },
+      {
+        "id": "lead-magnet-mono-subtitle",
+        "type": "text",
+        "x": 108,
+        "y": 648,
+        "width": 864,
+        "height": 48,
+        "text": "Mono · 1080×1350",
+        "fontSize": 28,
+        "fontFamily": 2,
+        "textAlign": "center",
+        "strokeColor": "#1a1a2e",
+        "opacity": 70
+      }
+    ],
+    "appState": {},
+    "files": {}
+  }
+}

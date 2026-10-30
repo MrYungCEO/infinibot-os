@@ -1,0 +1,27 @@
+version: "3.8"
+
+# InfiniBot Wake Word Server
+# Fully local, multi-wake-word, 24/7 Docker service
+# WebSocket API for browser integration
+
+services:
+  wake-word:
+    build: .
+    image: infinibot-wake-word:latest
+    container_name: infinibot-wake-word
+    restart: unless-stopped
+    ports:
+      - "8765:8765"
+    environment:
+      # Multiple wake words (comma-separated)
+      # Available: hey_jarvis, alexa, hey_mycroft, hey_rhasspy, ok_nabu
+      - WAKE_WORDS=hey_jarvis,alexa,hey_mycroft
+      # Detection threshold (0.0 - 1.0)
+      - THRESHOLD=0.5
+      # WebSocket port
+      - PORT=8765
+    healthcheck:
+      test: ["CMD", "python", "-c", "import socket; s=socket.socket(); s.connect(('localhost',8765)); s.close()"]
+      interval: 30s
+      timeout: 10s
+      retries: 3

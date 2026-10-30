@@ -1,0 +1,579 @@
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+.vault-onboarding {
+  --vo-bg: #050302;
+  --vo-surface: rgba(18, 14, 12, 0.95);
+  --vo-border: rgba(212, 175, 55, 0.15);
+  --vo-border-active: rgba(212, 175, 55, 0.5);
+  --vo-gold: #d4af37;
+  --vo-gold-light: #f0d68a;
+  --vo-gold-dim: rgba(212, 175, 55, 0.3);
+  --vo-text: #f0ede8;
+  --vo-text-dim: #a09890;
+  --vo-text-muted: #706860;
+  --vo-input-bg: rgba(255, 255, 255, 0.04);
+  --vo-input-border: rgba(212, 175, 55, 0.12);
+  --vo-card-bg: rgba(18, 14, 12, 0.8);
+  --vo-card-border: rgba(212, 175, 55, 0.08);
+  --vo-success: #5bbd6e;
+  --vo-accent-bg: rgba(212, 175, 55, 0.06);
+
+  min-height: 100vh;
+  width: 100%;
+  background: var(--vo-bg);
+  color: var(--vo-text);
+  font-family: "Inter", system-ui, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow-x: hidden;
+}
+
+.vault-onboarding::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 80% 50% at 50% -20%, rgba(212, 175, 55, 0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% 100%, rgba(212, 175, 55, 0.03) 0%, transparent 60%),
+    repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(212, 175, 55, 0.015) 2px, rgba(212, 175, 55, 0.015) 4px);
+  z-index: 0;
+}
+
+.vault-onboarding * { box-sizing: border-box; }
+
+/* ── Progress Bar ── */
+.vo-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  padding: 24px 48px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(180deg, var(--vo-bg) 60%, transparent);
+}
+
+.vo-progress-steps {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: 1;
+}
+
+.vo-progress-step {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 1px solid var(--vo-border);
+  background: transparent;
+  transition: all 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+  position: relative;
+  cursor: pointer;
+}
+
+.vo-progress-step.active {
+  background: var(--vo-gold);
+  border-color: var(--vo-gold);
+  box-shadow: 0 0 8px var(--vo-gold-dim);
+}
+
+.vo-progress-step.completed {
+  background: var(--vo-gold-dim);
+  border-color: var(--vo-gold-dim);
+}
+
+.vo-progress-step .vo-step-label {
+  position: absolute;
+  top: 16px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 10px;
+  color: var(--vo-text-muted);
+  white-space: nowrap;
+  font-family: "JetBrains Mono", monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  display: none;
+}
+
+.vo-progress-step.active .vo-step-label,
+.vo-progress-step.completed .vo-step-label {
+  display: block;
+}
+
+.vo-progress-step-line {
+  flex: 0 0 24px;
+  height: 1px;
+  background: var(--vo-border);
+}
+
+.vo-progress-step-line.filled {
+  background: var(--vo-gold-dim);
+}
+
+.vo-progress-label {
+  font-size: 11px;
+  font-family: "JetBrains Mono", monospace;
+  color: var(--vo-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-left: 8px;
+}
+
+/* ── Step Container ── */
+.vo-step {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 80px 24px 48px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 100vh;
+  justify-content: center;
+  animation: voFadeIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+@keyframes voFadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Welcome / Hero ── */
+.vo-hero {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.vo-hero-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  background: var(--vo-accent-bg);
+  border: 1px solid var(--vo-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--vo-gold);
+}
+
+.vo-hero h1 {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 48px;
+  font-weight: 700;
+  color: var(--vo-gold-light);
+  margin: 0 0 12px;
+  letter-spacing: 0.02em;
+  line-height: 1.15;
+}
+
+.vo-hero p {
+  font-size: 15px;
+  color: var(--vo-text-dim);
+  line-height: 1.7;
+  margin: 0;
+  max-width: 480px;
+}
+
+/* ── Form Elements ── */
+.vo-form {
+  width: 100%;
+  max-width: 480px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.vo-field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.vo-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--vo-text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: "JetBrains Mono", monospace;
+}
+
+.vo-input {
+  width: 100%;
+  padding: 14px 16px;
+  background: var(--vo-input-bg);
+  border: 1px solid var(--vo-input-border);
+  border-radius: 8px;
+  color: var(--vo-text);
+  font-size: 15px;
+  font-family: "Inter", system-ui, sans-serif;
+  transition: all 0.2s ease;
+  outline: none;
+}
+
+.vo-input::placeholder {
+  color: var(--vo-text-muted);
+}
+
+.vo-input:focus {
+  border-color: var(--vo-border-active);
+  box-shadow: 0 0 0 3px var(--vo-gold-dim);
+}
+
+.vo-textarea {
+  resize: vertical;
+  min-height: 100px;
+  line-height: 1.6;
+}
+
+/* ── Skill Level Pills ── */
+.vo-pills {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+
+.vo-pill {
+  padding: 12px 8px;
+  border: 1px solid var(--vo-card-border);
+  border-radius: 8px;
+  background: var(--vo-card-bg);
+  color: var(--vo-text);
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.vo-pill:hover {
+  border-color: var(--vo-border-active);
+  background: var(--vo-accent-bg);
+}
+
+.vo-pill.selected {
+  border-color: var(--vo-gold);
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--vo-gold-light);
+  box-shadow: 0 0 12px rgba(212, 175, 55, 0.1);
+}
+
+/* ── Interest Tags ── */
+.vo-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.vo-tag {
+  padding: 8px 16px;
+  border: 1px solid var(--vo-card-border);
+  border-radius: 20px;
+  background: var(--vo-card-bg);
+  color: var(--vo-text-dim);
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.vo-tag:hover {
+  border-color: var(--vo-border-active);
+  color: var(--vo-text);
+}
+
+.vo-tag.selected {
+  border-color: var(--vo-gold);
+  background: rgba(212, 175, 55, 0.1);
+  color: var(--vo-gold-light);
+}
+
+/* ── Action Buttons ── */
+.vo-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+  width: 100%;
+  max-width: 480px;
+}
+
+.vo-btn {
+  padding: 14px 28px;
+  border: 1px solid var(--vo-border);
+  border-radius: 8px;
+  background: transparent;
+  color: var(--vo-text);
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  font-family: "Inter", system-ui, sans-serif;
+  flex: 1;
+  text-align: center;
+}
+
+.vo-btn:hover {
+  border-color: var(--vo-border-active);
+  background: var(--vo-accent-bg);
+}
+
+.vo-btn.primary {
+  background: var(--vo-gold);
+  color: #1a1410;
+  border-color: var(--vo-gold);
+  font-weight: 600;
+}
+
+.vo-btn.primary:hover {
+  background: var(--vo-gold-light);
+  box-shadow: 0 4px 20px rgba(212, 175, 55, 0.25);
+}
+
+.vo-btn.primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.vo-btn.secondary {
+  flex: 0 0 auto;
+}
+
+/* ── Generating State ── */
+.vo-generating {
+  text-align: center;
+  padding: 60px 24px;
+}
+
+.vo-generating-spinner {
+  width: 48px;
+  height: 48px;
+  border: 2px solid var(--vo-border);
+  border-top-color: var(--vo-gold);
+  border-radius: 50%;
+  margin: 0 auto 24px;
+  animation: voSpin 0.8s linear infinite;
+}
+
+@keyframes voSpin {
+  to { transform: rotate(360deg); }
+}
+
+.vo-generating h2 {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 28px;
+  color: var(--vo-gold-light);
+  margin: 0 0 8px;
+}
+
+.vo-generating p {
+  color: var(--vo-text-dim);
+  font-size: 14px;
+  margin: 0;
+}
+
+/* ── Learning Path Result ── */
+.vo-result {
+  width: 100%;
+  max-width: 640px;
+}
+
+.vo-result-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.vo-result-header .vo-hero-icon {
+  margin-bottom: 16px;
+}
+
+.vo-result-header h2 {
+  font-family: "Cormorant Garamond", serif;
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--vo-gold-light);
+  margin: 0 0 8px;
+}
+
+.vo-result-header p {
+  color: var(--vo-text-dim);
+  font-size: 14px;
+  line-height: 1.6;
+  margin: 0;
+  max-width: 480px;
+  margin-inline: auto;
+}
+
+.vo-summary-card {
+  background: var(--vo-card-bg);
+  border: 1px solid var(--vo-card-border);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-around;
+  text-align: center;
+}
+
+.vo-summary-stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.vo-summary-stat-value {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--vo-gold-light);
+  font-family: "Cormorant Garamond", serif;
+}
+
+.vo-summary-stat-label {
+  font-size: 11px;
+  color: var(--vo-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-family: "JetBrains Mono", monospace;
+}
+
+.vo-week-card {
+  background: var(--vo-card-bg);
+  border: 1px solid var(--vo-card-border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
+}
+
+.vo-week-card:hover {
+  border-color: var(--vo-border-active);
+}
+
+.vo-week-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.vo-week-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--vo-gold-light);
+}
+
+.vo-week-focus {
+  font-size: 12px;
+  color: var(--vo-text-dim);
+  font-family: "JetBrains Mono", monospace;
+}
+
+.vo-week-courses {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.vo-week-course {
+  padding: 4px 10px;
+  background: var(--vo-accent-bg);
+  border: 1px solid var(--vo-border);
+  border-radius: 4px;
+  font-size: 12px;
+  color: var(--vo-text);
+  font-family: "JetBrains Mono", monospace;
+}
+
+/* ── Error / Fallback ── */
+.vo-error {
+  text-align: center;
+  padding: 40px 24px;
+  color: var(--vo-text-dim);
+}
+
+.vo-error p {
+  font-size: 14px;
+  margin: 0 0 16px;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  .vo-progress {
+    padding: 16px 16px;
+  }
+
+  .vo-step {
+    padding: 72px 16px 32px;
+  }
+
+  .vo-hero h1 {
+    font-size: 32px;
+  }
+
+  .vo-hero p {
+    font-size: 14px;
+  }
+
+  .vo-pills {
+    grid-template-columns: 1fr;
+  }
+
+  .vo-actions {
+    flex-direction: column;
+  }
+
+  .vo-btn {
+    width: 100%;
+  }
+
+  .vo-summary-card {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .vo-progress-steps {
+    gap: 4px;
+  }
+
+  .vo-progress-step-line {
+    flex: 0 0 12px;
+  }
+
+  .vo-form {
+    gap: 16px;
+  }
+
+  .vo-result-header h2 {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .vo-hero h1 {
+    font-size: 26px;
+  }
+
+  .vo-input {
+    padding: 12px 14px;
+    font-size: 16px;
+  }
+
+  .vo-progress-step {
+    width: 8px;
+    height: 8px;
+  }
+
+  .vo-progress-step .vo-step-label {
+    display: none !important;
+  }
+}

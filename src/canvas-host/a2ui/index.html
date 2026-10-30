@@ -1,0 +1,556 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>InfiniBot Canvas</title>
+    <script>
+      (() => {
+        try {
+          const params = new URLSearchParams(window.location.search);
+          const platform = (params.get("platform") || "").trim().toLowerCase();
+          if (platform) {
+            document.documentElement.dataset.platform = platform;
+          } else if (/android/i.test(navigator.userAgent || "")) {
+            document.documentElement.dataset.platform = "android";
+          }
+          // Clean/immersive mode - no decorative overlays
+          const clean = params.get("clean") || params.get("immersive");
+          if (clean === "1" || clean === "true" || clean === "yes") {
+            document.documentElement.dataset.clean = "true";
+          }
+        } catch (_) {}
+      })();
+    </script>
+    <style>
+      :root {
+        color-scheme: dark;
+        --safe-area-top: env(safe-area-inset-top, 0px);
+        --safe-area-right: env(safe-area-inset-right, 0px);
+        --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+        --safe-area-left: env(safe-area-inset-left, 0px);
+      }
+      @media (prefers-reduced-motion: reduce) {
+        body::before,
+        body::after {
+          animation: none !important;
+        }
+      }
+      html,
+      body {
+        height: 100%;
+        margin: 0;
+      }
+      body {
+        font:
+          14px system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Roboto",
+          sans-serif;
+        background:
+          radial-gradient(1200px 900px at 15% 20%, rgba(42, 113, 255, 0.18), rgba(0, 0, 0, 0) 55%),
+          radial-gradient(900px 700px at 85% 30%, rgba(255, 0, 138, 0.14), rgba(0, 0, 0, 0) 60%),
+          radial-gradient(1000px 900px at 60% 90%, rgba(0, 209, 255, 0.1), rgba(0, 0, 0, 0) 60%),
+          #000;
+        color: #e5e7eb;
+        overflow: hidden;
+      }
+      /* Clean mode: solid black background */
+      :root[data-clean="true"] body {
+        background: #000 !important;
+      }
+      :root[data-platform="android"] body {
+        background:
+          radial-gradient(1200px 900px at 15% 20%, rgba(42, 113, 255, 0.62), rgba(0, 0, 0, 0) 55%),
+          radial-gradient(900px 700px at 85% 30%, rgba(255, 0, 138, 0.52), rgba(0, 0, 0, 0) 60%),
+          radial-gradient(1000px 900px at 60% 90%, rgba(0, 209, 255, 0.48), rgba(0, 0, 0, 0) 60%),
+          #0b1328;
+      }
+      :root[data-clean="true"][data-platform="android"] body {
+        background: #000 !important;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: -20%;
+        background:
+          repeating-linear-gradient(
+            0deg,
+            rgba(255, 255, 255, 0.03) 0,
+            rgba(255, 255, 255, 0.03) 1px,
+            transparent 1px,
+            transparent 48px
+          ),
+          repeating-linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.03) 0,
+            rgba(255, 255, 255, 0.03) 1px,
+            transparent 1px,
+            transparent 48px
+          );
+        transform: translate3d(0, 0, 0) rotate(-7deg);
+        will-change: transform, opacity;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        opacity: 0.45;
+        pointer-events: none;
+        animation: infinibot-grid-drift 140s ease-in-out infinite alternate;
+      }
+      /* Clean mode: hide grid overlay */
+      :root[data-clean="true"] body::before {
+        display: none !important;
+      }
+      :root[data-platform="android"] body::before {
+        opacity: 0.8;
+      }
+      body::after {
+        content: "";
+        position: fixed;
+        inset: -35%;
+        background:
+          radial-gradient(900px 700px at 30% 30%, rgba(42, 113, 255, 0.16), rgba(0, 0, 0, 0) 60%),
+          radial-gradient(800px 650px at 70% 35%, rgba(255, 0, 138, 0.12), rgba(0, 0, 0, 0) 62%),
+          radial-gradient(900px 800px at 55% 75%, rgba(0, 209, 255, 0.1), rgba(0, 0, 0, 0) 62%);
+        filter: blur(28px);
+        opacity: 0.52;
+        will-change: transform, opacity;
+        -webkit-backface-visibility: hidden;
+        backface-visibility: hidden;
+        transform: translate3d(0, 0, 0);
+        pointer-events: none;
+        animation: infinibot-glow-drift 110s ease-in-out infinite alternate;
+      }
+      /* Clean mode: hide glow overlay */
+      :root[data-clean="true"] body::after {
+        display: none !important;
+      }
+      :root[data-platform="android"] body::after {
+        opacity: 0.85;
+      }
+      @supports (mix-blend-mode: screen) {
+        body::after {
+          mix-blend-mode: screen;
+        }
+      }
+      @supports not (mix-blend-mode: screen) {
+        body::after {
+          opacity: 0.7;
+        }
+      }
+      @keyframes infinibot-grid-drift {
+        0% {
+          transform: translate3d(-12px, 8px, 0) rotate(-7deg);
+          opacity: 0.4;
+        }
+        50% {
+          transform: translate3d(10px, -7px, 0) rotate(-6.6deg);
+          opacity: 0.56;
+        }
+        100% {
+          transform: translate3d(-8px, 6px, 0) rotate(-7.2deg);
+          opacity: 0.42;
+        }
+      }
+      @keyframes infinibot-glow-drift {
+        0% {
+          transform: translate3d(-18px, 12px, 0) scale(1.02);
+          opacity: 0.4;
+        }
+        50% {
+          transform: translate3d(14px, -10px, 0) scale(1.05);
+          opacity: 0.52;
+        }
+        100% {
+          transform: translate3d(-10px, 8px, 0) scale(1.03);
+          opacity: 0.43;
+        }
+      }
+      canvas {
+        position: fixed;
+        inset: 0;
+        display: block;
+        width: 100vw;
+        height: 100vh;
+        touch-action: none;
+        z-index: 1;
+      }
+      /* Clean mode: ensure canvas has black background */
+      :root[data-clean="true"] #infinibot-canvas {
+        background: #000 !important;
+      }
+      :root[data-platform="android"] #infinibot-canvas {
+        background:
+          radial-gradient(1100px 800px at 20% 15%, rgba(42, 113, 255, 0.78), rgba(0, 0, 0, 0) 58%),
+          radial-gradient(900px 650px at 82% 28%, rgba(255, 0, 138, 0.66), rgba(0, 0, 0, 0) 62%),
+          radial-gradient(1000px 900px at 60% 88%, rgba(0, 209, 255, 0.58), rgba(0, 0, 0, 0) 62%),
+          #141c33;
+      }
+      :root[data-clean="true"][data-platform="android"] #infinibot-canvas {
+        background: #000 !important;
+      }
+      #infinibot-status {
+        position: fixed;
+        inset: 0;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+        padding: 24px;
+        box-sizing: border-box;
+        pointer-events: none;
+        z-index: 3;
+      }
+      /* Clean mode: hide status card */
+      :root[data-clean="true"] #infinibot-status {
+        display: none !important;
+      }
+      #infinibot-status .card {
+        width: min(560px, 88vw);
+        text-align: left;
+        padding: 14px 16px 12px;
+        border-radius: 16px;
+        background: linear-gradient(140deg, rgba(23, 24, 35, 0.78), rgba(18, 19, 28, 0.55));
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        box-shadow:
+          0 16px 46px rgba(0, 0, 0, 0.52),
+          inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        -webkit-backdrop-filter: blur(18px) saturate(140%);
+        backdrop-filter: blur(18px) saturate(140%);
+      }
+      #infinibot-status .title {
+        font:
+          600 12px/1.2 -apple-system,
+          BlinkMacSystemFont,
+          "SF Pro Text",
+          system-ui,
+          sans-serif;
+        letter-spacing: 0.45px;
+        text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.7);
+      }
+      #infinibot-status .subtitle {
+        margin-top: 8px;
+        font:
+          500 13px/1.45 -apple-system,
+          BlinkMacSystemFont,
+          "SF Pro Text",
+          system-ui,
+          sans-serif;
+        color: rgba(255, 255, 255, 0.9);
+        white-space: pre-wrap;
+        overflow-wrap: anywhere;
+      }
+      infinibot-a2ui-host {
+        display: block;
+        height: 100%;
+        position: fixed;
+        inset: 0;
+        z-index: 4;
+        --infinibot-a2ui-inset-top: 28px;
+        --infinibot-a2ui-inset-right: 0px;
+        --infinibot-a2ui-inset-bottom: 0px;
+        --infinibot-a2ui-inset-left: 0px;
+        --infinibot-a2ui-scroll-pad-bottom: 0px;
+        --infinibot-a2ui-status-top: calc(50% - 18px);
+        --infinibot-a2ui-empty-top: 18px;
+      }
+      /* Clean/fullscreen mode: edge-to-edge content */
+      :root[data-clean="true"] infinibot-a2ui-host {
+        --infinibot-a2ui-inset-top: var(--safe-area-top);
+        --infinibot-a2ui-inset-right: var(--safe-area-right);
+        --infinibot-a2ui-inset-bottom: var(--safe-area-bottom);
+        --infinibot-a2ui-inset-left: var(--safe-area-left);
+      }
+      /* Fullscreen toggle button */
+      #infinibot-fullscreen-btn {
+        position: fixed;
+        top: calc(var(--safe-area-top) + 12px);
+        right: calc(var(--safe-area-right) + 12px);
+        z-index: 100;
+        width: 44px;
+        height: 44px;
+        border: none;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0.6;
+        transition: opacity 0.2s, transform 0.2s;
+        touch-action: manipulation;
+      }
+      #infinibot-fullscreen-btn:hover,
+      #infinibot-fullscreen-btn:focus {
+        opacity: 1;
+        transform: scale(1.05);
+      }
+      #infinibot-fullscreen-btn:active {
+        transform: scale(0.95);
+      }
+      #infinibot-fullscreen-btn svg {
+        width: 24px;
+        height: 24px;
+        fill: none;
+        stroke: #fff;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+      }
+      /* Hide button in clean mode or when fullscreen */
+      :root[data-clean="true"] #infinibot-fullscreen-btn,
+      :fullscreen #infinibot-fullscreen-btn,
+      :-webkit-full-screen #infinibot-fullscreen-btn {
+        display: none !important;
+      }
+      /* Fullscreen state adjustments */
+      :fullscreen body,
+      :-webkit-full-screen body {
+        background: #000 !important;
+      }
+      :fullscreen body::before,
+      :fullscreen body::after,
+      :-webkit-full-screen body::before,
+      :-webkit-full-screen body::after {
+        display: none !important;
+      }
+      :fullscreen #infinibot-canvas,
+      :-webkit-full-screen #infinibot-canvas {
+        background: #000 !important;
+      }
+      :fullscreen #infinibot-status,
+      :-webkit-full-screen #infinibot-status {
+        display: none !important;
+      }
+      :fullscreen infinibot-a2ui-host,
+      :-webkit-full-screen infinibot-a2ui-host {
+        --infinibot-a2ui-inset-top: 0px;
+        --infinibot-a2ui-inset-right: 0px;
+        --infinibot-a2ui-inset-bottom: 0px;
+        --infinibot-a2ui-inset-left: 0px;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="infinibot-canvas"></canvas>
+    <div id="infinibot-status">
+      <div class="card">
+        <div class="title" id="infinibot-status-title">Ready</div>
+        <div class="subtitle" id="infinibot-status-subtitle">Waiting for agent</div>
+      </div>
+    </div>
+    <button id="infinibot-fullscreen-btn" title="Toggle fullscreen">
+      <svg viewBox="0 0 24 24" id="fullscreen-icon">
+        <polyline points="15 3 21 3 21 9"></polyline>
+        <polyline points="9 21 3 21 3 15"></polyline>
+        <line x1="21" y1="3" x2="14" y2="10"></line>
+        <line x1="3" y1="21" x2="10" y2="14"></line>
+      </svg>
+      <svg viewBox="0 0 24 24" id="exit-fullscreen-icon" style="display:none;">
+        <polyline points="4 14 10 14 10 20"></polyline>
+        <polyline points="20 10 14 10 14 4"></polyline>
+        <line x1="14" y1="10" x2="21" y2="3"></line>
+        <line x1="3" y1="21" x2="10" y2="14"></line>
+      </svg>
+    </button>
+    <infinibot-a2ui-host></infinibot-a2ui-host>
+    <script src="a2ui.bundle.js"></script>
+    <script>
+      (() => {
+        const canvas = document.getElementById("infinibot-canvas");
+        const ctx = canvas.getContext("2d");
+        const statusEl = document.getElementById("infinibot-status");
+        const titleEl = document.getElementById("infinibot-status-title");
+        const subtitleEl = document.getElementById("infinibot-status-subtitle");
+        const fullscreenBtn = document.getElementById("infinibot-fullscreen-btn");
+        const fullscreenIcon = document.getElementById("fullscreen-icon");
+        const exitFullscreenIcon = document.getElementById("exit-fullscreen-icon");
+        
+        // Parse query params
+        const params = (() => {
+          try {
+            return new URLSearchParams(window.location.search);
+          } catch (_) {
+            return new URLSearchParams();
+          }
+        })();
+        
+        const debugStatusEnabledByQuery = (() => {
+          const raw = params.get("debugStatus") ?? params.get("debug");
+          if (!raw) return false;
+          const normalized = String(raw).trim().toLowerCase();
+          return normalized === "1" || normalized === "true" || normalized === "yes";
+        })();
+        
+        const cleanModeByQuery = (() => {
+          const raw = params.get("clean") ?? params.get("immersive");
+          if (!raw) return false;
+          const normalized = String(raw).trim().toLowerCase();
+          return normalized === "1" || normalized === "true" || normalized === "yes";
+        })();
+        
+        const autoFullscreenByQuery = (() => {
+          const raw = params.get("fullscreen");
+          if (!raw) return false;
+          const normalized = String(raw).trim().toLowerCase();
+          return normalized === "1" || normalized === "true" || normalized === "yes";
+        })();
+        
+        let debugStatusEnabled = debugStatusEnabledByQuery;
+        let cleanMode = cleanModeByQuery;
+
+        function resize() {
+          const dpr = window.devicePixelRatio || 1;
+          const w = Math.max(1, Math.floor(window.innerWidth * dpr));
+          const h = Math.max(1, Math.floor(window.innerHeight * dpr));
+          canvas.width = w;
+          canvas.height = h;
+          ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
+
+        window.addEventListener("resize", resize);
+        resize();
+
+        // Fullscreen handling
+        function isFullscreen() {
+          return !!(document.fullscreenElement || document.webkitFullscreenElement);
+        }
+        
+        function updateFullscreenIcon() {
+          if (isFullscreen()) {
+            fullscreenIcon.style.display = "none";
+            exitFullscreenIcon.style.display = "block";
+          } else {
+            fullscreenIcon.style.display = "block";
+            exitFullscreenIcon.style.display = "none";
+          }
+        }
+        
+        async function toggleFullscreen() {
+          try {
+            if (isFullscreen()) {
+              if (document.exitFullscreen) {
+                await document.exitFullscreen();
+              } else if (document.webkitExitFullscreen) {
+                await document.webkitExitFullscreen();
+              }
+            } else {
+              const elem = document.documentElement;
+              if (elem.requestFullscreen) {
+                await elem.requestFullscreen();
+              } else if (elem.webkitRequestFullscreen) {
+                await elem.webkitRequestFullscreen();
+              }
+            }
+          } catch (err) {
+            console.warn("Fullscreen toggle failed:", err);
+          }
+        }
+        
+        async function enterFullscreen() {
+          if (isFullscreen()) return;
+          try {
+            const elem = document.documentElement;
+            if (elem.requestFullscreen) {
+              await elem.requestFullscreen();
+            } else if (elem.webkitRequestFullscreen) {
+              await elem.webkitRequestFullscreen();
+            }
+          } catch (err) {
+            console.warn("Enter fullscreen failed:", err);
+          }
+        }
+        
+        async function exitFullscreen() {
+          if (!isFullscreen()) return;
+          try {
+            if (document.exitFullscreen) {
+              await document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+              await document.webkitExitFullscreen();
+            }
+          } catch (err) {
+            console.warn("Exit fullscreen failed:", err);
+          }
+        }
+        
+        fullscreenBtn.addEventListener("click", toggleFullscreen);
+        document.addEventListener("fullscreenchange", updateFullscreenIcon);
+        document.addEventListener("webkitfullscreenchange", updateFullscreenIcon);
+        
+        // Auto fullscreen on load if requested
+        if (autoFullscreenByQuery) {
+          // Need user interaction on most browsers, so try on first click
+          const autoFullscreenHandler = () => {
+            enterFullscreen();
+            document.removeEventListener("click", autoFullscreenHandler);
+            document.removeEventListener("touchstart", autoFullscreenHandler);
+          };
+          document.addEventListener("click", autoFullscreenHandler, { once: true });
+          document.addEventListener("touchstart", autoFullscreenHandler, { once: true });
+        }
+
+        const setDebugStatusEnabled = (enabled) => {
+          debugStatusEnabled = !!enabled;
+          if (!statusEl) return;
+          if (!debugStatusEnabled) {
+            statusEl.style.display = "none";
+          }
+        };
+        
+        const setCleanMode = (enabled) => {
+          cleanMode = !!enabled;
+          if (cleanMode) {
+            document.documentElement.dataset.clean = "true";
+          } else {
+            delete document.documentElement.dataset.clean;
+          }
+        };
+
+        if (statusEl && !debugStatusEnabled) {
+          statusEl.style.display = "none";
+        }
+
+        window.__infinibot = {
+          canvas,
+          ctx,
+          setDebugStatusEnabled,
+          setCleanMode,
+          enterFullscreen,
+          exitFullscreen,
+          toggleFullscreen,
+          isFullscreen,
+          setStatus: (title, subtitle) => {
+            if (!statusEl || !debugStatusEnabled || cleanMode) return;
+            if (!title && !subtitle) {
+              statusEl.style.display = "none";
+              return;
+            }
+            statusEl.style.display = "flex";
+            if (titleEl && typeof title === "string") titleEl.textContent = title;
+            if (subtitleEl && typeof subtitle === "string") subtitleEl.textContent = subtitle;
+            if (!debugStatusEnabled) {
+              clearTimeout(window.__statusTimeout);
+              window.__statusTimeout = setTimeout(() => {
+                statusEl.style.display = "none";
+              }, 3000);
+            } else {
+              clearTimeout(window.__statusTimeout);
+            }
+          },
+        };
+        
+        // Expose global methods
+        window.InfiniBot = window.InfiniBot || {};
+        window.InfiniBot.setCleanMode = setCleanMode;
+        window.InfiniBot.enterFullscreen = enterFullscreen;
+        window.InfiniBot.exitFullscreen = exitFullscreen;
+        window.InfiniBot.toggleFullscreen = toggleFullscreen;
+        window.InfiniBot.isFullscreen = isFullscreen;
+      })();
+    </script>
+  </body>
+</html>

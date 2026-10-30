@@ -1,0 +1,323 @@
+#!/usr/bin/env bash
+# InfiniBot Gateway Watchdog
+# Auto-respawns the gateway process; AI recovery on rapid crash loops.
+# Tailscale DNS stays valid across restarts because the port never changes.
+#
+# Canonical copy lives in the repo at scripts/infinibot-watchdog and is
+# installed to ~/.local/bin/infinibot-watchdog (run by the user unit
+# infinibot-watchdog.service). Keep the two in sync.
+#
+# Process model: the gateway is launched in its OWN process group (setsid),
+#   watchdog -> node scripts/run-node.mjs (group leader) -> infinibot -> infinibot-gateway
+# so a stop/restart signals the whole group, not just the wrapper. Signalling
+# only the wrapper used to leave the real listener orphaned on the port; the
+# next loop iteration then "adopted" it and a second SIGHUP was needed.
+#
+# SIGHUP = graceful restart (exactly once, never counted as a crash).
+# SIGTERM/SIGINT = stop gateway + exit.
+
+# No set -e — this is a daemon loop; errors are expected and handled.
+set -uo pipefail
+
+GATEWAY_DIR="${INFINIBOT_GATEWAY_DIR:-$HOME/infinibot}"
+GATEWAY_PORT="${INFINIBOT_GATEWAY_PORT:-18789}"
+TAILSCALE_HOST="${INFINIBOT_TAILSCALE_HOST:-my-host.tailnet.ts.net}"
+WATCHDOG_HOME="${INFINIBOT_WATCHDOG_HOME:-$HOME/.infinibot}"
+LOG_FILE="$WATCHDOG_HOME/watchdog.log"
+PID_FILE="$WATCHDOG_HOME/watchdog.pid"
+GW_PID_FILE="$WATCHDOG_HOME/gateway.pid"
+GW_LOG_FILE="$WATCHDOG_HOME/gateway.log"
+AI_LOG="$WATCHDOG_HOME/watchdog-ai.log"
+RESTART_DELAY="${INFINIBOT_WATCHDOG_RESTART_DELAY:-3}"   # seconds between respawns
+STOP_TIMEOUT="${INFINIBOT_WATCHDOG_STOP_TIMEOUT:-15}"    # graceful stop budget (gateway shutdown itself caps at ~5s)
+MAX_RAPID_CRASHES=5      # triggers AI recovery
+RAPID_WINDOW=60          # sliding window in seconds
+AI_RECOVERY="${INFINIBOT_WATCHDOG_AI_RECOVERY:-1}"
+
+mkdir -p "$WATCHDOG_HOME"
+echo $$ > "$PID_FILE"
+
+SELF_PGID="$(ps -o pgid= -p $$ 2>/dev/null | tr -d ' ')"
+
+log() {
+  local msg="[$(date -Iseconds)] $*"
+  # systemd appends our stdout to LOG_FILE already; writing it again via tee
+  # printed every line twice. Only append explicitly when stdout is elsewhere.
+  if [[ /proc/$$/fd/1 -ef "$LOG_FILE" ]]; then
+    echo "$msg"
+  else
+    echo "$msg"
+    echo "$msg" >> "$LOG_FILE" 2>/dev/null || true
+  fi
+}
+
+# ── Capture recent gateway logs for AI context ───────────────────────────────
+recent_logs() {
+  local n="${1:-200}"
+  if [[ -f "$GW_LOG_FILE" ]]; then
+    tail -n "$n" "$GW_LOG_FILE"
+  else
+    tail -n "$n" "$LOG_FILE" 2>/dev/null || echo "(no logs)"
+  fi
+}
+
+# ── AI recovery chain: Claude Code → Codex → OpenCode ───────────────────────
+invoke_ai_recovery() {
+  local exit_code="$1"
+  if [[ "$AI_RECOVERY" == "0" ]]; then
+    log "AI RECOVERY — disabled (INFINIBOT_WATCHDOG_AI_RECOVERY=0)"
+    return 0
+  fi
+  local logs
+  logs=$(recent_logs 200)
+
+  local prompt="InfiniBot gateway crashed ${MAX_RAPID_CRASHES}+ times in ${RAPID_WINDOW}s. Exit code: ${exit_code}.
+
+Working directory: ${GATEWAY_DIR}
+Gateway port: ${GATEWAY_PORT}
+Tailscale host: ${TAILSCALE_HOST}
+
+Last logs:
+${logs}
+
+Diagnose the most likely crash cause and suggest a fix. Check for: missing dist build, port conflict, bad env var, Node version issue, or recent code change. If fixable, show the exact command or file edit needed."
+
+  {
+    echo "=== AI Recovery invoked at $(date -Iseconds) (exit_code=$exit_code) ==="
+    echo "$prompt"
+    echo "---"
+  } >> "$AI_LOG"
+
+  log "AI RECOVERY — trying Claude Code..."
+  if claude --print "$prompt" >> "$AI_LOG" 2>&1; then
+    log "AI RECOVERY — Claude Code responded (see $AI_LOG)"
+    return 0
+  fi
+
+  log "AI RECOVERY — Claude Code unavailable, trying Codex..."
+  if codex --quiet "$prompt" >> "$AI_LOG" 2>&1; then
+    log "AI RECOVERY — Codex responded (see $AI_LOG)"
+    return 0
+  fi
+
+  log "AI RECOVERY — Codex unavailable, trying OpenCode..."
+  if opencode run "$prompt" >> "$AI_LOG" 2>&1; then
+    log "AI RECOVERY — OpenCode responded (see $AI_LOG)"
+    return 0
+  fi
+
+  log "AI RECOVERY — all AI tools unavailable; will continue respawning"
+  return 0
+}
+
+# ── Process helpers ──────────────────────────────────────────────────────────
+# PIDs currently LISTENing on the gateway port (may be empty).
+listener_pids() {
+  lsof -nP -ti "TCP:${GATEWAY_PORT}" -sTCP:LISTEN 2>/dev/null | sort -u || true
+}
+
+pgid_of() {
+  ps -o pgid= -p "$1" 2>/dev/null | tr -d ' '
+}
+
+# True when the process group exists and is not the watchdog's own group.
+group_alive() {
+  local pgid="$1"
+  [[ -n "$pgid" && "$pgid" != "$SELF_PGID" ]] && kill -0 -- "-$pgid" 2>/dev/null
+}
+
+# Is anything we are responsible for still running?
+targets_alive() {
+  local pid
+  if [[ -n "${GW_PID:-}" ]] && kill -0 "$GW_PID" 2>/dev/null; then return 0; fi
+  if group_alive "${GW_PGID:-}"; then return 0; fi
+  for pid in $(listener_pids); do
+    [[ "$pid" != "$$" ]] && return 0
+  done
+  return 1
+}
+
+# Signal everything that makes up the current gateway: its process group (when
+# it has its own), the tracked PID, and whatever actually holds the port.
+signal_targets() {
+  local sig="$1" pid
+  if group_alive "${GW_PGID:-}"; then
+    kill "-$sig" -- "-$GW_PGID" 2>/dev/null || true
+  fi
+  if [[ -n "${GW_PID:-}" ]]; then
+    kill "-$sig" "$GW_PID" 2>/dev/null || true
+  fi
+  for pid in $(listener_pids); do
+    [[ "$pid" == "$$" ]] && continue
+    kill "-$sig" "$pid" 2>/dev/null || true
+  done
+}
+
+# ── Start gateway ────────────────────────────────────────────────────────────
+GW_PID=""
+GW_PGID=""
+RESTART_REQUESTED=0
+STOPPING=0
+
+start_gateway() {
+  cd "$GATEWAY_DIR" || { log "ERROR: cannot cd to $GATEWAY_DIR"; return 1; }
+  # Bake nvm + bun paths so pnpm/node are always resolvable in this daemon env.
+  local NVM_BIN
+  NVM_BIN="$(ls -d "$HOME/.nvm/versions/node"/*/bin 2>/dev/null | sort -V | tail -1)"
+  export PATH="$NVM_BIN:$HOME/.bun/bin:$HOME/.local/bin:$PATH"
+  local NODE_BIN="${NVM_BIN}/node"
+  [[ -x "$NODE_BIN" ]] || NODE_BIN="node"
+  # Use scripts/run-node.mjs (has graceful pnpm-ENOENT fallback) so stale dist
+  # is rebuilt when possible, and skipped safely when pnpm is still unreachable.
+  # setsid: own process group, so stop_gateway can signal the whole chain.
+  setsid "$NODE_BIN" scripts/run-node.mjs gateway \
+    >> "$GW_LOG_FILE" \
+    2>> "$GW_LOG_FILE" &
+  GW_PID=$!
+  # A background job of a non-interactive shell is not a group leader, so
+  # setsid(1) does not fork: the new process group id is exactly $!. (Reading
+  # it back with ps right here would race the child's setsid() call.)
+  GW_PGID="$GW_PID"
+  echo "$GW_PID" > "$GW_PID_FILE"
+  log "Gateway started PID=$GW_PID PGID=$GW_PGID — http://${TAILSCALE_HOST}:${GATEWAY_PORT}"
+}
+
+# ── Graceful shutdown of current gateway ────────────────────────────────────
+stop_gateway() {
+  if [[ -z "${GW_PID:-}" ]] && [[ -z "$(listener_pids)" ]]; then return 0; fi
+  log "Stopping gateway PID=${GW_PID:-?} PGID=${GW_PGID:-?} listener=$(listener_pids | tr '\n' ' ')"
+  signal_targets TERM
+  local waited=0
+  while targets_alive && (( waited < STOP_TIMEOUT * 2 )); do
+    sleep 0.5
+    (( waited++ )) || true
+  done
+  if targets_alive; then
+    log "Gateway did not exit in ${STOP_TIMEOUT}s — sending SIGKILL"
+    signal_targets KILL
+    waited=0
+    while targets_alive && (( waited < 10 )); do
+      sleep 0.5
+      (( waited++ )) || true
+    done
+  fi
+  # Reap our child (no-op for adopted PIDs).
+  [[ -n "${GW_PID:-}" ]] && wait "$GW_PID" 2>/dev/null
+  rm -f "$GW_PID_FILE"
+  GW_PID=""
+  GW_PGID=""
+}
+
+# ── SIGHUP = graceful update/restart ────────────────────────────────────────
+handle_hup() {
+  if (( STOPPING )); then
+    log "SIGHUP received — restart already in progress, ignoring"
+    return
+  fi
+  STOPPING=1
+  RESTART_REQUESTED=1
+  log "SIGHUP received — graceful restart"
+  stop_gateway
+  STOPPING=0
+  # Main loop respawns on its next iteration (without counting a crash).
+}
+trap handle_hup HUP
+
+# ── SIGTERM/SIGINT = clean shutdown ─────────────────────────────────────────
+handle_term() {
+  log "SIGTERM/SIGINT — shutting down watchdog"
+  STOPPING=1
+  stop_gateway
+  rm -f "$PID_FILE"
+  exit 0
+}
+trap handle_term TERM INT
+
+# ── Adopt an already-running gateway (avoid double-spawn) ────────────────────
+adopt_existing() {
+  local existing_pid
+  existing_pid=$(listener_pids | head -1)
+  if [[ -n "$existing_pid" ]] && kill -0 "$existing_pid" 2>/dev/null; then
+    GW_PID="$existing_pid"
+    GW_PGID="$(pgid_of "$existing_pid")"
+    # Never treat our own group as the gateway's group (legacy, pre-setsid spawns).
+    [[ "$GW_PGID" == "$SELF_PGID" ]] && GW_PGID=""
+    echo "$GW_PID" > "$GW_PID_FILE"
+    log "Adopting existing gateway PID=$GW_PID PGID=${GW_PGID:-shared}"
+    return 0
+  fi
+  return 1
+}
+
+# ── Main loop ────────────────────────────────────────────────────────────────
+log "Watchdog starting (PID=$$) — port=${GATEWAY_PORT} tailscale=${TAILSCALE_HOST}"
+
+crash_times=()
+
+while true; do
+  # If gateway is already running on the port, adopt it; otherwise spawn fresh
+  if ! adopt_existing; then
+    start_gateway || { log "Failed to start gateway; retrying in ${RESTART_DELAY}s..."; sleep "$RESTART_DELAY"; continue; }
+  fi
+
+  # Wait for gateway to exit.
+  # `wait` only works on child processes; poll for adopted/foreign PIDs.
+  # A trapped SIGHUP interrupts `wait` (status > 128) after handle_hup has
+  # already stopped the gateway.
+  CUR_PID="$GW_PID"
+  wait "$CUR_PID" 2>/dev/null
+  EXIT_CODE=$?
+  if (( EXIT_CODE == 127 )); then
+    # Not a child — poll until the process disappears
+    while [[ -n "${GW_PID:-}" ]] && kill -0 "$GW_PID" 2>/dev/null; do
+      sleep 2
+    done
+    EXIT_CODE=0  # unknown; treat as clean exit for counting purposes
+  fi
+
+  if (( RESTART_REQUESTED )); then
+    RESTART_REQUESTED=0
+    log "Gateway stopped for SIGHUP restart (PID=$CUR_PID) — respawning"
+    sleep 1
+    continue
+  fi
+
+  # Unrequested exit: make sure nothing from the old group lingers (e.g. an
+  # orphaned listener whose wrapper died) before respawning.
+  if group_alive "${GW_PGID:-}"; then
+    log "Gateway wrapper PID=$CUR_PID exited but its process group is still alive — stopping leftovers"
+    kill -TERM -- "-$GW_PGID" 2>/dev/null || true
+    waited=0
+    while group_alive "$GW_PGID" && (( waited < STOP_TIMEOUT * 2 )); do
+      sleep 0.5
+      (( waited++ )) || true
+    done
+    group_alive "$GW_PGID" && kill -KILL -- "-$GW_PGID" 2>/dev/null
+  fi
+  GW_PID=""
+  GW_PGID=""
+
+  NOW=$(date +%s)
+  crash_times+=("$NOW")
+
+  # Prune crash timestamps outside the sliding window
+  pruned=()
+  for t in "${crash_times[@]}"; do
+    if (( NOW - t <= RAPID_WINDOW )); then
+      pruned+=("$t")
+    fi
+  done
+  crash_times=("${pruned[@]+"${pruned[@]}"}")
+
+  log "Gateway exited code=$EXIT_CODE — ${#crash_times[@]} crash(es) in last ${RAPID_WINDOW}s"
+
+  if (( ${#crash_times[@]} >= MAX_RAPID_CRASHES )); then
+    log "RAPID CRASH LOOP DETECTED — invoking AI recovery"
+    invoke_ai_recovery "$EXIT_CODE" || true
+    log "Backing off 30s after AI recovery attempt..."
+    sleep 30
+    crash_times=()
+  else
+    sleep "$RESTART_DELAY"
+  fi
+done

@@ -1,0 +1,121 @@
+{
+  "products": [
+    {
+      "pagination": {
+        "current_page": 1,
+        "total_pages": 1,
+        "next_page": null,
+        "prev_page": null,
+        "total_count": 1
+      },
+      "data": [
+        {
+          "id": "prod_v5",
+          "created_at": 1767225600,
+          "name": "Vault",
+          "title": "Vault",
+          "company_id": "biz_v5",
+          "description": null,
+          "page_id": "pg_1",
+          "visibility": "visible"
+        }
+      ]
+    }
+  ],
+  "memberships": [
+    {
+      "pagination": {
+        "current_page": 1,
+        "total_pages": 1,
+        "next_page": null,
+        "prev_page": null,
+        "total_count": 0
+      },
+      "data": []
+    }
+  ],
+  "payments": [
+    {
+      "pagination": {
+        "current_page": 1,
+        "total_pages": 2,
+        "next_page": 2,
+        "prev_page": null,
+        "total_count": 3
+      },
+      "data": [
+        {
+          "id": "pv5_1",
+          "membership_id": "mem_v1",
+          "product_id": "prod_v5",
+          "user_id": "user_x",
+          "plan_id": "plan_v5",
+          "company_id": "biz_v5",
+          "created_at": 1767600000,
+          "paid_at": 1767600000,
+          "refunded_at": null,
+          "status": "paid",
+          "subtotal": 7,
+          "final_amount": 7,
+          "currency": "usd",
+          "refunded_amount": 0,
+          "payments_failed": 0,
+          "user_email": "x@example.com",
+          "user_username": "xavier",
+          "billing_reason": "subscription_create"
+        },
+        {
+          "id": "pv5_2",
+          "membership_id": "mem_v2",
+          "product_id": "prod_v5",
+          "user_id": "user_y",
+          "plan_id": "plan_v5",
+          "company_id": "biz_v5",
+          "created_at": 1767700000,
+          "paid_at": null,
+          "refunded_at": null,
+          "status": "open",
+          "subtotal": 7,
+          "final_amount": 7,
+          "currency": "usd",
+          "refunded_amount": 0,
+          "payments_failed": 1,
+          "user_email": "y@example.com",
+          "user_username": "yolanda",
+          "billing_reason": "subscription_cycle"
+        }
+      ]
+    },
+    {
+      "pagination": {
+        "current_page": 2,
+        "total_pages": 2,
+        "next_page": null,
+        "prev_page": 1,
+        "total_count": 3
+      },
+      "data": [
+        {
+          "id": "pv5_3",
+          "membership_id": "mem_v1",
+          "product_id": "prod_v5",
+          "user_id": "user_x",
+          "plan_id": "plan_v5",
+          "company_id": "biz_v5",
+          "created_at": 1770200000,
+          "paid_at": 1770200000,
+          "refunded_at": null,
+          "status": "paid",
+          "subtotal": 250,
+          "final_amount": 250,
+          "currency": "usd",
+          "refunded_amount": 0,
+          "payments_failed": 0,
+          "user_email": "x@example.com",
+          "user_username": "xavier",
+          "billing_reason": "one_time"
+        }
+      ]
+    }
+  ]
+}

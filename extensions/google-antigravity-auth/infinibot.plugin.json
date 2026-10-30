@@ -1,0 +1,23 @@
+{
+  "id": "google-antigravity-auth",
+  "name": "Google Antigravity sign-in",
+  "listing": {
+    "tagline": "Sign in with Google Antigravity (Cloud Code Assist) OAuth as a model provider.",
+    "category": "integrations",
+    "tags": [
+      "models",
+      "oauth"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "providers": [
+    "google-antigravity"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

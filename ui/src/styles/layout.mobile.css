@@ -1,0 +1,1511 @@
+/* ===========================================
+   Mobile Layout — Comprehensive Responsive
+   ===========================================
+   Breakpoints:
+   - 1100px: Tablet (sidebar → horizontal nav)
+   - 768px:  Small tablet / large phone
+   - 600px:  Mobile
+   - 400px:  Small mobile
+   =========================================== */
+
+/* ===========================================
+   VIEWPORT META — prevent zoom issues
+   =========================================== */
+@viewport {
+  width: device-width;
+}
+
+/* ===========================================
+   1100px — TABLET: Sidebar → Horizontal Nav
+   =========================================== */
+@media (max-width: 1100px) {
+  .nav {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 4px;
+    padding: 10px 14px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-group {
+    display: contents;
+  }
+
+  .nav-group__items {
+    display: contents;
+  }
+
+  .nav-label {
+    display: none;
+  }
+
+  .nav-group--collapsed .nav-group__items {
+    display: contents;
+  }
+
+  .nav-item {
+    padding: 8px 14px;
+    font-size: 13px;
+    border-radius: var(--radius-md);
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  /* Hide bracket hover effects on touch */
+  .nav-item::before,
+  .nav-item::after {
+    display: none !important;
+  }
+
+  .nav-item.active::after {
+    display: none !important;
+  }
+}
+
+/* ===========================================
+   768px — SMALL TABLET
+   =========================================== */
+@media (max-width: 768px) {
+  /* Config layout → single column */
+  .config-layout {
+    grid-template-columns: 1fr;
+    height: auto;
+    max-height: calc(100vh - 140px);
+    max-height: calc(100dvh - 140px);
+  }
+
+  .config-sidebar {
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+    max-height: none;
+  }
+
+  .config-nav {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 6px;
+    padding: 10px 14px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .config-nav__item {
+    flex: 0 0 auto;
+    padding: 9px 14px;
+    white-space: nowrap;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  .config-sidebar__footer {
+    display: none;
+  }
+
+  .config-search {
+    display: none;
+  }
+
+  .config-actions {
+    flex-wrap: wrap;
+    padding: 12px 16px;
+    gap: 8px;
+  }
+
+  .config-actions__left,
+  .config-actions__right {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .config-content {
+    padding: 16px;
+  }
+
+  .config-section-card__header {
+    padding: 14px 16px;
+  }
+
+  .config-section-card__content {
+    padding: 16px;
+  }
+
+  /* Modals → full screen on mobile */
+  .modal {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
+    margin: 0;
+  }
+
+  .modal-backdrop {
+    padding: 0;
+  }
+
+  .exec-approval-overlay {
+    padding: 0;
+    align-items: stretch;
+  }
+
+  .exec-approval-card {
+    width: 100%;
+    max-width: 100%;
+    height: 100%;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* Model selector dropdown → full width */
+  .model-selector__dropdown {
+    position: fixed;
+    top: auto;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 70vh;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    animation: slide-up 0.2s var(--ease-out);
+  }
+
+  @keyframes slide-up {
+    from { transform: translateY(100%); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+  }
+
+  /* Chat split → sidebar takes over */
+  .chat-split-container--open .chat-main {
+    display: none;
+  }
+
+  .chat-split-container--open .chat-sidebar {
+    width: 100%;
+    min-width: 0;
+    border-left: none;
+  }
+
+  /* Tables → scrollable */
+  .table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .table-head,
+  .table-row {
+    min-width: 700px;
+  }
+
+  /* Map items → stack */
+  .cfg-map__item {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .cfg-map__item-remove {
+    justify-self: end;
+  }
+}
+
+/* ===========================================
+   600px — MOBILE
+   =========================================== */
+@media (max-width: 600px) {
+  /* Shell */
+  .shell {
+    --shell-pad: 8px;
+    --shell-gap: 8px;
+  }
+
+  /* Disable CRT effects on mobile for perf */
+  .shell::after {
+    display: none;
+  }
+
+  .shell::before {
+    display: none;
+  }
+
+  .shell {
+    animation: none;
+  }
+
+  /* ---- TOPBAR ---- */
+  .topbar {
+    padding: 10px 12px;
+    gap: 8px;
+    height: auto;
+    min-height: 52px;
+    flex-wrap: nowrap;
+  }
+
+  .topbar-left {
+    gap: 8px;
+    min-width: 0;
+    flex: 1;
+  }
+
+  /* Hide logo image, keep text */
+  .brand-logo {
+    display: none;
+  }
+
+  .brand {
+    flex: 1;
+    min-width: 0;
+    gap: 0;
+  }
+
+  .brand-title {
+    font-size: 14px;
+  }
+
+  .brand-sub {
+    display: none;
+  }
+
+  /* Nav collapse toggle smaller */
+  .topbar .nav-collapse-toggle {
+    width: 32px;
+    height: 32px;
+  }
+
+  /* Status pills → icons only */
+  .topbar-status {
+    gap: 6px;
+    width: auto;
+    flex-wrap: nowrap;
+    flex-shrink: 0;
+  }
+
+  .topbar-status .pill {
+    padding: 6px 8px;
+    font-size: 11px;
+    gap: 4px;
+    min-height: 32px;
+  }
+
+  /* Hide text in pills, show only icons/dots */
+  .topbar-status .pill .mono {
+    display: none;
+  }
+
+  .topbar-status .pill span:not(.statusDot):not(:first-child) {
+    display: none;
+  }
+
+  /* Restart button → icon only */
+  .topbar-status .btn .btn-text,
+  .topbar-status .btn span:not(.statusDot) {
+    display: none;
+  }
+
+  .topbar-status .btn {
+    padding: 6px 8px;
+    min-width: 32px;
+    min-height: 32px;
+  }
+
+  /* ---- NAVIGATION ---- */
+  .nav {
+    padding: 8px 10px;
+    gap: 4px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-item {
+    padding: 8px 12px;
+    font-size: 12px;
+    border-radius: var(--radius-md);
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-height: 40px;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Show nav item text on mobile — keep labels visible */
+  .nav-item__text {
+    display: inline;
+    font-size: 11px;
+  }
+
+  .nav-item__icon {
+    margin-right: 4px;
+  }
+
+  .nav-item {
+    gap: 4px;
+  }
+
+  /* ---- CONTENT ---- */
+  .content-header {
+    padding: 4px 8px;
+  }
+
+  .page-title {
+    font-size: 20px;
+  }
+
+  .page-sub {
+    font-size: 12px;
+  }
+
+  .content {
+    padding: 8px 8px 16px;
+    gap: 12px;
+  }
+
+  /* ---- CARDS ---- */
+  .card {
+    padding: 14px;
+    border-radius: var(--radius-md);
+  }
+
+  .card::before,
+  .card::after {
+    width: 10px;
+    height: 10px;
+  }
+
+  .card:hover::before,
+  .card:hover::after {
+    width: 14px;
+    height: 14px;
+  }
+
+  .card-title {
+    font-size: 13px;
+  }
+
+  /* ---- STATS ---- */
+  .stat-grid {
+    gap: 8px;
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .stat {
+    padding: 12px;
+    border-radius: var(--radius-md);
+  }
+
+  .stat-label {
+    font-size: 10px;
+  }
+
+  .stat-value {
+    font-size: 20px;
+  }
+
+  /* Disable hover transform on mobile */
+  .stat:hover {
+    transform: none;
+  }
+
+  /* ---- NOTES ---- */
+  .note-grid {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  /* ---- GRIDS ---- */
+  .grid-cols-2,
+  .grid-cols-3 {
+    grid-template-columns: 1fr;
+  }
+
+  .grid {
+    gap: 12px;
+  }
+
+  /* ---- FORMS ---- */
+  .form-grid {
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .field input,
+  .field textarea,
+  .field select {
+    padding: 10px 12px;
+    border-radius: var(--radius-md);
+    font-size: 16px; /* Prevent iOS zoom on focus */
+  }
+
+  .cfg-input {
+    font-size: 16px; /* Prevent iOS zoom */
+  }
+
+  .cfg-textarea {
+    font-size: 16px;
+  }
+
+  .cfg-select {
+    font-size: 16px;
+  }
+
+  .cfg-number__input {
+    font-size: 16px;
+  }
+
+  /* ---- BUTTONS ---- */
+  .btn {
+    padding: 10px 14px;
+    font-size: 12px;
+    min-height: 44px; /* Touch target */
+  }
+
+  .btn--sm {
+    min-height: 36px;
+    padding: 8px 12px;
+  }
+
+  /* Disable hover effects on mobile */
+  .btn:hover {
+    transform: none;
+  }
+
+  /* ---- PILLS ---- */
+  .pill {
+    padding: 6px 12px;
+    font-size: 12px;
+    min-height: 32px;
+  }
+
+  /* ---- CHAT ---- */
+  .chat-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+    padding-bottom: 8px;
+    margin-bottom: 8px;
+  }
+
+  .chat-header__left {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .chat-header__right {
+    justify-content: space-between;
+  }
+
+  .chat-session {
+    min-width: unset;
+    width: 100%;
+  }
+
+  .chat-thread {
+    margin-top: 4px;
+    padding: 8px 4px;
+  }
+
+  .chat-group {
+    margin-left: 0;
+    margin-right: 0;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .chat-group-messages {
+    max-width: calc(100% - 44px);
+  }
+
+  .chat-msg {
+    max-width: 95%;
+  }
+
+  .chat-avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 12px;
+  }
+
+  .chat-bubble {
+    padding: 6px 0;
+    font-size: 14px;
+  }
+
+  /* Chat compose */
+  .chat-compose {
+    gap: 8px;
+    padding: 8px 4px 4px;
+  }
+
+  .chat-compose__row {
+    gap: 8px;
+  }
+
+  .chat-compose .chat-compose__field textarea {
+    min-height: 44px;
+    height: 44px;
+    padding: 10px 12px;
+    font-size: 16px; /* Prevent iOS zoom */
+    border-radius: var(--radius-md);
+  }
+
+  .chat-compose .chat-compose__actions .btn {
+    height: 44px;
+    min-height: 44px;
+    max-height: 44px;
+    padding: 0 14px;
+    min-width: 44px;
+  }
+
+  /* Chat controls */
+  .chat-controls {
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+
+  .chat-controls__session {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .chat-controls__session select {
+    width: 100%;
+    min-height: 40px;
+    font-size: 14px;
+  }
+
+  .chat-controls__model {
+    min-width: 0;
+    flex: 1;
+  }
+
+  .chat-controls__separator {
+    display: none;
+  }
+
+  .btn--icon {
+    min-width: 40px;
+    height: 40px;
+    padding: 8px !important;
+  }
+
+  /* Chat tool cards */
+  .chat-tool-card {
+    padding: 10px;
+    margin-top: 6px;
+  }
+
+  .chat-tool-card__title {
+    font-size: 12px;
+  }
+
+  .chat-tool-card__preview {
+    font-size: 10px;
+    padding: 6px 8px;
+  }
+
+  /* Chat queue */
+  .chat-queue {
+    padding: 10px;
+  }
+
+  .chat-queue__item {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .chat-queue__remove {
+    justify-self: end;
+  }
+
+  /* Message images — larger on mobile for better visibility */
+  .chat-message-images {
+    gap: 6px;
+  }
+
+  .chat-message-image {
+    max-width: min(280px, calc(100vw - 80px));
+    max-height: 220px;
+    border-radius: 6px;
+    /* Touch-friendly tap target */
+    min-width: 100px;
+    min-height: 80px;
+  }
+
+  /* Tap to view full image hint */
+  .chat-message-image::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, transparent 70%, rgba(0,0,0,0.3));
+    opacity: 0;
+    transition: opacity 0.2s;
+    pointer-events: none;
+    border-radius: 6px;
+  }
+
+  .chat-message-image:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+
+  /* Chat attachments — larger thumbnails for easier viewing */
+  .chat-attachments {
+    padding: 6px;
+    gap: 6px;
+  }
+
+  .chat-attachment {
+    width: 72px;
+    height: 72px;
+    border-radius: 8px;
+  }
+
+  .chat-attachment__img {
+    object-fit: cover;
+  }
+
+  /* Always show remove button on touch devices */
+  .chat-attachment__remove {
+    opacity: 1;
+    width: 24px;
+    height: 24px;
+    top: 2px;
+    right: 2px;
+  }
+
+  /* ---- LOG STREAM ---- */
+  .log-stream {
+    border-radius: var(--radius-md);
+    max-height: 400px;
+    padding: 8px;
+  }
+
+  .log-row {
+    flex-wrap: wrap;
+    gap: 4px 8px;
+    padding: 6px 0;
+    font-size: 11px;
+  }
+
+  .log-time {
+    font-size: 10px;
+    min-width: 55px;
+  }
+
+  /* Abbreviate timestamp on mobile */
+  .log-time .log-time-date {
+    display: none;
+  }
+
+  .log-level {
+    font-size: 10px;
+    width: 40px;
+  }
+
+  .log-subsystem {
+    font-size: 10px;
+  }
+
+  .log-message {
+    font-size: 11px;
+    width: 100%;
+    flex-basis: 100%;
+  }
+
+  /* ---- LISTS ---- */
+  .list-item {
+    grid-template-columns: 1fr;
+    padding: 12px;
+    border-radius: var(--radius-md);
+  }
+
+  .list-meta {
+    text-align: left;
+    min-width: 0;
+  }
+
+  .list-title {
+    font-size: 13px;
+  }
+
+  .list-sub {
+    font-size: 11px;
+  }
+
+  /* ---- CODE BLOCKS ---- */
+  .code-block {
+    padding: 8px;
+    border-radius: var(--radius-md);
+    font-size: 11px;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .chat-text :where(pre) {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .chat-text :where(pre code) {
+    font-size: 11px;
+  }
+
+  .chat-text :where(table) {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    font-size: 12px;
+  }
+
+  /* ---- THEME TOGGLE ---- */
+  .theme-toggle {
+    --theme-item: 24px;
+    --theme-gap: 2px;
+    --theme-pad: 3px;
+  }
+
+  .theme-icon {
+    width: 12px;
+    height: 12px;
+  }
+
+  /* ---- CONFIG PAGE ---- */
+  .config-layout {
+    height: auto;
+    margin: -8px;
+  }
+
+  .config-nav__icon {
+    width: 24px;
+    height: 24px;
+    font-size: 16px;
+  }
+
+  .config-nav__label {
+    display: none;
+  }
+
+  .config-content {
+    padding: 12px;
+  }
+
+  .config-section-hero {
+    padding: 12px;
+    gap: 12px;
+  }
+
+  .config-section-hero__title {
+    font-size: 14px;
+  }
+
+  .config-section-hero__icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .config-subnav {
+    padding: 8px 12px 10px;
+    gap: 6px;
+  }
+
+  .config-subnav__item {
+    padding: 8px 12px;
+    font-size: 11px;
+    min-height: 36px;
+    display: flex;
+    align-items: center;
+  }
+
+  .cfg-toggle-row {
+    padding: 12px 14px;
+    gap: 12px;
+  }
+
+  .cfg-toggle-row__label {
+    font-size: 13px;
+  }
+
+  .cfg-toggle-row__help {
+    font-size: 11px;
+  }
+
+  .cfg-field__label {
+    font-size: 12px;
+  }
+
+  .cfg-field__help {
+    font-size: 11px;
+  }
+
+  .cfg-segmented {
+    flex-wrap: wrap;
+  }
+
+  .cfg-segmented__btn {
+    flex: 1 0 auto;
+    min-width: 60px;
+    min-height: 40px;
+    padding: 8px 12px;
+    font-size: 12px;
+  }
+
+  .cfg-number__btn {
+    width: 44px; /* Touch target */
+    min-height: 44px;
+  }
+
+  /* Config raw textarea */
+  .config-raw-field textarea {
+    min-height: 300px;
+    font-size: 12px;
+  }
+
+  /* ---- KANBAN ---- */
+  .kanban-board {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: 16px;
+  }
+
+  .kanban-column {
+    min-width: 260px;
+  }
+
+  /* ---- SESSIONS VIEW ---- */
+  .session-grid,
+  .sessions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* ---- VCS / VERSION CONTROL ---- */
+  .workspace-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* Task table → horizontal scroll */
+  .task-table,
+  .vcs-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ---- AGENTS ---- */
+  .agent-grid,
+  .agents-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* ---- TERMINALS ---- */
+  .terminal-container,
+  .terminal-pane {
+    width: 100%;
+    min-width: 0;
+  }
+
+  /* ---- CRON ---- */
+  .cron-table {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* ---- MCP ---- */
+  .mcp-grid,
+  .tool-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* ---- SKILLS ---- */
+  .skill-grid,
+  .skills-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* ---- NOTES / RESEARCH / WORKFLOWS — List+Detail ---- */
+  /* Show list only when no item selected, detail only when selected */
+  .split-view {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .split-view__list {
+    flex: none;
+    width: 100%;
+    max-height: 40vh;
+    overflow-y: auto;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .split-view--has-selection .split-view__list {
+    display: none;
+  }
+
+  .split-view__detail {
+    flex: 1;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .split-view:not(.split-view--has-selection) .split-view__detail {
+    display: none;
+  }
+
+  /* ---- OVERVIEW ---- */
+  .overview-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* ---- QR Code ---- */
+  .qr-wrap {
+    padding: 12px;
+  }
+
+  .qr-wrap img {
+    width: 140px;
+    height: 140px;
+  }
+
+  /* ---- CALLOUT ---- */
+  .callout {
+    padding: 12px 14px;
+    font-size: 12px;
+  }
+
+  /* ---- CHIPS ---- */
+  .chip-row {
+    gap: 6px;
+  }
+
+  .chip {
+    padding: 6px 10px;
+    font-size: 11px;
+    min-height: 32px;
+    display: inline-flex;
+    align-items: center;
+  }
+
+  /* ---- FILTERS ---- */
+  .filters {
+    gap: 6px;
+  }
+
+  .filters .btn,
+  .filters .pill,
+  .filters select {
+    min-height: 36px;
+  }
+
+  /* ---- ACCOUNT CARDS ---- */
+  .account-card-header {
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
+/* ===========================================
+   400px — SMALL MOBILE
+   =========================================== */
+@media (max-width: 400px) {
+  .shell {
+    --shell-pad: 4px;
+  }
+
+  .topbar {
+    padding: 8px 8px;
+    min-height: 48px;
+  }
+
+  .brand-title {
+    font-size: 12px;
+  }
+
+  .nav {
+    padding: 6px 6px;
+    gap: 3px;
+  }
+
+  .nav-item {
+    padding: 6px 8px;
+    font-size: 11px;
+    min-height: 36px;
+  }
+
+  .content {
+    padding: 4px 4px 12px;
+    gap: 8px;
+  }
+
+  .content-header {
+    display: none;
+  }
+
+  .page-title {
+    font-size: 18px;
+  }
+
+  .card {
+    padding: 10px;
+  }
+
+  .stat-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+  }
+
+  .stat {
+    padding: 10px;
+  }
+
+  .stat-value {
+    font-size: 18px;
+  }
+
+  .stat-label {
+    font-size: 9px;
+  }
+
+  /* Chat */
+  .chat-group {
+    gap: 6px;
+  }
+
+  .chat-group-messages {
+    max-width: calc(100% - 38px);
+  }
+
+  .chat-avatar {
+    width: 26px;
+    height: 26px;
+    font-size: 10px;
+  }
+
+  .chat-bubble {
+    font-size: 13px;
+  }
+
+  /* Small mobile images — still usable but constrained */
+  .chat-message-image {
+    max-width: min(240px, calc(100vw - 60px));
+    max-height: 180px;
+    min-width: 80px;
+    min-height: 60px;
+  }
+
+  .chat-attachment {
+    width: 64px;
+    height: 64px;
+  }
+
+  /* Image upload button — smaller on very small screens */
+  .chat-image-upload {
+    min-width: 36px !important;
+    height: 36px !important;
+    padding: 6px !important;
+  }
+
+  .chat-compose .chat-compose__field textarea {
+    min-height: 40px;
+    padding: 8px 10px;
+    font-size: 16px;
+  }
+
+  .chat-compose .chat-compose__actions .btn {
+    padding: 0 10px;
+    font-size: 11px;
+    height: 40px;
+    min-height: 40px;
+    max-height: 40px;
+  }
+
+  .chat-tool-card {
+    padding: 8px;
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 8px 10px;
+    font-size: 11px;
+    min-height: 40px;
+  }
+
+  /* Pills */
+  .topbar-status .pill {
+    padding: 4px 6px;
+    font-size: 10px;
+    min-height: 28px;
+  }
+
+  /* Theme toggle */
+  .theme-toggle {
+    --theme-item: 22px;
+    --theme-gap: 2px;
+    --theme-pad: 2px;
+  }
+
+  .theme-icon {
+    width: 11px;
+    height: 11px;
+  }
+
+  /* Config */
+  .config-content {
+    padding: 10px;
+  }
+
+  .config-section-card__content {
+    padding: 12px;
+  }
+
+  .cfg-fields {
+    gap: 16px;
+  }
+
+  .cfg-toggle-row {
+    padding: 10px 12px;
+  }
+
+  /* Log */
+  .log-stream {
+    padding: 6px;
+  }
+
+  .log-row {
+    font-size: 10px;
+    gap: 3px 6px;
+  }
+
+  .log-time {
+    font-size: 9px;
+  }
+}
+
+/* ===========================================
+   GLOBAL TOUCH & MOBILE OPTIMIZATIONS
+   =========================================== */
+
+/* Touch-friendly targets */
+@media (pointer: coarse) {
+  /* Minimum 44px touch targets for all interactive elements */
+  .nav-item,
+  .btn,
+  .pill,
+  .chip,
+  .config-nav__item,
+  .config-subnav__item,
+  .cfg-toggle-row,
+  .cfg-segmented__btn,
+  .cfg-number__btn,
+  .cfg-array__add,
+  .cfg-map__add,
+  .list-item-clickable,
+  .chat-tool-card--clickable,
+  .model-selector__item,
+  .model-selector__filter-chip,
+  .theme-toggle__button,
+  .modal__close,
+  .exec-approval-actions .btn,
+  .chat-queue__remove {
+    min-height: 44px;
+  }
+
+  /* Prevent double-tap zoom on buttons */
+  button, a, select, input, textarea, [role="button"] {
+    touch-action: manipulation;
+  }
+
+  /* Disable hover effects that cause sticky state on touch */
+  .card:hover {
+    animation: none;
+  }
+
+  .stat:hover {
+    transform: none;
+  }
+
+  .btn:hover {
+    transform: none;
+  }
+
+  .chip:hover {
+    transform: none;
+  }
+
+  /* Better scrolling for touch */
+  .nav,
+  .config-nav,
+  .config-subnav,
+  .chat-thread,
+  .log-stream,
+  .kanban-board,
+  .table,
+  .code-block,
+  .chat-text pre,
+  .chat-text table {
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Show attachment remove button always on touch */
+  .chat-attachment__remove {
+    opacity: 1;
+  }
+
+  /* Show copy button always on touch */
+  .chat-copy-btn {
+    opacity: 0.6;
+  }
+}
+
+/* ===========================================
+   PREVENT UNWANTED HORIZONTAL OVERFLOW
+   =========================================== */
+@media (max-width: 768px) {
+  .shell {
+    overflow-x: hidden;
+  }
+
+  .content {
+    overflow-x: hidden;
+  }
+
+  /* Ensure code blocks & tables don't break layout */
+  pre, code, .code-block {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+
+  table {
+    max-width: 100%;
+  }
+
+  /* Prevent images from breaking layout */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
+}
+
+/* ===========================================
+   IMAGE LIGHTBOX — Full-screen viewer for mobile
+   =========================================== */
+.image-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 99999;
+  background: rgba(0, 0, 0, 0.95);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: env(safe-area-inset-top, 16px) 16px env(safe-area-inset-bottom, 16px);
+  animation: lightbox-fade-in 0.2s ease-out;
+  touch-action: pinch-zoom pan-x pan-y;
+}
+
+@keyframes lightbox-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.image-lightbox__img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 4px;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.image-lightbox__close {
+  position: absolute;
+  top: env(safe-area-inset-top, 16px);
+  right: 16px;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  font-size: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  transition: all 0.15s;
+}
+
+.image-lightbox__close:active {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(0.95);
+}
+
+/* Hint text */
+.image-lightbox__hint {
+  position: absolute;
+  bottom: calc(env(safe-area-inset-bottom, 16px) + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  text-align: center;
+  pointer-events: none;
+}
+
+/* ===========================================
+   SAFE AREA INSETS (notch phones)
+   =========================================== */
+@supports (padding: env(safe-area-inset-bottom)) {
+  @media (max-width: 600px) {
+    .chat-compose {
+      padding-bottom: calc(4px + env(safe-area-inset-bottom));
+    }
+
+    .content {
+      padding-bottom: calc(16px + env(safe-area-inset-bottom));
+    }
+
+    .nav {
+      padding-left: calc(10px + env(safe-area-inset-left));
+      padding-right: calc(10px + env(safe-area-inset-right));
+    }
+
+    .topbar {
+      padding-left: calc(12px + env(safe-area-inset-left));
+      padding-right: calc(12px + env(safe-area-inset-right));
+    }
+  }
+}
+
+/* ===========================================
+   LANDSCAPE MOBILE (short height)
+   =========================================== */
+@media (max-height: 500px) and (max-width: 900px) {
+  .topbar {
+    min-height: 40px;
+    padding: 6px 10px;
+  }
+
+  .nav {
+    padding: 4px 8px;
+  }
+
+  .nav-item {
+    padding: 4px 10px;
+    min-height: 32px;
+  }
+
+  .content {
+    padding: 4px 8px 8px;
+    gap: 8px;
+  }
+
+  .chat-compose .chat-compose__field textarea {
+    min-height: 36px;
+    height: 36px;
+  }
+}
+
+/* ===========================================
+   GRID FULLSCREEN MODE — MOBILE IMMERSIVE
+   =========================================== */
+
+/* Desktop fullscreen — already handled in layout.css shell--grid-fullscreen */
+
+/* Mobile fullscreen — extra immersion */
+@media (max-width: 768px) {
+  .shell--grid-fullscreen {
+    /* Force fullscreen on mobile */
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    z-index: 99999 !important;
+    grid-template-columns: 1fr !important;
+    grid-template-rows: 1fr !important;
+    grid-template-areas: "content" !important;
+  }
+
+  .shell--grid-fullscreen .topbar {
+    display: none !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .shell--grid-fullscreen .nav {
+    display: none !important;
+    height: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .shell--grid-fullscreen .content {
+    padding: 0 !important;
+    gap: 0 !important;
+    border-radius: 0 !important;
+    overflow: hidden !important;
+  }
+
+  .shell--grid-fullscreen .content-header {
+    display: none !important;
+  }
+
+  /* Safe area handling for notched phones in fullscreen */
+  .shell--grid-fullscreen .content {
+    padding-top: env(safe-area-inset-top, 0) !important;
+    padding-bottom: env(safe-area-inset-bottom, 0) !important;
+    padding-left: env(safe-area-inset-left, 0) !important;
+    padding-right: env(safe-area-inset-right, 0) !important;
+  }
+}
+
+/* Very small screens — maximize panel space */
+@media (max-width: 480px) {
+  .shell--grid-fullscreen {
+    background: transparent !important; /* Let terminal show through */
+  }
+}
+
+/* Landscape mobile fullscreen — optimal for grid */
+@media (max-height: 500px) and (max-width: 900px) {
+  .shell--grid-fullscreen .topbar,
+  .shell--grid-fullscreen .nav {
+    display: none !important;
+  }
+
+  .shell--grid-fullscreen .content {
+    padding: 0 !important;
+  }
+}
+
+/* ===========================================
+   PRINT: Hide non-essential
+   =========================================== */
+@media print {
+  .topbar,
+  .nav,
+  .chat-compose,
+  .chat-controls {
+    display: none !important;
+  }
+
+  .shell {
+    display: block;
+    height: auto;
+  }
+
+  .content {
+    overflow: visible;
+    height: auto;
+  }
+}

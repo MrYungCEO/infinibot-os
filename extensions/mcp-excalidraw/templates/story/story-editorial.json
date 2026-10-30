@@ -1,0 +1,55 @@
+{
+  "id": "story-editorial",
+  "category": "story",
+  "name": "Story · Editorial",
+  "width": 1080,
+  "height": 1920,
+  "background": "#fff8f0",
+  "createdAt": "2026-06-09",
+  "scene": {
+    "elements": [
+      {
+        "id": "story-editorial-bg-accent",
+        "type": "rectangle",
+        "x": 0,
+        "y": 1497.6000000000001,
+        "width": 1080,
+        "height": 115.19999999999999,
+        "backgroundColor": "#f97316",
+        "fillStyle": "solid",
+        "strokeColor": "transparent",
+        "strokeWidth": 0,
+        "roughness": 0
+      },
+      {
+        "id": "story-editorial-title",
+        "type": "text",
+        "x": 108,
+        "y": 672,
+        "width": 864,
+        "height": 96,
+        "text": "Story title",
+        "fontSize": 64,
+        "fontFamily": 1,
+        "textAlign": "center",
+        "strokeColor": "#3b2a1a"
+      },
+      {
+        "id": "story-editorial-subtitle",
+        "type": "text",
+        "x": 108,
+        "y": 921.5999999999999,
+        "width": 864,
+        "height": 48,
+        "text": "Editorial · 1080×1920",
+        "fontSize": 28,
+        "fontFamily": 2,
+        "textAlign": "center",
+        "strokeColor": "#3b2a1a",
+        "opacity": 70
+      }
+    ],
+    "appState": {},
+    "files": {}
+  }
+}

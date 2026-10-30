@@ -1,0 +1,232 @@
+{
+  "manifestVersion": 2,
+  "id": "monsoon-studio",
+  "name": "Product Studio",
+  "version": "2026.10.26",
+  "minHostVersion": "2026.6.30",
+  "publisher": "infinibot",
+  "license": "FSL-1.1-ALv2",
+  "description": "Monsoon Digital Product Studio: design ebooks, guides, reports and microsites in a multi-page editor, and let agents build and render them with 26 studio tools.",
+  "listing": {
+    "tagline": "Premium documents and ebooks that people and agents build together.",
+    "description": "**Product Studio** embeds the Monsoon Digital Product Studio.\n\n- **Multi-page editor** with themes, blocks, layers, versions and live preview.\n- **Agent-drivable**: the same 26 `studio_*` tools the editor uses (create, import Markdown, edit pages and blocks, themes, versions, verified PDF/HTML/PNG render).\n- **Verified output**: renders refuse to publish while any block overflows its page; PDFs embed the template fonts.\n- Runs against the local studio server (default `http://127.0.0.1:4311`).",
+    "category": "apps",
+    "tags": [
+      "documents",
+      "ebooks",
+      "pdf",
+      "design",
+      "agents"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "engines": {
+    "infinibot-plugin-api": "^2.0.0"
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "studioUrl": {
+        "type": "string",
+        "default": "http://127.0.0.1:4311",
+        "description": "Base URL of the Monsoon studio server (UI + /api/tools)."
+      },
+      "timeoutMs": {
+        "type": "number",
+        "default": 180000,
+        "minimum": 1000,
+        "description": "Per-call timeout for studio tools; renders can take a while."
+      }
+    }
+  },
+  "uiHints": {
+    "studioUrl": {
+      "label": "Studio server URL"
+    },
+    "timeoutMs": {
+      "label": "Tool timeout (ms)"
+    }
+  },
+  "contributes": {
+    "nav": [
+      {
+        "tab": "monsoon-studio",
+        "label": "Product Studio",
+        "icon": "book",
+        "group": "Work"
+      }
+    ],
+    "pages": [
+      {
+        "tab": "monsoon-studio",
+        "route": "/product-studio",
+        "builtin": "monsoon-studio",
+        "title": "Product Studio"
+      }
+    ],
+    "rpc": [
+      {
+        "method": "monsoon-studio.status",
+        "scope": "read"
+      },
+      {
+        "method": "monsoon-studio.tools.list",
+        "scope": "read"
+      },
+      {
+        "method": "monsoon-studio.tools.call",
+        "scope": "write"
+      }
+    ],
+    "tools": [
+      {
+        "name": "studio_create_project",
+        "trust": "write"
+      },
+      {
+        "name": "studio_list_projects",
+        "trust": "read"
+      },
+      {
+        "name": "studio_load_project",
+        "trust": "read"
+      },
+      {
+        "name": "studio_import_markdown",
+        "trust": "write"
+      },
+      {
+        "name": "studio_import_outline",
+        "trust": "write"
+      },
+      {
+        "name": "studio_import_url",
+        "trust": "write"
+      },
+      {
+        "name": "studio_update_project",
+        "trust": "write"
+      },
+      {
+        "name": "studio_add_page",
+        "trust": "write"
+      },
+      {
+        "name": "studio_update_page",
+        "trust": "write"
+      },
+      {
+        "name": "studio_delete_page",
+        "trust": "write"
+      },
+      {
+        "name": "studio_move_page",
+        "trust": "write"
+      },
+      {
+        "name": "studio_add_block",
+        "trust": "write"
+      },
+      {
+        "name": "studio_update_block",
+        "trust": "write"
+      },
+      {
+        "name": "studio_delete_block",
+        "trust": "write"
+      },
+      {
+        "name": "studio_duplicate_block",
+        "trust": "write"
+      },
+      {
+        "name": "studio_move_block",
+        "trust": "write"
+      },
+      {
+        "name": "studio_apply_theme",
+        "trust": "write"
+      },
+      {
+        "name": "studio_list_themes",
+        "trust": "read"
+      },
+      {
+        "name": "studio_save_version",
+        "trust": "write"
+      },
+      {
+        "name": "studio_list_versions",
+        "trust": "read"
+      },
+      {
+        "name": "studio_restore_version",
+        "trust": "write"
+      },
+      {
+        "name": "studio_generate",
+        "trust": "write"
+      },
+      {
+        "name": "studio_render",
+        "trust": "write"
+      },
+      {
+        "name": "studio_canva_get_design",
+        "trust": "read"
+      },
+      {
+        "name": "studio_canva_create_design",
+        "trust": "write"
+      },
+      {
+        "name": "studio_canva_export_design",
+        "trust": "write"
+      }
+    ],
+    "mcpServers": [
+      {
+        "id": "monsoon-studio",
+        "label": "Monsoon studio tools (stdio)",
+        "command": "node",
+        "args": [
+          "dist-server/src/mcp/server.js"
+        ]
+      }
+    ],
+    "http": [],
+    "services": [],
+    "agents": [],
+    "panels": [],
+    "mapRoom": {
+      "title": "Product Studio",
+      "theme": "content-lab",
+      "size": "S",
+      "placement": "east"
+    }
+  },
+  "permissions": {
+    "network": [
+      "127.0.0.1:4311 (local Monsoon studio server only)"
+    ],
+    "fs": [
+      "<stateDir>/plugin-data/monsoon-studio"
+    ],
+    "exec": false,
+    "secrets": [],
+    "channels": [],
+    "credits": false
+  },
+  "appearance": {
+    "accent": "token:primary",
+    "tint": "token:primary",
+    "tintStrength": 0.04,
+    "density": "comfortable",
+    "fontScale": 1,
+    "icon": "book",
+    "monogram": "PS"
+  }
+}

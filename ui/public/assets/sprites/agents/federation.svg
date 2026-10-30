@@ -1,0 +1,178 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 112" width="160" height="112" color="#ffcf5a" shape-rendering="crispEdges">
+  <desc>InfiniBot federation isometric agent sprite sheet. Columns: NE, NW, SE, SW. Rows: idle, walk A, walk B. Bottom-right: 16x16 badge. Accent uses currentColor.</desc>
+  <rect width="160" height="112" fill="none"/>
+  <g id="idle-ne" transform="translate(0 0)">
+    <title>federation idle NE</title>
+    <ellipse cx="16" cy="28" rx="10" ry="3" fill="#000" opacity=".28"/>
+    <path d="M 9 16 h 14 l 2 11 h -18 z" fill="#b45309"/>
+    <path d="M 9 18 l -4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 23 18 l 4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 14 22 l 0 5 h 3 l -1 -5 z" fill="#111827"/><path d="M 16 22 l 0 5 h 3 l 1 -5 z" fill="#111827"/>
+    <circle cx="16" cy="11" r="7" fill="#f0c6a0"/>
+    <path d="M 9 10 q 7 -8 14 0 q -4 -3 -14 0" fill="#3a2818"/>
+    <path d="M 11 12 q 5 3 10 0" fill="none" stroke="#3a2818" stroke-width="1.2"/>
+    <path d="M 11 18 h 10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 16 7 l 5 -6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="0" r="2" fill="currentColor"/>
+    <rect x="21" y="20" width="6" height="5" rx="1" fill="currentColor" opacity=".86"/>
+    <text x="24" y="24" text-anchor="middle" font-size="4.5" font-family="ui-monospace,monospace" font-weight="900" fill="#06111f">F</text>
+  </g><g id="idle-nw" transform="translate(0 0)">
+    <title>federation idle NW</title>
+    <ellipse cx="48" cy="28" rx="10" ry="3" fill="#000" opacity=".28"/>
+    <path d="M 41 16 h 14 l 2 11 h -18 z" fill="#b45309"/>
+    <path d="M 41 18 l -4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 55 18 l 4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 44 22 l 0 5 h 3 l 1 -5 z" fill="#111827"/><path d="M 50 22 l 0 5 h 3 l -1 -5 z" fill="#111827"/>
+    <circle cx="48" cy="11" r="7" fill="#f0c6a0"/>
+    <path d="M 41 10 q 7 -8 14 0 q -4 -3 -14 0" fill="#3a2818"/>
+    <path d="M 43 12 q 5 3 10 0" fill="none" stroke="#3a2818" stroke-width="1.2"/>
+    <path d="M 43 18 h 10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 48 7 l -5 -6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="42" cy="0" r="2" fill="currentColor"/>
+    <rect x="53" y="20" width="6" height="5" rx="1" fill="currentColor" opacity=".86"/>
+    <text x="56" y="24" text-anchor="middle" font-size="4.5" font-family="ui-monospace,monospace" font-weight="900" fill="#06111f">F</text>
+  </g><g id="idle-se" transform="translate(0 0)">
+    <title>federation idle SE</title>
+    <ellipse cx="80" cy="28" rx="10" ry="3" fill="#000" opacity=".28"/>
+    <path d="M 73 16 h 14 l 2 11 h -18 z" fill="#b45309"/>
+    <path d="M 73 18 l -4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 87 18 l 4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 78 22 l 0 5 h 3 l -1 -5 z" fill="#111827"/><path d="M 80 22 l 0 5 h 3 l 1 -5 z" fill="#111827"/>
+    <circle cx="80" cy="11" r="7" fill="#f0c6a0"/>
+    <path d="M 73 10 q 7 -8 14 0 q -4 -3 -14 0" fill="#3a2818"/>
+    <circle cx="80" cy="12" r="1" fill="#111827"/><circle cx="83" cy="12" r="1" fill="#111827"/>
+    <path d="M 75 18 h 10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 80 7 l 5 -6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="86" cy="0" r="2" fill="currentColor"/>
+    <rect x="85" y="20" width="6" height="5" rx="1" fill="currentColor" opacity=".86"/>
+    <text x="88" y="24" text-anchor="middle" font-size="4.5" font-family="ui-monospace,monospace" font-weight="900" fill="#06111f">F</text>
+  </g><g id="idle-sw" transform="translate(0 0)">
+    <title>federation idle SW</title>
+    <ellipse cx="112" cy="28" rx="10" ry="3" fill="#000" opacity=".28"/>
+    <path d="M 105 16 h 14 l 2 11 h -18 z" fill="#b45309"/>
+    <path d="M 105 18 l -4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 119 18 l 4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 108 22 l 0 5 h 3 l 1 -5 z" fill="#111827"/><path d="M 114 22 l 0 5 h 3 l -1 -5 z" fill="#111827"/>
+    <circle cx="112" cy="11" r="7" fill="#f0c6a0"/>
+    <path d="M 105 10 q 7 -8 14 0 q -4 -3 -14 0" fill="#3a2818"/>
+    <circle cx="112" cy="12" r="1" fill="#111827"/><circle cx="109" cy="12" r="1" fill="#111827"/>
+    <path d="M 107 18 h 10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 112 7 l -5 -6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="106" cy="0" r="2" fill="currentColor"/>
+    <rect x="117" y="20" width="6" height="5" rx="1" fill="currentColor" opacity=".86"/>
+    <text x="120" y="24" text-anchor="middle" font-size="4.5" font-family="ui-monospace,monospace" font-weight="900" fill="#06111f">F</text>
+  </g><g id="walk-a-ne" transform="translate(0 0)">
+    <title>federation walk-a NE</title>
+    <ellipse cx="16" cy="60" rx="10" ry="3" fill="#000" opacity=".28"/>
+    <path d="M 9 48 h 14 l 2 11 h -18 z" fill="#b45309"/>
+    <path d="M 9 51 l -4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 23 49 l 4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 14 54 l 1 5 h 3 l -1 -5 z" fill="#111827"/><path d="M 16 54 l -1 5 h 3 l 1 -5 z" fill="#111827"/>
+    <circle cx="16" cy="43" r="7" fill="#f0c6a0"/>
+    <path d="M 9 42 q 7 -8 14 0 q -4 -3 -14 0" fill="#3a2818"/>
+    <path d="M 11 44 q 5 3 10 0" fill="none" stroke="#3a2818" stroke-width="1.2"/>
+    <path d="M 11 50 h 10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 16 39 l 5 -6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="32" r="2" fill="currentColor"/>
+    <rect x="21" y="52" width="6" height="5" rx="1" fill="currentColor" opacity=".86"/>
+    <text x="24" y="56" text-anchor="middle" font-size="4.5" font-family="ui-monospace,monospace" font-weight="900" fill="#06111f">F</text>
+  </g><g id="walk-a-nw" transform="translate(0 0)">
+    <title>federation walk-a NW</title>
+    <ellipse cx="48" cy="60" rx="10" ry="3" fill="#000" opacity=".28"/>
+    <path d="M 41 48 h 14 l 2 11 h -18 z" fill="#b45309"/>
+    <path d="M 41 49 l -4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 55 51 l 4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 44 54 l -1 5 h 3 l 1 -5 z" fill="#111827"/><path d="M 50 54 l 1 5 h 3 l -1 -5 z" fill="#111827"/>
+    <circle cx="48" cy="43" r="7" fill="#f0c6a0"/>
+    <path d="M 41 42 q 7 -8 14 0 q -4 -3 -14 0" fill="#3a2818"/>
+    <path d="M 43 44 q 5 3 10 0" fill="none" stroke="#3a2818" stroke-width="1.2"/>
+    <path d="M 43 50 h 10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 48 39 l -5 -6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="42" cy="32" r="2" fill="currentColor"/>
+    <rect x="53" y="52" width="6" height="5" rx="1" fill="currentColor" opacity=".86"/>
+    <text x="56" y="56" text-anchor="middle" font-size="4.5" font-family="ui-monospace,monospace" font-weight="900" fill="#06111f">F</text>
+  </g><g id="walk-a-se" transform="translate(0 0)">
+    <title>federation walk-a SE</title>
+    <ellipse cx="80" cy="60" rx="10" ry="3" fill="#000" opacity=".28"/>
+    <path d="M 73 48 h 14 l 2 11 h -18 z" fill="#b45309"/>
+    <path d="M 73 51 l -4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 87 49 l 4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 78 54 l 1 5 h 3 l -1 -5 z" fill="#111827"/><path d="M 80 54 l -1 5 h 3 l 1 -5 z" fill="#111827"/>
+    <circle cx="80" cy="43" r="7" fill="#f0c6a0"/>
+    <path d="M 73 42 q 7 -8 14 0 q -4 -3 -14 0" fill="#3a2818"/>
+    <circle cx="80" cy="44" r="1" fill="#111827"/><circle cx="83" cy="44" r="1" fill="#111827"/>
+    <path d="M 75 50 h 10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 80 39 l 5 -6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="86" cy="32" r="2" fill="currentColor"/>
+    <rect x="85" y="52" width="6" height="5" rx="1" fill="currentColor" opacity=".86"/>
+    <text x="88" y="56" text-anchor="middle" font-size="4.5" font-family="ui-monospace,monospace" font-weight="900" fill="#06111f">F</text>
+  </g><g id="walk-a-sw" transform="translate(0 0)">
+    <title>federation walk-a SW</title>
+    <ellipse cx="112" cy="60" rx="10" ry="3" fill="#000" opacity=".28"/>
+    <path d="M 105 48 h 14 l 2 11 h -18 z" fill="#b45309"/>
+    <path d="M 105 49 l -4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 119 51 l 4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 108 54 l -1 5 h 3 l 1 -5 z" fill="#111827"/><path d="M 114 54 l 1 5 h 3 l -1 -5 z" fill="#111827"/>
+    <circle cx="112" cy="43" r="7" fill="#f0c6a0"/>
+    <path d="M 105 42 q 7 -8 14 0 q -4 -3 -14 0" fill="#3a2818"/>
+    <circle cx="112" cy="44" r="1" fill="#111827"/><circle cx="109" cy="44" r="1" fill="#111827"/>
+    <path d="M 107 50 h 10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 112 39 l -5 -6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="106" cy="32" r="2" fill="currentColor"/>
+    <rect x="117" y="52" width="6" height="5" rx="1" fill="currentColor" opacity=".86"/>
+    <text x="120" y="56" text-anchor="middle" font-size="4.5" font-family="ui-monospace,monospace" font-weight="900" fill="#06111f">F</text>
+  </g><g id="walk-b-ne" transform="translate(0 0)">
+    <title>federation walk-b NE</title>
+    <ellipse cx="16" cy="92" rx="10" ry="3" fill="#000" opacity=".28"/>
+    <path d="M 9 80 h 14 l 2 11 h -18 z" fill="#b45309"/>
+    <path d="M 9 81 l -4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 23 83 l 4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 14 86 l -1 5 h 3 l -1 -5 z" fill="#111827"/><path d="M 16 86 l 1 5 h 3 l 1 -5 z" fill="#111827"/>
+    <circle cx="16" cy="75" r="7" fill="#f0c6a0"/>
+    <path d="M 9 74 q 7 -8 14 0 q -4 -3 -14 0" fill="#3a2818"/>
+    <path d="M 11 76 q 5 3 10 0" fill="none" stroke="#3a2818" stroke-width="1.2"/>
+    <path d="M 11 82 h 10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 16 71 l 5 -6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="22" cy="64" r="2" fill="currentColor"/>
+    <rect x="21" y="84" width="6" height="5" rx="1" fill="currentColor" opacity=".86"/>
+    <text x="24" y="88" text-anchor="middle" font-size="4.5" font-family="ui-monospace,monospace" font-weight="900" fill="#06111f">F</text>
+  </g><g id="walk-b-nw" transform="translate(0 0)">
+    <title>federation walk-b NW</title>
+    <ellipse cx="48" cy="92" rx="10" ry="3" fill="#000" opacity=".28"/>
+    <path d="M 41 80 h 14 l 2 11 h -18 z" fill="#b45309"/>
+    <path d="M 41 83 l -4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 55 81 l 4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 44 86 l 1 5 h 3 l 1 -5 z" fill="#111827"/><path d="M 50 86 l -1 5 h 3 l -1 -5 z" fill="#111827"/>
+    <circle cx="48" cy="75" r="7" fill="#f0c6a0"/>
+    <path d="M 41 74 q 7 -8 14 0 q -4 -3 -14 0" fill="#3a2818"/>
+    <path d="M 43 76 q 5 3 10 0" fill="none" stroke="#3a2818" stroke-width="1.2"/>
+    <path d="M 43 82 h 10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 48 71 l -5 -6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="42" cy="64" r="2" fill="currentColor"/>
+    <rect x="53" y="84" width="6" height="5" rx="1" fill="currentColor" opacity=".86"/>
+    <text x="56" y="88" text-anchor="middle" font-size="4.5" font-family="ui-monospace,monospace" font-weight="900" fill="#06111f">F</text>
+  </g><g id="walk-b-se" transform="translate(0 0)">
+    <title>federation walk-b SE</title>
+    <ellipse cx="80" cy="92" rx="10" ry="3" fill="#000" opacity=".28"/>
+    <path d="M 73 80 h 14 l 2 11 h -18 z" fill="#b45309"/>
+    <path d="M 73 81 l -4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 87 83 l 4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 78 86 l -1 5 h 3 l -1 -5 z" fill="#111827"/><path d="M 80 86 l 1 5 h 3 l 1 -5 z" fill="#111827"/>
+    <circle cx="80" cy="75" r="7" fill="#f0c6a0"/>
+    <path d="M 73 74 q 7 -8 14 0 q -4 -3 -14 0" fill="#3a2818"/>
+    <circle cx="80" cy="76" r="1" fill="#111827"/><circle cx="83" cy="76" r="1" fill="#111827"/>
+    <path d="M 75 82 h 10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 80 71 l 5 -6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="86" cy="64" r="2" fill="currentColor"/>
+    <rect x="85" y="84" width="6" height="5" rx="1" fill="currentColor" opacity=".86"/>
+    <text x="88" y="88" text-anchor="middle" font-size="4.5" font-family="ui-monospace,monospace" font-weight="900" fill="#06111f">F</text>
+  </g><g id="walk-b-sw" transform="translate(0 0)">
+    <title>federation walk-b SW</title>
+    <ellipse cx="112" cy="92" rx="10" ry="3" fill="#000" opacity=".28"/>
+    <path d="M 105 80 h 14 l 2 11 h -18 z" fill="#b45309"/>
+    <path d="M 105 83 l -4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 119 81 l 4 6" stroke="#b45309" stroke-width="3" stroke-linecap="round"/>
+    <path d="M 108 86 l 1 5 h 3 l 1 -5 z" fill="#111827"/><path d="M 114 86 l -1 5 h 3 l -1 -5 z" fill="#111827"/>
+    <circle cx="112" cy="75" r="7" fill="#f0c6a0"/>
+    <path d="M 105 74 q 7 -8 14 0 q -4 -3 -14 0" fill="#3a2818"/>
+    <circle cx="112" cy="76" r="1" fill="#111827"/><circle cx="109" cy="76" r="1" fill="#111827"/>
+    <path d="M 107 82 h 10" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
+    <path d="M 112 71 l -5 -6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><circle cx="106" cy="64" r="2" fill="currentColor"/>
+    <rect x="117" y="84" width="6" height="5" rx="1" fill="currentColor" opacity=".86"/>
+    <text x="120" y="88" text-anchor="middle" font-size="4.5" font-family="ui-monospace,monospace" font-weight="900" fill="#06111f">F</text>
+  </g><g id="badge" transform="translate(132 96)">
+    <title>federation badge</title>
+    <rect x="0" y="0" width="16" height="16" rx="4" fill="#111827"/>
+    <circle cx="8" cy="8" r="6" fill="currentColor"/>
+    <text x="8" y="11" text-anchor="middle" font-size="8" font-family="ui-monospace,monospace" font-weight="900" fill="#06111f">F</text>
+  </g>
+</svg>

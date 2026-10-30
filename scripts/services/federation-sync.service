@@ -1,0 +1,20 @@
+[Unit]
+Description=InfiniBot Federation Code Sync
+Documentation=https://infinibotos.com/docs/federation/code-sync
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/pnpm --dir /path/to/InfiniBot-fresh federation-sync sync
+Environment=FEDERATION_ROLE=satellite
+Environment=FEDERATION_GIT_REMOTE=origin
+Environment=FEDERATION_GIT_BRANCH=main
+WorkingDirectory=/path/to/InfiniBot-fresh
+User=%i
+Nice=19
+IOSchedulingClass=2
+IOSchedulingPriority=7
+
+[Install]
+WantedBy=multi-user.target

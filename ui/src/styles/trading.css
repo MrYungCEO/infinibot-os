@@ -1,0 +1,225 @@
+/* Trading Terminal Styles */
+
+/* Import Google Fonts */
+@import url("https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=IBM+Plex+Mono:wght@400;500;700&display=swap");
+
+/* Trading Terminal Variables - Gold Theme */
+.trading-terminal {
+  --trading-bg-base: #050505;
+  --trading-bg-panel: rgba(15, 15, 15, 0.95);
+  --trading-bg-panel-alt: rgba(20, 20, 20, 0.95);
+  --trading-line: color-mix(in srgb, var(--g-primary) 25%, transparent);
+  --trading-line-strong: color-mix(in srgb, var(--g-primary) 60%, transparent);
+  --trading-text: #e4e4e7;
+  --trading-text-dim: #a1a1aa;
+  --trading-good: #22c55e;
+  --trading-bad: #ef4444;
+  --trading-warn: #f59e0b;
+  --trading-accent: var(--g-primary);
+  --trading-accent-bright: var(--g-primary);
+  --trading-accent-soft: color-mix(in srgb, var(--g-primary) 20%, transparent);
+  --trading-accent-glow: color-mix(in srgb, var(--g-primary) 30%, transparent);
+  --trading-mono: "JetBrains Mono", "IBM Plex Mono", ui-monospace, monospace;
+  --trading-sans: "Space Grotesk", system-ui, sans-serif;
+  --trading-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+/* Animations */
+@keyframes trading-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes trading-glow {
+  0%, 100% { box-shadow: 0 0 5px var(--trading-accent-glow); }
+  50% { box-shadow: 0 0 20px var(--trading-accent-glow); }
+}
+
+/* Scrollbar Styling - Gold */
+.trading-terminal ::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.trading-terminal ::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.4);
+  border-radius: 4px;
+}
+
+.trading-terminal ::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--g-primary) 30%, transparent);
+  border-radius: 4px;
+}
+
+.trading-terminal ::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--g-primary) 50%, transparent);
+}
+
+/* Grid Background Pattern - Gold */
+.trading-terminal::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(color-mix(in srgb, var(--g-primary) 3%, transparent) 1px, transparent 1px),
+    linear-gradient(90deg, color-mix(in srgb, var(--g-primary) 2%, transparent) 1px, transparent 1px);
+  background-size: 42px 42px;
+  opacity: 0.4;
+  z-index: 0;
+}
+
+/* Active Pipeline Stage Animation */
+.trading-terminal .stage.active {
+  animation: trading-pulse 1.5s ease-in-out infinite;
+}
+
+/* Live Indicator - Gold */
+.trading-terminal .live-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.trading-terminal .live-indicator::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--trading-accent-bright);
+  box-shadow: 0 0 8px var(--trading-accent-glow);
+  animation: trading-pulse 1s ease-in-out infinite;
+}
+
+/* Price Change Colors */
+.trading-terminal .price-up {
+  color: var(--trading-good);
+}
+
+.trading-terminal .price-down {
+  color: var(--trading-bad);
+}
+
+.trading-terminal .price-neutral {
+  color: var(--trading-text-dim);
+}
+
+/* Sparkline Mini Charts - Gold */
+.trading-terminal .sparkline {
+  height: 24px;
+  display: flex;
+  align-items: flex-end;
+  gap: 1px;
+}
+
+.trading-terminal .sparkline-bar {
+  width: 3px;
+  background: linear-gradient(180deg, var(--trading-accent-bright) 0%, var(--trading-accent) 100%);
+  border-radius: 1px 1px 0 0;
+  transition: height 0.3s ease;
+}
+
+/* Position Size Indicator */
+.trading-terminal .position-bar {
+  height: 4px;
+  background: var(--trading-line);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.trading-terminal .position-bar-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.3s ease;
+}
+
+.trading-terminal .position-bar-fill.long {
+  background: linear-gradient(90deg, var(--trading-good), transparent);
+}
+
+.trading-terminal .position-bar-fill.short {
+  background: linear-gradient(90deg, var(--trading-bad), transparent);
+}
+
+/* Risk Level Indicator */
+.trading-terminal .risk-level {
+  display: flex;
+  gap: 2px;
+}
+
+.trading-terminal .risk-bar {
+  width: 4px;
+  height: 16px;
+  background: var(--trading-line);
+  border-radius: 2px;
+}
+
+.trading-terminal .risk-bar.active.low {
+  background: var(--trading-good);
+}
+
+.trading-terminal .risk-bar.active.medium {
+  background: var(--trading-warn);
+}
+
+.trading-terminal .risk-bar.active.high {
+  background: var(--trading-bad);
+}
+
+/* Tooltip */
+.trading-terminal .tooltip {
+  position: absolute;
+  background: var(--trading-bg-panel);
+  border: 1px solid var(--trading-line);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 0.72rem;
+  font-family: var(--trading-mono);
+  color: var(--trading-text);
+  box-shadow: var(--trading-shadow);
+  z-index: 1000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease;
+}
+
+.trading-terminal .tooltip.visible {
+  opacity: 1;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 600px) {
+  .trading-terminal {
+    padding: 8px;
+  }
+
+  .trading-terminal .panel {
+    border-radius: 10px;
+  }
+
+  .trading-terminal .panel-head {
+    padding: 8px 10px;
+  }
+
+  .trading-terminal .panel-head h2 {
+    font-size: 0.72rem;
+  }
+
+  .trading-terminal table {
+    font-size: 0.68rem;
+  }
+
+  .trading-terminal th,
+  .trading-terminal td {
+    padding: 6px 8px;
+  }
+
+  .trading-terminal .brand-title {
+    font-size: 0.9rem;
+  }
+
+  .trading-terminal .chip {
+    padding: 3px 8px;
+    font-size: 0.66rem;
+  }
+}

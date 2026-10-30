@@ -1,0 +1,338 @@
+{
+  "tracks": [
+    {
+      "id": "whiteboard",
+      "title": "Whiteboard",
+      "summary": "Sketch and diagram on a live Excalidraw canvas that you and your agents edit together.",
+      "overview": "**Whiteboard** is a local Excalidraw canvas at `/whiteboard`. You draw with the usual infinite-canvas tools, and your agents draw on the **same** canvas.\n\n- **The canvas.** Shapes, arrows, lines, freehand, text, images and the eraser, plus pan and zoom. The toolbar above it shows whether the canvas engine is **Connected**.\n- **Boards and templates.** Save the canvas as a named board and load it later; start from a built-in template: blank, flowchart, mind map, wireframe or kanban. Boards live in the plugin's data folder and survive turning the plugin off and on.\n- **Agents that draw.** The bundled MCP engine gives agents `excalidraw_*` tools to create shapes and diagrams, connect elements, group, align, zoom and export. The **Canvas Architect** panel on the page sends a drawing request to the canvas agent.\n- **The canvas floater.** A **Canvas** button in the command bar opens the same canvas in a floating window over any page.\n\nNothing runs while the plugin is off: no page, no topbar button, no RPCs and no agent tools. The tours switch tools and open panels, but never save, clear or send a drawing request.",
+      "category": "Plugins",
+      "level": "beginner",
+      "order": 63,
+      "routes": [
+        "/whiteboard"
+      ],
+      "signals": [
+        "whiteboard"
+      ],
+      "badge": {
+        "id": "whiteboard",
+        "label": "Whiteboard mastery",
+        "icon": "✏️"
+      },
+      "walkthroughs": [
+        {
+          "id": "canvas-basics",
+          "title": "Draw on the canvas",
+          "summary": "The toolbar, the connection status and the drawing tools.",
+          "estMinutes": 2,
+          "steps": [
+            {
+              "id": "toolbar",
+              "title": "The whiteboard toolbar",
+              "body": "Boards, templates, save, clear, refresh and open-in-a-new-tab live here, above the canvas.",
+              "route": "/whiteboard",
+              "target": "learn:whiteboard-toolbar",
+              "placement": "bottom"
+            },
+            {
+              "id": "status",
+              "title": "Connected",
+              "body": "**Connected** means the canvas engine is live, so changes from you and your agents land on the same scene.",
+              "target": "learn:whiteboard-status",
+              "placement": "bottom"
+            },
+            {
+              "id": "canvas",
+              "title": "The canvas",
+              "body": "An infinite Excalidraw canvas. Hold the mouse wheel or Space while dragging to pan; use the zoom controls in the corner.",
+              "target": "learn:whiteboard-canvas",
+              "placement": "center"
+            },
+            {
+              "id": "rectangle",
+              "title": "Pick a shape tool",
+              "body": "Click the **Rectangle** tool, then drag on the canvas to draw one. Number keys switch tools too.",
+              "target": [
+                "input[aria-label=\"Rectangle\"]",
+                "learn:whiteboard-canvas"
+              ],
+              "action": {
+                "kind": "click"
+              }
+            },
+            {
+              "id": "select",
+              "title": "Back to selection",
+              "body": "Click **Selection** to move, resize and style what you've drawn.",
+              "target": [
+                "input[aria-label=\"Selection\"]",
+                "learn:whiteboard-canvas"
+              ],
+              "action": {
+                "kind": "click"
+              }
+            }
+          ]
+        },
+        {
+          "id": "boards-and-templates",
+          "title": "Boards and templates",
+          "summary": "Save a canvas as a board, reopen it, or start from a template.",
+          "estMinutes": 3,
+          "steps": [
+            {
+              "id": "boards",
+              "title": "Your saved boards",
+              "body": "Click **Boards** to see every canvas you've saved.",
+              "route": "/whiteboard",
+              "target": "learn:whiteboard-boards",
+              "action": {
+                "kind": "click"
+              }
+            },
+            {
+              "id": "boards-panel",
+              "title": "Open or delete a board",
+              "body": "Click a board to load it onto the canvas. The bin icon deletes it. Boards are stored in the plugin's data folder.",
+              "target": "learn:whiteboard-boards-panel",
+              "placement": "bottom",
+              "check": {
+                "kind": "rpc",
+                "method": "whiteboard.boards.list"
+              },
+              "checkHint": "Loading your boards…"
+            },
+            {
+              "id": "templates",
+              "title": "Start from a template",
+              "body": "Click **Templates**.",
+              "target": "learn:whiteboard-templates",
+              "action": {
+                "kind": "click"
+              }
+            },
+            {
+              "id": "templates-panel",
+              "title": "Pick a starting layout",
+              "body": "Templates are grouped by category: blank, flowchart, mind map, wireframe and kanban. Picking one replaces what's on the canvas, so save first.",
+              "target": "learn:whiteboard-templates-panel",
+              "placement": "bottom",
+              "practice": {
+                "mode": "explain",
+                "note": "The tour doesn't load a template: that would replace the current canvas."
+              }
+            },
+            {
+              "id": "save",
+              "title": "Save to Boards",
+              "body": "**Save to Boards** asks for a name and stores the current canvas.",
+              "target": [
+                "learn:whiteboard-save",
+                "learn:whiteboard-toolbar"
+              ],
+              "placement": "bottom",
+              "practice": {
+                "mode": "explain",
+                "note": "The tour doesn't save a board."
+              }
+            },
+            {
+              "id": "clear",
+              "title": "Clear Canvas",
+              "body": "**Clear Canvas** wipes every element after a confirmation. Saved boards are not affected.",
+              "target": [
+                "learn:whiteboard-clear",
+                "learn:whiteboard-toolbar"
+              ],
+              "placement": "bottom",
+              "practice": {
+                "mode": "explain",
+                "note": "Clearing deletes what's on the canvas, so the tour never presses it."
+              }
+            }
+          ]
+        },
+        {
+          "id": "agents-draw",
+          "title": "Let an agent draw",
+          "summary": "The Canvas Architect panel and the excalidraw tools your agents use.",
+          "estMinutes": 3,
+          "steps": [
+            {
+              "id": "panel",
+              "title": "Canvas Architect",
+              "body": "This panel talks to the canvas agent, a diagram specialist. If it's collapsed, the 🎨 button opens it.",
+              "route": "/whiteboard",
+              "target": [
+                "learn:whiteboard-agent-panel",
+                "learn:whiteboard-agent-toggle"
+              ],
+              "placement": "left"
+            },
+            {
+              "id": "hints",
+              "title": "Ideas to start from",
+              "body": "Click a suggestion to put it in the prompt, or write your own.",
+              "target": [
+                "learn:whiteboard-agent-hints",
+                "learn:whiteboard-agent-panel",
+                "learn:whiteboard-agent-toggle"
+              ],
+              "placement": "left"
+            },
+            {
+              "id": "prompt",
+              "title": "Describe the diagram",
+              "body": "Type what you want drawn.",
+              "target": "learn:whiteboard-agent-input",
+              "action": {
+                "kind": "input",
+                "sample": "Draw a flowchart for user login"
+              }
+            },
+            {
+              "id": "send",
+              "title": "Sending the request",
+              "body": "Send starts the canvas agent, which draws straight onto this canvas with the `excalidraw_*` tools. Any agent with those tools can do the same from chat: create shapes and diagrams, connect, group, align, zoom and export.",
+              "target": "learn:whiteboard-agent-input",
+              "placement": "top",
+              "practice": {
+                "mode": "explain",
+                "note": "The tour doesn't send: it would start an agent run on your model provider."
+              }
+            }
+          ]
+        },
+        {
+          "id": "canvas-floater",
+          "title": "The canvas on any page",
+          "summary": "Open the whiteboard in a floating window from the command bar.",
+          "estMinutes": 2,
+          "steps": [
+            {
+              "id": "open",
+              "title": "Canvas in the command bar",
+              "body": "Click **Canvas** in the command bar. On a phone it sits under **More** (⋯).",
+              "route": "/dashboard",
+              "target": [
+                "learn:whiteboard-floater-btn",
+                ".cb-more__btn"
+              ],
+              "action": {
+                "kind": "click"
+              }
+            },
+            {
+              "id": "open-mobile",
+              "title": "Open Canvas",
+              "body": "Pick **Canvas**.",
+              "target": "button.cb-more__row[data-cb-proxy=\"canvas\"]",
+              "action": {
+                "kind": "click"
+              },
+              "skipIf": {
+                "kind": "any",
+                "conditions": [
+                  {
+                    "kind": "viewport",
+                    "minWidth": 801
+                  },
+                  {
+                    "kind": "element",
+                    "target": "learn:whiteboard-floater"
+                  }
+                ]
+              }
+            },
+            {
+              "id": "floater",
+              "title": "A floating canvas",
+              "body": "The same canvas, over whatever page you're on. Drag the header to move it, drag an edge to resize, and minimise it when you need the page back.",
+              "target": "learn:whiteboard-floater",
+              "placement": "auto"
+            },
+            {
+              "id": "close",
+              "title": "Close it",
+              "body": "Click **×** to close the floater, or click **Canvas** again. The canvas itself is unchanged.",
+              "target": [
+                "learn:whiteboard-floater-close",
+                ".cb-more__btn"
+              ],
+              "action": {
+                "kind": "click"
+              }
+            },
+            {
+              "id": "close-mobile",
+              "title": "Close from the menu",
+              "body": "On a phone, pick **Canvas** again to close the floater.",
+              "target": "button.cb-more__row[data-cb-proxy=\"canvas\"]",
+              "action": {
+                "kind": "click"
+              },
+              "skipIf": {
+                "kind": "not",
+                "condition": {
+                  "kind": "element",
+                  "target": "button.cb-more__row[data-cb-proxy=\"canvas\"]"
+                }
+              }
+            }
+          ]
+        }
+      ],
+      "quiz": [
+        {
+          "id": "shared",
+          "prompt": "When an agent draws with the excalidraw tools, where does the drawing appear?",
+          "options": [
+            "In a separate file you have to import",
+            "On the same live canvas you see on the Whiteboard page",
+            "Only in the agent's chat reply as an image",
+            "Nowhere until you restart"
+          ],
+          "answer": 1,
+          "explain": "People and agents edit one shared canvas."
+        },
+        {
+          "id": "template",
+          "prompt": "What happens to the current canvas when you pick a template?",
+          "options": [
+            "The template is added to a new tab",
+            "The template replaces what's on the canvas",
+            "Nothing, templates are read-only previews",
+            "It is merged into your saved boards"
+          ],
+          "answer": 1,
+          "explain": "Save the canvas to Boards first if you want to keep it."
+        },
+        {
+          "id": "floater",
+          "prompt": "How do you get the whiteboard over another page?",
+          "options": [
+            "Open /whiteboard in a second browser",
+            "Click Canvas in the command bar to open the floating canvas",
+            "Drag the Whiteboard sidebar item onto the page",
+            "You can't"
+          ],
+          "answer": 1,
+          "explain": "The Canvas topbar button opens a movable, resizable floater."
+        },
+        {
+          "id": "off",
+          "prompt": "What happens to your saved boards if you turn the Whiteboard plugin off?",
+          "options": [
+            "They're deleted",
+            "They stay in the plugin's data folder and come back when you turn it on",
+            "They're exported to Notion",
+            "They move to Documents"
+          ],
+          "answer": 1,
+          "explain": "Boards survive disable and re-enable cycles."
+        }
+      ]
+    }
+  ],
+  "missions": []
+}

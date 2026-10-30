@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<!--
+  Browser-testable copy of the Voice Blob WebGL bundle.
+
+  Source of truth lives at:
+    mobile/src/components/voice-blob-html.js  (exports VOICE_BLOB_HTML)
+
+  Open this file in a desktop browser to verify the wireframe renders.
+  Add `?demo=1` to the URL to drive a synthetic audio envelope so you can
+  see the listening/speaking/processing transitions without a microphone.
+
+  Keep this file in sync with voice-blob-html.js (the JS export is the one
+  React Native actually loads via <WebView source={{ html }} />).
+-->
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Voice Blob — wireframe preview</title>
+<style>
+  html, body { margin: 0; padding: 0; width: 100%; height: 100%; background: #0a0b13; overflow: hidden; }
+  body { -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+  canvas { width: 100%; height: 100%; display: block; background: transparent; }
+  .demo-controls {
+    position: fixed; bottom: 12px; left: 12px; right: 12px;
+    display: none; gap: 8px; font-family: system-ui, sans-serif; color: #bfc4cb;
+    background: rgba(10,12,20,0.6); padding: 10px; border-radius: 10px;
+    backdrop-filter: blur(8px);
+  }
+  .demo-controls.visible { display: flex; flex-wrap: wrap; }
+  .demo-controls button { background: #1a1d28; border: 1px solid #2a2f3d; color: #bfc4cb; padding: 6px 10px; border-radius: 6px; cursor: pointer; font: inherit; }
+  .demo-controls button.active { background: #2a3548; border-color: #4a5cff; color: #fff; }
+  .demo-controls label { display: inline-flex; align-items: center; gap: 6px; }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<div class="demo-controls" id="demo">
+  <span>state:</span>
+  <button data-state="idle">idle</button>
+  <button data-state="listening">listening</button>
+  <button data-state="thinking">thinking</button>
+  <button data-state="speaking">speaking</button>
+  <label>mic <input id="mic" type="range" min="0" max="100" value="0"></label>
+  <label>tts <input id="tts" type="range" min="0" max="100" value="0"></label>
+</div>
+<script>
+(function() {
+  'use strict';
+
+  const POST = (obj) => {
+    try {
+      if (window.ReactNativeWebView && window.ReactNativeWebView.postMessage) {
+        window.ReactNativeWebView.postMessage(JSON.stringify(obj));
+      }
+    } catch (_) {}
+  };
+
+  const NOISE_GLSL = `
+    vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+    vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+    vec4 permute(vec4 x) { return mod289(((x * 34.0) + 10.0) * x); }
+    vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+
+    float snoise(vec3 v) {
+      const vec2 C = vec2(1.0/6.0, 1.0/3.0);
+      const vec4 D = vec4(0.0, 0.5, 1.0, 2.0);
+      vec3 i  = floor(v + dot(v, C.yyy));
+      vec3 x0 = v - i + dot(i, C.xxx);
+      vec3 g = step(x0.yzx, x0.xyz);
+      vec3 l = 1.0 - g;
+      vec3 i1 = min(g.xyz, l.zxy);
+      vec3 i2 = max(g.xyz, l.zxy);
+      vec3 x1 = x0 - i1 + C.xxx;
+      vec3 x2 = x0 - i2 + C.yyy;
+      vec3 x3 = x0 - D.yyy;
+      i = mod289(i);
+      vec4 p = permute(permute(permute(
+        i.z + vec4(0.0, i1.z, i2.z, 1.0))
+       + i.y + vec4(0.0, i1.y, i2.y, 1.0))
+       + i.x + vec4(0.0, i1.x, i2.x, 1.0));
+      float n_ = 0.142857142857;
+      vec3 ns = n_ * D.wyz - D.xzx;
+      vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+      vec4 x_ = floor(j * ns.z);
+      vec4 y_ = floor(j - 7.0 * x_);
+      vec4 x = x_ * ns.x + ns.yyyy;
+      vec4 y = y_ * ns.x + ns.yyyy;
+      vec4 h = 1.0 - abs(x) - abs(y);
+      vec4 b0 = vec4(x.xy, y.xy);
+      vec4 b1 = vec4(x.zw, y.zw);
+      vec4 s0 = floor(b0) * 2.0 + 1.0;
+      vec4 s1 = floor(b1) * 2.0 + 1.0;
+      vec4 sh = -step(h, vec4(0.0));
+      vec4 a0 = b0.xzyw + s0.xzyw * sh.xxyy;
+      vec4 a1 = b1.xzyw + s1.xzyw * sh.zzww;
+      vec3 p0 = vec3(a0.xy, h.x);
+      vec3 p1 = vec3(a0.zw, h.y);
+      vec3 p2 = vec3(a1.xy, h.z);
+      vec3 p3 = vec3(a1.zw, h.w);
+      vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
+      p0 *= norm.x; p1 *= norm.y; p2 *= norm.z; p3 *= norm.w;
+      vec4 m = max(0.5 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+      m = m * m;
+      return 105.0 * dot(m*m, vec4(dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3)));
+    }
+  `;
+
+  const WF_VERTEX = `
+    attribute vec3 position;
+    attribute vec3 normal;
+
+    uniform mat4 uModelView;
+    uniform mat4 uProjection;
+    uniform float uTime;
+    uniform float uBass;
+    uniform float uTreble;
+    uniform float uDisplacementScale;
+
+    varying float vAudio;
+    varying float vDisplacement;
+    varying vec3 vNormal;
+
+    ${NOISE_GLSL}
+
+    void main() {
+      float t = uTime;
+      vec3 dir = normalize(position);
+
+      float inflation = 0.04 + uBass * 0.55;
+
+      float rf = t * 0.7;
+      float warp = snoise(dir * 2.5 + vec3(rf, rf * 0.8, rf * 0.6))
+                 + 0.5 * snoise(dir * 5.0 + vec3(-rf, rf, rf * 1.3));
+      warp *= (0.05 + uTreble * 0.55);
+
+      float breath = sin(t * 0.6) * 0.015;
+
+      float displacement = (inflation + warp + breath) * uDisplacementScale;
+      vec3 displaced = position * (1.0 + displacement);
+
+      vDisplacement = displacement;
+      vAudio = max(uBass, uTreble);
+      vNormal = normal;
+
+      gl_Position = uProjection * uModelView * vec4(displaced, 1.0);
+    }
+  `;
+
+  const WF_FRAGMENT = `
+    precision highp float;
+    uniform float uTime;
+    uniform float uBass;
+    uniform float uTreble;
+    uniform float uState;
+    uniform vec3 uColorCool;
+    uniform vec3 uColorHot;
+    uniform vec3 uColorProc;
+
+    varying float vAudio;
+    varying float vDisplacement;
+    varying vec3 vNormal;
+
+    void main() {
+      float audio = vAudio;
+      vec3 base = uColorCool;
+      if (uState > 1.5 && uState < 2.5) {
+        base = mix(uColorCool, uColorHot, 0.55 + 0.45 * audio);
+      } else if (uState > 2.5) {
+        float pulse = sin(uTime * 3.0) * 0.5 + 0.5;
+        base = mix(uColorCool, uColorProc, 0.4 + 0.45 * pulse);
+      } else if (uState > 0.5) {
+        base = mix(uColorCool, uColorHot, audio * 0.6);
+      }
+
+      float peak = smoothstep(0.0, 0.4, vDisplacement);
+      vec3 color = mix(base, uColorHot, peak * 0.7);
+
+      color += uColorHot * uTreble * 0.4;
+
+      gl_FragColor = vec4(color, 1.0);
+    }
+  `;
+
+  const canvas = document.getElementById('c');
+  let gl = null;
+  try {
+    // premultipliedAlpha: false — kept in sync with voice-blob-html.js
+    gl = canvas.getContext('webgl', { alpha: true, antialias: true, premultipliedAlpha: false, preserveDrawingBuffer: false })
+       || canvas.getContext('experimental-webgl', { alpha: true, antialias: true, premultipliedAlpha: false });
+  } catch (e) {
+    POST({ type: 'webgl-failed', error: 'getContext threw: ' + String(e) });
+    return;
+  }
+  if (!gl) {
+    POST({ type: 'webgl-failed', error: 'no-webgl-context' });
+    return;
+  }
+
+  function compile(type, src) {
+    const s = gl.createShader(type);
+    gl.shaderSource(s, src);
+    gl.compileShader(s);
+    if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) {
+      const log = gl.getShaderInfoLog(s);
+      gl.deleteShader(s);
+      throw new Error('shader: ' + log);
+    }
+    return s;
+  }
+
+  let program;
+  try {
+    const vs = compile(gl.VERTEX_SHADER, WF_VERTEX);
+    const fs = compile(gl.FRAGMENT_SHADER, WF_FRAGMENT);
+    program = gl.createProgram();
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      throw new Error('link: ' + gl.getProgramInfoLog(program));
+    }
+  } catch (e) {
+    POST({ type: 'webgl-failed', error: String(e && e.message || e) });
+    return;
+  }
+
+  const A_POSITION = gl.getAttribLocation(program, 'position');
+  const A_NORMAL   = gl.getAttribLocation(program, 'normal');
+  const U_TIME     = gl.getUniformLocation(program, 'uTime');
+  const U_BASS     = gl.getUniformLocation(program, 'uBass');
+  const U_TREBLE   = gl.getUniformLocation(program, 'uTreble');
+  const U_STATE    = gl.getUniformLocation(program, 'uState');
+  const U_DISP     = gl.getUniformLocation(program, 'uDisplacementScale');
+  const U_COOL     = gl.getUniformLocation(program, 'uColorCool');
+  const U_HOT      = gl.getUniformLocation(program, 'uColorHot');
+  const U_PROC     = gl.getUniformLocation(program, 'uColorProc');
+  const U_MV       = gl.getUniformLocation(program, 'uModelView');
+  const U_PROJ     = gl.getUniformLocation(program, 'uProjection');
+
+  function buildWireSphere(widthSegments, heightSegments) {
+    const positions = [];
+    const normals = [];
+    for (let iy = 0; iy <= heightSegments; iy++) {
+      const v = iy / heightSegments;
+      const theta = v * Math.PI;
+      const sinT = Math.sin(theta), cosT = Math.cos(theta);
+      for (let ix = 0; ix <= widthSegments; ix++) {
+        const u = ix / widthSegments;
+        const phi = u * 2 * Math.PI;
+        const x = -Math.cos(phi) * sinT;
+        const y = cosT;
+        const z = Math.sin(phi) * sinT;
+        positions.push(x, y, z);
+        normals.push(x, y, z);
+      }
+    }
+    const triIdx = [];
+    for (let iy = 0; iy < heightSegments; iy++) {
+      for (let ix = 0; ix < widthSegments; ix++) {
+        const a = (widthSegments + 1) * iy + ix;
+        const b = (widthSegments + 1) * (iy + 1) + ix;
+        const c = (widthSegments + 1) * (iy + 1) + ix + 1;
+        const d = (widthSegments + 1) * iy + ix + 1;
+        triIdx.push(a, b, d, b, c, d);
+      }
+    }
+    const seen = new Set();
+    const lineIdx = [];
+    const push = (a, b) => {
+      const lo = Math.min(a, b), hi = Math.max(a, b);
+      const key = lo * 0x10000 + hi;
+      if (seen.has(key)) return;
+      seen.add(key);
+      lineIdx.push(a, b);
+    };
+    for (let i = 0; i < triIdx.length; i += 3) {
+      push(triIdx[i], triIdx[i+1]);
+      push(triIdx[i+1], triIdx[i+2]);
+      push(triIdx[i+2], triIdx[i]);
+    }
+    return {
+      positions: new Float32Array(positions),
+      normals: new Float32Array(normals),
+      indices: new Uint16Array(lineIdx),
+      indexCount: lineIdx.length,
+    };
+  }
+
+  const SPHERE = buildWireSphere(36, 24);
+
+  const posBuf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
+  gl.bufferData(gl.ARRAY_BUFFER, SPHERE.positions, gl.STATIC_DRAW);
+
+  const normBuf = gl.createBuffer();
+  gl.bindBuffer(gl.ARRAY_BUFFER, normBuf);
+  gl.bufferData(gl.ARRAY_BUFFER, SPHERE.normals, gl.STATIC_DRAW);
+
+  const idxBuf = gl.createBuffer();
+  gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, idxBuf);
+  gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, SPHERE.indices, gl.STATIC_DRAW);
+
+  function perspective(fovyRad, aspect, near, far) {
+    const f = 1.0 / Math.tan(fovyRad / 2);
+    const nf = 1 / (near - far);
+    return new Float32Array([
+      f / aspect, 0, 0, 0,
+      0, f, 0, 0,
+      0, 0, (far + near) * nf, -1,
+      0, 0, 2 * far * near * nf, 0,
+    ]);
+  }
+  function modelView(rotX, rotY, rotZ, camZ) {
+    const cx = Math.cos(rotX), sx = Math.sin(rotX);
+    const cy = Math.cos(rotY), sy = Math.sin(rotY);
+    const cz = Math.cos(rotZ), sz = Math.sin(rotZ);
+    const r00 = cy * cz,            r01 = -cy * sz,           r02 = sy;
+    const r10 = sz,                 r11 = cz,                 r12 = 0;
+    const r20 = -sy * cz,           r21 = sy * sz,            r22 = cy;
+    const m00 = r00;
+    const m01 = r01;
+    const m02 = r02;
+    const m10 = cx * r10 - sx * r20;
+    const m11 = cx * r11 - sx * r21;
+    const m12 = cx * r12 - sx * r22;
+    const m20 = sx * r10 + cx * r20;
+    const m21 = sx * r11 + cx * r21;
+    const m22 = sx * r12 + cx * r22;
+    return new Float32Array([
+      m00, m10, m20, 0,
+      m01, m11, m21, 0,
+      m02, m12, m22, 0,
+      0,   0,   -camZ, 1,
+    ]);
+  }
+
+  const state = {
+    micLevel: 0,
+    ttsLevel: 0,
+    callState: 'idle',
+    userRgb: [0.486, 0.961, 1.0],
+    agentRgb: [1.0, 0.722, 0.290],
+    smoothBass: 0, smoothTreble: 0,
+    smoothUser: 0, smoothAgent: 0,
+    rotX: 0, rotY: 0, rotZ: 0,
+    startTime: performance.now(),
+  };
+  const COOL_PROC = [0.55, 0.75, 1.00];
+  const DISPLACEMENT_SCALE = 1.0;
+
+  function hexToRgb01(hex, fallback) {
+    if (typeof hex !== 'string') return fallback;
+    let s = hex.replace('#', '').trim();
+    if (s.length === 3) s = s.split('').map(c => c + c).join('');
+    if (s.length !== 6) return fallback;
+    const r = parseInt(s.slice(0, 2), 16) / 255;
+    const g = parseInt(s.slice(2, 4), 16) / 255;
+    const b = parseInt(s.slice(4, 6), 16) / 255;
+    if (Number.isNaN(r) || Number.isNaN(g) || Number.isNaN(b)) return fallback;
+    return [r, g, b];
+  }
+
+  function stateNum(cs) {
+    if (cs === 'listening') return 1;
+    if (cs === 'speaking') return 2;
+    if (cs === 'thinking' || cs === 'transcribing' || cs === 'preparing') return 3;
+    return 0;
+  }
+
+  function resize() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = Math.max(1, Math.floor(canvas.clientWidth * dpr));
+    const h = Math.max(1, Math.floor(canvas.clientHeight * dpr));
+    if (canvas.width !== w || canvas.height !== h) {
+      canvas.width = w;
+      canvas.height = h;
+    }
+    gl.viewport(0, 0, w, h);
+  }
+  window.addEventListener('resize', resize);
+
+  gl.clearColor(0, 0, 0, 0);
+  gl.disable(gl.DEPTH_TEST);
+  gl.depthMask(false);
+  gl.enable(gl.BLEND);
+  gl.blendFunc(gl.SRC_ALPHA, gl.ONE);
+
+  gl.useProgram(program);
+
+  window.__updateBlob = function(props) {
+    if (!props || typeof props !== 'object') return;
+    if (typeof props.micLevel === 'number') state.micLevel = Math.max(0, Math.min(1, props.micLevel));
+    if (typeof props.ttsLevel === 'number') state.ttsLevel = Math.max(0, Math.min(1, props.ttsLevel));
+    if (typeof props.callState === 'string') state.callState = props.callState;
+    if (typeof props.userColor === 'string') state.userRgb = hexToRgb01(props.userColor, state.userRgb);
+    if (typeof props.agentColor === 'string') state.agentRgb = hexToRgb01(props.agentColor, state.agentRgb);
+  };
+
+  POST({ type: 'ready' });
+
+  const attack = 0.18;
+  const decay = 0.08;
+
+  function frame(nowMs) {
+    resize();
+    const t = (nowMs - state.startTime) * 0.001;
+
+    const volume = Math.max(state.micLevel, state.ttsLevel);
+    const tgtBass = volume;
+    const tgtTreble = Math.pow(volume, 1.4);
+    state.smoothBass   += (tgtBass   - state.smoothBass)   * (tgtBass   > state.smoothBass   ? attack : decay);
+    state.smoothTreble += (tgtTreble - state.smoothTreble) * (tgtTreble > state.smoothTreble ? attack : decay);
+
+    const tgtUser  = state.micLevel;
+    const tgtAgent = state.ttsLevel;
+    state.smoothUser  += (tgtUser  - state.smoothUser)  * (tgtUser  > state.smoothUser  ? attack : decay);
+    state.smoothAgent += (tgtAgent - state.smoothAgent) * (tgtAgent > state.smoothAgent ? attack : decay);
+
+    const sum = state.smoothUser + state.smoothAgent;
+    let laneMix;
+    if (sum < 1e-3) laneMix = state.callState === 'speaking' ? 1 : 0;
+    else laneMix = state.smoothAgent / sum;
+
+    const uR = state.userRgb[0],  uG = state.userRgb[1],  uB = state.userRgb[2];
+    const aR = state.agentRgb[0], aG = state.agentRgb[1], aB = state.agentRgb[2];
+    const hotR = uR * (1 - laneMix) + aR * laneMix;
+    const hotG = uG * (1 - laneMix) + aG * laneMix;
+    const hotB = uB * (1 - laneMix) + aB * laneMix;
+    const idleR = (uR + aR) * 0.28;
+    const idleG = (uG + aG) * 0.28;
+    const idleB = (uB + aB) * 0.28;
+
+    const sNum = stateNum(state.callState);
+
+    const v = volume;
+    const vActivity = v * v * v * v;
+    const rotSpeed = vActivity * 0.01;
+    state.rotY += rotSpeed;
+    state.rotX += rotSpeed * 0.4;
+    state.rotZ *= 0.98;
+
+    const aspect = canvas.width / canvas.height;
+    const proj = perspective(45 * Math.PI / 180, aspect || 1, 0.1, 100);
+    const mv = modelView(state.rotX, state.rotY, state.rotZ, 4.5);
+
+    gl.useProgram(program);
+    gl.bindBuffer(gl.ARRAY_BUFFER, posBuf);
+    gl.enableVertexAttribArray(A_POSITION);
+    gl.vertexAttribPointer(A_POSITION, 3, gl.FLOAT, false, 0, 0);
+    if (A_NORMAL >= 0) {
+      gl.bindBuffer(gl.ARRAY_BUFFER, normBuf);
+      gl.enableVertexAttribArray(A_NORMAL);
+      gl.vertexAttribPointer(A_NORMAL, 3, gl.FLOAT, false, 0, 0);
+    }
+    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, idxBuf);
+
+    gl.uniformMatrix4fv(U_PROJ, false, proj);
+    gl.uniformMatrix4fv(U_MV, false, mv);
+    gl.uniform1f(U_TIME, t);
+    gl.uniform1f(U_BASS, state.smoothBass);
+    gl.uniform1f(U_TREBLE, state.smoothTreble);
+    gl.uniform1f(U_STATE, sNum);
+    gl.uniform1f(U_DISP, DISPLACEMENT_SCALE);
+    gl.uniform3f(U_COOL, idleR, idleG, idleB);
+    gl.uniform3f(U_HOT, hotR, hotG, hotB);
+    gl.uniform3f(U_PROC, COOL_PROC[0], COOL_PROC[1], COOL_PROC[2]);
+
+    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.drawElements(gl.LINES, SPHERE.indexCount, gl.UNSIGNED_SHORT, 0);
+
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  // ── browser-only demo controls (no-op inside the React Native WebView) ──
+  if (location.search.includes('demo=1')) {
+    const ctrl = document.getElementById('demo');
+    ctrl.classList.add('visible');
+    const btns = ctrl.querySelectorAll('button[data-state]');
+    btns.forEach(b => {
+      if (b.dataset.state === 'idle') b.classList.add('active');
+      b.addEventListener('click', () => {
+        btns.forEach(x => x.classList.remove('active'));
+        b.classList.add('active');
+        window.__updateBlob({ callState: b.dataset.state });
+      });
+    });
+    document.getElementById('mic').addEventListener('input', (e) => {
+      window.__updateBlob({ micLevel: parseInt(e.target.value, 10) / 100 });
+    });
+    document.getElementById('tts').addEventListener('input', (e) => {
+      window.__updateBlob({ ttsLevel: parseInt(e.target.value, 10) / 100 });
+    });
+  }
+})();
+</script>
+</body>
+</html>

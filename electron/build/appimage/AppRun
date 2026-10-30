@@ -1,0 +1,134 @@
+#!/bin/bash
+# InfiniBot Desktop AppImage entry point. scripts/appimage-finalize.mjs puts this in
+# place of electron-builder's AppRun (which never adds sandbox flags itself,
+# while its .desktop entry blindly passed --no-sandbox).
+#
+# Chromium sandbox on Linux, in the order Chromium itself tries them:
+#   1. user-namespace sandbox  - needs unprivileged user namespaces WITH
+#      capabilities. Ubuntu 23.10+/24.04 restrict these through AppArmor
+#      (kernel.apparmor_restrict_unprivileged_userns=1) unless an AppArmor
+#      profile for the binary allows `userns`; an AppImage cannot install one
+#      without root.
+#   2. setuid helper (chrome-sandbox root:root 4755) - impossible inside an
+#      AppImage: the FUSE mount is nosuid and the files belong to the user.
+# When neither works Chromium aborts with
+#   FATAL:setuid_sandbox_host.cc ... chrome-sandbox is owned by root and has mode 4755
+# so ONLY in that case this script adds --no-sandbox and says so (stderr +
+# ~/.config/InfiniBot/launcher.log). Windows keep contextIsolation on,
+# nodeIntegration off, and remote cloud windows get no Node bridge.
+# The .deb keeps the full sandbox (setuid helper + AppArmor profile).
+#
+# Environment:
+#   INFINIBOT_SANDBOX=force             never add --no-sandbox (Chromium aborts if no sandbox works)
+#   INFINIBOT_NO_DESKTOP_INTEGRATION=1  don't add the per-user menu entry/icon
+
+set -u
+
+if [ -z "${APPDIR:-}" ]; then
+  APPDIR="$(dirname "$(readlink -f "$0")")"
+fi
+BIN="$APPDIR/infinibot-desktop"
+
+export PATH="$APPDIR:$APPDIR/usr/sbin:$PATH"
+export LD_LIBRARY_PATH="$APPDIR/usr/lib${LD_LIBRARY_PATH:+:$LD_LIBRARY_PATH}"
+export XDG_DATA_DIRS="$APPDIR/usr/share/:${XDG_DATA_DIRS:-/usr/local/share/:/usr/share/}"
+export GSETTINGS_SCHEMA_DIR="$APPDIR/usr/share/glib-2.0/schemas${GSETTINGS_SCHEMA_DIR:+:$GSETTINGS_SCHEMA_DIR}"
+
+CONFIG_DIR="${XDG_CONFIG_HOME:-$HOME/.config}/InfiniBot"
+LOG_FILE="$CONFIG_DIR/launcher.log"
+
+log() {
+  echo "[infinibot] $*" >&2
+  if mkdir -p "$CONFIG_DIR" 2>/dev/null; then
+    # keep the log small
+    if [ -f "$LOG_FILE" ] && [ "$(wc -c <"$LOG_FILE" 2>/dev/null || echo 0)" -gt 65536 ]; then
+      tail -n 200 "$LOG_FILE" >"$LOG_FILE.tmp" 2>/dev/null && mv -f "$LOG_FILE.tmp" "$LOG_FILE"
+    fi
+    echo "$(date -Is 2>/dev/null || date) $*" >>"$LOG_FILE" 2>/dev/null || true
+  fi
+}
+
+# Can this process create a user namespace AND act as root inside it (map
+# its uid)? That is what Chromium's namespace sandbox needs. Under Ubuntu's
+# AppArmor restriction creating the namespace succeeds but the uid_map write
+# is denied, which is exactly what this probe catches.
+userns_sandbox_ok() {
+  [ -e /proc/self/ns/user ] || return 1
+  [ "$(cat /proc/sys/user/max_user_namespaces 2>/dev/null || echo 1)" != "0" ] || return 1
+  [ "$(cat /proc/sys/kernel/unprivileged_userns_clone 2>/dev/null || echo 1)" = "1" ] || return 1
+  if command -v unshare >/dev/null 2>&1; then
+    unshare --user --map-root-user /bin/true >/dev/null 2>&1
+    return $?
+  fi
+  # No unshare (very minimal systems): judge by the AppArmor switch.
+  [ "$(cat /proc/sys/kernel/apparmor_restrict_unprivileged_userns 2>/dev/null || echo 0)" != "1" ]
+}
+
+# Is the setuid helper usable (root-owned, setuid, on a mount that honours it)?
+suid_helper_ok() {
+  local helper="$APPDIR/chrome-sandbox"
+  [ -u "$helper" ] || return 1
+  [ "$(stat -c %u "$helper" 2>/dev/null)" = "0" ] || return 1
+  if command -v findmnt >/dev/null 2>&1; then
+    findmnt -n -o OPTIONS -T "$helper" 2>/dev/null | tr ',' '\n' | grep -qx nosuid && return 1
+  fi
+  return 0
+}
+
+has_arg() {
+  local want="$1"; shift
+  local a
+  for a in "$@"; do [ "$a" = "$want" ] && return 0; done
+  return 1
+}
+
+# Per-user menu entry + icon so the AppImage shows up in the app launcher and
+# the dock groups its window (StartupWMClass). Skipped when the .deb is
+# installed (it has its own entry) or when opted out.
+desktop_integration() {
+  [ -n "${APPIMAGE:-}" ] || return 0
+  [ "${INFINIBOT_NO_DESKTOP_INTEGRATION:-}" = "1" ] && return 0
+  [ -f /usr/share/applications/infinibot-desktop.desktop ] && return 0
+  case "$APPIMAGE" in *'"'*|*'`'*|*'$'*|*'\'*|*'%'*) return 0 ;; esac
+  local data="${XDG_DATA_HOME:-$HOME/.local/share}"
+  local entry="$data/applications/infinibot-appimage.desktop"
+  local icon_dir="$data/icons/hicolor/512x512/apps"
+  local want
+  want="[Desktop Entry]
+Name=InfiniBot
+Comment=Your AI agent team — local gateway and control center
+Exec=\"$APPIMAGE\" %U
+TryExec=$APPIMAGE
+Terminal=false
+Type=Application
+Icon=infinibot-appimage
+StartupWMClass=InfiniBot
+Categories=Development;Utility;Network;
+X-InfiniBot-AppImage=1"
+  if [ ! -f "$entry" ] || [ "$(cat "$entry" 2>/dev/null)" != "$want" ]; then
+    mkdir -p "$data/applications" "$icon_dir" 2>/dev/null || return 0
+    cp -f "$APPDIR/usr/share/icons/hicolor/512x512/apps/infinibot-desktop.png" "$icon_dir/infinibot-appimage.png" 2>/dev/null || true
+    printf '%s\n' "$want" >"$entry" 2>/dev/null || return 0
+    command -v update-desktop-database >/dev/null 2>&1 && update-desktop-database -q "$data/applications" >/dev/null 2>&1
+    log "menu entry written: $entry"
+  fi
+  return 0
+}
+
+desktop_integration
+
+extra=()
+if has_arg --no-sandbox "$@"; then
+  :
+elif [ "${INFINIBOT_SANDBOX:-auto}" = "force" ]; then
+  :
+elif userns_sandbox_ok; then
+  :
+elif suid_helper_ok; then
+  :
+else
+  extra=(--no-sandbox)
+  log "Chromium sandbox unavailable here (user namespaces restricted, e.g. Ubuntu 24.04 AppArmor; setuid helper unusable inside an AppImage): starting with --no-sandbox. For the full sandbox install the .deb (Ubuntu/Debian)."
+fi
+
+exec "$BIN" ${extra[@]+"${extra[@]}"} "$@"

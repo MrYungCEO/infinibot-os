@@ -1,0 +1,7 @@
+# The repo-root .gitignore ignores tests/visual/__snapshots__/ and
+# tests/visual/__reports__/. Baselines (__snapshots__) MUST be committed — they
+# are the source of truth for visual diffing — so re-include them here (a child
+# .gitignore overrides the parent). Per-run reports stay ignored.
+!__snapshots__/
+__reports__/
+test-results/

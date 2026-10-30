@@ -1,0 +1,4 @@
+# Per-developer signing overrides (see Config/Local.xcconfig.example)
+Config/Local.xcconfig
+# fastlane secrets
+fastlane/.env

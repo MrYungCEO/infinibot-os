@@ -1,0 +1,224 @@
+{
+  "manifestVersion": 2,
+  "id": "community-manager",
+  "name": "Community Manager",
+  "version": "2026.10.22",
+  "minHostVersion": "2026.6.30",
+  "publisher": "infinibot",
+  "license": "FSL-1.1-ALv2",
+  "description": "Discord Community Manager: welcome + verification, intake questionnaire with lead scoring and routing to onboarders (InfiniBot / KinglyVault / Gold Desk-Pulse), moderation with an approval gate for bans, mass DMs and @everyone, ticket threads, an automatic Pulse risk disclaimer, scheduled posts, and a /community dashboard with a guided setup wizard.",
+  "engines": {
+    "infinibot-plugin-api": "^2.0.0"
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  },
+  "contributes": {
+    "nav": [
+      {
+        "tab": "community",
+        "label": "Community",
+        "icon": "community",
+        "group": "Work"
+      }
+    ],
+    "pages": [
+      {
+        "tab": "community",
+        "route": "/community",
+        "builtin": "community",
+        "title": "Community Manager"
+      }
+    ],
+    "navSection": {
+      "title": "Community",
+      "items": [
+        {
+          "page": "community",
+          "label": "Community",
+          "icon": "community"
+        }
+      ]
+    },
+    "rpc": [
+      {
+        "method": "community-manager.status",
+        "scope": "read"
+      },
+      {
+        "method": "community-manager.setup.state",
+        "scope": "admin"
+      },
+      {
+        "method": "community-manager.setup.validateToken",
+        "scope": "admin"
+      },
+      {
+        "method": "community-manager.setup.saveToken",
+        "scope": "admin"
+      },
+      {
+        "method": "community-manager.setup.guilds",
+        "scope": "admin"
+      },
+      {
+        "method": "community-manager.setup.selectGuild",
+        "scope": "admin"
+      },
+      {
+        "method": "community-manager.setup.discovery",
+        "scope": "admin"
+      },
+      {
+        "method": "community-manager.setup.saveMapping",
+        "scope": "admin"
+      },
+      {
+        "method": "community-manager.setup.saveQuestions",
+        "scope": "admin"
+      },
+      {
+        "method": "community-manager.setup.savePreset",
+        "scope": "admin"
+      },
+      {
+        "method": "community-manager.setup.saveTeam",
+        "scope": "admin"
+      },
+      {
+        "method": "community-manager.setup.testRun",
+        "scope": "admin"
+      },
+      {
+        "method": "community-manager.setup.goLive",
+        "scope": "admin"
+      },
+      {
+        "method": "community-manager.setup.simulate",
+        "scope": "admin"
+      },
+      {
+        "method": "community-manager.control.pause",
+        "scope": "admin"
+      },
+      {
+        "method": "community-manager.control.liveModules",
+        "scope": "admin"
+      },
+      {
+        "method": "community-manager.activity.list",
+        "scope": "read"
+      },
+      {
+        "method": "community-manager.leads.list",
+        "scope": "read"
+      },
+      {
+        "method": "community-manager.leads.update",
+        "scope": "write"
+      },
+      {
+        "method": "community-manager.mod.queue",
+        "scope": "read"
+      },
+      {
+        "method": "community-manager.tickets.list",
+        "scope": "read"
+      },
+      {
+        "method": "community-manager.tickets.update",
+        "scope": "write"
+      },
+      {
+        "method": "community-manager.campaigns.list",
+        "scope": "read"
+      },
+      {
+        "method": "community-manager.campaigns.create",
+        "scope": "write"
+      },
+      {
+        "method": "community-manager.campaigns.cancel",
+        "scope": "write"
+      },
+      {
+        "method": "community-manager.analytics.summary",
+        "scope": "read"
+      }
+    ],
+    "tools": [
+      {
+        "name": "community",
+        "trust": "write"
+      }
+    ],
+    "services": [
+      "community-manager-engine"
+    ],
+    "agents": [
+      "agents/roster.json"
+    ],
+    "setupChecks": [
+      {
+        "id": "community-manager.connected",
+        "title": "Community Manager",
+        "tabs": [
+          "community"
+        ],
+        "action": {
+          "label": "Set up Community",
+          "tab": "community"
+        }
+      }
+    ],
+    "mapRoom": {
+      "title": "Community Hall",
+      "theme": "boardroom",
+      "size": "M",
+      "placement": "south"
+    }
+  },
+  "permissions": {
+    "network": [
+      "discord.com (REST via the Discord channel's bot account)"
+    ],
+    "fs": [
+      "<stateDir>/plugin-data/community-manager"
+    ],
+    "exec": false,
+    "secrets": [
+      "channels.discord.accounts.<id>.token (core config, written by the wizard)"
+    ],
+    "channels": [
+      "discord",
+      "telegram"
+    ],
+    "credits": false
+  },
+  "appearance": {
+    "accent": "token:primary",
+    "tint": "none",
+    "tintStrength": 0.06,
+    "density": "comfortable",
+    "fontScale": 1,
+    "icon": "community",
+    "monogram": "CM"
+  },
+  "listing": {
+    "tagline": "Run your Discord community on autopilot: verify, qualify and route every new member to the right offer.",
+    "description": "**Community Manager** runs a Discord server day to day.\n\n- **Welcome + verification** with anti-raid checks\n- **Intake questionnaire** that scores every member and routes hot leads to an onboarder in a private thread\n- **Moderation** that deletes scams and banned financial claims in seconds; bans, kicks, long timeouts, mass DMs and @everyone always wait for your approval\n- **Tickets** as private support threads\n- **Pulse compliance**: the risk disclaimer is attached in trading channels automatically\n- **Dashboard** with live activity, lead queue, mod queue, tickets, analytics and a pause switch\n\nSet everything up in the UI \u2014 no config files.",
+    "category": "apps",
+    "tags": [
+      "discord",
+      "community",
+      "moderation",
+      "leads",
+      "onboarding"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  }
+}

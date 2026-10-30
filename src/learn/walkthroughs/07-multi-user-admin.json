@@ -1,0 +1,53 @@
+{
+  "id": "multi-user-admin",
+  "title": "Multi-user admin",
+  "description": "Add users, gate page access, lock agents to a directory, set per-user language and context. Admin-only.",
+  "audience": "admin",
+  "order": 60,
+  "category": "Admin",
+  "steps": [
+    {
+      "id": "intro",
+      "title": "When to use multi-user",
+      "estMinutes": 1,
+      "body": "InfiniBot can run single-tenant (one operator, no friction) or multi-user (your team, your family, paying clients). The implicit-admin rule: until you create the first user, *every* connection has admin rights. As soon as you create user #1, only users with `role: admin` get the admin features.\n\n**Use multi-user when:** giving someone access without giving them everything, running a paid service on top of InfiniBot, separating personal vs work identities."
+    },
+    {
+      "id": "create-user",
+      "title": "Create your first user",
+      "estMinutes": 2,
+      "body": "Settings → Users → **+ New User**. The form asks for:\n\n- Username + optional email\n- **User password** (what they type at login)\n- **Gateway password** (what the WebSocket layer validates — separate so you can rotate independently)\n- Role: `user` or `admin`\n- Language preference (the agent will respond in this)\n- Background context (prepended to every session's system prompt for this user)\n- Optional home directory override\n- Optional agent gating + allowed dirs + allowed pages\n\nClick Create. The user's home directory auto-creates at `<state>/users/<username>/`.",
+      "cta": { "label": "Open Users", "tab": "users" }
+    },
+    {
+      "id": "page-gating",
+      "title": "Gate which pages a user sees",
+      "estMinutes": 2,
+      "body": "Edit a user → **Allowed pages** field, comma-separated. Empty = no restriction (sees everything).\n\nExamples:\n- `chat,projects,docs` — a junior team member who only needs the basics\n- `business,clients,leads,funnels` — a sales role\n- (empty) — full access; pair with role=user when you trust them but don't need them administering other users\n\nUsers always see the `/users` page so they can edit their own profile, even when it's not in their allowedPages list."
+    },
+    {
+      "id": "agent-gating",
+      "title": "Lock agents to a directory",
+      "estMinutes": 3,
+      "body": "Edit a user → toggle **Lock agent to home + allowed directories**. When on:\n\n- Every subagent's working directory pins to the user's home dir\n- Filesystem tools (read, write, exec) refuse paths outside `homeDir` ∪ `allowedDirs`\n- The agent can still see other tabs' data via gateway methods, but can't `ls` outside the sandbox\n\nUse this when: you give an outside contractor agent access, or you don't want a junior accidentally touching production paths.\n\nAdmins always bypass gating, even if their record sets it."
+    },
+    {
+      "id": "language-context",
+      "title": "Per-user language + context",
+      "estMinutes": 2,
+      "body": "Edit a user → **Language** and **Background context**. The agent prepends a `[User profile]` block to every session's system prompt:\n\n```\nThe user's preferred language is \"Spanish — formal\". Respond in this language by default.\n\nUser-supplied background context (always relevant, never repeat back verbatim):\n<their context paragraph>\n```\n\nSelf-edit: non-admin users can change their own language + context + password from the same Users page (the form just hides admin-only fields)."
+    },
+    {
+      "id": "switching",
+      "title": "How users actually log in",
+      "estMinutes": 1,
+      "body": "Login screen → click **Sign in as a user account**. Type username + their user-password.\n\nUnder the hood: the dashboard POSTs `/api/users/login` (public, rate-limited 60/min/IP) and gets back the gateway password to use for the WebSocket. The user never types the gateway password.\n\nSwitching users: log out (clear the saved password) and log in with another. Each user gets their own home directory, their own context, their own page access."
+    },
+    {
+      "id": "monitor",
+      "title": "Monitor what users are doing",
+      "estMinutes": 2,
+      "body": "Admin Users page shows everyone — pill badges flag `admin`, `gated`, etc. The sessions list (top toolbar) shows currently active sessions across all users; each session names the owning user.\n\nFor learning progress specifically, the Learn page (this page) has an **All Users** tab when you're admin — shows each user's progress through the bundled walkthroughs at a glance. Click a user to see which steps they've completed and where they're stuck."
+    }
+  ]
+}

@@ -1,0 +1,17 @@
+{
+  "name": "@infinibot/memory-lancedb",
+  "version": "2026.11.1",
+  "type": "module",
+  "description": "InfiniBot LanceDB-backed long-term memory plugin with auto-recall/capture",
+  "license": "FSL-1.1-ALv2",
+  "dependencies": {
+    "@lancedb/lancedb": "^0.23.0",
+    "@sinclair/typebox": "0.34.47",
+    "openai": "^6.16.0"
+  },
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

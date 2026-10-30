@@ -1,0 +1,13 @@
+{
+  "categories": [
+    { "id": "default-home", "label": "Home", "collapsed": false, "position": 0, "tabs": ["dashboard", "learn"], "isCustom": false },
+    { "id": "default-chat-&-voice", "label": "Chat & Voice", "collapsed": false, "position": 1, "tabs": ["webchat", "grid", "voice", "inbox"], "isCustom": false },
+    { "id": "default-work", "label": "Work", "collapsed": false, "position": 2, "tabs": ["projects", "notes", "schedule", "research"], "isCustom": false },
+    { "id": "default-agents", "label": "Agents", "collapsed": false, "position": 3, "tabs": ["agents", "activity", "mesh", "reviews", "reports", "autonomy", "workflows", "memory", "issues", "terminals", "workspace", "files", "browser", "federation"], "isCustom": false },
+    { "id": "default-settings", "label": "Settings", "collapsed": true, "position": 4, "tabs": ["setup", "channels", "apikeys", "mcp", "skills", "profiles", "appearance", "mobile", "docs", "logs"], "isCustom": false }
+  ],
+  "hiddenTabs": [],
+  "tabCustomNames": { "dashboard": "Today", "business": "Sales Pipeline", "opportunities": "Opportunity" },
+  "layoutVersion": "2026.09.28-business-agency",
+  "pluginSections": { "infinitrade": { "collapsed": true } }
+}

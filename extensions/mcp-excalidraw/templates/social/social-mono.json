@@ -1,0 +1,55 @@
+{
+  "id": "social-mono",
+  "category": "social",
+  "name": "Social · Mono",
+  "width": 1080,
+  "height": 1080,
+  "background": "#f5f5fa",
+  "createdAt": "2026-06-09",
+  "scene": {
+    "elements": [
+      {
+        "id": "social-mono-bg-accent",
+        "type": "rectangle",
+        "x": 0,
+        "y": 842.4,
+        "width": 1080,
+        "height": 64.8,
+        "backgroundColor": "#a855f7",
+        "fillStyle": "solid",
+        "strokeColor": "transparent",
+        "strokeWidth": 0,
+        "roughness": 0
+      },
+      {
+        "id": "social-mono-title",
+        "type": "text",
+        "x": 108,
+        "y": 378,
+        "width": 864,
+        "height": 96,
+        "text": "Social title",
+        "fontSize": 64,
+        "fontFamily": 1,
+        "textAlign": "center",
+        "strokeColor": "#1a1a2e"
+      },
+      {
+        "id": "social-mono-subtitle",
+        "type": "text",
+        "x": 108,
+        "y": 518.4,
+        "width": 864,
+        "height": 48,
+        "text": "Mono · 1080×1080",
+        "fontSize": 28,
+        "fontFamily": 2,
+        "textAlign": "center",
+        "strokeColor": "#1a1a2e",
+        "opacity": 70
+      }
+    ],
+    "appState": {},
+    "files": {}
+  }
+}

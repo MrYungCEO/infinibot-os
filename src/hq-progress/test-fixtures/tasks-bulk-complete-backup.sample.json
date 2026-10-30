@@ -1,0 +1,26 @@
+[
+  {
+    "id": "00000000-0000-4000-8000-000000000001",
+    "notionId": "00000000-0000-4000-8000-000000000001",
+    "title": "Stale task one",
+    "status": "in_progress",
+    "notionStatus": "In progress",
+    "createdAt": 1777871940000
+  },
+  {
+    "id": "00000000-0000-4000-8000-000000000002",
+    "notionId": "00000000-0000-4000-8000-000000000002",
+    "title": "Stale task two",
+    "status": "review",
+    "notionStatus": "Awaiting Response",
+    "createdAt": 1777871940000
+  },
+  {
+    "id": "00000000-0000-4000-8000-000000000003",
+    "notionId": "00000000-0000-4000-8000-000000000003",
+    "title": "Stale task three",
+    "status": "todo",
+    "notionStatus": "Not started",
+    "createdAt": 1777871940000
+  }
+]

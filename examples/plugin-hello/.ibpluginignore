@@ -1,0 +1,3 @@
+# Files left out of the package (infinibot plugins pack)
+*.test.js
+test/

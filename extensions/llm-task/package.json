@@ -1,0 +1,12 @@
+{
+  "name": "@infinibot/llm-task",
+  "version": "2026.11.1",
+  "type": "module",
+  "description": "InfiniBot JSON-only LLM task plugin",
+  "license": "FSL-1.1-ALv2",
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

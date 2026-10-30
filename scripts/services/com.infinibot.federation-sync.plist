@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+    <key>Label</key>
+    <string>com.infinibot.federation-sync</string>
+    <key>ProgramArguments</key>
+    <array>
+        <string>/usr/local/bin/pnpm</string>
+        <string>--dir</string>
+        <string>/path/to/InfiniBot-fresh</string>
+        <string>federation-sync</string>
+        <string>sync</string>
+    </array>
+    <key>EnvironmentVariables</key>
+    <dict>
+        <key>FEDERATION_ROLE</key>
+        <string>satellite</string>
+        <key>FEDERATION_GIT_REMOTE</key>
+        <string>origin</string>
+        <key>FEDERATION_GIT_BRANCH</key>
+        <string>main</string>
+        <key>PATH</key>
+        <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin:__HOME__/Library/pnpm</string>
+    </dict>
+    <key>WorkingDirectory</key>
+    <string>/path/to/InfiniBot-fresh</string>
+    <key>StartInterval</key>
+    <integer>300</integer>
+    <key>RunAtLoad</key>
+    <true/>
+    <key>StandardOutPath</key>
+    <string>/tmp/infinibot-federation-sync.log</string>
+    <key>StandardErrorPath</key>
+    <string>/tmp/infinibot-federation-sync.log</string>
+    <key>Nice</key>
+    <integer>19</integer>
+    <key>LowPriorityIO</key>
+    <true/>
+</dict>
+</plist>

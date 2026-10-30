@@ -1,0 +1,12 @@
+{
+  "name": "@infinibot/community-manager",
+  "version": "2026.11.1",
+  "type": "module",
+  "description": "Discord Community Manager: welcome + verification, intake and lead routing, moderation with approvals, tickets, Pulse compliance and a /community dashboard",
+  "license": "FSL-1.1-ALv2",
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

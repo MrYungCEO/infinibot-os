@@ -1,0 +1,15 @@
+<svg viewBox="0 0 440 200">
+  <g font-family="Segoe UI" font-size="10" fill="#aab2cc">
+    <text x="14" y="40">SERIAL</text>
+    <rect x="80" y="28" width="100" height="18" rx="4" fill="rgba(224,86,79,.5)" stroke="#e0564f"/>
+    <rect x="184" y="28" width="100" height="18" rx="4" fill="rgba(224,86,79,.35)" stroke="#e0564f"/>
+    <rect x="288" y="28" width="100" height="18" rx="4" fill="rgba(224,86,79,.22)" stroke="#e0564f"/>
+    <text x="388" y="64" text-anchor="end" fill="#e0564f">≈ 18 min · sum</text>
+    <text x="14" y="120">PARALLEL</text>
+    <rect x="80" y="108" width="100" height="18" rx="4" fill="rgba(127,212,200,.5)" stroke="#7fd4c8"><animate attributeName="opacity" values=".4;1;.4" dur="2s" repeatCount="indefinite"/></rect>
+    <rect x="80" y="130" width="100" height="18" rx="4" fill="rgba(212,175,55,.5)" stroke="#d4af37"><animate attributeName="opacity" values=".4;1;.4" dur="2s" begin=".3s" repeatCount="indefinite"/></rect>
+    <rect x="80" y="152" width="100" height="18" rx="4" fill="rgba(155,140,255,.5)" stroke="#9b8cff"><animate attributeName="opacity" values=".4;1;.4" dur="2s" begin=".6s" repeatCount="indefinite"/></rect>
+    <line x1="180" y1="100" x2="180" y2="178" stroke="#f4d77a" stroke-dasharray="3 3"/>
+    <text x="196" y="150" fill="#7fd4c8">≈ 6 min · max</text>
+  </g>
+</svg>

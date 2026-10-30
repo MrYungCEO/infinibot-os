@@ -1,0 +1,23 @@
+{
+  "id": "zalo",
+  "name": "Zalo",
+  "listing": {
+    "tagline": "Vietnam-focused messaging through the Zalo Bot API.",
+    "category": "channels",
+    "tags": [
+      "chat",
+      "asia"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "channels": [
+    "zalo"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

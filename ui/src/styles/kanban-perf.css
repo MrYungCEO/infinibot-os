@@ -1,0 +1,129 @@
+/*
+ * /projects (kanban) rendering-cost containment.
+ *
+ * The board renders EVERY project as a card — 81 cards / ~3,700 DOM nodes on
+ * this install, with no virtualization — and re-renders the whole board on
+ * each drag-over column change. Without containment every one of those
+ * re-renders costs a document-wide style recalc + layout.
+ *
+ * These rules live here rather than in `kanbanStyles()` so they can be tuned
+ * without touching the 10k-line view module. They are deliberately scoped
+ * under `.kanban-layout` (the wrapper `renderKanban` emits) and use one extra
+ * class of specificity, because the view's own <style> block is injected into
+ * the light DOM *after* this sheet and would otherwise win every tie.
+ *
+ * Measured on the real board (81 cards, drag across all 6 columns) — see
+ * ui/PERF-KANBAN.md for the before/after table.
+ */
+
+/* ── Containment ──────────────────────────────────────────────────────────
+   Each card is a self-contained subtree: nothing inside it can affect the
+   size or position of anything outside it. Telling the engine that stops a
+   single card's re-render from invalidating layout for the whole board. */
+.kanban-layout .pk-board,
+.kanban-layout .gallery-grid {
+  contain: layout style;
+}
+
+.kanban-layout .pk-column {
+  contain: layout style;
+}
+
+/* Already `overflow-y: auto`, so paint is clipped here regardless — declaring
+   it lets the engine skip the descendants during the parent's paint walk. */
+.kanban-layout .pk-column-content {
+  contain: layout style paint;
+}
+
+/* Off-screen cards skip style, layout and paint entirely. Only ~20 of the 81
+   cards are ever in the viewport, so this is where most of the win comes
+   from. `auto` in contain-intrinsic-size makes the engine remember each
+   card's last rendered height, so the scrollbar doesn't jump. */
+.kanban-layout .gc {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 210px;
+}
+
+/* `content-visibility: auto` implies `contain: paint`, which clips a card's
+   DESCENDANTS to the card box — and the card's drop shadow is painted by the
+   descendant `.gc-inner`. Re-home the outer shadows onto `.gc` itself (an
+   element's own shadow is not clipped by its own paint containment) so the
+   cards look identical. The inset highlight stays on `.gc-inner`. */
+.kanban-layout .gc {
+  border-radius: 16px;
+  box-shadow:
+    0 4px 24px rgba(0, 0, 0, 0.4),
+    0 1px 2px rgba(0, 0, 0, 0.3);
+}
+.kanban-layout .gc .gc-inner {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+.kanban-layout .gc:hover {
+  box-shadow:
+    0 20px 50px rgba(0, 0, 0, 0.5),
+    0 8px 24px rgba(0, 0, 0, 0.4);
+}
+.kanban-layout .gc:hover .gc-inner {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+/* ── Transitions ──────────────────────────────────────────────────────────
+   The view declares `transition: all .4s` on both `.gc` and `.gc-inner`.
+   `all` means every class flip the board makes — and a drag flips classes on
+   every column change — arms transitions on layout-affecting properties.
+   Narrow it to the two properties that are actually animated. */
+.kanban-layout .gc {
+  transition:
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.kanban-layout .gc .gc-inner {
+  transition:
+    border-color 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* ── Drag ─────────────────────────────────────────────────────────────────
+   Promote ONLY the card being dragged; `will-change` on all 81 would cost
+   more compositor memory than it saves. */
+.kanban-layout .gc--dragging {
+  will-change: transform, opacity;
+}
+
+/* The drag-over column scaled itself by 1.01, which repaints the column and
+   every card inside it on each column change — the most expensive possible
+   way to signal a drop target. The border, fill and glow changes the view
+   already applies carry the same affordance for free. */
+.kanban-layout .pk-col-drag-over {
+  transform: none;
+}
+
+/* kanban.ts writes `scrollTop` on every re-render (`_restoreScrollPositions`).
+   With smooth scrolling each of those writes starts an interpolated scroll
+   animation, so the columns were permanently mid-animation. */
+.kanban-layout .pk-column-content {
+  scroll-behavior: auto;
+}
+
+/* ── Gallery card transitions ─────────────────────────────────────────────
+   Gallery cards (.gallery-card, .gc-container) use `transition: all` in the
+   inline style block.  Narrow to the only properties that visually animate so
+   hover/drag class toggles don't trip the layout-triggering transition path. */
+.kanban-layout .gallery-card {
+  transition:
+    transform 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.2s ease;
+}
+
+/* Gallery-grid board: promote the scrollable container to its own layer
+   so scrolling doesn't repaint the fixed toolbar above it. */
+.kanban-layout .gallery-grid {
+  will-change: scroll-position;
+  contain: layout style paint;
+}
+
+/* pk-board horizontal scroll — same treatment as gallery-grid */
+.kanban-layout .pk-board {
+  will-change: scroll-position;
+}

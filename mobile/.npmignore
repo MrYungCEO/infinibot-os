@@ -1,0 +1,42 @@
+# Keep the published payload to source only — ship App.js, app.json, eas.json,
+# index.js, babel.config.js, package.json, assets/**, scripts/**, skills/**,
+# README.md and src/**, but never installed deps or build artifacts.
+
+# dependencies
+node_modules/
+
+# Expo / Metro caches + web build
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+.metro-health-check*
+
+# generated native folders + native build output
+/ios
+/android
+ios/build/
+android/build/
+
+# packaged binaries
+*.apk
+*.aab
+*.ipa
+
+# signing material / secrets
+*.jks
+*.p8
+*.p12
+*.key
+*.pem
+*.mobileprovision
+.env*.local
+
+# misc
+*.orig.*
+*.tsbuildinfo
+.kotlin/
+.DS_Store
+npm-debug.*
+yarn-debug.*
+yarn-error.*

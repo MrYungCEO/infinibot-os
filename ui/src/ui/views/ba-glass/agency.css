@@ -1,0 +1,392 @@
+/* Premium glass overrides for the agency operating surfaces.  The underlying
+ * views keep their existing interaction/data styles; this layer only remaps
+ * their visual primitives to docs/ui/GLASS.md tokens. */
+
+.ba-glass.ba-glass.agx,
+.ba-glass.ba-glass.aops {
+  --agx-mono: var(--bag-font);
+  --agx-line: var(--bag-line-strong);
+  --agx-line-soft: var(--bag-line);
+  --agx-dim: var(--bag-text-2);
+  --agx-plate: var(--bag-card);
+  --agx-radius: var(--bag-radius);
+  --agx-radius-sm: var(--bag-radius-sm);
+  --agx-glass: var(--glass-sheen, none), var(--bag-panel);
+  --agx-glass-raised: var(--glass-sheen, none), var(--bag-card);
+  --agx-blur: none;
+  --agx-elevation: var(--bag-shadow);
+  --agx-hairline: var(--glass-specular), var(--glass-inner-shade);
+  min-height: 100%;
+  height: auto;
+  gap: 18px;
+  padding: 26px clamp(16px, 2.6vw, 34px) 72px;
+  background: transparent;
+  color: var(--bag-text);
+  font-family: var(--bag-font);
+  font-size: 13.5px;
+  line-height: 1.5;
+  overflow: visible;
+}
+
+.ba-glass.agx > :not(.ba-aurora, style),
+.ba-glass.aops > :not(.ba-aurora, style) {
+  width: 100%;
+  max-width: 1480px;
+  margin-inline: auto;
+}
+
+.ba-glass.agx .agx-head,
+.ba-glass.aops .aops-head {
+  align-items: flex-end;
+  gap: 16px;
+  padding: 2px 0 4px;
+  border: 0;
+}
+
+.ba-glass.agx .agx-head h1,
+.ba-glass.aops .aops-head h1 {
+  margin: 0;
+  color: var(--bag-text);
+  background: none;
+  -webkit-text-fill-color: currentColor;
+  font-family: var(--bag-font-display);
+  font-size: clamp(27px, 2.7vw, 38px);
+  font-weight: 650;
+  letter-spacing: -0.03em;
+  line-height: 1.08;
+  text-transform: none;
+}
+
+.ba-glass.agx .agx-sub,
+.ba-glass.aops .aops-sub {
+  max-width: 760px;
+  margin-top: 8px;
+  color: var(--bag-text-2);
+  font-size: 14.5px;
+  line-height: 1.52;
+}
+
+.ba-glass.agx :is(.agx-panel, .agx-kpi, .agx-toolbar, .agx-empty, .agx-banner, .agx-notice, .agx-modal),
+.ba-glass.aops :is(.agx-panel, .agx-kpi, .agx-toolbar, .agx-empty, .agx-banner, .agx-notice, .agx-modal),
+.ba-glass.aops :is(.aops-card, .aops-kpi, .aops-agencybar, .aops-alert, .aops-dialog, .aops-inline-notice) {
+  position: relative;
+  border: 0;
+  border-radius: var(--bag-radius);
+  background: var(--glass-sheen, none), var(--bag-panel);
+  box-shadow: var(--bag-shadow);
+  color: var(--bag-text);
+}
+
+.ba-glass.agx :is(.agx-panel, .agx-kpi, .agx-toolbar, .agx-empty, .agx-banner, .agx-notice, .agx-modal)::before,
+.ba-glass.aops :is(.agx-panel, .agx-kpi, .agx-toolbar, .agx-empty, .agx-banner, .agx-notice, .agx-modal)::before,
+.ba-glass.aops :is(.aops-card, .aops-kpi, .aops-agencybar, .aops-alert, .aops-dialog)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: var(--bag-hairline);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.ba-glass.agx :is(.agx-panel, .agx-kpi, .agx-toolbar, .agx-empty, .agx-banner, .agx-notice, .agx-modal) > *,
+.ba-glass.aops :is(.agx-panel, .agx-kpi, .agx-toolbar, .agx-empty, .agx-banner, .agx-notice, .agx-modal) > *,
+.ba-glass.aops :is(.aops-card, .aops-kpi, .aops-agencybar, .aops-alert, .aops-dialog) > * {
+  position: relative;
+  z-index: 1;
+}
+
+.ba-glass.agx .agx-panel,
+.ba-glass.aops .agx-panel,
+.ba-glass.aops .aops-card {
+  overflow: hidden;
+  transition: transform var(--glass-dur-fast, 160ms) var(--bag-spring),
+    box-shadow var(--glass-dur, 240ms) var(--bag-ease);
+}
+
+.ba-glass.agx .agx-panel:hover,
+.ba-glass.aops .agx-panel:hover,
+.ba-glass.aops .aops-card:hover {
+  box-shadow: var(--bag-shadow-lift);
+}
+
+.ba-glass.agx .agx-kpi,
+.ba-glass.aops .agx-kpi,
+.ba-glass.aops .aops-kpi {
+  min-height: 116px;
+  padding: 16px 17px;
+  background: var(--glass-sheen, none), var(--bag-card);
+}
+
+.ba-glass.agx .agx-kpi-label,
+.ba-glass.aops .agx-kpi-label,
+.ba-glass.aops .aops-kpi > span {
+  color: var(--bag-text-2);
+  font-size: 12px;
+  font-weight: 560;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.ba-glass.agx .agx-kpi-value,
+.ba-glass.aops .agx-kpi-value,
+.ba-glass.aops .aops-kpi > strong {
+  color: var(--bag-text);
+  font-family: var(--bag-font-display);
+  font-size: clamp(25px, 2.4vw, 34px);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+}
+
+.ba-glass.agx :is(.agx-panel-head, .agx-modal-head),
+.ba-glass.aops :is(.agx-panel-head, .agx-modal-head),
+.ba-glass.aops .aops-card > header {
+  min-height: 48px;
+  padding: 14px 16px;
+  border-color: var(--bag-line);
+  color: var(--bag-text);
+  font-size: 13px;
+  font-weight: 620;
+  letter-spacing: -0.005em;
+  text-transform: none;
+}
+
+.ba-glass.agx :is(.agx-card, .agx-row, .agx-col, .agx-result, .agx-routing, .agx-confirm),
+.ba-glass.aops :is(.aops-board-card, .aops-client-card, .aops-stage, .aops-engagement, .aops-row-card) {
+  border-color: var(--bag-line);
+  border-radius: var(--bag-radius-sm);
+  background: var(--bag-card);
+  color: var(--bag-text);
+}
+
+.ba-glass.agx :is(.agx-card, .agx-row, .agx-col),
+.ba-glass.aops :is(.aops-board-card, .aops-client-card) {
+  transition: transform var(--glass-dur-fast, 160ms) var(--bag-spring),
+    border-color var(--glass-dur-fast, 160ms), background var(--glass-dur-fast, 160ms);
+}
+
+.ba-glass.agx :is(.agx-card, .agx-row):hover,
+.ba-glass.aops :is(.aops-board-card, .aops-client-card):hover {
+  transform: translateY(-1px);
+  border-color: var(--bag-line-strong);
+  background: var(--bag-hover);
+}
+
+.ba-glass.agx :is(.agx-btn, .agx-select, .agx-input, .agx-textarea),
+.ba-glass.aops :is(.aops-btn, .aops-agency-select, input, select, textarea) {
+  border-color: var(--bag-line-strong);
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--bag-card) 82%, transparent);
+  color: var(--bag-text);
+  font-family: var(--bag-font);
+  font-size: 13px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.ba-glass.agx :is(.agx-btn, .agx-select, .agx-input, .agx-textarea):hover,
+.ba-glass.aops :is(.aops-btn, .aops-agency-select, input, select, textarea):hover {
+  border-color: var(--bag-gold);
+}
+
+.ba-glass.agx .agx-btn.primary,
+.ba-glass.agx .agx-btn.authorize,
+.ba-glass.aops .aops-btn.primary {
+  border-color: transparent;
+  background: var(--bag-gold-fill);
+  color: var(--bag-ink);
+  font-weight: 620;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.44) inset,
+    0 12px 28px -12px color-mix(in srgb, var(--bag-gold) 72%, transparent);
+}
+
+.ba-glass.agx :is(.agx-chip.gold, .agx-tag.gold, .agx-count),
+.ba-glass.aops :is(.aops-count, .aops-role) {
+  border-color: var(--bag-line-strong);
+  background: color-mix(in srgb, var(--bag-gold) 10%, transparent);
+  color: var(--bag-gold);
+}
+
+.ba-glass.agx :is(.agx-skel-bar, .agx-run-shimmer),
+.ba-glass.aops .aops-loading::after {
+  background: linear-gradient(90deg,
+    color-mix(in srgb, var(--bag-text) 5%, transparent),
+    color-mix(in srgb, var(--bag-gold) 15%, transparent),
+    color-mix(in srgb, var(--bag-text) 5%, transparent));
+  background-size: 200% 100%;
+}
+
+.ba-glass.aops .aops-section-nav {
+  gap: 5px;
+  padding: 5px;
+  border: 1px solid var(--bag-line);
+  border-radius: 14px;
+  background: var(--bag-well);
+}
+
+.ba-glass.aops .aops-section-nav button {
+  min-height: 36px;
+  border-radius: 10px;
+  color: var(--bag-text-2);
+  font-family: var(--bag-font);
+  font-size: 12.5px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+.ba-glass.aops .aops-section-nav button.active {
+  background: color-mix(in srgb, var(--bag-gold) 12%, transparent);
+  color: var(--bag-gold);
+  box-shadow: inset 0 0 0 1px var(--bag-line-strong);
+}
+
+.ba-glass.aops .aops-sync-copy {
+  min-width: 220px;
+}
+
+.ba-glass.aops .aops-sync-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* Invoice composer and revenue drawer may be mounted outside the CRM root, so
+ * each fixed overlay is itself a .ba-glass scope. */
+.ba-glass.aoi-overlay {
+  /* .ba-glass sets position:relative for page roots; overlays stay fixed. */
+  position: fixed;
+  inset: 0;
+  z-index: 100000;
+  --aoi-gold: var(--bag-gold);
+  --aoi-text: var(--bag-text);
+  --aoi-dim: var(--bag-text-2);
+  background: color-mix(in srgb, #050403 58%, transparent);
+  backdrop-filter: none;
+}
+.ba-glass.aoi-overlay .aoi-modal {
+  border: 0;
+  border-radius: var(--bag-radius-lg);
+  background: var(--glass-sheen, none), var(--bag-float);
+  box-shadow: var(--glass-elev-4);
+  color: var(--bag-text);
+}
+.ba-glass.aoi-overlay .aoi-modal::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; padding: 1px; pointer-events: none;
+  background: var(--bag-hairline);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor; mask-composite: exclude;
+}
+.ba-glass.aoi-overlay :is(.aoi-btn, .aoi-icon, input, select, textarea) {
+  border-color: var(--bag-line-strong);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bag-card) 84%, transparent);
+  color: var(--bag-text);
+  font-family: var(--bag-font);
+}
+.ba-glass.aoi-overlay .aoi-btn.primary { border-color: transparent; background: var(--bag-gold-fill); color: var(--bag-ink); }
+
+.ba-glass.agx .agx-modal-scrim,
+.ba-glass.aops .aops-overlay {
+  background: color-mix(in srgb, #050403 58%, transparent);
+  backdrop-filter: none;
+}
+
+:root[data-theme="light"] .ba-glass.agx .agx-modal-scrim,
+:root[data-theme="light"] .ba-glass.aops .aops-overlay {
+  background: color-mix(in srgb, #3a2a0b 22%, transparent);
+}
+
+@media (max-width: 640px) {
+  .ba-glass.ba-glass.agx,
+  .ba-glass.ba-glass.aops {
+    padding: 18px 12px 56px;
+    gap: 14px;
+  }
+  .ba-glass.agx .agx-head,
+  .ba-glass.aops .aops-head { align-items: flex-start; }
+  .ba-glass.agx .agx-head-tools,
+  .ba-glass.aops .aops-tools { width: 100%; margin-left: 0; }
+  .ba-glass.agx .agx-head-tools > *,
+  .ba-glass.aops .aops-tools > * { flex: 1 1 auto; }
+  .ba-glass.agx :is(.agx-kpis, .agx-grid, .agx-grid-daily),
+  .ba-glass.aops :is(.aops-kpis, .aops-grid) { grid-template-columns: minmax(0, 1fr); }
+  .ba-glass.aops .aops-section-nav { overflow-x: auto; flex-wrap: nowrap; }
+  .ba-glass.aops .aops-section-nav button { flex: 0 0 auto; }
+  .ba-glass.aops .aops-sync-row {
+    display: grid;
+    grid-template-columns: 10px minmax(0, 1fr);
+    align-items: start !important;
+  }
+  .ba-glass.aops .aops-sync-copy { min-width: 0; }
+  .ba-glass.aops .aops-sync-actions {
+    grid-column: 1 / -1;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    width: 100%;
+  }
+  .ba-glass.aops .aops-sync-actions .aops-btn {
+    justify-content: center;
+    width: 100%;
+    min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ba-glass.agx *, .ba-glass.aops * { scroll-behavior: auto; }
+  .ba-glass.agx :is(.agx-panel, .agx-card, .agx-row),
+  .ba-glass.aops :is(.aops-card, .aops-board-card, .aops-client-card) { transition: none; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .ba-glass.agx :is(.agx-panel, .agx-toolbar, .agx-modal),
+  .ba-glass.aops :is(.aops-card, .aops-dialog, .aops-agencybar) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--glass-solid, var(--bag-float));
+  }
+}
+
+/* Replication status card: its inline tint is built from status hues that
+   turn muddy grey on porcelain. Keep the hue as an accent edge only and use
+   the shared glass card fill in both themes. */
+.ba-glass.aops .aops-card:has(> .aops-sync-row) {
+  /* its inline margin:0 0 16px would cancel the column's auto centring */
+  margin-inline: auto !important;
+  background: var(--glass-sheen, none), var(--bag-card) !important;
+  color: var(--bag-text);
+}
+.ba-glass.aops .aops-card:has(> .aops-sync-row) small { color: var(--bag-text-3); }
+.ba-glass.aops .aops-card:has(> .aops-sync-row) strong { color: var(--bag-text); }
+
+/* styles/droid-swarm.css ships an unscoped global `.aops-row` (dark fill,
+   padding, 4-column grid) that leaks onto this page's rows. Reset it here at
+   (0,2,0) so this page's own `.aops-… > .aops-row` variants still win. */
+.ba-glass.aops :where(.aops-row) {
+  display: flex;
+  grid-template-columns: none;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  transition: none;
+}
+
+/* Phone: panel headers with long hint badges (Topology map "N nodes · drag,
+   scroll to zoom…") wrap instead of running off the card. */
+@media (max-width: 640px) {
+  .ba-glass.agx .agx-panel-head { flex-wrap: wrap; row-gap: 6px; }
+  .ba-glass.agx .agx-panel-head .agx-count {
+    white-space: normal;
+    max-width: 100%;
+    line-height: 1.35;
+    text-align: left;
+  }
+  .ba-glass.agx .agt-legend { min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+  .ba-glass.agx .agt-legend-items { flex-wrap: wrap; }
+}

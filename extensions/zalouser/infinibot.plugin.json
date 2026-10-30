@@ -1,0 +1,23 @@
+{
+  "id": "zalouser",
+  "name": "Zalo Personal",
+  "listing": {
+    "tagline": "A personal Zalo account, signed in with a QR code.",
+    "category": "channels",
+    "tags": [
+      "chat",
+      "asia"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "channels": [
+    "zalouser"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

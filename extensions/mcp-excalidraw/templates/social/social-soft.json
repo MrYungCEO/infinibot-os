@@ -1,0 +1,55 @@
+{
+  "id": "social-soft",
+  "category": "social",
+  "name": "Social · Soft",
+  "width": 1080,
+  "height": 1080,
+  "background": "#0e1a14",
+  "createdAt": "2026-06-09",
+  "scene": {
+    "elements": [
+      {
+        "id": "social-soft-bg-accent",
+        "type": "rectangle",
+        "x": 0,
+        "y": 842.4,
+        "width": 1080,
+        "height": 64.8,
+        "backgroundColor": "#22c55e",
+        "fillStyle": "solid",
+        "strokeColor": "transparent",
+        "strokeWidth": 0,
+        "roughness": 0
+      },
+      {
+        "id": "social-soft-title",
+        "type": "text",
+        "x": 108,
+        "y": 378,
+        "width": 864,
+        "height": 96,
+        "text": "Social title",
+        "fontSize": 64,
+        "fontFamily": 1,
+        "textAlign": "center",
+        "strokeColor": "#e6fff5"
+      },
+      {
+        "id": "social-soft-subtitle",
+        "type": "text",
+        "x": 108,
+        "y": 518.4,
+        "width": 864,
+        "height": 48,
+        "text": "Soft · 1080×1080",
+        "fontSize": 28,
+        "fontFamily": 2,
+        "textAlign": "center",
+        "strokeColor": "#e6fff5",
+        "opacity": 70
+      }
+    ],
+    "appState": {},
+    "files": {}
+  }
+}

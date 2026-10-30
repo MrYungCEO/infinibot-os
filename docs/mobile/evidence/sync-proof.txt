@@ -1,0 +1,14 @@
+PASS  mobile creates a session with the web chat key grammar  — agent:main:webchat-mup4yrp5
+PASS  mobile receives the reply to its own message
+PASS  gateway session store lists the mobile-created session
+PASS  rename on mobile is stored on the gateway (sessions.patch label)  — label=mobile-sync-test
+PASS  web chat shows the conversation that was started on mobile
+PASS  web sidebar shows the title set on mobile
+PASS  message sent on the web appears on mobile with no refresh
+PASS  mobile shows the reply to the web message
+PASS  message sent on mobile appears on the web with no refresh
+PASS  gateway transcript holds all three user turns  — user turns=3
+PASS  delete on mobile removes the session from the gateway
+PASS  web sidebar no longer lists the deleted session
+mobile page errors [] failed rpc []
+ALL PASS

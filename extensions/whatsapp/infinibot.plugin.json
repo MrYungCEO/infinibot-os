@@ -1,0 +1,23 @@
+{
+  "id": "whatsapp",
+  "name": "WhatsApp",
+  "listing": {
+    "tagline": "Link a WhatsApp account and chat with your agents.",
+    "category": "channels",
+    "tags": [
+      "chat",
+      "mobile"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "channels": [
+    "whatsapp"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

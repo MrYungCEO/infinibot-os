@@ -1,0 +1,834 @@
+/**
+ * Sovereign Onboarding Styles
+ * 
+ * A liminal, intentional aesthetic for first meetings.
+ * Minimal. Warm. Spacious.
+ */
+
+/* ─────────────────────────────────────────────────────────────
+   Container
+   ───────────────────────────────────────────────────────────── */
+
+.onboarding-container {
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(135deg, #0a0a0f 0%, #12121a 50%, #0a0a0f 100%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  overflow: hidden;
+  z-index: 9999;
+}
+
+.onboarding-content {
+  max-width: 600px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Typography
+   ───────────────────────────────────────────────────────────── */
+
+.onboarding-container {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+  color: #e0e0e0;
+  line-height: 1.6;
+}
+
+.phase-intro {
+  font-size: 0.9rem;
+  color: #888;
+  margin-bottom: 0.5rem;
+  letter-spacing: 0.05em;
+}
+
+.phase-question {
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: #fff;
+  margin-bottom: 2rem;
+}
+
+.phase-title {
+  font-size: 1.4rem;
+  font-weight: 500;
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.phase-subtitle {
+  font-size: 0.95rem;
+  color: #999;
+  margin-bottom: 2rem;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   The Orb — Agent Presence
+   ───────────────────────────────────────────────────────────── */
+
+.arrival-orb,
+.agent-orb {
+  width: 80px;
+  height: 80px;
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.orb-inner {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, #3a3a5a 0%, #1a1a2a 70%, #0a0a15 100%);
+  box-shadow: 
+    0 0 60px rgba(100, 100, 180, 0.15),
+    0 0 30px rgba(100, 100, 180, 0.1),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+  animation: orb-breathe 4s ease-in-out infinite;
+}
+
+@keyframes orb-breathe {
+  0%, 100% { 
+    transform: scale(1); 
+    box-shadow: 
+      0 0 60px rgba(100, 100, 180, 0.15),
+      0 0 30px rgba(100, 100, 180, 0.1),
+      inset 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+  50% { 
+    transform: scale(1.05); 
+    box-shadow: 
+      0 0 80px rgba(100, 100, 180, 0.2),
+      0 0 40px rgba(100, 100, 180, 0.15),
+      inset 0 0 20px rgba(0, 0, 0, 0.5);
+  }
+}
+
+.agent-orb.speaking .orb-inner {
+  animation: orb-speak 2s ease-in-out infinite;
+}
+
+@keyframes orb-speak {
+  0%, 100% { 
+    transform: scale(1);
+    background: radial-gradient(circle at 30% 30%, #4a4a6a 0%, #1a1a2a 70%, #0a0a15 100%);
+  }
+  50% { 
+    transform: scale(1.08);
+    background: radial-gradient(circle at 30% 30%, #5a5a8a 0%, #2a2a4a 70%, #0a0a15 100%);
+  }
+}
+
+.agent-orb.named .orb-inner {
+  background: radial-gradient(circle at 30% 30%, #4a6a5a 0%, #1a2a2a 70%, #0a150a 100%);
+  box-shadow: 
+    0 0 60px rgba(100, 180, 120, 0.15),
+    0 0 30px rgba(100, 180, 120, 0.1),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.agent-orb.complete .orb-inner {
+  background: radial-gradient(circle at 30% 30%, #6a8a5a 0%, #2a4a2a 70%, #0a150a 100%);
+  box-shadow: 
+    0 0 80px rgba(120, 200, 100, 0.2),
+    0 0 40px rgba(120, 200, 100, 0.15),
+    inset 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.agent-name-display {
+  position: absolute;
+  bottom: -1.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 0.85rem;
+  color: #aaa;
+  letter-spacing: 0.1em;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Arrival Phase
+   ───────────────────────────────────────────────────────────── */
+
+.arrival-glow {
+  position: absolute;
+  width: 300px;
+  height: 300px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(80, 80, 120, 0.1) 0%, transparent 70%);
+  pointer-events: none;
+  animation: glow-pulse 6s ease-in-out infinite;
+}
+
+@keyframes glow-pulse {
+  0%, 100% { opacity: 0.5; transform: scale(1); }
+  50% { opacity: 0.8; transform: scale(1.1); }
+}
+
+.arrival-text {
+  font-size: 1.1rem;
+  color: #888;
+  margin-bottom: 3rem;
+  animation: text-fade 3s ease-in-out infinite;
+}
+
+@keyframes text-fade {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 1; }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Options / Radio Buttons
+   ───────────────────────────────────────────────────────────── */
+
+.options-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 2rem;
+}
+
+.options-list.compact {
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.option-btn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.option-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.option-btn.selected {
+  background: rgba(100, 180, 120, 0.1);
+  border-color: rgba(100, 180, 120, 0.3);
+}
+
+.option-radio {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  position: relative;
+  flex-shrink: 0;
+  transition: all 0.2s ease;
+}
+
+.option-btn.selected .option-radio {
+  border-color: #7ab88a;
+  background: #7ab88a;
+}
+
+.option-btn.selected .option-radio::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #0a0a0f;
+}
+
+.option-label {
+  font-size: 0.95rem;
+  color: #ccc;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Agent Speech
+   ───────────────────────────────────────────────────────────── */
+
+.agent-speech {
+  margin-bottom: 2rem;
+  max-width: 450px;
+}
+
+.agent-speech.centered {
+  text-align: center;
+}
+
+.speech-line {
+  margin: 0.75rem 0;
+  color: #ccc;
+  font-size: 1.05rem;
+}
+
+.speech-line.large {
+  font-size: 1.4rem;
+  color: #fff;
+  margin: 1rem 0;
+}
+
+.speech-line.emphasis {
+  color: #fff;
+  font-weight: 500;
+}
+
+.speech-line.soft {
+  color: #999;
+  font-size: 0.95rem;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Forms
+   ───────────────────────────────────────────────────────────── */
+
+.intro-form {
+  width: 100%;
+  max-width: 450px;
+  margin-bottom: 2rem;
+}
+
+.form-field {
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.form-field label {
+  display: block;
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-bottom: 0.5rem;
+}
+
+.onboarding-input,
+.onboarding-textarea {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+.onboarding-input::placeholder,
+.onboarding-textarea::placeholder {
+  color: #666;
+}
+
+.onboarding-input:focus,
+.onboarding-textarea:focus {
+  outline: none;
+  border-color: rgba(100, 180, 120, 0.5);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.onboarding-textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.naming-input-wrap {
+  margin-bottom: 2rem;
+}
+
+.naming-input {
+  text-align: center;
+  font-size: 1.25rem;
+  max-width: 300px;
+}
+
+.naming-hint {
+  font-size: 0.85rem;
+  color: #666;
+  margin-top: 0.5rem;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Buttons
+   ───────────────────────────────────────────────────────────── */
+
+.onboarding-btn {
+  padding: 0.875rem 2rem;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.onboarding-btn.primary {
+  background: linear-gradient(135deg, #4a6a5a 0%, #3a5a4a 100%);
+  color: #fff;
+}
+
+.onboarding-btn.primary:hover {
+  background: linear-gradient(135deg, #5a7a6a 0%, #4a6a5a 100%);
+  transform: translateY(-1px);
+}
+
+.onboarding-btn.primary:disabled {
+  background: #2a2a3a;
+  color: #666;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.onboarding-btn.secondary {
+  background: transparent;
+  color: #999;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.onboarding-btn.secondary:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: #ccc;
+}
+
+.onboarding-btn.large {
+  padding: 1rem 3rem;
+  font-size: 1.1rem;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Tone Section
+   ───────────────────────────────────────────────────────────── */
+
+.tone-section {
+  width: 100%;
+  max-width: 450px;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.tone-section h3 {
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: #aaa;
+  margin-bottom: 0.75rem;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Boundaries
+   ───────────────────────────────────────────────────────────── */
+
+.boundaries-list {
+  margin: 2rem 0;
+  max-width: 500px;
+}
+
+.boundary-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  margin-bottom: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 8px;
+  text-align: left;
+}
+
+.boundary-icon {
+  font-size: 1.2rem;
+  color: #7ab88a;
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.boundary-item p {
+  margin: 0;
+  color: #bbb;
+  font-size: 0.95rem;
+  line-height: 1.5;
+}
+
+.boundary-question {
+  font-size: 1.1rem;
+  color: #fff;
+  margin: 1.5rem 0;
+}
+
+.boundary-actions {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   First Memory
+   ───────────────────────────────────────────────────────────── */
+
+.memory-preview {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin: 1.5rem 0;
+  max-width: 450px;
+  text-align: left;
+}
+
+.memory-content {
+  font-size: 0.95rem;
+  color: #ccc;
+  line-height: 1.7;
+}
+
+.memory-content strong {
+  color: #fff;
+}
+
+.memory-content em {
+  color: #9ab8aa;
+  font-style: normal;
+}
+
+.memory-note {
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 2rem;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Technical Setup
+   ───────────────────────────────────────────────────────────── */
+
+.channels-section,
+.api-section {
+  width: 100%;
+  max-width: 450px;
+  margin-bottom: 1.5rem;
+  text-align: left;
+}
+
+.channels-section h3,
+.api-section h3 {
+  font-size: 0.95rem;
+  font-weight: 400;
+  color: #aaa;
+  margin-bottom: 0.75rem;
+}
+
+.channel-options {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+
+.channel-btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 1rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.channel-btn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.channel-btn.selected {
+  background: rgba(100, 180, 120, 0.1);
+  border-color: rgba(100, 180, 120, 0.3);
+}
+
+.channel-icon {
+  font-size: 1.5rem;
+}
+
+.channel-label {
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+.api-note {
+  font-size: 0.85rem;
+  color: #888;
+  margin-bottom: 0.75rem;
+}
+
+.technical-note {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 1.5rem 0;
+  font-style: italic;
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Progress Dots
+   ───────────────────────────────────────────────────────────── */
+
+.onboarding-progress {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.progress-dots {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.progress-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  transition: all 0.3s ease;
+}
+
+.progress-dot.active {
+  background: rgba(100, 180, 120, 0.4);
+}
+
+.progress-dot.current {
+  background: #7ab88a;
+  transform: scale(1.3);
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Plan (approvable summary)
+   ───────────────────────────────────────────────────────────── */
+
+.onboarding-phase.plan {
+  max-width: 640px;
+  width: 100%;
+  text-align: left;
+}
+
+.plan-card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  margin: 1rem 0;
+}
+
+.plan-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.6rem;
+}
+
+.plan-card-title {
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #7ab88a;
+  font-weight: 600;
+}
+
+.plan-card-grid {
+  display: grid;
+  grid-template-columns: 130px 1fr;
+  gap: 0.4rem 1rem;
+  font-size: 0.9rem;
+}
+
+.plan-card-key {
+  color: #888;
+}
+
+.plan-card-val {
+  color: #ddd;
+}
+
+.plan-commitments {
+  margin: 0;
+  padding-left: 1.2rem;
+  color: #ccc;
+  font-size: 0.92rem;
+  line-height: 1.55;
+}
+
+.plan-commitments li {
+  margin: 0.25rem 0;
+}
+
+.plan-files {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+.plan-file {
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.15s ease;
+}
+
+.plan-file.expanded {
+  border-color: rgba(122, 184, 138, 0.4);
+}
+
+.plan-file-row {
+  display: grid;
+  grid-template-columns: 14px 220px 1fr;
+  gap: 0.6rem;
+  align-items: center;
+  width: 100%;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  font: inherit;
+  padding: 0.55rem 0.75rem;
+  cursor: pointer;
+  text-align: left;
+}
+
+.plan-file-row:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.plan-file-caret {
+  color: #7ab88a;
+  font-size: 0.85rem;
+}
+
+.plan-file-path {
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.82rem;
+  color: #cbe7d2;
+}
+
+.plan-file-desc {
+  color: #888;
+  font-size: 0.85rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.plan-file-preview {
+  margin: 0;
+  padding: 0.75rem 0.9rem;
+  background: rgba(0, 0, 0, 0.45);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  font-family: 'SF Mono', Menlo, Consolas, monospace;
+  font-size: 0.78rem;
+  color: #c9d4cc;
+  white-space: pre-wrap;
+  word-break: break-word;
+  max-height: 320px;
+  overflow: auto;
+  line-height: 1.55;
+}
+
+.plan-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1.25rem;
+}
+
+.plan-footnote {
+  font-size: 0.78rem;
+  color: #666;
+  margin-top: 0.6rem;
+  text-align: center;
+}
+
+.plan-error {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  color: #fca5a5;
+  padding: 0.6rem 0.85rem;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 600px) {
+  .plan-card-grid {
+    grid-template-columns: 110px 1fr;
+  }
+  .plan-file-row {
+    grid-template-columns: 14px 1fr;
+  }
+  .plan-file-desc {
+    display: none;
+  }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Animations
+   ───────────────────────────────────────────────────────────── */
+
+.fade-in {
+  animation: fadeIn 0.6s ease-out forwards;
+  opacity: 0;
+}
+
+.delay-1 { animation-delay: 0.3s; }
+.delay-2 { animation-delay: 0.6s; }
+.delay-3 { animation-delay: 0.9s; }
+.delay-4 { animation-delay: 1.2s; }
+.delay-5 { animation-delay: 1.5s; }
+.delay-6 { animation-delay: 1.8s; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Phase transition */
+.onboarding-phase {
+  animation: phaseIn 0.4s ease-out;
+}
+
+@keyframes phaseIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ─────────────────────────────────────────────────────────────
+   Mobile Responsive
+   ───────────────────────────────────────────────────────────── */
+
+@media (max-width: 600px) {
+  .onboarding-container {
+    padding: 1.5rem;
+  }
+  
+  .phase-question {
+    font-size: 1.25rem;
+  }
+  
+  .channel-options {
+    grid-template-columns: 1fr;
+  }
+  
+  .boundary-actions {
+    flex-direction: column;
+  }
+  
+  .onboarding-btn {
+    width: 100%;
+  }
+}

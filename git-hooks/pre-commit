@@ -1,0 +1,5 @@
+#!/bin/sh
+ROOT=$(git rev-parse --show-toplevel 2>/dev/null)
+[ -z "$ROOT" ] && exit 0
+node "$ROOT/scripts/check-staged-secrets.mjs" || exit 1
+node "$ROOT/scripts/format-staged.js"

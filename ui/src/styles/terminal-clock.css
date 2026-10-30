@@ -1,0 +1,734 @@
+/**
+ * Terminal Clock Styles
+ * Sleek, monospace, cyberpunk-inspired clock with expandable controls
+ */
+
+/* ============================================================
+   Main Container
+   ============================================================ */
+
+.terminal-clock {
+  position: relative;
+  font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Consolas, monospace;
+  z-index: 9999;
+}
+
+.terminal-clock--expanded {
+  z-index: 99999;
+}
+
+/* ============================================================
+   Trigger Button (collapsed state) - GOLD TERMINAL THEME
+   ============================================================ */
+
+.tc-trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  /* Deep glass — primary tint at top-left, accent wash at bottom-right.
+     Reads as a refractive plate that catches both color tokens, so a
+     palette swap re-tunes both ends automatically. */
+  background:
+    linear-gradient(155deg,
+      color-mix(in srgb, var(--g-primary) 16%, rgba(255, 255, 255, 0.06)) 0%,
+      color-mix(in srgb, var(--g-primary) 6%, rgba(255, 255, 255, 0.02)) 50%,
+      color-mix(in srgb, var(--g-accent) 8%, rgba(0, 0, 0, 0.08)) 100%);
+  border: 1px solid color-mix(in srgb, var(--g-primary) 35%, transparent);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background 0.25s ease, border-color 0.25s ease, box-shadow 0.3s ease, transform 0.18s ease;
+  font-family: inherit;
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  /* Layered shadow stack — refer to .glass-deep in theme-glass.ts */
+  box-shadow:
+    0 1px 4px rgba(0, 0, 0, 0.22),
+    0 8px 24px rgba(0, 0, 0, 0.4),
+    0 0 24px color-mix(in srgb, var(--g-primary) 18%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.45),
+    0 0 0 1px color-mix(in srgb, var(--g-primary) 10%, transparent);
+  position: relative;
+  isolation: isolate;
+  /* removed `overflow:hidden` so the primary halo can bleed past edges */
+}
+
+.tc-trigger::before {
+  /* Diagonal sheen sweep on hover — premium accent. */
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    100deg,
+    transparent 0%,
+    rgba(255, 255, 255, 0.15) 50%,
+    transparent 100%);
+  transform: translateX(-130%);
+  transition: transform 0.7s ease;
+  pointer-events: none;
+  mix-blend-mode: screen;
+  z-index: 1;
+}
+.tc-trigger:hover::before {
+  transform: translateX(130%);
+}
+
+.tc-trigger::after {
+  /* Top glare arc — `mix-blend-mode: screen` reads as reflected light. */
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  background: radial-gradient(
+    ellipse 60% 45% at 50% -10%,
+    rgba(255, 255, 255, 0.18),
+    transparent 55%);
+  mix-blend-mode: screen;
+  opacity: 0.9;
+  z-index: 0;
+}
+
+/* Explicit z-index on the actual content so it's always above ::before
+   (sheen, z:1) and ::after (top-glare, z:0). `> *` would only catch
+   direct children — listing the real classes is clearer + survives
+   wrapper changes. */
+.tc-trigger > * {
+  position: relative;
+  z-index: 2;
+}
+.tc-trigger .tc-trigger-time,
+.tc-trigger .tc-indicator {
+  position: relative;
+  z-index: 3;
+}
+
+.tc-trigger:hover {
+  border-color: color-mix(in srgb, var(--g-primary) 65%, transparent);
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.25),
+    0 14px 36px rgba(0, 0, 0, 0.5),
+    0 0 32px color-mix(in srgb, var(--g-primary) 28%, transparent),
+    0 0 80px color-mix(in srgb, var(--g-primary) 14%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.5),
+    0 0 0 1px color-mix(in srgb, var(--g-primary) 24%, transparent);
+  transform: translateY(-1px);
+}
+
+.terminal-clock--expanded .tc-trigger {
+  border-color: color-mix(in srgb, var(--g-primary) 70%, transparent);
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.3),
+    0 16px 40px rgba(0, 0, 0, 0.55),
+    0 0 36px color-mix(in srgb, var(--g-primary) 32%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.5),
+    0 0 0 1px color-mix(in srgb, var(--g-primary) 30%, transparent);
+}
+
+.tc-trigger-time {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--g-primary);
+  text-shadow: 
+    0 0 10px color-mix(in srgb, var(--g-primary) 60%, transparent),
+    0 0 20px color-mix(in srgb, var(--g-primary) 30%, transparent);
+  letter-spacing: 1px;
+}
+
+.tc-indicator {
+  font-size: 12px;
+  animation: tc-pulse 2s ease-in-out infinite;
+}
+
+.tc-indicator--timer {
+  color: var(--g-primary);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--g-primary) 50%, transparent);
+}
+
+.tc-indicator--alarm {
+  color: #FFA500;
+  text-shadow: 0 0 8px rgba(255, 165, 0, 0.5);
+}
+
+@keyframes tc-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.6; transform: scale(1.1); }
+}
+
+/* ============================================================
+   Expanded Panel
+   ============================================================ */
+
+.tc-panel {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: 340px;
+  /* Multi-stop refractive gradient — primary tint top-left, deep recess
+     bottom-right. Heavy backdrop blur frosts whatever's behind without
+     muting it. */
+  background:
+    linear-gradient(155deg,
+      color-mix(in srgb, var(--g-primary) 6%, rgba(20, 20, 26, 0.88)) 0%,
+      rgba(14, 14, 20, 0.86) 55%,
+      color-mix(in srgb, var(--g-accent) 5%, rgba(8, 8, 12, 0.92)) 100%);
+  border: 1px solid color-mix(in srgb, var(--g-primary) 22%, transparent);
+  border-radius: 16px;
+  /* Layered shadow stack matching .glass-elevated for premium depth. */
+  box-shadow:
+    0 2px 6px rgba(0, 0, 0, 0.3),
+    0 18px 60px rgba(0, 0, 0, 0.6),
+    0 36px 120px rgba(0, 0, 0, 0.7),
+    0 0 32px color-mix(in srgb, var(--g-primary) 14%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.14),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.55),
+    0 0 0 1px color-mix(in srgb, var(--g-primary) 12%, transparent);
+  overflow: hidden;
+  z-index: 999999;
+  animation: tc-slideIn 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+  backdrop-filter: blur(34px) saturate(200%);
+  -webkit-backdrop-filter: blur(34px) saturate(200%);
+  isolation: isolate;
+}
+
+/* Top glare arc removed — the panel reads cleaner without the
+   screen-blended shimmer over the content. Kept the selector commented
+   so the surrounding ::after rules still make sense as "second overlay." */
+.tc-panel::before {
+  content: none;
+}
+
+/* Bottom-right primary bloom + film-grain noise overlay. */
+.tc-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(
+      ellipse 40% 30% at 100% 100%,
+      color-mix(in srgb, var(--g-primary) 8%, transparent),
+      transparent 60%),
+    url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1   0 0 0 0 1   0 0 0 0 1   0 0 0 0.4 0'/></filter><rect width='100%' height='100%' filter='url(%23n)' opacity='0.5'/></svg>");
+  background-size: cover, 160px 160px;
+  background-blend-mode: screen, overlay;
+  mix-blend-mode: overlay;
+  opacity: 0.7;
+  border-radius: inherit;
+  z-index: 0;
+}
+
+.tc-panel > * {
+  position: relative;
+  z-index: 1;
+}
+
+@keyframes tc-slideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-10px) scale(0.96);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* Mobile: clamp width and clamp horizontal so the modal can't escape the
+   viewport when the trigger is near an edge of a small screen. */
+@media (max-width: 580px) {
+  .tc-panel {
+    width: min(340px, calc(100vw - 24px));
+    left: 12px;
+    transform: none;
+    animation: tc-slideIn-mobile 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  @keyframes tc-slideIn-mobile {
+    from {
+      opacity: 0;
+      transform: translateY(-10px) scale(0.96);
+      filter: blur(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+      filter: blur(0);
+    }
+  }
+}
+
+/* ============================================================
+   Tabs
+   ============================================================ */
+
+.tc-tabs {
+  display: flex;
+  border-bottom: 1px solid color-mix(in srgb, var(--g-primary) 10%, transparent);
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.tc-tab {
+  flex: 1;
+  padding: 10px 12px;
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  color: rgba(255, 255, 255, 0.5);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.tc-tab:hover {
+  color: rgba(255, 255, 255, 0.8);
+  background: color-mix(in srgb, var(--g-primary) 5%, transparent);
+}
+
+.tc-tab.active {
+  color: var(--g-primary);
+  border-bottom-color: var(--g-primary);
+  background: color-mix(in srgb, var(--g-primary) 8%, transparent);
+}
+
+.tc-badge {
+  padding: 2px 6px;
+  background: color-mix(in srgb, var(--g-primary) 20%, transparent);
+  border-radius: 10px;
+  font-size: 10px;
+  color: var(--g-primary);
+}
+
+/* ============================================================
+   Content Area
+   ============================================================ */
+
+.tc-content {
+  padding: 16px;
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.tc-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.tc-content::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.tc-content::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--g-primary) 30%, transparent);
+  border-radius: 2px;
+}
+
+/* ============================================================
+   Clock Display Tab - GOLD THEME
+   ============================================================ */
+
+.tc-display {
+  text-align: center;
+  padding: 20px 0;
+}
+
+.tc-time {
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--g-primary);
+  text-shadow: 
+    0 0 20px color-mix(in srgb, var(--g-primary) 60%, transparent),
+    0 0 40px color-mix(in srgb, var(--g-primary) 30%, transparent);
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.tc-date {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 1px;
+}
+
+.tc-settings {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.tc-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  transition: color 0.2s;
+}
+
+.tc-toggle:hover {
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.tc-toggle input {
+  width: 14px;
+  height: 14px;
+  accent-color: #00ff88;
+  cursor: pointer;
+}
+
+/* ============================================================
+   Form Elements
+   ============================================================ */
+
+.tc-add-form {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.tc-input {
+  flex: 1;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: #fff;
+  font-family: inherit;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.tc-input:focus {
+  outline: none;
+  border-color: color-mix(in srgb, var(--g-primary) 50%, transparent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--g-primary) 15%, transparent);
+}
+
+.tc-input::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.tc-input--number {
+  width: 60px;
+  flex: none;
+  text-align: center;
+}
+
+.tc-input--text {
+  min-width: 0;
+}
+
+.tc-input-group {
+  display: flex;
+  align-items: center;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.tc-input-group .tc-input {
+  border: none;
+  background: transparent;
+  border-radius: 0;
+}
+
+.tc-input-group .tc-input:focus {
+  box-shadow: none;
+}
+
+.tc-input-suffix {
+  padding: 0 8px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 11px;
+}
+
+/* Buttons - GOLD THEME */
+
+.tc-btn {
+  padding: 8px 12px;
+  background: color-mix(in srgb, var(--g-primary) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--g-primary) 20%, transparent);
+  border-radius: 6px;
+  color: var(--g-primary);
+  font-family: inherit;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tc-btn:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--g-primary) 20%, transparent);
+  border-color: color-mix(in srgb, var(--g-primary) 40%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--g-primary) 15%, transparent);
+}
+
+.tc-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.tc-btn--add {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.tc-btn--toggle {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.tc-btn--toggle.active {
+  color: var(--g-primary);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--g-primary) 50%, transparent);
+}
+
+.tc-btn--delete {
+  background: rgba(255, 68, 68, 0.1);
+  border-color: rgba(255, 68, 68, 0.2);
+  color: #ff4444;
+  padding: 4px 8px;
+  font-size: 16px;
+}
+
+.tc-btn--delete:hover {
+  background: rgba(255, 68, 68, 0.2);
+  border-color: rgba(255, 68, 68, 0.4);
+}
+
+.tc-btn--play {
+  background: rgba(80, 250, 123, 0.1);
+  border-color: rgba(80, 250, 123, 0.2);
+  color: #50fa7b;
+  padding: 4px 8px;
+}
+
+.tc-btn--play:hover:not(:disabled) {
+  background: rgba(80, 250, 123, 0.2);
+  box-shadow: 0 0 10px rgba(80, 250, 123, 0.15);
+}
+
+.tc-btn--pause {
+  background: color-mix(in srgb, var(--g-primary) 10%, transparent);
+  border-color: color-mix(in srgb, var(--g-primary) 20%, transparent);
+  color: var(--g-primary);
+  padding: 4px 8px;
+}
+
+.tc-btn--pause:hover {
+  background: color-mix(in srgb, var(--g-primary) 20%, transparent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--g-primary) 15%, transparent);
+}
+
+.tc-btn--reset {
+  background: rgba(150, 150, 150, 0.1);
+  border-color: rgba(150, 150, 150, 0.2);
+  color: #999;
+  padding: 4px 8px;
+}
+
+.tc-btn--reset:hover {
+  background: rgba(150, 150, 150, 0.2);
+}
+
+/* ============================================================
+   Quick Timer Buttons
+   ============================================================ */
+
+.tc-quick-timers {
+  display: flex;
+  gap: 6px;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.tc-quick-btn {
+  padding: 6px 10px;
+  background: color-mix(in srgb, var(--g-primary) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--g-primary) 15%, transparent);
+  border-radius: 4px;
+  color: color-mix(in srgb, var(--g-primary) 70%, transparent);
+  font-family: inherit;
+  font-size: 11px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.tc-quick-btn:hover {
+  background: color-mix(in srgb, var(--g-primary) 15%, transparent);
+  border-color: color-mix(in srgb, var(--g-primary) 30%, transparent);
+  color: var(--g-primary);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--g-primary) 15%, transparent);
+}
+
+/* ============================================================
+   Empty State
+   ============================================================ */
+
+.tc-empty {
+  text-align: center;
+  padding: 24px 16px;
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 12px;
+  font-style: italic;
+}
+
+/* ============================================================
+   Alarm Item
+   ============================================================ */
+
+.tc-alarm-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  transition: all 0.2s;
+}
+
+.tc-alarm-item:hover {
+  background: rgba(0, 0, 0, 0.3);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.tc-alarm-item--disabled {
+  opacity: 0.5;
+}
+
+.tc-alarm-time {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--g-primary);
+  text-shadow: 0 0 8px color-mix(in srgb, var(--g-primary) 30%, transparent);
+  min-width: 65px;
+}
+
+.tc-alarm-label {
+  flex: 1;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.7);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.tc-alarm-actions {
+  display: flex;
+  gap: 6px;
+}
+
+/* ============================================================
+   Timer Item
+   ============================================================ */
+
+.tc-timer-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 8px;
+  margin-bottom: 8px;
+  overflow: hidden;
+  transition: all 0.2s;
+}
+
+.tc-timer-item:hover {
+  background: rgba(0, 0, 0, 0.3);
+}
+
+.tc-timer-item--running {
+  border-color: color-mix(in srgb, var(--g-primary) 30%, transparent);
+}
+
+.tc-timer-item--complete {
+  border-color: rgba(80, 250, 123, 0.4);
+  animation: tc-complete-pulse 1s ease-in-out infinite;
+}
+
+@keyframes tc-complete-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(80, 250, 123, 0.2); }
+  50% { box-shadow: 0 0 12px 2px rgba(80, 250, 123, 0.3); }
+}
+
+.tc-timer-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: var(--progress, 0%);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--g-primary) 10%, transparent) 0%, rgba(255, 180, 0, 0.15) 100%);
+  transition: width 0.3s linear;
+}
+
+.tc-timer-content {
+  position: relative;
+  flex: 1;
+  min-width: 0;
+}
+
+.tc-timer-display {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--g-primary);
+  text-shadow: 0 0 12px color-mix(in srgb, var(--g-primary) 40%, transparent);
+  letter-spacing: 1px;
+}
+
+.tc-timer-item--complete .tc-timer-display {
+  color: #50fa7b;
+  text-shadow: 0 0 12px rgba(80, 250, 123, 0.4);
+}
+
+.tc-timer-label {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.5);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  margin-top: 2px;
+}
+
+.tc-timer-actions {
+  position: relative;
+  display: flex;
+  gap: 6px;
+}
+
+/* ============================================================
+   Responsive
+   ============================================================ */
+
+@media (max-width: 400px) {
+  .tc-panel {
+    width: calc(100vw - 32px);
+    right: -8px;
+  }
+  
+  .tc-time {
+    font-size: 32px;
+  }
+}

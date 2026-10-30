@@ -1,0 +1,320 @@
+/* ============================================================
+ * Plugin sidebar sections
+ *
+ * One section per enabled plugin that contributes pages (plugin-host.ts
+ * pluginNavSections). Header = monogram + plugin name; the plugin's
+ * appearance accent is a subtle marker (monogram chip + item rail). The
+ * accent arrives as inline --nav-plugin-accent-{dark,light}; everything else
+ * is InfiniBot tokens. Imported by views/nav-sidebar-enhanced.ts.
+ * ============================================================ */
+
+.nav-group--plugin,
+.nav-plugin-flyout {
+  --nav-plugin-accent: var(--nav-plugin-accent-dark, var(--g-primary));
+}
+
+:root[data-theme="light"] .nav-group--plugin,
+:root[data-theme="light"] .nav-plugin-flyout {
+  --nav-plugin-accent: var(--nav-plugin-accent-light, var(--g-primary));
+}
+
+.nav.enhanced .nav-plugin-sections {
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid color-mix(in srgb, var(--g-border) 80%, transparent);
+}
+
+.nav.enhanced .nav-group--plugin .nav-plugin-header {
+  cursor: default;
+}
+
+.nav-plugin-toggle {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  flex: 1;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+  background: none;
+  border: none;
+  border-radius: 6px;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.nav-plugin-toggle:focus-visible {
+  outline: 2px solid var(--nav-plugin-accent);
+  outline-offset: 2px;
+}
+
+.nav-plugin-toggle__chevron {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 16px;
+  color: var(--g-fg-dim);
+  transition: color var(--ib-dur, 140ms) var(--ib-ease, ease);
+}
+
+.nav-plugin-toggle:hover .nav-plugin-toggle__chevron {
+  color: var(--g-fg);
+}
+
+.nav-plugin-toggle__chevron svg {
+  width: 12px;
+  height: 12px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+/* Monogram chip — the plugin's identity, tinted with its accent. */
+.nav-plugin-mark {
+  display: inline-grid;
+  place-items: center;
+  flex-shrink: 0;
+  min-width: 20px;
+  height: 18px;
+  padding: 0 3px;
+  border-radius: 5px;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--nav-plugin-accent);
+  background: color-mix(in srgb, var(--nav-plugin-accent) 13%, transparent);
+  border: 1px solid color-mix(in srgb, var(--nav-plugin-accent) 36%, transparent);
+  font-family: var(--mono, ui-monospace, monospace);
+}
+
+.nav-plugin-mark.is-active {
+  background: color-mix(in srgb, var(--nav-plugin-accent) 24%, transparent);
+  border-color: color-mix(in srgb, var(--nav-plugin-accent) 60%, transparent);
+}
+
+.nav-plugin-mark--sm {
+  min-width: 18px;
+  height: 16px;
+  font-size: 8px;
+}
+
+.nav.enhanced.infinibar .nav-group--plugin .nav-category-label {
+  color: color-mix(in srgb, var(--nav-plugin-accent) 55%, var(--g-fg-dim));
+  cursor: pointer;
+}
+
+/* Accent rail beside the section's pages. */
+.nav.enhanced .nav-group--plugin > .nav-group__items {
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--nav-plugin-accent) 30%, transparent);
+}
+
+.nav.enhanced .nav-group--plugin > .nav-group__items[hidden] {
+  display: none;
+}
+
+.nav.enhanced .nav-group--plugin .nav-item.active {
+  --ib-gold: var(--nav-plugin-accent);
+}
+
+/* ── Collapsed icon rail: monogram tile + flyout menu ──────────── */
+
+.nav.enhanced.nav--collapsed .nav-plugin-sections {
+  margin-top: 4px;
+  padding-top: 4px;
+}
+
+.nav.enhanced.nav--collapsed .nav-group--plugin .nav-plugin-header {
+  padding: 2px 0;
+}
+
+.nav.enhanced.nav--collapsed .nav-group--plugin .nav-plugin-header::before {
+  content: none;
+}
+
+.nav.enhanced.nav--collapsed .nav-group--plugin .nav-plugin-toggle {
+  flex: none;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  margin: 2px auto;
+  border-radius: 8px;
+  transition: background var(--ib-dur, 140ms) var(--ib-ease, ease);
+}
+
+.nav.enhanced.nav--collapsed .nav-group--plugin .nav-plugin-toggle:hover,
+.nav.enhanced.nav--collapsed .nav-group--plugin .nav-plugin-toggle[aria-expanded="true"] {
+  background: color-mix(in srgb, var(--nav-plugin-accent) 12%, transparent);
+}
+
+.nav.enhanced.nav--collapsed .nav-group--plugin .nav-plugin-toggle__chevron,
+.nav.enhanced.nav--collapsed .nav-group--plugin > .nav-group__items {
+  display: none;
+}
+
+.nav.enhanced.nav--collapsed .nav-group--plugin .nav-plugin-mark {
+  min-width: 28px;
+  height: 26px;
+  font-size: 11px;
+  border-radius: 7px;
+}
+
+.nav-plugin-flyout {
+  position: fixed;
+  z-index: 4000;
+  min-width: 190px;
+  max-width: 280px;
+  padding: 8px;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--g-bg-deep, var(--g-bg)) 92%, transparent);
+  backdrop-filter: var(--g-blur-heavy, blur(18px) saturate(180%));
+  -webkit-backdrop-filter: var(--g-blur-heavy, blur(18px) saturate(180%));
+  border: 1px solid color-mix(in srgb, var(--nav-plugin-accent) 38%, transparent);
+  box-shadow:
+    0 14px 34px color-mix(in srgb, var(--g-bg-deep) 55%, transparent),
+    0 0 24px color-mix(in srgb, var(--nav-plugin-accent) 16%, transparent);
+  color: var(--g-fg);
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+  transform: translateX(-6px);
+  transition:
+    opacity var(--g-anim-dur, 140ms) cubic-bezier(0.22, 1, 0.36, 1),
+    transform var(--g-anim-dur, 140ms) cubic-bezier(0.22, 1, 0.36, 1),
+    visibility 0s linear var(--g-anim-dur, 140ms);
+}
+
+.nav-plugin-flyout.is-visible {
+  opacity: 1;
+  visibility: visible;
+  pointer-events: auto;
+  transform: translateX(0);
+  transition-delay: 0s;
+}
+
+.nav-plugin-flyout__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 2px 6px 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid color-mix(in srgb, var(--nav-plugin-accent) 18%, transparent);
+}
+
+.nav-plugin-flyout__title {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.11em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--nav-plugin-accent) 72%, var(--g-fg-dim));
+}
+
+.nav-plugin-flyout__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nav-plugin-flyout__item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  padding: 7px 8px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--g-fg);
+  text-decoration: none;
+  outline: none;
+}
+
+.nav-plugin-flyout__item:hover,
+.nav-plugin-flyout__item:focus-visible {
+  background: color-mix(in srgb, var(--nav-plugin-accent) 13%, transparent);
+}
+
+.nav-plugin-flyout__item:focus-visible {
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--nav-plugin-accent) 60%, transparent);
+}
+
+.nav-plugin-flyout__item.is-active {
+  color: var(--nav-plugin-accent);
+  background: color-mix(in srgb, var(--nav-plugin-accent) 10%, transparent);
+}
+
+.nav-plugin-flyout__icon {
+  display: inline-flex;
+  width: 16px;
+  height: 16px;
+  color: var(--g-fg-dim);
+}
+
+.nav-plugin-flyout__item.is-active .nav-plugin-flyout__icon {
+  color: var(--nav-plugin-accent);
+}
+
+.nav-plugin-flyout__icon svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 1.75;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-plugin-flyout,
+  .nav-plugin-flyout.is-visible {
+    transition: none;
+    transform: none;
+  }
+}
+
+/* ── ≤1100px: the sidebar is one horizontal row (nav-enhanced.css). A
+   plugin section shows as a monogram chip (toggle) followed inline by its
+   pages. ───────────────────────────────────────────────────────── */
+@media (max-width: 1100px) {
+  .shell > .nav.enhanced .nav-plugin-sections {
+    display: contents;
+  }
+  .shell > .nav.enhanced .nav-group--plugin > .nav-category-header.nav-plugin-header {
+    display: flex;
+    flex: none;
+    align-items: center;
+    padding: 0 2px 0 8px;
+    margin: 0 0 0 4px;
+    border-left: 1px solid var(--g-border);
+    background: none;
+  }
+  .shell > .nav.enhanced .nav-group--plugin .nav-plugin-toggle {
+    flex: none;
+    min-height: 36px;
+    padding: 0 6px;
+    white-space: nowrap;
+  }
+  .shell > .nav.enhanced .nav-group--plugin .nav-category-count {
+    display: none;
+  }
+  .shell > .nav.enhanced .nav-group--plugin > .nav-group__items {
+    box-shadow: none;
+  }
+  .shell > .nav.enhanced .nav-group--plugin > .nav-group__items[hidden] {
+    display: none;
+  }
+  .shell > .nav.enhanced.nav--collapsed .nav-group--plugin .nav-plugin-header::before {
+    content: none;
+  }
+  .shell > .nav.enhanced.nav--collapsed .nav-group--plugin .nav-plugin-toggle {
+    width: auto;
+    height: 36px;
+    margin: 0;
+  }
+  /* The row keeps every page reachable inline (as core groups do), even in
+     icon mode; the chip still opens the flyout menu. */
+  .shell > .nav.enhanced.nav--collapsed .nav-group--plugin > .nav-group__items:not([hidden]) {
+    display: contents;
+  }
+}

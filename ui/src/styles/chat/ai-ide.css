@@ -1,0 +1,560 @@
+/* ============================================================
+   AI IDE Panel Styles
+   Real-time visualization of agent work: tool executions,
+   code generation, and file operations
+   ============================================================ */
+
+/* Container positioning in chat */
+.chat ai-ide-panel {
+  margin: 0 0 12px 0;
+  animation: ide-slide-in 0.3s ease-out;
+}
+
+@keyframes ide-slide-in {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============================================================
+   Inline Tool Activity Styles - Main Chat Integration
+   ============================================================ */
+.chat .inline-tool-activity {
+  background: linear-gradient(135deg, color-mix(in srgb, var(--g-primary) 4%, transparent) 0%, rgba(139, 92, 246, 0.04) 100%);
+  border: 1px solid color-mix(in srgb, var(--g-primary) 15%, transparent);
+  border-radius: 12px;
+  margin: 12px 0;
+  overflow: hidden;
+  transition: all 0.25s ease;
+  animation: ide-slide-in 0.3s ease-out;
+}
+
+.chat .inline-tool-activity.collapsed {
+  background: color-mix(in srgb, var(--g-primary) 2%, transparent);
+}
+
+.chat .tool-activity-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.chat .tool-activity-header:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.chat .tool-activity-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--c-text-2, #888);
+}
+
+.chat .tool-activity-status.active {
+  color: var(--c-accent, var(--g-primary));
+}
+
+.chat .status-pulse {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: currentColor;
+}
+
+.chat .tool-activity-status.active .status-pulse {
+  animation: status-pulse 1.5s ease-in-out infinite;
+  box-shadow: 0 0 10px currentColor;
+}
+
+@keyframes status-pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(0.8); }
+}
+
+.chat .tool-activity-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  font-size: 11px;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--g-primary) 15%, transparent);
+  color: var(--c-accent, var(--g-primary));
+  border-radius: 10px;
+}
+
+.chat .tool-activity-toggle {
+  margin-left: auto;
+  font-size: 11px;
+  color: var(--c-text-3, #666);
+  transition: transform 0.2s;
+}
+
+.chat .tool-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 0 10px 10px 10px;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.chat .tool-activity-list::-webkit-scrollbar {
+  width: 5px;
+}
+
+.chat .tool-activity-list::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+.chat .inline-tool-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  background: rgba(0, 0, 0, 0.25);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  font-size: 12px;
+  transition: all 0.15s;
+}
+
+.chat .inline-tool-card:hover {
+  background: rgba(0, 0, 0, 0.35);
+  border-color: rgba(255, 255, 255, 0.12);
+}
+
+.chat .inline-tool-card.running {
+  border-color: color-mix(in srgb, var(--g-primary) 35%, transparent);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--g-primary) 8%, transparent) 0%, rgba(0, 0, 0, 0.25) 100%);
+}
+
+.chat .inline-tool-card.error {
+  border-color: rgba(239, 68, 68, 0.35);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.chat .inline-tool-card.complete {
+  border-color: rgba(34, 197, 94, 0.25);
+}
+
+.chat .tool-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.chat .tool-name {
+  font-weight: 500;
+  color: var(--c-text-1, #ccc);
+  white-space: nowrap;
+}
+
+.chat .tool-path {
+  font-family: var(--font-mono, monospace);
+  font-size: 11px;
+  color: var(--c-text-3, #666);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 200px;
+  flex: 1;
+}
+
+.chat .tool-status {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--c-text-2, #888);
+  font-size: 11px;
+}
+
+.chat .inline-tool-card.running .tool-status {
+  color: var(--c-accent, var(--g-primary));
+}
+
+.chat .inline-tool-card.complete .tool-status {
+  color: var(--c-success, #22c55e);
+}
+
+.chat .inline-tool-card.error .tool-status {
+  color: var(--c-error, #ef4444);
+}
+
+.chat .tool-spinner {
+  width: 12px;
+  height: 12px;
+  border: 2px solid color-mix(in srgb, var(--g-primary) 30%, transparent);
+  border-top-color: var(--c-accent, var(--g-primary));
+  border-radius: 50%;
+  animation: tool-spin 0.7s linear infinite;
+}
+
+@keyframes tool-spin {
+  to { transform: rotate(360deg); }
+}
+
+.chat .tool-time {
+  font-family: var(--font-mono, monospace);
+  font-size: 10px;
+  opacity: 0.8;
+}
+
+/* Mobile optimization for inline tool activity */
+@media (max-width: 768px) {
+  .chat .inline-tool-activity {
+    margin: 8px 0;
+    border-radius: 10px;
+  }
+
+  .chat .tool-activity-header {
+    padding: 8px 12px;
+  }
+
+  .chat .tool-activity-list {
+    max-height: 150px;
+    gap: 4px;
+    padding: 0 8px 8px 8px;
+  }
+
+  .chat .inline-tool-card {
+    padding: 6px 10px;
+    gap: 8px;
+    font-size: 11px;
+  }
+
+  .chat .tool-path {
+    max-width: 120px;
+    font-size: 10px;
+  }
+
+  .chat .tool-icon {
+    font-size: 12px;
+  }
+}
+
+/* ===== CSS Variables for AI IDE theming ===== */
+:root {
+  /* Backgrounds */
+  --c-bg-ide: #0d1117;
+  --c-bg-header: #161b22;
+  --c-bg-header-hover: #1c2128;
+  --c-bg-tabs: #0d1117;
+  --c-bg-hover: #21262d;
+  --c-bg-active: #21262d;
+  --c-bg-item: #161b22;
+  --c-bg-item-hover: #1c2128;
+  --c-bg-icon: #21262d;
+  --c-bg-detail: #0d1117;
+  --c-bg-code: #161b22;
+  --c-bg-code-header: #161b22;
+  --c-bg-lang: #21262d;
+  --c-bg-line-hover: rgba(255, 255, 255, 0.04);
+  
+  /* Borders */
+  --c-border-ide: #30363d;
+  
+  /* Text */
+  --c-text-code: #e6edf3;
+  --c-line-number: #6e7681;
+  
+  /* Status colors */
+  --c-success: #3fb950;
+  --c-error: #f85149;
+  --c-info: #58a6ff;
+  --c-accent-dim: rgba(240, 180, 41, 0.2);
+}
+
+/* Mobile optimizations */
+@media (max-width: 768px) {
+  .chat ai-ide-panel {
+    margin: 0 -8px 8px -8px;
+    border-radius: 0;
+  }
+  
+  /* Make the panel more compact on mobile */
+  ai-ide-panel {
+    --ide-max-height: 300px;
+  }
+}
+
+/* Tablet/small desktop */
+@media (min-width: 769px) and (max-width: 1024px) {
+  ai-ide-panel {
+    --ide-max-height: 350px;
+  }
+}
+
+/* Large desktop */
+@media (min-width: 1025px) {
+  ai-ide-panel {
+    --ide-max-height: 400px;
+  }
+}
+
+/* ===== Enhanced Tool Card Animations ===== */
+
+/* Pulse animation for running tools */
+@keyframes tool-running-pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(240, 180, 41, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(240, 180, 41, 0);
+  }
+}
+
+/* Typing animation for code generation */
+@keyframes typing-cursor {
+  0%, 50% {
+    border-right-color: var(--c-accent, #f0b429);
+  }
+  51%, 100% {
+    border-right-color: transparent;
+  }
+}
+
+.code-typing {
+  border-right: 2px solid var(--c-accent, #f0b429);
+  animation: typing-cursor 0.8s infinite;
+}
+
+/* Smooth scrolling for code panel */
+.ide-content {
+  scroll-behavior: smooth;
+}
+
+/* Auto-scroll indicator */
+.auto-scroll-indicator {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  padding: 4px 8px;
+  background: rgba(0, 0, 0, 0.7);
+  border-radius: 4px;
+  font-size: 10px;
+  color: var(--c-muted, #8b949e);
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.ide-content.auto-scrolling .auto-scroll-indicator {
+  opacity: 1;
+}
+
+/* ===== Syntax Highlighting ===== */
+
+/* Keywords */
+.token-keyword {
+  color: #ff7b72;
+  font-weight: 500;
+}
+
+/* Strings */
+.token-string {
+  color: #a5d6ff;
+}
+
+/* Comments */
+.token-comment {
+  color: #8b949e;
+  font-style: italic;
+}
+
+/* Numbers */
+.token-number {
+  color: #79c0ff;
+}
+
+/* Functions */
+.token-function {
+  color: #d2a8ff;
+}
+
+/* Operators */
+.token-operator {
+  color: #ff7b72;
+}
+
+/* Types/Classes */
+.token-type {
+  color: #ffa657;
+}
+
+/* Variables */
+.token-variable {
+  color: #ffa657;
+}
+
+/* Properties */
+.token-property {
+  color: #79c0ff;
+}
+
+/* Punctuation */
+.token-punctuation {
+  color: #c9d1d9;
+}
+
+/* ===== Diff Visualization ===== */
+
+.diff-hunk-header {
+  background: rgba(56, 139, 253, 0.15);
+  color: var(--c-info, #58a6ff);
+  padding: 4px 14px;
+  font-size: 11px;
+  font-family: var(--font-mono, 'SF Mono', Consolas, monospace);
+  border-top: 1px solid var(--c-border-ide, #30363d);
+  margin-top: 8px;
+}
+
+.diff-hunk-header:first-child {
+  margin-top: 0;
+  border-top: none;
+}
+
+/* Line decorations for diffs */
+.code-line.added::before {
+  content: "+";
+  position: absolute;
+  left: 50px;
+  color: var(--c-success, #3fb950);
+  font-weight: bold;
+}
+
+.code-line.removed::before {
+  content: "-";
+  position: absolute;
+  left: 50px;
+  color: var(--c-error, #f85149);
+  font-weight: bold;
+}
+
+/* ===== File Tree Icons ===== */
+
+.file-icon {
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* File type icons based on extension */
+.file-icon[data-ext="ts"],
+.file-icon[data-ext="tsx"] {
+  color: #3178c6;
+}
+
+.file-icon[data-ext="js"],
+.file-icon[data-ext="jsx"] {
+  color: #f7df1e;
+}
+
+.file-icon[data-ext="py"] {
+  color: #3776ab;
+}
+
+.file-icon[data-ext="rs"] {
+  color: #dea584;
+}
+
+.file-icon[data-ext="go"] {
+  color: #00add8;
+}
+
+.file-icon[data-ext="json"] {
+  color: #cbcb41;
+}
+
+.file-icon[data-ext="html"] {
+  color: #e34c26;
+}
+
+.file-icon[data-ext="css"] {
+  color: #563d7c;
+}
+
+.file-icon[data-ext="md"] {
+  color: #083fa1;
+}
+
+/* ===== Loading States ===== */
+
+.ide-skeleton {
+  background: linear-gradient(
+    90deg,
+    var(--c-bg-item, #161b22) 25%,
+    var(--c-bg-hover, #21262d) 50%,
+    var(--c-bg-item, #161b22) 75%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes skeleton-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+/* ===== Accessibility ===== */
+
+/* Focus styles */
+ai-ide-panel:focus-visible {
+  outline: 2px solid var(--c-accent, #f0b429);
+  outline-offset: 2px;
+}
+
+/* Reduce motion */
+@media (prefers-reduced-motion: reduce) {
+  .chat ai-ide-panel {
+    animation: none;
+  }
+  
+  ai-ide-panel .spinner,
+  ai-ide-panel .status-dot.active,
+  ai-ide-panel .activity-item__icon {
+    animation: none;
+  }
+  
+  .code-typing {
+    animation: none;
+    border-right-color: var(--c-accent, #f0b429);
+  }
+}
+
+/* High contrast mode */
+@media (prefers-contrast: high) {
+  ai-ide-panel {
+    --c-border-ide: #ffffff;
+    --c-text-code: #ffffff;
+  }
+}
+
+/* ===== Print styles ===== */
+@media print {
+  ai-ide-panel {
+    display: none;
+  }
+}

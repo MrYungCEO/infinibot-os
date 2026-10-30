@@ -1,0 +1,55 @@
+{
+  "id": "course-thumbnail-editorial",
+  "category": "course-thumbnail",
+  "name": "Course thumbnail · Editorial",
+  "width": 1280,
+  "height": 720,
+  "background": "#fff8f0",
+  "createdAt": "2026-06-09",
+  "scene": {
+    "elements": [
+      {
+        "id": "course-thumbnail-editorial-bg-accent",
+        "type": "rectangle",
+        "x": 0,
+        "y": 561.6,
+        "width": 1280,
+        "height": 43.199999999999996,
+        "backgroundColor": "#f97316",
+        "fillStyle": "solid",
+        "strokeColor": "transparent",
+        "strokeWidth": 0,
+        "roughness": 0
+      },
+      {
+        "id": "course-thumbnail-editorial-title",
+        "type": "text",
+        "x": 128,
+        "y": 251.99999999999997,
+        "width": 1024,
+        "height": 96,
+        "text": "Course thumbnail title",
+        "fontSize": 64,
+        "fontFamily": 1,
+        "textAlign": "center",
+        "strokeColor": "#3b2a1a"
+      },
+      {
+        "id": "course-thumbnail-editorial-subtitle",
+        "type": "text",
+        "x": 128,
+        "y": 345.59999999999997,
+        "width": 1024,
+        "height": 48,
+        "text": "Editorial · 1280×720",
+        "fontSize": 28,
+        "fontFamily": 2,
+        "textAlign": "center",
+        "strokeColor": "#3b2a1a",
+        "opacity": 70
+      }
+    ],
+    "appState": {},
+    "files": {}
+  }
+}

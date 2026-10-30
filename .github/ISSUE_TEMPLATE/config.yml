@@ -1,0 +1,9 @@
+# OWNER: confirm the repo URL below, and add a community chat link here once one exists.
+blank_issues_enabled: false
+contact_links:
+  - name: Questions and setup help
+    url: https://github.com/MrYungCEO/infinibot-os/discussions
+    about: Ask setup and usage questions in GitHub Discussions.
+  - name: Report a security vulnerability
+    url: https://github.com/MrYungCEO/infinibot-os/security/advisories/new
+    about: Please report security issues privately, not as public issues. See SECURITY.md.

@@ -1,0 +1,21 @@
+{
+  "id": "twitch",
+  "name": "Twitch",
+  "listing": {
+    "tagline": "Bring your agents into Twitch chat.",
+    "category": "channels",
+    "tags": [
+      "streaming",
+      "community"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "channels": ["twitch"],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

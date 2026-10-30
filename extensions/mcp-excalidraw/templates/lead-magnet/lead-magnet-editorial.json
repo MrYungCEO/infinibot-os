@@ -1,0 +1,55 @@
+{
+  "id": "lead-magnet-editorial",
+  "category": "lead-magnet",
+  "name": "Lead magnet · Editorial",
+  "width": 1080,
+  "height": 1350,
+  "background": "#fff8f0",
+  "createdAt": "2026-06-09",
+  "scene": {
+    "elements": [
+      {
+        "id": "lead-magnet-editorial-bg-accent",
+        "type": "rectangle",
+        "x": 0,
+        "y": 1053,
+        "width": 1080,
+        "height": 81,
+        "backgroundColor": "#f97316",
+        "fillStyle": "solid",
+        "strokeColor": "transparent",
+        "strokeWidth": 0,
+        "roughness": 0
+      },
+      {
+        "id": "lead-magnet-editorial-title",
+        "type": "text",
+        "x": 108,
+        "y": 472.49999999999994,
+        "width": 864,
+        "height": 96,
+        "text": "Lead magnet title",
+        "fontSize": 64,
+        "fontFamily": 1,
+        "textAlign": "center",
+        "strokeColor": "#3b2a1a"
+      },
+      {
+        "id": "lead-magnet-editorial-subtitle",
+        "type": "text",
+        "x": 108,
+        "y": 648,
+        "width": 864,
+        "height": 48,
+        "text": "Editorial · 1080×1350",
+        "fontSize": 28,
+        "fontFamily": 2,
+        "textAlign": "center",
+        "strokeColor": "#3b2a1a",
+        "opacity": 70
+      }
+    ],
+    "appState": {},
+    "files": {}
+  }
+}

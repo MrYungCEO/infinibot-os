@@ -1,0 +1,104 @@
+#!/usr/bin/env bash
+# infinibot-build-shim — PATH shim that routes RAM-heavy invocations of a
+# build tool through scripts/infinibot-build (the per-plan build queue).
+#
+# src/agents/build-queue.ts symlinks this file as <queue>/bin/{tsc,vite,
+# esbuild,next,pnpm,npm,npx,yarn,bun,chromium,google-chrome,...} and puts that
+# bin dir first on the tenant gateway's PATH, which every coder agent inherits.
+# The shim finds the real binary on PATH *after* its own dir, decides whether
+# this invocation is heavy (a build — not a dev server, watch mode, install or
+# --version), and either queues it or execs the real tool directly.
+set -u
+
+name="$(basename -- "$0")"
+self_dir="$(cd -- "$(dirname -- "$0")" && pwd)"
+
+stripped=""
+IFS=: read -r -a parts <<<"${PATH:-}"
+for p in "${parts[@]}"; do
+  [ -z "$p" ] && continue
+  [ "$p" = "$self_dir" ] && continue
+  stripped="${stripped:+$stripped:}$p"
+done
+real="$(PATH="$stripped" command -v -- "$name" 2>/dev/null || true)"
+if [ -z "$real" ]; then
+  echo "$name: command not found" >&2
+  exit 127
+fi
+
+wrapper="${INFINIBOT_BUILD_WRAPPER:-$self_dir/infinibot-build}"
+
+has_flag() {
+  local want a
+  for a in "${@:2}"; do
+    for want in $1; do [ "$a" = "$want" ] && return 0; done
+  done
+  return 1
+}
+
+# Positional words of a package-manager command line (flags and the values of
+# flags that take one are skipped).
+pm_words() {
+  local skip=0 a
+  for a in "$@"; do
+    if [ "$skip" -eq 1 ]; then skip=0; continue; fi
+    case "$a" in
+      -C | --dir | --filter | -F | --prefix | --workspace | -w | --cwd) skip=1 ;;
+      -*) ;;
+      *) printf '%s\n' "$a" ;;
+    esac
+  done
+}
+
+is_build_tool() {
+  case "$1" in
+    tsc | vite | esbuild | tsup | tsdown | next | rollup | webpack) return 0 ;;
+  esac
+  return 1
+}
+
+is_heavy() {
+  has_flag "--version -v --help -h" "$@" && return 1
+  case "$name" in
+    tsc | esbuild | tsup | tsdown | rollup | webpack)
+      has_flag "--watch -w --serve --servedir" "$@" && return 1
+      return 0
+      ;;
+    vite | next)
+      [ "${1:-}" = "build" ]
+      return
+      ;;
+    chromium | chromium-browser | google-chrome | google-chrome-stable | chrome)
+      return 0
+      ;;
+    pnpm | npm | npx | yarn | bun)
+      local w1 w2
+      w1="$(pm_words "$@" | sed -n 1p)"
+      w2="$(pm_words "$@" | sed -n 2p)"
+      case "$w1" in
+        build | build:*) return 0 ;;
+        run | run-script)
+          case "$w2" in build | build:* | *:build) return 0 ;; esac
+          return 1
+          ;;
+        exec | dlx | x)
+          is_build_tool "$w2" && { [ "$w2" != vite ] && [ "$w2" != next ] || [ "$(pm_words "$@" | sed -n 3p)" = build ]; }
+          return
+          ;;
+      esac
+      # npx tsc / npx vite build
+      if [ "$name" = npx ] && is_build_tool "$w1"; then
+        [ "$w1" != vite ] && [ "$w1" != next ] && return 0
+        [ "$w2" = build ]
+        return
+      fi
+      return 1
+      ;;
+  esac
+  return 1
+}
+
+if [ -z "${INFINIBOT_BUILD_SLOT:-}" ] && [ -x "$wrapper" ] && is_heavy "$@"; then
+  exec "$wrapper" "$real" "$@"
+fi
+exec "$real" "$@"

@@ -1,0 +1,5 @@
+# The repo-root .gitignore excludes all *.pem (private keys must never be
+# committed). The KinglyVault license PUBLIC key is the one exception: it ships
+# with the app (electron/license.js reads it at runtime) and Phase A overwrites
+# this same path with the real rotated public key. Re-include it explicitly.
+!license-public-key.pem

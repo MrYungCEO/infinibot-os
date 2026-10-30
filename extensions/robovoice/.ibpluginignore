@@ -1,0 +1,2 @@
+# Dev-only tooling (side-gateway e2e, screenshots, mocks); not shipped in the package.
+scripts/

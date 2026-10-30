@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+# clawd-chrome — managed Chromium for InfiniBot browser control (CDP fallback).
+#
+# Attach strategy priority (see the `browser-control-tool` skill):
+#   1. The user's existing Chrome (InfiniBot profile) + Browser Relay extension,
+#      reached via the gateway extension-relay on :18792. Preferred — real
+#      logged-in session. Launch it with `~/.local/bin/google-chrome`.
+#   2. THIS wrapper: a DEDICATED Chromium with a real --remote-debugging-port and
+#      its own profile dir, for the raw-CDP fallback path (no extension needed).
+#      Use when the relay/extension is down or you want an isolated debug browser.
+#
+# Env:
+#   CLAWD_CHROME_PORT      remote debugging port (default 18793 — NOT 18792, which
+#                          is the gateway extension-relay, to avoid a port clash)
+#   CLAWD_CHROME_PROFILE   user-data-dir (default ~/.infinibot/clawd-chrome)
+#   BROWSER_PROFILE        if set, seed/use this user-data-dir instead (the spec's
+#                          "seed it with the user's profile" hook)
+#   CLAWD_CHROME_BIN       browser binary (default: first of chromium/chrome found)
+#
+# Usage:
+#   clawd-chrome https://infinitybotos.com           # opens + exposes CDP
+#   CLAWD_CHROME_PORT=9333 clawd-chrome about:blank
+# Then attach: ws://127.0.0.1:${CLAWD_CHROME_PORT}/cdp via /json/list discovery,
+# or point Playwright connectOverCDP at http://127.0.0.1:${CLAWD_CHROME_PORT}.
+set -euo pipefail
+
+PORT="${CLAWD_CHROME_PORT:-18793}"
+PROFILE="${BROWSER_PROFILE:-${CLAWD_CHROME_PROFILE:-$HOME/.infinibot/clawd-chrome}}"
+
+pick_bin() {
+  if [[ -n "${CLAWD_CHROME_BIN:-}" ]]; then echo "$CLAWD_CHROME_BIN"; return; fi
+  for c in chromium chromium-browser /opt/google/chrome/google-chrome google-chrome-stable google-chrome brave-browser; do
+    if command -v "$c" >/dev/null 2>&1 || [[ -x "$c" ]]; then echo "$c"; return; fi
+  done
+  echo "google-chrome"
+}
+BIN="$(pick_bin)"
+
+mkdir -p "$PROFILE"
+
+exec "$BIN" \
+  --remote-debugging-port="$PORT" \
+  --remote-debugging-address=127.0.0.1 \
+  --user-data-dir="$PROFILE" \
+  --no-first-run \
+  --no-default-browser-check \
+  --disable-background-networking \
+  --disable-component-update \
+  --disable-features=Translate,MediaRouter \
+  "$@"

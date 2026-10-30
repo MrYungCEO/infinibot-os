@@ -1,0 +1,2477 @@
+[
+  {
+    "id": "social-minimal",
+    "category": "social",
+    "name": "Social · Minimal",
+    "width": 1080,
+    "height": 1080,
+    "background": "#ffffff",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "social-minimal-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 842.4,
+          "width": 1080,
+          "height": 64.8,
+          "backgroundColor": "#4f46e5",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "social-minimal-title",
+          "type": "text",
+          "x": 108,
+          "y": 378,
+          "width": 864,
+          "height": 96,
+          "text": "Social title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#0b0b14"
+        },
+        {
+          "id": "social-minimal-subtitle",
+          "type": "text",
+          "x": 108,
+          "y": 518.4,
+          "width": 864,
+          "height": 48,
+          "text": "Minimal · 1080×1080",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#0b0b14",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "social-bold",
+    "category": "social",
+    "name": "Social · Bold",
+    "width": 1080,
+    "height": 1080,
+    "background": "#0b0b14",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "social-bold-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 842.4,
+          "width": 1080,
+          "height": 64.8,
+          "backgroundColor": "#22d3ee",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "social-bold-title",
+          "type": "text",
+          "x": 108,
+          "y": 378,
+          "width": 864,
+          "height": 96,
+          "text": "Social title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#ffffff"
+        },
+        {
+          "id": "social-bold-subtitle",
+          "type": "text",
+          "x": 108,
+          "y": 518.4,
+          "width": 864,
+          "height": 48,
+          "text": "Bold · 1080×1080",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#ffffff",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "social-editorial",
+    "category": "social",
+    "name": "Social · Editorial",
+    "width": 1080,
+    "height": 1080,
+    "background": "#fff8f0",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "social-editorial-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 842.4,
+          "width": 1080,
+          "height": 64.8,
+          "backgroundColor": "#f97316",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "social-editorial-title",
+          "type": "text",
+          "x": 108,
+          "y": 378,
+          "width": 864,
+          "height": 96,
+          "text": "Social title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#3b2a1a"
+        },
+        {
+          "id": "social-editorial-subtitle",
+          "type": "text",
+          "x": 108,
+          "y": 518.4,
+          "width": 864,
+          "height": 48,
+          "text": "Editorial · 1080×1080",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#3b2a1a",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "social-soft",
+    "category": "social",
+    "name": "Social · Soft",
+    "width": 1080,
+    "height": 1080,
+    "background": "#0e1a14",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "social-soft-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 842.4,
+          "width": 1080,
+          "height": 64.8,
+          "backgroundColor": "#22c55e",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "social-soft-title",
+          "type": "text",
+          "x": 108,
+          "y": 378,
+          "width": 864,
+          "height": 96,
+          "text": "Social title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#e6fff5"
+        },
+        {
+          "id": "social-soft-subtitle",
+          "type": "text",
+          "x": 108,
+          "y": 518.4,
+          "width": 864,
+          "height": 48,
+          "text": "Soft · 1080×1080",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#e6fff5",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "social-mono",
+    "category": "social",
+    "name": "Social · Mono",
+    "width": 1080,
+    "height": 1080,
+    "background": "#f5f5fa",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "social-mono-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 842.4,
+          "width": 1080,
+          "height": 64.8,
+          "backgroundColor": "#a855f7",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "social-mono-title",
+          "type": "text",
+          "x": 108,
+          "y": 378,
+          "width": 864,
+          "height": 96,
+          "text": "Social title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#1a1a2e"
+        },
+        {
+          "id": "social-mono-subtitle",
+          "type": "text",
+          "x": 108,
+          "y": 518.4,
+          "width": 864,
+          "height": 48,
+          "text": "Mono · 1080×1080",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#1a1a2e",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "story-minimal",
+    "category": "story",
+    "name": "Story · Minimal",
+    "width": 1080,
+    "height": 1920,
+    "background": "#ffffff",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "story-minimal-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1497.6000000000001,
+          "width": 1080,
+          "height": 115.19999999999999,
+          "backgroundColor": "#4f46e5",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "story-minimal-title",
+          "type": "text",
+          "x": 108,
+          "y": 672,
+          "width": 864,
+          "height": 96,
+          "text": "Story title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#0b0b14"
+        },
+        {
+          "id": "story-minimal-subtitle",
+          "type": "text",
+          "x": 108,
+          "y": 921.5999999999999,
+          "width": 864,
+          "height": 48,
+          "text": "Minimal · 1080×1920",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#0b0b14",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "story-bold",
+    "category": "story",
+    "name": "Story · Bold",
+    "width": 1080,
+    "height": 1920,
+    "background": "#0b0b14",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "story-bold-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1497.6000000000001,
+          "width": 1080,
+          "height": 115.19999999999999,
+          "backgroundColor": "#22d3ee",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "story-bold-title",
+          "type": "text",
+          "x": 108,
+          "y": 672,
+          "width": 864,
+          "height": 96,
+          "text": "Story title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#ffffff"
+        },
+        {
+          "id": "story-bold-subtitle",
+          "type": "text",
+          "x": 108,
+          "y": 921.5999999999999,
+          "width": 864,
+          "height": 48,
+          "text": "Bold · 1080×1920",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#ffffff",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "story-editorial",
+    "category": "story",
+    "name": "Story · Editorial",
+    "width": 1080,
+    "height": 1920,
+    "background": "#fff8f0",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "story-editorial-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1497.6000000000001,
+          "width": 1080,
+          "height": 115.19999999999999,
+          "backgroundColor": "#f97316",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "story-editorial-title",
+          "type": "text",
+          "x": 108,
+          "y": 672,
+          "width": 864,
+          "height": 96,
+          "text": "Story title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#3b2a1a"
+        },
+        {
+          "id": "story-editorial-subtitle",
+          "type": "text",
+          "x": 108,
+          "y": 921.5999999999999,
+          "width": 864,
+          "height": 48,
+          "text": "Editorial · 1080×1920",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#3b2a1a",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "story-soft",
+    "category": "story",
+    "name": "Story · Soft",
+    "width": 1080,
+    "height": 1920,
+    "background": "#0e1a14",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "story-soft-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1497.6000000000001,
+          "width": 1080,
+          "height": 115.19999999999999,
+          "backgroundColor": "#22c55e",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "story-soft-title",
+          "type": "text",
+          "x": 108,
+          "y": 672,
+          "width": 864,
+          "height": 96,
+          "text": "Story title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#e6fff5"
+        },
+        {
+          "id": "story-soft-subtitle",
+          "type": "text",
+          "x": 108,
+          "y": 921.5999999999999,
+          "width": 864,
+          "height": 48,
+          "text": "Soft · 1080×1920",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#e6fff5",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "story-mono",
+    "category": "story",
+    "name": "Story · Mono",
+    "width": 1080,
+    "height": 1920,
+    "background": "#f5f5fa",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "story-mono-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1497.6000000000001,
+          "width": 1080,
+          "height": 115.19999999999999,
+          "backgroundColor": "#a855f7",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "story-mono-title",
+          "type": "text",
+          "x": 108,
+          "y": 672,
+          "width": 864,
+          "height": 96,
+          "text": "Story title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#1a1a2e"
+        },
+        {
+          "id": "story-mono-subtitle",
+          "type": "text",
+          "x": 108,
+          "y": 921.5999999999999,
+          "width": 864,
+          "height": 48,
+          "text": "Mono · 1080×1920",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#1a1a2e",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "ebook-minimal",
+    "category": "ebook",
+    "name": "Ebook · Minimal",
+    "width": 1240,
+    "height": 1754,
+    "background": "#ffffff",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "ebook-minimal-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#4f46e5",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "ebook-minimal-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Ebook title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#0b0b14"
+        },
+        {
+          "id": "ebook-minimal-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Minimal · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#0b0b14",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "ebook-bold",
+    "category": "ebook",
+    "name": "Ebook · Bold",
+    "width": 1240,
+    "height": 1754,
+    "background": "#0b0b14",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "ebook-bold-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#22d3ee",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "ebook-bold-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Ebook title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#ffffff"
+        },
+        {
+          "id": "ebook-bold-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Bold · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#ffffff",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "ebook-editorial",
+    "category": "ebook",
+    "name": "Ebook · Editorial",
+    "width": 1240,
+    "height": 1754,
+    "background": "#fff8f0",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "ebook-editorial-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#f97316",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "ebook-editorial-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Ebook title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#3b2a1a"
+        },
+        {
+          "id": "ebook-editorial-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Editorial · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#3b2a1a",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "ebook-soft",
+    "category": "ebook",
+    "name": "Ebook · Soft",
+    "width": 1240,
+    "height": 1754,
+    "background": "#0e1a14",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "ebook-soft-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#22c55e",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "ebook-soft-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Ebook title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#e6fff5"
+        },
+        {
+          "id": "ebook-soft-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Soft · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#e6fff5",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "ebook-mono",
+    "category": "ebook",
+    "name": "Ebook · Mono",
+    "width": 1240,
+    "height": 1754,
+    "background": "#f5f5fa",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "ebook-mono-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#a855f7",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "ebook-mono-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Ebook title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#1a1a2e"
+        },
+        {
+          "id": "ebook-mono-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Mono · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#1a1a2e",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "workbook-minimal",
+    "category": "workbook",
+    "name": "Workbook · Minimal",
+    "width": 1240,
+    "height": 1754,
+    "background": "#ffffff",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "workbook-minimal-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#4f46e5",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "workbook-minimal-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Workbook title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#0b0b14"
+        },
+        {
+          "id": "workbook-minimal-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Minimal · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#0b0b14",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "workbook-bold",
+    "category": "workbook",
+    "name": "Workbook · Bold",
+    "width": 1240,
+    "height": 1754,
+    "background": "#0b0b14",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "workbook-bold-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#22d3ee",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "workbook-bold-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Workbook title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#ffffff"
+        },
+        {
+          "id": "workbook-bold-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Bold · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#ffffff",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "workbook-editorial",
+    "category": "workbook",
+    "name": "Workbook · Editorial",
+    "width": 1240,
+    "height": 1754,
+    "background": "#fff8f0",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "workbook-editorial-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#f97316",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "workbook-editorial-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Workbook title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#3b2a1a"
+        },
+        {
+          "id": "workbook-editorial-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Editorial · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#3b2a1a",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "workbook-soft",
+    "category": "workbook",
+    "name": "Workbook · Soft",
+    "width": 1240,
+    "height": 1754,
+    "background": "#0e1a14",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "workbook-soft-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#22c55e",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "workbook-soft-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Workbook title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#e6fff5"
+        },
+        {
+          "id": "workbook-soft-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Soft · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#e6fff5",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "workbook-mono",
+    "category": "workbook",
+    "name": "Workbook · Mono",
+    "width": 1240,
+    "height": 1754,
+    "background": "#f5f5fa",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "workbook-mono-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#a855f7",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "workbook-mono-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Workbook title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#1a1a2e"
+        },
+        {
+          "id": "workbook-mono-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Mono · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#1a1a2e",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "planner-minimal",
+    "category": "planner",
+    "name": "Planner · Minimal",
+    "width": 1240,
+    "height": 1754,
+    "background": "#ffffff",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "planner-minimal-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#4f46e5",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "planner-minimal-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Planner title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#0b0b14"
+        },
+        {
+          "id": "planner-minimal-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Minimal · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#0b0b14",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "planner-bold",
+    "category": "planner",
+    "name": "Planner · Bold",
+    "width": 1240,
+    "height": 1754,
+    "background": "#0b0b14",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "planner-bold-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#22d3ee",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "planner-bold-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Planner title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#ffffff"
+        },
+        {
+          "id": "planner-bold-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Bold · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#ffffff",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "planner-editorial",
+    "category": "planner",
+    "name": "Planner · Editorial",
+    "width": 1240,
+    "height": 1754,
+    "background": "#fff8f0",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "planner-editorial-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#f97316",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "planner-editorial-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Planner title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#3b2a1a"
+        },
+        {
+          "id": "planner-editorial-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Editorial · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#3b2a1a",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "planner-soft",
+    "category": "planner",
+    "name": "Planner · Soft",
+    "width": 1240,
+    "height": 1754,
+    "background": "#0e1a14",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "planner-soft-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#22c55e",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "planner-soft-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Planner title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#e6fff5"
+        },
+        {
+          "id": "planner-soft-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Soft · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#e6fff5",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "planner-mono",
+    "category": "planner",
+    "name": "Planner · Mono",
+    "width": 1240,
+    "height": 1754,
+    "background": "#f5f5fa",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "planner-mono-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#a855f7",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "planner-mono-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Planner title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#1a1a2e"
+        },
+        {
+          "id": "planner-mono-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Mono · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#1a1a2e",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "invoice-minimal",
+    "category": "invoice",
+    "name": "Invoice · Minimal",
+    "width": 1240,
+    "height": 1754,
+    "background": "#ffffff",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "invoice-minimal-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#4f46e5",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "invoice-minimal-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Invoice title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#0b0b14"
+        },
+        {
+          "id": "invoice-minimal-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Minimal · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#0b0b14",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "invoice-bold",
+    "category": "invoice",
+    "name": "Invoice · Bold",
+    "width": 1240,
+    "height": 1754,
+    "background": "#0b0b14",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "invoice-bold-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#22d3ee",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "invoice-bold-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Invoice title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#ffffff"
+        },
+        {
+          "id": "invoice-bold-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Bold · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#ffffff",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "invoice-editorial",
+    "category": "invoice",
+    "name": "Invoice · Editorial",
+    "width": 1240,
+    "height": 1754,
+    "background": "#fff8f0",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "invoice-editorial-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#f97316",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "invoice-editorial-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Invoice title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#3b2a1a"
+        },
+        {
+          "id": "invoice-editorial-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Editorial · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#3b2a1a",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "invoice-soft",
+    "category": "invoice",
+    "name": "Invoice · Soft",
+    "width": 1240,
+    "height": 1754,
+    "background": "#0e1a14",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "invoice-soft-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#22c55e",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "invoice-soft-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Invoice title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#e6fff5"
+        },
+        {
+          "id": "invoice-soft-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Soft · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#e6fff5",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "invoice-mono",
+    "category": "invoice",
+    "name": "Invoice · Mono",
+    "width": 1240,
+    "height": 1754,
+    "background": "#f5f5fa",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "invoice-mono-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#a855f7",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "invoice-mono-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Invoice title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#1a1a2e"
+        },
+        {
+          "id": "invoice-mono-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Mono · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#1a1a2e",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "lead-magnet-minimal",
+    "category": "lead-magnet",
+    "name": "Lead magnet · Minimal",
+    "width": 1080,
+    "height": 1350,
+    "background": "#ffffff",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "lead-magnet-minimal-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1053,
+          "width": 1080,
+          "height": 81,
+          "backgroundColor": "#4f46e5",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "lead-magnet-minimal-title",
+          "type": "text",
+          "x": 108,
+          "y": 472.49999999999994,
+          "width": 864,
+          "height": 96,
+          "text": "Lead magnet title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#0b0b14"
+        },
+        {
+          "id": "lead-magnet-minimal-subtitle",
+          "type": "text",
+          "x": 108,
+          "y": 648,
+          "width": 864,
+          "height": 48,
+          "text": "Minimal · 1080×1350",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#0b0b14",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "lead-magnet-bold",
+    "category": "lead-magnet",
+    "name": "Lead magnet · Bold",
+    "width": 1080,
+    "height": 1350,
+    "background": "#0b0b14",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "lead-magnet-bold-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1053,
+          "width": 1080,
+          "height": 81,
+          "backgroundColor": "#22d3ee",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "lead-magnet-bold-title",
+          "type": "text",
+          "x": 108,
+          "y": 472.49999999999994,
+          "width": 864,
+          "height": 96,
+          "text": "Lead magnet title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#ffffff"
+        },
+        {
+          "id": "lead-magnet-bold-subtitle",
+          "type": "text",
+          "x": 108,
+          "y": 648,
+          "width": 864,
+          "height": 48,
+          "text": "Bold · 1080×1350",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#ffffff",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "lead-magnet-editorial",
+    "category": "lead-magnet",
+    "name": "Lead magnet · Editorial",
+    "width": 1080,
+    "height": 1350,
+    "background": "#fff8f0",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "lead-magnet-editorial-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1053,
+          "width": 1080,
+          "height": 81,
+          "backgroundColor": "#f97316",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "lead-magnet-editorial-title",
+          "type": "text",
+          "x": 108,
+          "y": 472.49999999999994,
+          "width": 864,
+          "height": 96,
+          "text": "Lead magnet title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#3b2a1a"
+        },
+        {
+          "id": "lead-magnet-editorial-subtitle",
+          "type": "text",
+          "x": 108,
+          "y": 648,
+          "width": 864,
+          "height": 48,
+          "text": "Editorial · 1080×1350",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#3b2a1a",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "lead-magnet-soft",
+    "category": "lead-magnet",
+    "name": "Lead magnet · Soft",
+    "width": 1080,
+    "height": 1350,
+    "background": "#0e1a14",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "lead-magnet-soft-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1053,
+          "width": 1080,
+          "height": 81,
+          "backgroundColor": "#22c55e",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "lead-magnet-soft-title",
+          "type": "text",
+          "x": 108,
+          "y": 472.49999999999994,
+          "width": 864,
+          "height": 96,
+          "text": "Lead magnet title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#e6fff5"
+        },
+        {
+          "id": "lead-magnet-soft-subtitle",
+          "type": "text",
+          "x": 108,
+          "y": 648,
+          "width": 864,
+          "height": 48,
+          "text": "Soft · 1080×1350",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#e6fff5",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "lead-magnet-mono",
+    "category": "lead-magnet",
+    "name": "Lead magnet · Mono",
+    "width": 1080,
+    "height": 1350,
+    "background": "#f5f5fa",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "lead-magnet-mono-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1053,
+          "width": 1080,
+          "height": 81,
+          "backgroundColor": "#a855f7",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "lead-magnet-mono-title",
+          "type": "text",
+          "x": 108,
+          "y": 472.49999999999994,
+          "width": 864,
+          "height": 96,
+          "text": "Lead magnet title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#1a1a2e"
+        },
+        {
+          "id": "lead-magnet-mono-subtitle",
+          "type": "text",
+          "x": 108,
+          "y": 648,
+          "width": 864,
+          "height": 48,
+          "text": "Mono · 1080×1350",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#1a1a2e",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "worksheet-minimal",
+    "category": "worksheet",
+    "name": "Worksheet · Minimal",
+    "width": 1240,
+    "height": 1754,
+    "background": "#ffffff",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "worksheet-minimal-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#4f46e5",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "worksheet-minimal-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Worksheet title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#0b0b14"
+        },
+        {
+          "id": "worksheet-minimal-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Minimal · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#0b0b14",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "worksheet-bold",
+    "category": "worksheet",
+    "name": "Worksheet · Bold",
+    "width": 1240,
+    "height": 1754,
+    "background": "#0b0b14",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "worksheet-bold-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#22d3ee",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "worksheet-bold-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Worksheet title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#ffffff"
+        },
+        {
+          "id": "worksheet-bold-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Bold · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#ffffff",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "worksheet-editorial",
+    "category": "worksheet",
+    "name": "Worksheet · Editorial",
+    "width": 1240,
+    "height": 1754,
+    "background": "#fff8f0",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "worksheet-editorial-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#f97316",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "worksheet-editorial-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Worksheet title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#3b2a1a"
+        },
+        {
+          "id": "worksheet-editorial-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Editorial · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#3b2a1a",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "worksheet-soft",
+    "category": "worksheet",
+    "name": "Worksheet · Soft",
+    "width": 1240,
+    "height": 1754,
+    "background": "#0e1a14",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "worksheet-soft-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#22c55e",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "worksheet-soft-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Worksheet title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#e6fff5"
+        },
+        {
+          "id": "worksheet-soft-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Soft · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#e6fff5",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "worksheet-mono",
+    "category": "worksheet",
+    "name": "Worksheet · Mono",
+    "width": 1240,
+    "height": 1754,
+    "background": "#f5f5fa",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "worksheet-mono-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 1368.1200000000001,
+          "width": 1240,
+          "height": 105.24,
+          "backgroundColor": "#a855f7",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "worksheet-mono-title",
+          "type": "text",
+          "x": 124,
+          "y": 613.9,
+          "width": 992,
+          "height": 96,
+          "text": "Worksheet title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#1a1a2e"
+        },
+        {
+          "id": "worksheet-mono-subtitle",
+          "type": "text",
+          "x": 124,
+          "y": 841.92,
+          "width": 992,
+          "height": 48,
+          "text": "Mono · 1240×1754",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#1a1a2e",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "course-thumbnail-minimal",
+    "category": "course-thumbnail",
+    "name": "Course thumbnail · Minimal",
+    "width": 1280,
+    "height": 720,
+    "background": "#ffffff",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "course-thumbnail-minimal-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 561.6,
+          "width": 1280,
+          "height": 43.199999999999996,
+          "backgroundColor": "#4f46e5",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "course-thumbnail-minimal-title",
+          "type": "text",
+          "x": 128,
+          "y": 251.99999999999997,
+          "width": 1024,
+          "height": 96,
+          "text": "Course thumbnail title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#0b0b14"
+        },
+        {
+          "id": "course-thumbnail-minimal-subtitle",
+          "type": "text",
+          "x": 128,
+          "y": 345.59999999999997,
+          "width": 1024,
+          "height": 48,
+          "text": "Minimal · 1280×720",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#0b0b14",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "course-thumbnail-bold",
+    "category": "course-thumbnail",
+    "name": "Course thumbnail · Bold",
+    "width": 1280,
+    "height": 720,
+    "background": "#0b0b14",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "course-thumbnail-bold-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 561.6,
+          "width": 1280,
+          "height": 43.199999999999996,
+          "backgroundColor": "#22d3ee",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "course-thumbnail-bold-title",
+          "type": "text",
+          "x": 128,
+          "y": 251.99999999999997,
+          "width": 1024,
+          "height": 96,
+          "text": "Course thumbnail title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#ffffff"
+        },
+        {
+          "id": "course-thumbnail-bold-subtitle",
+          "type": "text",
+          "x": 128,
+          "y": 345.59999999999997,
+          "width": 1024,
+          "height": 48,
+          "text": "Bold · 1280×720",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#ffffff",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "course-thumbnail-editorial",
+    "category": "course-thumbnail",
+    "name": "Course thumbnail · Editorial",
+    "width": 1280,
+    "height": 720,
+    "background": "#fff8f0",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "course-thumbnail-editorial-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 561.6,
+          "width": 1280,
+          "height": 43.199999999999996,
+          "backgroundColor": "#f97316",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "course-thumbnail-editorial-title",
+          "type": "text",
+          "x": 128,
+          "y": 251.99999999999997,
+          "width": 1024,
+          "height": 96,
+          "text": "Course thumbnail title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#3b2a1a"
+        },
+        {
+          "id": "course-thumbnail-editorial-subtitle",
+          "type": "text",
+          "x": 128,
+          "y": 345.59999999999997,
+          "width": 1024,
+          "height": 48,
+          "text": "Editorial · 1280×720",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#3b2a1a",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "course-thumbnail-soft",
+    "category": "course-thumbnail",
+    "name": "Course thumbnail · Soft",
+    "width": 1280,
+    "height": 720,
+    "background": "#0e1a14",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "course-thumbnail-soft-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 561.6,
+          "width": 1280,
+          "height": 43.199999999999996,
+          "backgroundColor": "#22c55e",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "course-thumbnail-soft-title",
+          "type": "text",
+          "x": 128,
+          "y": 251.99999999999997,
+          "width": 1024,
+          "height": 96,
+          "text": "Course thumbnail title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#e6fff5"
+        },
+        {
+          "id": "course-thumbnail-soft-subtitle",
+          "type": "text",
+          "x": 128,
+          "y": 345.59999999999997,
+          "width": 1024,
+          "height": 48,
+          "text": "Soft · 1280×720",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#e6fff5",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  },
+  {
+    "id": "course-thumbnail-mono",
+    "category": "course-thumbnail",
+    "name": "Course thumbnail · Mono",
+    "width": 1280,
+    "height": 720,
+    "background": "#f5f5fa",
+    "createdAt": "2026-06-09",
+    "scene": {
+      "elements": [
+        {
+          "id": "course-thumbnail-mono-bg-accent",
+          "type": "rectangle",
+          "x": 0,
+          "y": 561.6,
+          "width": 1280,
+          "height": 43.199999999999996,
+          "backgroundColor": "#a855f7",
+          "fillStyle": "solid",
+          "strokeColor": "transparent",
+          "strokeWidth": 0,
+          "roughness": 0
+        },
+        {
+          "id": "course-thumbnail-mono-title",
+          "type": "text",
+          "x": 128,
+          "y": 251.99999999999997,
+          "width": 1024,
+          "height": 96,
+          "text": "Course thumbnail title",
+          "fontSize": 64,
+          "fontFamily": 1,
+          "textAlign": "center",
+          "strokeColor": "#1a1a2e"
+        },
+        {
+          "id": "course-thumbnail-mono-subtitle",
+          "type": "text",
+          "x": 128,
+          "y": 345.59999999999997,
+          "width": 1024,
+          "height": 48,
+          "text": "Mono · 1280×720",
+          "fontSize": 28,
+          "fontFamily": 2,
+          "textAlign": "center",
+          "strokeColor": "#1a1a2e",
+          "opacity": 70
+        }
+      ],
+      "appState": {},
+      "files": {}
+    }
+  }
+]

@@ -1,0 +1,23 @@
+{
+  "id": "signal",
+  "name": "Signal",
+  "listing": {
+    "tagline": "Private messaging through a linked Signal account.",
+    "category": "channels",
+    "tags": [
+      "encrypted",
+      "mobile"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "channels": [
+    "signal"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

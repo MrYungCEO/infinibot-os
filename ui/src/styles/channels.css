@@ -1,0 +1,504 @@
+/* ============================================================
+   Channels page — glass-morphism premium styling
+   ------------------------------------------------------------
+   Channel cards get a brand-tinted glow halo, soft drop shadow,
+   gradient border (top edge picks up the brand colour), and a
+   hover-lift transition. Logo sits prominently in the header
+   with a brand-coloured glow so each channel is instantly
+   recognisable.
+   ============================================================ */
+
+.channels-grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 720px) {
+  .channels-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1280px) {
+  .channels-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* The channel card — wraps every per-channel `<div class="card">`. */
+.channel-card {
+  position: relative;
+  border-radius: 14px;
+  padding: 20px 22px;
+  overflow: hidden;
+  isolation: isolate;
+  border: 1px solid color-mix(in srgb, var(--brand, var(--g-primary)) 28%, rgba(255, 255, 255, 0.06));
+  background:
+    linear-gradient(155deg,
+      color-mix(in srgb, var(--brand, var(--g-primary)) 9%, rgba(10, 10, 14, 0.72)) 0%,
+      rgba(10, 10, 14, 0.78) 55%,
+      rgba(6, 6, 9, 0.82) 100%);
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.06) inset,
+    0 0 0 1px color-mix(in srgb, var(--brand, var(--g-primary)) 10%, transparent),
+    0 18px 48px rgba(0, 0, 0, 0.45),
+    0 0 32px color-mix(in srgb, var(--brand, var(--g-primary)) 12%, transparent);
+  transition:
+    transform 220ms cubic-bezier(0.2, 0.6, 0.2, 1),
+    box-shadow 220ms ease,
+    border-color 220ms ease;
+}
+
+.channel-card::before {
+  /* Top-edge specular highlight — picks up brand colour for that
+     "refractive plate of glass" feel. */
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  border-radius: inherit;
+  background:
+    radial-gradient(120% 60% at 50% -10%,
+      color-mix(in srgb, var(--brand, var(--g-primary)) 22%, transparent) 0%,
+      transparent 55%);
+  opacity: 0.7;
+  mix-blend-mode: screen;
+  z-index: 0;
+}
+
+.channel-card > * { position: relative; z-index: 1; }
+
+.channel-card:hover {
+  transform: translateY(-3px);
+  border-color: color-mix(in srgb, var(--brand, var(--g-primary)) 60%, transparent);
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.08) inset,
+    0 0 0 1px color-mix(in srgb, var(--brand, var(--g-primary)) 24%, transparent),
+    0 26px 64px rgba(0, 0, 0, 0.55),
+    0 0 48px color-mix(in srgb, var(--brand, var(--g-primary)) 24%, transparent);
+}
+
+.channel-card.is-disconnected {
+  filter: saturate(0.65);
+  opacity: 0.85;
+}
+
+.channel-card.is-disconnected:hover {
+  filter: saturate(0.95);
+  opacity: 1;
+}
+
+/* ── Header (logo + title + status) ────────────────────────── */
+
+.channel-card-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 4px;
+}
+
+.channel-logo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--brand, var(--g-primary));
+  border-radius: 12px;
+  padding: 8px;
+  background:
+    radial-gradient(120% 120% at 30% 20%,
+      color-mix(in srgb, var(--brand, var(--g-primary)) 28%, rgba(0, 0, 0, 0.35)) 0%,
+      rgba(0, 0, 0, 0.45) 70%);
+  border: 1px solid color-mix(in srgb, var(--brand, var(--g-primary)) 45%, transparent);
+  box-shadow:
+    0 0 18px color-mix(in srgb, var(--brand, var(--g-primary)) 30%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  flex: 0 0 auto;
+}
+
+.channel-logo svg {
+  display: block;
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--brand, var(--g-primary)) 50%, transparent));
+}
+
+/* Official third-party marks (Telegram): plain on the card, no tile/glow. */
+.channel-logo.channel-logo--mark {
+  background: none;
+  border-color: transparent;
+  box-shadow: none;
+}
+
+.channel-logo.channel-logo--mark svg {
+  filter: none;
+}
+
+.channel-card-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.channel-card-heading .channel-title {
+  font-family: var(--mono);
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--brand, var(--g-primary));
+  text-shadow: 0 0 10px color-mix(in srgb, var(--brand, var(--g-primary)) 40%, transparent);
+  border-bottom: none;
+  padding: 0;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.channel-card-heading .channel-tagline {
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--muted, #a1a1aa);
+  font-family: var(--font-body);
+}
+
+/* ── Status pill ───────────────────────────────────────────── */
+
+.channel-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 9999px;
+  font-family: var(--mono);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  border: 1px solid currentColor;
+  background: color-mix(in srgb, currentColor 8%, transparent);
+  flex: 0 0 auto;
+}
+
+.channel-status-pill .dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 8px currentColor;
+}
+
+.channel-status-pill.connected { color: #22c55e; }
+.channel-status-pill.disconnected { color: #71717a; }
+.channel-status-pill.error { color: #ef4444; }
+.channel-status-pill.pending { color: #f59e0b; }
+.channel-status-pill.unconfigured { color: #71717a; }
+
+/* ── Status list inside the card (Connected / Configured / etc.) ── */
+
+.channel-card .status-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 14px;
+  margin: 14px 0 6px;
+  font-size: 13px;
+}
+
+.channel-card .status-list > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 6px 10px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.04);
+  border-radius: 8px;
+}
+
+.channel-card .status-list .label {
+  font-size: 10.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--muted, #a1a1aa);
+  font-family: var(--mono);
+}
+
+/* ── Helper meta row ───────────────────────────────────────── */
+
+.channel-card .channel-card-meta {
+  margin-top: 12px;
+  color: var(--muted, #a1a1aa);
+  font-size: 12px;
+}
+
+.channel-card .channel-card-meta a {
+  color: var(--brand, var(--g-primary));
+  text-decoration: none;
+  border-bottom: 1px dashed color-mix(in srgb, var(--brand, var(--g-primary)) 50%, transparent);
+}
+
+.channel-card .channel-card-meta a:hover {
+  color: var(--text-strong, #fff);
+  border-bottom-color: var(--brand, var(--g-primary));
+}
+
+/* ── Action row ────────────────────────────────────────────── */
+
+.channel-card .channel-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+}
+
+.channel-card .btn.channel-btn {
+  /* Brand-aware glass button — matches glass-notification language. */
+  position: relative;
+  padding: 9px 16px;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-family: var(--mono);
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--brand, var(--g-primary)) 35%, rgba(255, 255, 255, 0.08));
+  background:
+    linear-gradient(155deg,
+      color-mix(in srgb, var(--brand, var(--g-primary)) 12%, rgba(255, 255, 255, 0.04)) 0%,
+      color-mix(in srgb, var(--brand, var(--g-primary)) 4%, rgba(0, 0, 0, 0.3)) 100%);
+  color: color-mix(in srgb, var(--brand, var(--g-primary)) 80%, var(--text-strong, #fff));
+  cursor: pointer;
+  transition:
+    transform 160ms ease,
+    box-shadow 160ms ease,
+    border-color 160ms ease,
+    color 160ms ease;
+  backdrop-filter: blur(8px);
+}
+
+.channel-card .btn.channel-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  border-color: color-mix(in srgb, var(--brand, var(--g-primary)) 70%, transparent);
+  box-shadow:
+    0 0 22px color-mix(in srgb, var(--brand, var(--g-primary)) 30%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  color: var(--text-strong, #fff);
+}
+
+.channel-card .btn.channel-btn.primary {
+  background:
+    linear-gradient(155deg,
+      color-mix(in srgb, var(--brand, var(--g-primary)) 70%, rgba(255, 255, 255, 0.1)) 0%,
+      color-mix(in srgb, var(--brand, var(--g-primary)) 45%, rgba(0, 0, 0, 0.3)) 100%);
+  border-color: color-mix(in srgb, var(--brand, var(--g-primary)) 75%, transparent);
+  color: #fff;
+  box-shadow:
+    0 0 16px color-mix(in srgb, var(--brand, var(--g-primary)) 30%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.18);
+}
+
+.channel-card .btn.channel-btn.primary:hover:not(:disabled) {
+  box-shadow:
+    0 0 28px color-mix(in srgb, var(--brand, var(--g-primary)) 50%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+}
+
+.channel-card .btn.channel-btn.danger {
+  border-color: color-mix(in srgb, #ef4444 50%, transparent);
+  color: #ff8888;
+  background:
+    linear-gradient(155deg,
+      rgba(239, 68, 68, 0.12) 0%,
+      rgba(239, 68, 68, 0.04) 100%);
+}
+
+.channel-card .btn.channel-btn.danger:hover:not(:disabled) {
+  box-shadow: 0 0 22px rgba(239, 68, 68, 0.35);
+  border-color: rgba(239, 68, 68, 0.85);
+  color: #fff;
+}
+
+.channel-card .btn.channel-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* ── Setup helper — shown when a channel needs a one-time
+      manual setup step (paste a token, run a CLI, etc). */
+
+.channel-card .channel-setup-note {
+  margin-top: 14px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px dashed color-mix(in srgb, var(--brand, var(--g-primary)) 35%, transparent);
+  color: var(--muted, #a1a1aa);
+  font-size: 12.5px;
+  line-height: 1.5;
+}
+
+.channel-card .channel-setup-note strong {
+  color: color-mix(in srgb, var(--brand, var(--g-primary)) 85%, var(--text-strong, #fff));
+  font-weight: 600;
+}
+
+/* ── Empty state ───────────────────────────────────────────── */
+
+.channels-empty {
+  margin-top: 24px;
+  padding: 32px;
+  border-radius: 16px;
+  text-align: center;
+  background:
+    radial-gradient(60% 60% at 50% 0%,
+      color-mix(in srgb, var(--g-primary) 12%, transparent) 0%, transparent 60%),
+    rgba(10, 10, 14, 0.6);
+  border: 1px solid color-mix(in srgb, var(--g-primary) 20%, transparent);
+  backdrop-filter: blur(16px);
+}
+
+.channels-empty h2 {
+  font-family: var(--mono);
+  font-size: 20px;
+  margin: 0 0 8px;
+  letter-spacing: 0.06em;
+  color: var(--text-strong, #fff);
+}
+
+.channels-empty p {
+  color: var(--muted);
+  margin: 0 0 18px;
+}
+
+.channels-empty .logo-row {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* ── Config-form section spacing inside the channel card ───── */
+
+.channel-card .config-form {
+  margin-top: 6px;
+}
+
+.channel-card .channel-config-divider {
+  margin: 16px -22px 12px;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    color-mix(in srgb, var(--brand, var(--g-primary)) 30%, transparent) 50%,
+    transparent 100%);
+}
+
+.channel-card .channel-config-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--muted);
+  margin: 0 0 6px;
+}
+
+/* ── Schema empty-state (channel plugin offers no editable config) ── */
+
+.channel-card .channel-config-empty {
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px dashed color-mix(in srgb, var(--brand, var(--g-primary)) 26%, transparent);
+  color: var(--muted, #a1a1aa);
+  font-size: 12.5px;
+  line-height: 1.5;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+
+.channel-card .channel-config-empty-title {
+  font-family: var(--mono);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: color-mix(in srgb, var(--brand, var(--g-primary)) 70%, var(--text-strong, #fff));
+}
+
+.channel-card .channel-config-empty-body {
+  color: var(--muted, #a1a1aa);
+}
+
+/* ── Plan lock (hosted Free: Telegram, Slack) ─────────────────
+   Black / gold like the daily-limit upsells; the brand tint is
+   muted so a locked card never reads as a live connection. */
+
+.channel-card.channel-card--plan-locked {
+  border-color: rgba(232, 184, 75, 0.3);
+  background:
+    linear-gradient(155deg,
+      color-mix(in srgb, var(--brand, var(--g-primary)) 4%, rgba(16, 13, 8, 0.8)) 0%,
+      rgba(10, 9, 6, 0.84) 60%,
+      rgba(6, 5, 4, 0.88) 100%);
+}
+
+.channel-card.channel-card--plan-locked .channel-card-header > :first-child {
+  filter: grayscale(0.65) brightness(0.85);
+}
+
+.channel-status-pill.plan-locked {
+  color: #e8b84b;
+}
+
+.channel-status-pill.plan-locked svg {
+  width: 11px;
+  height: 11px;
+}
+
+.channel-plan-lock {
+  margin-top: 14px;
+  padding: 14px 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(232, 184, 75, 0.28);
+  background: linear-gradient(180deg, rgba(232, 184, 75, 0.07), rgba(0, 0, 0, 0.22));
+}
+
+.channel-plan-lock__title {
+  font-family: var(--mono);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #f1cd6f;
+}
+
+.channel-plan-lock__body {
+  margin: 6px 0 0;
+  font-size: 13px;
+  line-height: 1.55;
+  color: rgba(244, 239, 226, 0.74);
+}
+
+.channel-plan-lock .channel-actions {
+  margin-top: 12px;
+}
+
+.channel-card .btn.channel-btn.channel-plan-lock__cta {
+  /* .channel-btn (onboarding.css) is a column flex tile; this one is a row. */
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 8px;
+  color: #1a1408;
+  border-color: rgba(232, 184, 75, 0.7);
+  background: linear-gradient(180deg, #f1cd6f, #d9a436);
+  box-shadow: 0 6px 18px rgba(232, 184, 75, 0.22);
+}
+
+.channel-card .btn.channel-btn.channel-plan-lock__cta:hover:not(:disabled) {
+  color: #1a1408;
+  border-color: rgba(232, 184, 75, 0.9);
+  box-shadow: 0 8px 24px rgba(232, 184, 75, 0.32);
+}
+
+.channel-card .btn.channel-btn.channel-plan-lock__cta svg {
+  width: 14px;
+  height: 14px;
+}

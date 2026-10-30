@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>world-timeline-scrubber test</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #06000f; }
+      #world {
+        position: relative;
+        width: 900px;
+        height: 420px;
+        margin: 40px auto;
+        border: 1px solid rgba(212, 175, 55, 0.32);
+        border-radius: 12px;
+        overflow: hidden;
+        background:
+          radial-gradient(120% 80% at 50% 0%, rgba(167, 139, 250, 0.12), transparent 70%),
+          repeating-linear-gradient(180deg, transparent 0 22px, rgba(212, 175, 55, 0.05) 22px 23px),
+          #06000f;
+      }
+      .fake-agent {
+        position: absolute;
+        width: 14px; height: 14px; margin: -7px;
+        border-radius: 50%;
+        background: #7dd3fc;
+        box-shadow: 0 0 10px currentColor;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="world">
+      <world-timeline-scrubber></world-timeline-scrubber>
+    </div>
+    <script src="./__test-scrubber.js"></script>
+  </body>
+</html>

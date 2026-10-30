@@ -1,0 +1,23 @@
+{
+  "id": "qwen-portal-auth",
+  "name": "Qwen Portal sign-in",
+  "listing": {
+    "tagline": "Sign in to Qwen Portal as a model provider.",
+    "category": "integrations",
+    "tags": [
+      "models",
+      "oauth"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "providers": [
+    "qwen-portal"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

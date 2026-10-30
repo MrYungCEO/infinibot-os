@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 28" width="28" height="28">
+  <title>scarf accessory</title>
+  <path d="M 6 6 q 8 5 16 0 l 0 4 q -8 5 -16 0 z" fill="#e11d48"/>
+  <path d="M 19 9 q 5 4 2 11 l -4 -1 q 3 -5 -1 -9 z" fill="#be123c"/>
+  <path d="M 6 6 q 8 5 16 0" fill="none" stroke="#fda4af" stroke-width="0.8"/>
+</svg>

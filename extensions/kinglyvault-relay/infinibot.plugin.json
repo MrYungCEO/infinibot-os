@@ -1,0 +1,12 @@
+{
+  "id": "kinglyvault-relay",
+  "name": "KinglyVault Connect",
+  "description": "Connect this InfiniBot to your KinglyVault account over an outbound relay (no open ports, works behind NAT/VPN/Tailscale). KinglyVault can then chat with your agents, start coders in folders you allow and guide you in your InfiniBot UI, all scoped, audited and revocable.",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "autoStart": { "type": "boolean", "description": "Keep the KinglyVault link open while the gateway runs (default true once paired)." }
+    }
+  }
+}

@@ -1,0 +1,448 @@
+{
+  "tracks": [
+    {
+      "id": "business-agency",
+      "title": "Business & Agency",
+      "summary": "Run the business from InfiniBot: Business HQ, the Command center, clients and pipeline, the register, leads and funnels.",
+      "overview": "The **Business & Agency** plugin turns InfiniBot into the operating desk for your business and agency. It adds one sidebar section with Business HQ, Command, Clients, Sales Pipeline, Register, Leads & Funnels and Business settings, plus the **agency selector** in the command bar and the business agents (client-director, outreach, ledger, scout and the ops briefer and monitor).\n\nEverything reads from the stores you already have: the kanban board, the client list, the register databases (opportunities, decisions, risks, commitments, people), funnels and campaigns. Turning the plugin off hides the pages and pauses the business schedules. Your data stays where it is.\n\nThis track covers:\n- **Business HQ.** The one-page operating picture and where each number leads.\n- **Command.** The Executive and Operations lenses, the Today board, Agencies and the Topology map.\n- **Clients and the pipeline.** The CRM views, search, revenue and the lead pipeline.\n- **The register.** Opportunities, decisions (and the CEO queue), risks, commitments and people.\n- **Leads & Funnels.** The lead dashboard, the qualifier, funnels and campaigns.\n- **Business settings.** The business profile, guided setup and income sync.\n\nThe tours only look, filter and switch views. They never send a campaign, email a lead or create records for you.",
+      "category": "Plugins",
+      "level": "intermediate",
+      "order": 10,
+      "routes": [
+        "/business-hq",
+        "/ceo",
+        "/ops",
+        "/agency-daily",
+        "/agency-operations",
+        "/agency-topology",
+        "/clients",
+        "/pipeline",
+        "/opportunities",
+        "/decisions",
+        "/risks",
+        "/commitments",
+        "/people",
+        "/leads",
+        "/qualifier",
+        "/funnels",
+        "/campaigns",
+        "/business"
+      ],
+      "signals": [
+        "business-hq",
+        "command-ceo",
+        "command-ops",
+        "agency-daily",
+        "agency-operations",
+        "agency-topology",
+        "clients",
+        "pipeline",
+        "opportunities",
+        "decisions",
+        "risks",
+        "commitments",
+        "people",
+        "leads",
+        "qualifier",
+        "funnels",
+        "campaigns",
+        "business"
+      ],
+      "badge": { "id": "business-agency", "label": "Business & Agency mastery", "icon": "💼" },
+      "walkthroughs": [
+        {
+          "id": "hq-tour",
+          "title": "Read the Business HQ",
+          "summary": "The daily operating picture: progress, the KPI strip, what needs you and the bands below.",
+          "estMinutes": 3,
+          "steps": [
+            {
+              "id": "hq-header",
+              "title": "Business HQ",
+              "body": "HQ answers one question: **what moves the business today**. Every number, card and row on this page opens the list behind it. **Refresh** re-reads the live board.",
+              "route": "/business-hq",
+              "target": ["learn:bhq-header", ".bhq-header"],
+              "placement": "bottom"
+            },
+            {
+              "id": "hq-agency",
+              "title": "The agency selector",
+              "body": "The plugin adds this selector to the command bar. The agency you pick filters HQ, Command, the board and the client views. **Legacy Unassigned** holds work that isn't tied to an agency yet.",
+              "target": ["select[aria-label=\"Active agency\"]"],
+              "placement": "bottom",
+              "skipIf": { "kind": "viewport", "maxWidth": 800 }
+            },
+            {
+              "id": "hq-progress",
+              "title": "Daily progress",
+              "body": "Tasks you complete on the board count toward a daily target (5 by default), with a streak and a weekly total. **Recap** shows what was closed today. Bulk completions are never counted.",
+              "target": ["learn:bhq-progress", ".bhq-progress"]
+            },
+            {
+              "id": "hq-kpis",
+              "title": "The KPI strip",
+              "body": "Active work, overdue, blocked, needs you, pipeline, active clients, active projects and open risks. Click any tile to open the items behind the number.",
+              "target": ["learn:bhq-kpis", ".bhq-kpis"]
+            },
+            {
+              "id": "hq-bands",
+              "title": "Operating picture",
+              "body": "Below the strip, bands group the business: **Operating picture** (work, clients, opportunities, projects, products) and **Governance & capacity** (the register, money and people). Empty cards link to the page where you add the first item.",
+              "target": [".bhq-band", ".bhq-kpis"]
+            }
+          ]
+        },
+        {
+          "id": "command-center",
+          "title": "Use the Command center",
+          "summary": "Switch between the Executive and Operations lenses, the Today board and the agency topology.",
+          "estMinutes": 4,
+          "steps": [
+            {
+              "id": "ceo-header",
+              "title": "Executive lens",
+              "body": "Command opens on **Executive**: only exceptions, priorities and decisions. Today, This week, Business health and the CEO queue each list what only you can move.",
+              "route": "/ceo",
+              "target": ["learn:ceo-header", ".cc-header"],
+              "placement": "bottom"
+            },
+            {
+              "id": "subtabs",
+              "title": "Five views, one page",
+              "body": "Command has five sub-tabs: **Executive**, **Operations**, **Today**, **Agencies** and **Topology**. Each one is a link, so you can bookmark or share it.",
+              "target": ["[data-host-subtabs=\"command-ceo\"]", ".host-subtabs"]
+            },
+            {
+              "id": "open-ops",
+              "title": "Open Operations",
+              "body": "Click **Operations**. It's the full-visibility lens over the same data.",
+              "target": ["[data-host-view=\"operations\"]"],
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "ops-view",
+              "title": "Run the organization",
+              "body": "Operations shows the operating snapshot, then everything that needs attention, the portfolio, workload and system quality. Executive filters for you. Operations shows the whole org.",
+              "target": ["learn:ops-header", ".cc-header"],
+              "check": { "kind": "element", "target": "learn:ops-header" },
+              "checkHint": "Waiting for the Operations view…"
+            },
+            {
+              "id": "open-today",
+              "title": "Open Today",
+              "body": "Click **Today** for the agency's daily board of delivery work, responsibilities and reviews.",
+              "target": ["[data-host-view=\"today\"]"],
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "today-filter",
+              "title": "Filter delivery work",
+              "body": "Type **invoice** to filter delivery tasks by title. Filtering only changes what you see.",
+              "target": ["input[placeholder=\"Filter by task title\"]", "input.agx-input"],
+              "action": { "kind": "input", "sample": "invoice" }
+            },
+            {
+              "id": "operating-loop",
+              "title": "The operating loop",
+              "body": "**Run now** runs the workforce operating loop immediately. The loop also runs on its own schedule while the plugin is on and is paused while it's off.",
+              "target": ["button[aria-label=\"Run the workforce operating loop now\"]", "input.agx-input"],
+              "practice": {
+                "mode": "explain",
+                "note": "Not run from the tour: the loop routes real work to agents. Run it yourself when you're ready."
+              }
+            },
+            {
+              "id": "open-topology",
+              "title": "See the topology",
+              "body": "Click **Topology**. It draws clients, projects and your workforce as one map. Toggle layers or switch to a list.",
+              "target": ["[data-host-view=\"topology\"]"],
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "topology-scope",
+              "title": "Choose the client scope",
+              "body": "Pick which clients the map draws: active only, the top 12 by revenue, or all of them. The search box highlights nodes by name.",
+              "target": ["select[aria-label=\"Client scope drawn on the topology\"]", "input.agt-input"]
+            }
+          ]
+        },
+        {
+          "id": "clients-pipeline",
+          "title": "Work your clients and pipeline",
+          "summary": "Search and view the client list, find revenue, and read the lead pipeline.",
+          "estMinutes": 4,
+          "steps": [
+            {
+              "id": "clients-tabs",
+              "title": "Clients",
+              "body": "The CRM has four tabs: **Clients**, **Revenue**, **Pipeline** and **Activity**. The cards above them total clients, active clients, MRR, average deal and churn.",
+              "route": "/clients",
+              "target": ["learn:clients-tab-clients", ".crm-page-tab-btn"],
+              "placement": "bottom"
+            },
+            {
+              "id": "clients-search",
+              "title": "Search clients",
+              "body": "Type **acme** to filter the list. The status filter next to it narrows by prospect, active, paused or churned.",
+              "target": ["learn:clients-search", "input.crm-search"],
+              "action": { "kind": "input", "sample": "acme" }
+            },
+            {
+              "id": "clients-views",
+              "title": "Switch the view",
+              "body": "Click **Table**. The list also shows as a grid or a kanban board grouped by stage.",
+              "target": ["learn:clients-view-toggle", ".crm-view-toggle"],
+              "action": { "kind": "click", "target": [".crm-view-toggle .crm-view-btn:nth-child(2)"] }
+            },
+            {
+              "id": "clients-source",
+              "title": "Where clients live",
+              "body": "Add clients here, import CSV, JSON or vCard, or connect a Notion database as the CRM. The strip under the toolbar shows which source is active.",
+              "target": [".crm-topbar-right", ".crm-view-toggle"],
+              "practice": {
+                "mode": "explain",
+                "note": "The tour doesn't add, import or connect anything. Those buttons create records or link an external database."
+              }
+            },
+            {
+              "id": "clients-revenue",
+              "title": "Open Revenue",
+              "body": "Click **Revenue** to see the revenue logged against your clients for the active agency, with the running total.",
+              "target": ["learn:clients-tab-revenue", ".crm-page-tab-btn:nth-child(2)"],
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "pipeline",
+              "title": "The sales pipeline",
+              "body": "**Sales Pipeline** shows your leads by stage. Switch to **Temperature** to group them cold, warm and hot instead.",
+              "route": "/pipeline",
+              "target": [".lp-group-toggle"],
+              "action": { "kind": "click", "target": [".lp-group-toggle__btn:nth-child(2)"] }
+            }
+          ]
+        },
+        {
+          "id": "register",
+          "title": "Keep the register",
+          "summary": "Opportunities, decisions and the CEO queue, risks, commitments and people.",
+          "estMinutes": 4,
+          "steps": [
+            {
+              "id": "register-tabs",
+              "title": "The register",
+              "body": "The register holds the business objects that aren't tasks: **Opportunities**, **Decisions**, **Risks**, **Commitments** and **People**. Each has its own store and search.",
+              "route": "/opportunities",
+              "target": ["[data-host-subtabs=\"opportunities\"]", ".host-subtabs"],
+              "placement": "bottom"
+            },
+            {
+              "id": "opp-search",
+              "title": "Search opportunities",
+              "body": "Type **pilot** to search names, problems, solutions and notes. Opportunities are potential work before it's confirmed.",
+              "target": ["input[placeholder^=\"Search name / problem\"]"],
+              "action": { "kind": "input", "sample": "pilot" }
+            },
+            {
+              "id": "opp-new",
+              "title": "Log an opportunity",
+              "body": "**+ New Opportunity** opens a form for the type, stage, value, score and next step. When one is won, it can be converted into a project.",
+              "target": ["learn:opportunity-new", "input[placeholder^=\"Search name / problem\"]"],
+              "practice": {
+                "mode": "explain",
+                "note": "The tour doesn't create opportunities. Open the form yourself when you have a real one."
+              }
+            },
+            {
+              "id": "open-decisions",
+              "title": "Open Decisions",
+              "body": "Click **Decisions**.",
+              "target": ["[data-host-view=\"decisions\"]"],
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "decisions",
+              "title": "Decisions and the CEO queue",
+              "body": "Each decision moves from Preparing to Ready, CEO review and Decided, with a recommendation and rationale. **CEO queue only** shows what's waiting on you. The same queue feeds Command › Executive.",
+              "target": ["input[placeholder^=\"Search title / question\"]"],
+              "check": { "kind": "element", "target": "input[placeholder^=\"Search title / question\"]" },
+              "checkHint": "Waiting for Decisions to open…"
+            },
+            {
+              "id": "open-risks",
+              "title": "Open Risks",
+              "body": "Click **Risks**.",
+              "target": ["[data-host-view=\"risks\"]"],
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "risk-heatmap",
+              "title": "The risk heatmap",
+              "body": "Risks score as probability × impact. The heatmap counts risks per cell; click a cell to filter the list to it. A score of 12 or more counts as critical.",
+              "target": [".risk-heat", "input[placeholder^=\"Search title / mitigation\"]"],
+              "check": { "kind": "element", "target": [".risk-heat", "input[placeholder^=\"Search title / mitigation\"]"] },
+              "checkHint": "Waiting for Risks to open…"
+            },
+            {
+              "id": "commitments-people",
+              "title": "Commitments and people",
+              "body": "**Commitments** track money and promises with due dates. Overdue ones surface on HQ. **People** lists founders, employees, contractors and partners with their workload.",
+              "target": ["[data-host-view=\"commitments\"]", "[data-host-subtabs=\"opportunities\"]"]
+            }
+          ]
+        },
+        {
+          "id": "leads-funnels",
+          "title": "Run leads and funnels",
+          "summary": "The lead dashboard and qualifier, funnels and campaigns, without sending anything.",
+          "estMinutes": 4,
+          "steps": [
+            {
+              "id": "lead-dashboard",
+              "title": "The lead dashboard",
+              "body": "**Leads & Funnels** opens on the lead dashboard: totals by temperature (cold, warm, hot), the conversion funnel and lifecycle. Counts come from the Leads database you map in Databases.",
+              "route": "/leads",
+              "target": [".ld-header"],
+              "placement": "bottom"
+            },
+            {
+              "id": "lead-sections",
+              "title": "Five lead sections",
+              "body": "**Overview**, **Generation** (scrape and search for leads), **Qualifier**, **Pipeline** and **Timeline** (opens, clicks and replies per lead).",
+              "target": ["learn:leads-tabs", ".ld-tabs"]
+            },
+            {
+              "id": "open-qualifier",
+              "title": "Open the Qualifier",
+              "body": "Click **Qualifier**.",
+              "target": ["learn:leads-tab-qualifier", ".ld-tab:nth-child(3)"],
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "qualifier",
+              "title": "Qualify with forms",
+              "body": "The qualifier builds intake forms per business and scores who fills them in. Pick a business, then build a form. Forms can publish to a connected Netlify site.",
+              "target": [".ld-body", ".ld-header"]
+            },
+            {
+              "id": "open-funnels",
+              "title": "Open Funnels",
+              "body": "Click **Funnels**.",
+              "target": ["[data-host-view=\"funnels\"]"],
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "funnel-views",
+              "title": "Funnel command",
+              "body": "Switch between the **Operating map**, **Lead engine**, **Builder**, **Flow** and **Analytics**. The operating map shows core and sub-funnels, journey steps, a live KPI board and connection health.",
+              "target": [".funnels-hud__view-btn", "[data-host-subtabs=\"leads\"]"]
+            },
+            {
+              "id": "campaigns",
+              "title": "Campaigns",
+              "body": "**Campaigns** holds your outreach sequences. Creating one only drafts it; nothing goes out until you start it yourself.",
+              "target": ["[data-host-view=\"campaigns\"]"],
+              "practice": {
+                "mode": "explain",
+                "note": "The tour never creates or starts a campaign. Campaigns email real people."
+              }
+            }
+          ]
+        },
+        {
+          "id": "business-settings",
+          "title": "Set up your business",
+          "summary": "The business profile, guided setup and where payment keys go.",
+          "estMinutes": 3,
+          "steps": [
+            {
+              "id": "business-page",
+              "title": "Business settings",
+              "body": "This page holds your businesses: profile, goals, brand, workspace and income. The first time you open it, a two-minute **guided setup** asks for a name, industry, goals and context for your agent.",
+              "route": "/business",
+              "target": [".bz-wizard", ".hud-header"],
+              "waitMs": 12000
+            },
+            {
+              "id": "close-wizard",
+              "title": "Set it up later",
+              "body": "Close the guided setup for now. **Start guided setup** on this page reopens it whenever you want.",
+              "target": [".bz-wizard-close"],
+              "action": { "kind": "click" },
+              "skipIf": { "kind": "not", "condition": { "kind": "element", "target": ".bz-wizard-close" } },
+              "optional": true
+            },
+            {
+              "id": "hud",
+              "title": "The business HUD",
+              "body": "The header lists each business as a tab, with **+** to add one and a client search (⌘K). **Hide $** masks revenue figures when you share your screen.",
+              "target": [".hud-header"],
+              "placement": "bottom"
+            },
+            {
+              "id": "profile",
+              "title": "Profile and setup",
+              "body": "With no business yet, start the guided setup or create a blank one. Once you have one, this area shows its profile, priorities, activity and settings.",
+              "target": [".empty-state", ".bz-greeting", ".hud-header"],
+              "practice": {
+                "mode": "explain",
+                "note": "The tour doesn't create a business. Use Start guided setup or Create blank when you're ready."
+              }
+            },
+            {
+              "id": "income-keys",
+              "title": "Income sync keys",
+              "body": "Whop, Stripe and Square keys sync income into the business. Save them per business in its settings, or once in **Setup › Plugins › Business & Agency**. Keys are write-only and never shown again.",
+              "target": [".hud-status", ".hud-header"]
+            }
+          ]
+        }
+      ],
+      "quiz": [
+        {
+          "id": "hq-numbers",
+          "prompt": "What happens when you click a number on Business HQ?",
+          "options": [
+            "Nothing, the numbers are read-only",
+            "It opens the list of items behind that number",
+            "It exports a CSV",
+            "It asks an agent to explain it"
+          ],
+          "answer": 1,
+          "explain": "Every KPI tile, card and row on HQ opens the items behind it so you can act."
+        },
+        {
+          "id": "ceo-vs-ops",
+          "prompt": "How do the Executive and Operations views of Command differ?",
+          "options": [
+            "Executive shows only exceptions and decisions; Operations shows the whole organization",
+            "Executive is for agents; Operations is for people",
+            "They show different businesses",
+            "Operations can only be opened on mobile"
+          ],
+          "answer": 0,
+          "explain": "Executive filters for what only you can move. Operations gives full visibility over the same data."
+        },
+        {
+          "id": "ceo-queue",
+          "prompt": "Where do you record a choice that's waiting on the CEO?",
+          "options": ["A kanban comment", "Register › Decisions", "Business settings", "The Topology map"],
+          "answer": 1,
+          "explain": "Decisions carry status, recommendation and rationale. CEO queue only filters to the ones waiting on you."
+        },
+        {
+          "id": "plugin-off",
+          "prompt": "What happens to your business data when you turn the plugin off?",
+          "options": [
+            "It is deleted",
+            "It is moved to an archive folder",
+            "It stays where it is; the pages hide and the business schedules pause",
+            "It is exported to Notion"
+          ],
+          "answer": 2,
+          "explain": "Disabling is lossless. Stores keep their paths, and business cron jobs pause and resume when the plugin is back on."
+        }
+      ]
+    }
+  ],
+  "missions": [{ "walkthrough": "business-agency/hq-tour" }]
+}

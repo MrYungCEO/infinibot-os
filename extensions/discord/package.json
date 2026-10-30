@@ -1,0 +1,12 @@
+{
+  "name": "@infinibot/discord",
+  "version": "2026.11.1",
+  "type": "module",
+  "description": "InfiniBot Discord channel plugin",
+  "license": "FSL-1.1-ALv2",
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

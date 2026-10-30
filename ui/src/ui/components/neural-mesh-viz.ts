@@ -1,0 +1,8711 @@
+/**
+ * Neural Mesh Visualization — Multi-Agent Network
+ * 
+ * REFACTORED: Agent-based networks with session sub-net bubbles
+ * 
+ * - One neural sphere per AGENT TYPE (main, coder, coder-claude, opus, etc.)
+ * - Sessions appear as small "sub-net bubbles" attached to their agent's network
+ * - Floating 3D labels above each network
+ * - Center-crossing firing paths
+ * - Real-time reactivity per session
+ * - Inter-agent connection mesh
+ * - Intensity based on token rate
+ */
+
+import { LitElement, html, css } from "lit";
+import { customElement, property, state } from "lit/decorators.js";
+import * as THREE from "three";
+import { OrbitControls } from "three/examples/jsm/controls/OrbitControls.js";
+import { Renderer, Program, Mesh, Triangle } from "ogl";
+import { createCanvasPause } from "../lib/canvas-pause";
+import { icons } from "../icons";
+
+const AGENT_COLORS = [
+  0xFFD700, // Gold
+  0xFF69B4, // Pink
+  0x00FFFF, // Cyan
+  0xFF6B6B, // Coral
+  0x9B59B6, // Purple
+  0x2ECC71, // Emerald
+  0x3498DB, // Blue
+  0xE74C3C, // Red
+];
+
+type AgentType = 'local' | 'federation' | 'subagent';
+type AgentStatus = 'active' | 'inactive';
+
+interface DeviceNode {
+  id: string;
+  name: string;
+  label: THREE.Sprite;
+  position: THREE.Vector3;
+  agents: string[]; // Agent IDs belonging to this device
+  type: 'local' | 'federation';
+}
+
+// NEW: Device Cluster - each device (local, robo1, robo2) has its own cluster
+interface DeviceCluster {
+  id: string;                    // 'local' or federation node ID
+  name: string;                  // Display name (e.g., 'LOCAL', 'ROBO1', 'ROBO2')
+  type: 'local' | 'federation';
+  centerPosition: THREE.Vector3; // Cluster center in 3D space
+  mainAgentId: string | null;    // The ASH/main agent for this cluster
+  agentIds: Set<string>;         // All agents in this cluster
+  label: THREE.Sprite | null;    // Cluster label
+  clusterIndex: number;          // Position index for cluster placement
+  connected?: boolean;
+  lastSeenConnected?: number;
+}
+
+interface MessagePulse {
+  fromAgent: string;
+  toAgent: string;
+  progress: number;
+  speed: number;
+  line: THREE.Line;
+  glowLine?: THREE.Line;
+  headParticle?: THREE.Mesh;
+  textSprite?: THREE.Sprite;
+  curvePoints: THREE.Vector3[];
+  active: boolean;
+}
+
+// Sub-net bubble representing an active session attached to an agent network
+interface SubNetBubble {
+  sessionKey: string;
+  agentId: string; // Parent agent type (e.g., "coder-claude")
+  group: THREE.Group;
+  nodes: THREE.Mesh[];
+  label: THREE.Sprite;
+  position: THREE.Vector3;
+  connectionLine: THREE.Line; // Green line to parent
+  glowLine: THREE.Line; // Glow effect
+  flowParticles: FlowParticle[];
+  isActive: boolean;
+  isThinking: boolean;
+  intensity: number;
+  startTime: number;
+  lastActiveTime: number;
+  arcIndex: number; // Position in arc around parent
+  spawnAnimation?: { progress: number; startPos: THREE.Vector3; targetPos: THREE.Vector3 };
+  despawnAnimation?: { startTime: number; phase: 'shrink' | 'fade' | 'done' };
+  firingPulses: FiringPulse[];
+  // Visual enhancement properties
+  targetScale?: number;
+  progressValue?: number;
+  pulsePhase?: number;
+}
+
+interface AgentNetwork {
+  id: string;
+  name: string;
+  color: number;
+  position: THREE.Vector3;
+  group: THREE.Group;
+  nodes: THREE.Mesh[];
+  edges: THREE.Line[];
+  nodePositions: THREE.Vector3[];
+  label: THREE.Sprite;
+  isThinking: boolean;
+  intensity: number;
+  tokenBuffer: number[];
+  lastTokenTime: number;
+  firingPulses: FiringPulse[];
+  thoughtWords: ThoughtWord[];
+  latestMessages: { role: string; content: string; }[];
+  agentType: AgentType;
+  nodeId?: string; // Federation node ID
+  lastActiveTime: number;
+  parentId?: string; // Parent agent that spawned this one
+  spawnAnimation?: SpawnAnimation; // Active spawn animation
+  despawnAnimation?: DespawnAnimation; // Active despawn animation
+  streamText: string; // Current streaming text buffer
+  streamSprite?: THREE.Sprite; // Text display sprite
+  streamFragments: StreamFragment[]; // Floating text fragments
+  activityFragments: ActivityFragment[]; // Tool/MCP activity bursts
+  // NEW: Track sessions attached to this agent
+  activeSessions: Set<string>;
+}
+
+interface StreamFragment {
+  sprite: THREE.Sprite;
+  text: string;
+  life: number;
+  maxLife: number;
+  velocity: THREE.Vector3;
+  startY: number;
+}
+
+interface ActivityFragment {
+  sprite: THREE.Sprite;
+  bgMesh: THREE.Mesh;
+  text: string;
+  type: 'tool' | 'mcp' | 'spawn' | 'result' | 'error' | 'thinking';
+  life: number;
+  maxLife: number;
+  velocity: THREE.Vector3;
+  startPos: THREE.Vector3;
+  scale: number;
+  rotation: number;
+  rotationSpeed: number;
+}
+
+// NEW: 3D Activity Log Lines that stack and float from nets
+interface ActivityLogLine {
+  sprite: THREE.Sprite;
+  text: string;
+  timestamp: string;
+  type: 'tool' | 'mcp' | 'spawn' | 'result' | 'error' | 'system';
+  agentId: string;
+  createdAt: number;
+  targetY: number;  // Target Y position in stack
+  currentY: number; // Current Y position (animates to target)
+  opacity: number;
+  fadeStartTime: number | null;
+}
+
+interface SpawnAnimation {
+  progress: number;
+  startPos: THREE.Vector3;
+  targetPos: THREE.Vector3;
+  burstParticles: THREE.Mesh[];
+  connectionLine?: THREE.Line;
+}
+
+interface DespawnAnimation {
+  startTime: number;
+  phase: 'warning' | 'drift' | 'shrink' | 'explode' | 'done';
+  originalPositions: THREE.Vector3[];
+  originalScale: number;
+  particles: THREE.Mesh[];
+  originalColor: number;
+}
+
+interface ParentChildLink {
+  parentId: string;
+  childId: string;
+  line: THREE.Line;
+  glowLine: THREE.Line;
+  pulseOffset: number;
+  dataPackets: DataPacket[];
+  // Active state tracking
+  isActive: boolean;
+  lastMessageTime: number;
+  messageCount: number;
+  // Flow animation particles
+  flowParticles: FlowParticle[];
+}
+
+interface DataPacket {
+  sprite: THREE.Sprite;
+  progress: number;
+  speed: number;
+  direction: 'toChild' | 'toParent';
+}
+
+interface FlowParticle {
+  mesh: THREE.Mesh;
+  progress: number;
+  speed: number;
+  direction: 'toChild' | 'toParent';
+  color: number;
+}
+
+interface FiringPulse {
+  progress: number;
+  speed: number;
+  line: THREE.Line;
+  glowLine: THREE.Line;
+  trailLine?: THREE.Line; // Gradient trail
+  particleMesh?: THREE.Mesh; // Glowing particle at head
+}
+
+interface ThoughtWord {
+  sprite: THREE.Sprite;
+  life: number;
+  maxLife: number;
+  nodeIndex: number;
+  fadeIn: boolean;
+}
+
+// Thought/processing words that appear at nodes
+const THOUGHT_WORDS = [
+  'PARSING', 'ANALYZING', 'THINKING', 'PROCESSING', 'COMPUTING',
+  'REASONING', 'LEARNING', 'CONNECTING', 'MAPPING', 'WEIGHING',
+  'CONTEXT', 'PATTERN', 'LOGIC', 'MEMORY', 'INFERENCE',
+  'NEURAL', 'SIGNAL', 'ACTIVATE', 'SYNAPSE', 'PULSE',
+  'ENCODE', 'DECODE', 'TRANSFORM', 'QUERY', 'RESPOND',
+  '01101', '10110', 'λ', '∑', '∂', '∇', '⟨⟩', '→',
+];
+
+// Activity log entry for tools/MCPs
+interface ActivityEntry {
+  id: string;
+  timestamp: number;
+  type: 'tool' | 'mcp' | 'spawn' | 'message' | 'error' | 'complete' | 'thinking';
+  agentId: string;
+  agentName: string;
+  name: string; // Tool/MCP name
+  params?: string; // Truncated params
+  result?: string; // Truncated result
+  status: 'pending' | 'success' | 'error';
+  duration?: number;
+  color: string;
+  isNew: boolean; // For pop-in animation
+}
+
+// NEW: Feed line for streaming text and actions (like navbar activity feed)
+interface FeedLine {
+  id: string;
+  timestamp: number;
+  type: 'text' | 'tool_call' | 'tool_result' | 'thinking' | 'spawn' | 'error' | 'user';
+  agentId: string;
+  agentName: string;
+  content: string;
+  detail?: string;
+  toolCallId?: string;
+  status?: 'pending' | 'success' | 'error';
+  color: string;
+  isStreaming: boolean; // Currently being streamed
+}
+
+@customElement("neural-mesh-viz")
+export class NeuralMeshViz extends LitElement {
+  @property({ type: Object }) client: any = null;
+  
+  @state() private agents: Map<string, AgentNetwork> = new Map();
+  @state() private devices: Map<string, DeviceNode> = new Map();
+  @state() private clusters: Map<string, DeviceCluster> = new Map(); // NEW: Device clusters (local + federation)
+  @state() private fps = 0;
+  @state() private totalFirings = 0;
+  @state() private hoveredAgent: string | null = null;
+  @state() private focusedAgent: string | null = null;
+  @state() private focusedSession: string | null = null; // NEW: Track which session is focused (for sub-net bubbles)
+  @state() private isLocked = false;
+  @state() private focusChatMessages: Array<{ role: string; content: string }> = [];
+  @state() private focusChatLoading = false;
+  @state() private activityLog: ActivityEntry[] = [];
+  @state() private showActivityLog = true;
+  @state() private feedLines: FeedLine[] = []; // NEW: Line-by-line streaming feed
+  @state() private streamingBuffer: Map<string, { text: string; lineBuffer: string }> = new Map(); // Per-session streaming buffer
+  
+  // 3D Activity Log Lines - float from nets like a console
+  private activityLogLines: ActivityLogLine[] = [];
+  private readonly MAX_LOG_LINES = 15;  // Max visible lines in 3D
+  private readonly LOG_LINE_HEIGHT = 1.8;  // Spacing between lines
+  private readonly LOG_FADE_TIME = 12000;  // ms before lines start fading
+  private readonly LOG_FADE_DURATION = 3000;  // ms to fully fade out
+  
+  // HUD Panel dragging state
+  @state() private hudPosition = { x: -1, y: -1 }; // -1 means use default position
+  private hudDragging = false;
+  private hudDragOffset = { x: 0, y: 0 };
+  
+  // NEW: Sub-net bubbles for sessions
+  private subNetBubbles: Map<string, SubNetBubble> = new Map();
+  // NEW: Track which sessions belong to which agent type
+  private sessionToAgent: Map<string, string> = new Map();
+  // NEW: Track sub-net spawn index per agent for arc positioning
+  private subNetSpawnIndex: Map<string, number> = new Map();
+  // Track if initial poll completed (don't animate spawns on first load)
+  private initialPollComplete = false;
+  // Track dismissed sessions to prevent respawning old/stale sessions
+  private dismissedSessions: Set<string> = new Set();
+  // Track sessions that existed on initial load - these should NEVER spawn as subnets
+  private initialLoadSessions: Set<string> = new Set();
+  
+  private messagePulses: MessagePulse[] = [];
+  private parentChildLinks: ParentChildLink[] = [];
+  private subAgentSpawnCount: Map<string, number> = new Map(); // Track spawn count per parent for arc positioning
+  private container: HTMLDivElement | null = null;
+  private scene: THREE.Scene | null = null;
+  private camera: THREE.PerspectiveCamera | null = null;
+  private renderer: THREE.WebGLRenderer | null = null;
+  private controls: OrbitControls | null = null;
+  private mainGroup: THREE.Group | null = null;
+  private interAgentLines: THREE.Line[] = [];
+  private animationId: number | null = null;
+  private meshPauseCtrl: import("../lib/canvas-pause").CanvasPause | null = null;
+  private galaxyPauseCtrl: import("../lib/canvas-pause").CanvasPause | null = null;
+  private clock = new THREE.Clock();
+  private frameCount = 0;
+  private lastFpsTime = 0;
+  private raycaster = new THREE.Raycaster();
+  private mouse = new THREE.Vector2();
+  private savedCameraPosition: THREE.Vector3 | null = null;
+  private savedControlsTarget: THREE.Vector3 | null = null;
+  private cameraAnimating = false;
+  private galaxyCanvas: HTMLCanvasElement | null = null;
+  private galaxyAnimId: number | null = null;
+  // OGL Galaxy Shader
+  private oglRenderer: Renderer | null = null;
+  private oglProgram: Program | null = null;
+  private oglMesh: Mesh | null = null;
+  private galaxyMousePos = { x: 0.5, y: 0.5, targetX: 0.5, targetY: 0.5 };
+  private galaxyStartTime = 0;
+
+  /**
+   * Helper to check if a Vector3 has valid (non-NaN) coordinates
+   */
+  private isValidVector3(v: THREE.Vector3 | undefined): boolean {
+    if (!v) return false;
+    return !isNaN(v.x) && !isNaN(v.y) && !isNaN(v.z) && 
+           isFinite(v.x) && isFinite(v.y) && isFinite(v.z);
+  }
+
+  /**
+   * Helper to validate an array of points before creating geometry
+   * Filters out any invalid (NaN/Infinity) points
+   */
+  private getValidPoints(points: THREE.Vector3[]): THREE.Vector3[] {
+    return points.filter(p => this.isValidVector3(p));
+  }
+
+  static styles = css`
+    :host {
+      display: block;
+      width: 100%;
+      height: 100%;
+      background: #030305;
+      position: relative;
+      overflow: hidden;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       TRON-STYLE ENHANCEMENTS — Flowing Electricity & Neon Glows
+       ═══════════════════════════════════════════════════════════════ */
+    
+    /* Subtle scanline overlay for digital feel */
+    :host::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.03) 2px,
+        rgba(0, 0, 0, 0.03) 4px
+      );
+      pointer-events: none;
+      z-index: 100;
+      animation: scanlineShift 8s linear infinite;
+    }
+    
+    @keyframes scanlineShift {
+      0% { transform: translateY(0); }
+      100% { transform: translateY(4px); }
+    }
+    
+    /* Circuit grid pattern overlay */
+    :host::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        linear-gradient(color-mix(in srgb, var(--g-primary) 2%, transparent) 1px, transparent 1px),
+        linear-gradient(90deg, color-mix(in srgb, var(--g-primary) 2%, transparent) 1px, transparent 1px);
+      background-size: 50px 50px;
+      pointer-events: none;
+      z-index: 2;
+      opacity: 0.5;
+      animation: gridPulse 4s ease-in-out infinite;
+    }
+    
+    @keyframes gridPulse {
+      0%, 100% { opacity: 0.3; }
+      50% { opacity: 0.6; }
+    }
+    
+    /* Neon glow keyframes */
+    @keyframes neonPulse {
+      0%, 100% { 
+        filter: drop-shadow(0 0 2px currentColor) drop-shadow(0 0 4px currentColor);
+      }
+      50% { 
+        filter: drop-shadow(0 0 4px currentColor) drop-shadow(0 0 8px currentColor) drop-shadow(0 0 12px currentColor);
+      }
+    }
+    
+    @keyframes electricFlow {
+      0% { background-position: 0% 50%; }
+      100% { background-position: 200% 50%; }
+    }
+    
+    @keyframes borderGlow {
+      0%, 100% { 
+        box-shadow: 
+          inset 0 0 10px color-mix(in srgb, var(--g-primary) 10%, transparent),
+          0 0 10px color-mix(in srgb, var(--g-primary) 20%, transparent),
+          0 0 20px color-mix(in srgb, var(--g-primary) 10%, transparent);
+      }
+      50% { 
+        box-shadow: 
+          inset 0 0 15px color-mix(in srgb, var(--g-primary) 20%, transparent),
+          0 0 20px color-mix(in srgb, var(--g-primary) 40%, transparent),
+          0 0 40px color-mix(in srgb, var(--g-primary) 20%, transparent),
+          0 0 60px color-mix(in srgb, var(--g-primary) 10%, transparent);
+      }
+    }
+    
+    @keyframes electricBorder {
+      0% { 
+        border-color: color-mix(in srgb, var(--g-primary) 30%, transparent);
+        box-shadow: 0 0 5px color-mix(in srgb, var(--g-primary) 20%, transparent);
+      }
+      25% { 
+        border-color: color-mix(in srgb, var(--g-primary) 60%, transparent);
+        box-shadow: 0 0 15px color-mix(in srgb, var(--g-primary) 40%, transparent), 0 0 30px color-mix(in srgb, var(--g-primary) 20%, transparent);
+      }
+      50% { 
+        border-color: color-mix(in srgb, var(--g-primary) 80%, transparent);
+        box-shadow: 0 0 20px color-mix(in srgb, var(--g-primary) 50%, transparent), 0 0 40px color-mix(in srgb, var(--g-primary) 30%, transparent), 0 0 60px color-mix(in srgb, var(--g-primary) 10%, transparent);
+      }
+      75% { 
+        border-color: color-mix(in srgb, var(--g-primary) 50%, transparent);
+        box-shadow: 0 0 10px color-mix(in srgb, var(--g-primary) 30%, transparent), 0 0 20px color-mix(in srgb, var(--g-primary) 10%, transparent);
+      }
+      100% { 
+        border-color: color-mix(in srgb, var(--g-primary) 30%, transparent);
+        box-shadow: 0 0 5px color-mix(in srgb, var(--g-primary) 20%, transparent);
+      }
+    }
+
+    .galaxy-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 0;
+      pointer-events: none;
+    }
+
+    .galaxy-bg canvas {
+      width: 100% !important;
+      height: 100% !important;
+      display: block;
+    }
+
+    .canvas-container {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1;
+    }
+
+    .overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 10;
+      pointer-events: none;
+    }
+
+    .agent-list {
+      pointer-events: auto;
+    }
+
+    .stats {
+      position: absolute;
+      bottom: 12px;
+      left: 12px;
+      display: flex;
+      gap: 16px;
+      background: rgba(0,0,0,0.85);
+      animation: borderGlow 3s ease-in-out infinite;
+      padding: 8px 14px;
+      border-radius: 6px;
+      border: 1px solid color-mix(in srgb, var(--g-primary) 20%, transparent);
+    }
+
+    .stat {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 10px;
+    }
+
+    .stat-label {
+      color: rgba(255,255,255,0.4);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+      color: var(--g-primary);
+      font-weight: bold;
+      text-shadow: 0 0 8px color-mix(in srgb, var(--g-primary) 60%, transparent), 0 0 16px color-mix(in srgb, var(--g-primary) 30%, transparent);
+      animation: neonFlicker 4s ease-in-out infinite;
+    }
+    
+    @keyframes neonFlicker {
+      0%, 100% { opacity: 1; text-shadow: 0 0 8px color-mix(in srgb, var(--g-primary) 60%, transparent), 0 0 16px color-mix(in srgb, var(--g-primary) 30%, transparent); }
+      50% { opacity: 0.95; text-shadow: 0 0 12px color-mix(in srgb, var(--g-primary) 80%, transparent), 0 0 24px color-mix(in srgb, var(--g-primary) 50%, transparent), 0 0 36px color-mix(in srgb, var(--g-primary) 20%, transparent); }
+      52% { opacity: 1; }
+      54% { opacity: 0.9; }
+      56% { opacity: 1; }
+    }
+
+    .status {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      background: rgba(0,0,0,0.85);
+      border-radius: 6px;
+      border: 1px solid color-mix(in srgb, var(--g-primary) 20%, transparent);
+      font-size: 10px;
+      color: rgba(255,255,255,0.6);
+      animation: electricBorder 4s ease-in-out infinite;
+    }
+
+    .status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 6px #22c55e, 0 0 12px #22c55e, 0 0 18px rgba(34, 197, 94, 0.5);
+      animation: statusPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes statusPulse {
+      0%, 100% { 
+        opacity: 1; 
+        box-shadow: 0 0 6px #22c55e, 0 0 12px #22c55e, 0 0 18px rgba(34, 197, 94, 0.5);
+        transform: scale(1);
+      }
+      50% { 
+        opacity: 0.8; 
+        box-shadow: 0 0 10px #22c55e, 0 0 20px #22c55e, 0 0 30px rgba(34, 197, 94, 0.7), 0 0 40px rgba(34, 197, 94, 0.3);
+        transform: scale(1.2);
+      }
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .agent-list {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-width: 180px;
+      max-height: calc(100% - 100px);
+      overflow-y: auto;
+    }
+
+    .agent-group {
+      margin-bottom: 8px;
+    }
+
+    .agent-group-header {
+      font-size: 8px;
+      color: rgba(255, 255, 255, 0.4);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 6px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .agent-group-header .count {
+      background: rgba(255, 255, 255, 0.1);
+      padding: 1px 5px;
+      border-radius: 8px;
+      font-size: 9px;
+    }
+
+    .agent-group-header.active {
+      color: #22c55e;
+    }
+
+    .agent-group-header.federation {
+      color: #3498DB;
+    }
+
+    .agent-group-header.subagent {
+      color: #9B59B6;
+    }
+
+    .agent-card {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      background: rgba(0,0,0,0.85);
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 4px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Flowing electricity effect on hover */
+    .agent-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        color-mix(in srgb, var(--g-primary) 10%, transparent),
+        color-mix(in srgb, var(--g-primary) 20%, transparent),
+        color-mix(in srgb, var(--g-primary) 10%, transparent),
+        transparent
+      );
+      transition: left 0.6s ease;
+    }
+    
+    .agent-card:hover::before {
+      left: 100%;
+    }
+    
+    .agent-card:hover {
+      border-color: color-mix(in srgb, var(--g-primary) 40%, transparent);
+      box-shadow: 
+        0 0 10px color-mix(in srgb, var(--g-primary) 20%, transparent),
+        inset 0 0 20px color-mix(in srgb, var(--g-primary) 5%, transparent);
+      transform: translateX(-2px);
+    }
+
+    .agent-card.thinking {
+      border-color: var(--agent-color, var(--g-primary));
+      box-shadow: 
+        0 0 15px color-mix(in srgb, var(--agent-color) 40%, transparent),
+        0 0 30px color-mix(in srgb, var(--agent-color) 20%, transparent),
+        inset 0 0 15px color-mix(in srgb, var(--agent-color) 10%, transparent);
+      animation: thinkingGlow 1.5s ease-in-out infinite;
+    }
+    
+    @keyframes thinkingGlow {
+      0%, 100% {
+        box-shadow: 
+          0 0 15px color-mix(in srgb, var(--agent-color) 40%, transparent),
+          0 0 30px color-mix(in srgb, var(--agent-color) 20%, transparent),
+          inset 0 0 15px color-mix(in srgb, var(--agent-color) 10%, transparent);
+      }
+      50% {
+        box-shadow: 
+          0 0 25px color-mix(in srgb, var(--agent-color) 60%, transparent),
+          0 0 50px color-mix(in srgb, var(--agent-color) 35%, transparent),
+          0 0 75px color-mix(in srgb, var(--agent-color) 15%, transparent),
+          inset 0 0 25px color-mix(in srgb, var(--agent-color) 20%, transparent);
+      }
+    }
+
+    .agent-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--agent-color, var(--g-primary));
+      opacity: 0.5;
+      transition: all 0.3s ease;
+    }
+
+    .agent-card.thinking .agent-dot {
+      opacity: 1;
+      animation: electricPulse 0.4s ease-in-out infinite;
+      box-shadow: 
+        0 0 8px var(--agent-color, var(--g-primary)),
+        0 0 16px var(--agent-color, var(--g-primary)),
+        0 0 24px color-mix(in srgb, var(--agent-color) 50%, transparent);
+    }
+
+    @keyframes electricPulse {
+      0%, 100% { 
+        transform: scale(1); 
+        box-shadow: 
+          0 0 8px var(--agent-color, var(--g-primary)),
+          0 0 16px var(--agent-color, var(--g-primary));
+      }
+      50% { 
+        transform: scale(1.4); 
+        box-shadow: 
+          0 0 12px var(--agent-color, var(--g-primary)),
+          0 0 24px var(--agent-color, var(--g-primary)),
+          0 0 36px color-mix(in srgb, var(--agent-color) 60%, transparent);
+      }
+    }
+    
+    @keyframes rapidPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+    }
+
+    .agent-name {
+      font-size: 10px;
+      font-weight: 600;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
+    }
+
+    .agent-sessions {
+      font-size: 8px;
+      color: rgba(255, 255, 255, 0.5);
+      padding: 2px 4px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+    }
+
+    .agent-intensity {
+      font-size: 8px;
+      color: var(--agent-color, var(--g-primary));
+      opacity: 0.7;
+    }
+
+    .agent-card-wrapper {
+      position: relative;
+      pointer-events: auto;
+    }
+
+    .agent-card {
+      cursor: pointer;
+    }
+
+    .agent-tooltip {
+      position: absolute;
+      right: 100%;
+      top: 0;
+      margin-right: 8px;
+      width: 280px;
+      max-height: 200px;
+      overflow-y: auto;
+      background: rgba(0, 0, 0, 0.95);
+      border: 1px solid var(--agent-color, var(--g-primary));
+      border-radius: 6px;
+      padding: 8px;
+      z-index: 1000;
+      pointer-events: auto;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    }
+
+    .tooltip-title {
+      font-size: 9px;
+      color: var(--agent-color, var(--g-primary));
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 6px;
+      padding-bottom: 4px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .tooltip-message {
+      margin-bottom: 6px;
+      padding: 4px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .tooltip-message:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+
+    .tooltip-role {
+      font-size: 8px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 2px;
+    }
+
+    .tooltip-role.user {
+      color: #3498DB;
+    }
+
+    .tooltip-role.assistant {
+      color: #2ECC71;
+    }
+
+    .tooltip-content {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .tooltip-empty {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.4);
+      font-style: italic;
+    }
+
+    .title {
+      position: absolute;
+      bottom: 50px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: color-mix(in srgb, var(--g-primary) 40%, transparent);
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      text-shadow: 
+        0 0 10px color-mix(in srgb, var(--g-primary) 30%, transparent),
+        0 0 20px color-mix(in srgb, var(--g-primary) 20%, transparent),
+        0 0 30px color-mix(in srgb, var(--g-primary) 10%, transparent);
+      animation: titleGlow 6s ease-in-out infinite;
+    }
+    
+    @keyframes titleGlow {
+      0%, 100% { 
+        color: color-mix(in srgb, var(--g-primary) 30%, transparent);
+        text-shadow: 
+          0 0 10px color-mix(in srgb, var(--g-primary) 20%, transparent),
+          0 0 20px color-mix(in srgb, var(--g-primary) 10%, transparent);
+        letter-spacing: 4px;
+      }
+      50% { 
+        color: color-mix(in srgb, var(--g-primary) 60%, transparent);
+        text-shadow: 
+          0 0 15px color-mix(in srgb, var(--g-primary) 50%, transparent),
+          0 0 30px color-mix(in srgb, var(--g-primary) 30%, transparent),
+          0 0 45px color-mix(in srgb, var(--g-primary) 15%, transparent);
+        letter-spacing: 5px;
+      }
+    }
+
+    .focus-header-controls {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      z-index: 100;
+      pointer-events: auto;
+    }
+
+    .focus-header-btn {
+      width: 32px;
+      height: 32px;
+      padding: 0;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid color-mix(in srgb, var(--g-primary) 40%, transparent);
+      border-radius: 6px;
+      color: var(--g-primary);
+      font-size: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .focus-header-btn:hover {
+      background: color-mix(in srgb, var(--g-primary) 15%, transparent);
+      border-color: var(--g-primary);
+      transform: scale(1.1);
+    }
+
+    .activity-toggle-btn {
+      font-size: 14px;
+    }
+
+    .activity-toggle-btn.active {
+      background: color-mix(in srgb, var(--g-primary) 20%, transparent);
+      border-color: var(--g-primary);
+      box-shadow: 0 0 10px color-mix(in srgb, var(--g-primary) 30%, transparent);
+    }
+    
+    /* Floating Activity Button - Always visible with electric effects */
+    .activity-float-btn {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.85);
+      border: 1px solid color-mix(in srgb, var(--g-primary) 40%, transparent);
+      color: var(--g-primary);
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 14px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      z-index: 100;
+      pointer-events: auto;
+      position: relative;
+      overflow: hidden;
+      text-shadow: 0 0 8px color-mix(in srgb, var(--g-primary) 50%, transparent);
+    }
+    
+    /* Electric sweep effect */
+    .activity-float-btn::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: conic-gradient(
+        from 0deg,
+        transparent 0deg,
+        color-mix(in srgb, var(--g-primary) 15%, transparent) 60deg,
+        transparent 120deg
+      );
+      animation: electricSweep 3s linear infinite;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+    
+    .activity-float-btn:hover::before {
+      opacity: 1;
+    }
+    
+    @keyframes electricSweep {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    
+    .activity-float-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      border-radius: 7px;
+      z-index: -1;
+    }
+    
+    .activity-float-btn:hover {
+      background: color-mix(in srgb, var(--g-primary) 10%, transparent);
+      border-color: var(--g-primary);
+      transform: scale(1.05);
+      box-shadow: 
+        0 0 15px color-mix(in srgb, var(--g-primary) 30%, transparent),
+        0 0 30px color-mix(in srgb, var(--g-primary) 15%, transparent),
+        inset 0 0 20px color-mix(in srgb, var(--g-primary) 10%, transparent);
+    }
+    
+    .activity-float-btn.active {
+      background: color-mix(in srgb, var(--g-primary) 15%, transparent);
+      border-color: var(--g-primary);
+      animation: activeGlow 2s ease-in-out infinite;
+    }
+    
+    @keyframes activeGlow {
+      0%, 100% {
+        box-shadow: 
+          0 0 15px color-mix(in srgb, var(--g-primary) 40%, transparent),
+          0 0 30px color-mix(in srgb, var(--g-primary) 20%, transparent),
+          inset 0 0 15px color-mix(in srgb, var(--g-primary) 10%, transparent);
+      }
+      50% {
+        box-shadow: 
+          0 0 25px color-mix(in srgb, var(--g-primary) 60%, transparent),
+          0 0 50px color-mix(in srgb, var(--g-primary) 30%, transparent),
+          0 0 75px color-mix(in srgb, var(--g-primary) 15%, transparent),
+          inset 0 0 25px color-mix(in srgb, var(--g-primary) 15%, transparent);
+      }
+    }
+    
+    .activity-count {
+      background: linear-gradient(135deg, color-mix(in srgb, var(--g-primary) 40%, transparent), color-mix(in srgb, var(--g-primary) 20%, transparent));
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      min-width: 20px;
+      text-align: center;
+      font-weight: 600;
+      box-shadow: 
+        0 0 8px color-mix(in srgb, var(--g-primary) 30%, transparent),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      animation: countPulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes countPulse {
+      0%, 100% { 
+        box-shadow: 0 0 8px color-mix(in srgb, var(--g-primary) 30%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      }
+      50% { 
+        box-shadow: 0 0 15px color-mix(in srgb, var(--g-primary) 50%, transparent), 0 0 25px color-mix(in srgb, var(--g-primary) 20%, transparent), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+      }
+    }
+
+    .unlock-btn {
+      /* Close button specific styles - inherits from .focus-header-btn */
+    }
+
+    .unlock-btn:hover {
+      background: rgba(231, 76, 60, 0.2);
+      border-color: #E74C3C;
+      color: #E74C3C;
+    }
+
+    .focused-label {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      padding: 6px 10px;
+      background: rgba(0, 0, 0, 0.7);
+      border: 1px solid var(--focus-color, var(--g-primary));
+      border-radius: 4px;
+      color: var(--focus-color, var(--g-primary));
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .focused-label::before {
+      content: '🔍';
+      font-size: 10px;
+    }
+
+    .canvas-container {
+      cursor: pointer;
+    }
+
+    .canvas-container.locked {
+      cursor: default;
+    }
+
+    /* Focus Chat Panel — Premium Session Feed with Glassmorphism */
+    .focus-chat-panel {
+      position: absolute;
+      bottom: 60px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 92%;
+      max-width: 800px;
+      height: 420px;
+      min-height: 0;
+      z-index: 1000;
+      pointer-events: auto !important;
+      background: linear-gradient(
+        165deg,
+        rgba(20, 20, 30, 0.95) 0%,
+        rgba(12, 12, 18, 0.97) 50%,
+        rgba(8, 8, 14, 0.98) 100%
+      );
+      border: 1px solid transparent;
+      border-image: linear-gradient(
+        180deg,
+        var(--focus-color, color-mix(in srgb, var(--g-primary) 50%, transparent)) 0%,
+        rgba(var(--focus-color-rgb, 255, 215, 0), 0.15) 100%
+      ) 1;
+      border-radius: 20px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      pointer-events: auto;
+      backdrop-filter: blur(32px) saturate(1.4);
+      -webkit-backdrop-filter: blur(32px) saturate(1.4);
+      box-shadow: 
+        0 0 0 1px rgba(255, 255, 255, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+        0 -25px 80px rgba(0, 0, 0, 0.7),
+        0 0 60px rgba(var(--focus-color-rgb, 255, 215, 0), 0.15),
+        0 0 120px rgba(var(--focus-color-rgb, 255, 215, 0), 0.08);
+      animation: panelGlow 4s ease-in-out infinite;
+    }
+
+    @keyframes panelGlow {
+      0%, 100% { box-shadow: 
+        0 0 0 1px rgba(255, 255, 255, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+        0 -25px 80px rgba(0, 0, 0, 0.7),
+        0 0 60px rgba(var(--focus-color-rgb, 255, 215, 0), 0.15),
+        0 0 120px rgba(var(--focus-color-rgb, 255, 215, 0), 0.08);
+      }
+      50% { box-shadow: 
+        0 0 0 1px rgba(255, 255, 255, 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.12),
+        inset 0 -1px 0 rgba(0, 0, 0, 0.2),
+        0 -25px 80px rgba(0, 0, 0, 0.7),
+        0 0 80px rgba(var(--focus-color-rgb, 255, 215, 0), 0.2),
+        0 0 140px rgba(var(--focus-color-rgb, 255, 215, 0), 0.12);
+      }
+    }
+
+    .focus-chat-panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--focus-color, color-mix(in srgb, var(--g-primary) 60%, transparent)) 50%,
+        transparent 100%
+      );
+    }
+
+    .focus-chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 20px;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.08) 0%,
+        rgba(255, 255, 255, 0.02) 100%
+      );
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      position: relative;
+    }
+
+    .focus-chat-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 20px;
+      right: 20px;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--focus-color, color-mix(in srgb, var(--g-primary) 30%, transparent)) 50%,
+        transparent 100%
+      );
+    }
+
+    .focus-chat-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--focus-color, var(--g-primary));
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-shadow: 0 0 20px var(--focus-color, color-mix(in srgb, var(--g-primary) 50%, transparent));
+    }
+
+    .focus-chat-title::before {
+      content: '';
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--focus-color, var(--g-primary));
+      box-shadow: 
+        0 0 8px var(--focus-color, var(--g-primary)),
+        0 0 16px var(--focus-color, color-mix(in srgb, var(--g-primary) 60%, transparent)),
+        0 0 24px var(--focus-color, color-mix(in srgb, var(--g-primary) 30%, transparent));
+      animation: pulse-dot 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse-dot {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.6; transform: scale(0.85); }
+    }
+
+    .focus-chat-session {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.4);
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.3) 100%);
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      letter-spacing: 0.5px;
+    }
+
+    .focus-chat-messages {
+      flex: 1;
+      min-height: 0;
+      overflow-y: scroll;
+      overflow-x: hidden;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+      scroll-behavior: smooth;
+      position: relative;
+      pointer-events: auto !important;
+      cursor: default;
+      /* Ensure wheel events register */
+      touch-action: pan-y;
+    }
+
+    .focus-chat-messages::-webkit-scrollbar {
+      width: 8px;
+    }
+
+    .focus-chat-messages::-webkit-scrollbar-track {
+      background: rgba(0, 0, 0, 0.25);
+      border-radius: 4px;
+      margin: 4px 0;
+    }
+
+    .focus-chat-messages::-webkit-scrollbar-thumb {
+      background: linear-gradient(
+        180deg,
+        var(--focus-color, var(--g-primary)) 0%,
+        rgba(var(--focus-color-rgb, 255, 215, 0), 0.5) 100%
+      );
+      border-radius: 4px;
+      border: 2px solid rgba(0, 0, 0, 0.2);
+    }
+
+    .focus-chat-messages::-webkit-scrollbar-thumb:hover {
+      background: linear-gradient(
+        180deg,
+        var(--focus-color, var(--g-primary)) 0%,
+        rgba(var(--focus-color-rgb, 255, 215, 0), 0.7) 100%
+      );
+    }
+
+    /* Chat Group — Avatar + Bubble Layout */
+    .chat-group {
+      display: flex;
+      gap: 14px;
+      max-width: 100%;
+      animation: slideInMessage 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes slideInMessage {
+      from { 
+        opacity: 0; 
+        transform: translateY(16px) scale(0.98);
+        filter: blur(4px);
+      }
+      to { 
+        opacity: 1; 
+        transform: translateY(0) scale(1);
+        filter: blur(0);
+      }
+    }
+
+    .chat-group.user {
+      flex-direction: row-reverse;
+    }
+
+    /* Avatar with Gradient */
+    .chat-avatar {
+      width: 36px;
+      height: 36px;
+      min-width: 36px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      font-weight: 700;
+      flex-shrink: 0;
+      box-shadow: 
+        0 4px 12px rgba(0, 0, 0, 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .chat-avatar:hover {
+      transform: scale(1.05);
+    }
+
+    .chat-avatar.user {
+      background: linear-gradient(135deg, var(--g-primary) 0%, #F59E0B 50%, #D97706 100%);
+      color: #000;
+      box-shadow: 
+        0 4px 12px color-mix(in srgb, var(--g-primary) 30%, transparent),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .chat-avatar.assistant {
+      background: linear-gradient(
+        135deg,
+        var(--focus-color, #3B82F6) 0%,
+        rgba(var(--focus-color-rgb, 59, 130, 246), 0.8) 50%,
+        rgba(var(--focus-color-rgb, 59, 130, 246), 0.6) 100%
+      );
+      color: #fff;
+      box-shadow: 
+        0 4px 12px rgba(var(--focus-color-rgb, 59, 130, 246), 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    /* Infinibot Avatar Icon */
+    .avatar-icon {
+      width: 22px;
+      height: 22px;
+      object-fit: contain;
+      border-radius: 4px;
+      filter: drop-shadow(0 0 3px rgba(255, 255, 255, 0.5));
+    }
+
+    /* Message Bubble — Premium Style */
+    .chat-bubble {
+      padding: 14px 18px;
+      border-radius: 18px;
+      font-size: 13.5px;
+      line-height: 1.65;
+      letter-spacing: 0.2px;
+      word-wrap: break-word;
+      overflow-wrap: break-word;
+      max-width: calc(100% - 54px);
+      position: relative;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .chat-bubble:hover {
+      transform: translateY(-1px);
+    }
+
+    .chat-group.user .chat-bubble {
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--g-primary) 18%, transparent) 0%,
+        rgba(245, 158, 11, 0.12) 50%,
+        rgba(217, 119, 6, 0.08) 100%
+      );
+      border: 1px solid color-mix(in srgb, var(--g-primary) 25%, transparent);
+      border-radius: 18px 18px 6px 18px;
+      color: rgba(255, 255, 255, 0.97);
+      box-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 color-mix(in srgb, var(--g-primary) 10%, transparent);
+    }
+
+    .chat-group.user .chat-bubble:hover {
+      box-shadow: 
+        0 4px 16px color-mix(in srgb, var(--g-primary) 15%, transparent),
+        inset 0 1px 0 color-mix(in srgb, var(--g-primary) 15%, transparent);
+    }
+
+    .chat-group.assistant .chat-bubble {
+      background: linear-gradient(
+        135deg,
+        rgba(var(--focus-color-rgb, 255, 255, 255), 0.12) 0%,
+        rgba(var(--focus-color-rgb, 255, 255, 255), 0.06) 50%,
+        rgba(var(--focus-color-rgb, 255, 255, 255), 0.03) 100%
+      );
+      border: 1px solid rgba(var(--focus-color-rgb, 255, 255, 255), 0.15);
+      border-radius: 18px 18px 18px 6px;
+      color: rgba(255, 255, 255, 0.92);
+      box-shadow: 
+        0 2px 8px rgba(0, 0, 0, 0.2),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .chat-group.assistant .chat-bubble:hover {
+      box-shadow: 
+        0 4px 16px rgba(var(--focus-color-rgb, 255, 255, 255), 0.1),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    }
+
+    /* Streaming indicator — Enhanced */
+    .chat-bubble .streaming-cursor {
+      display: inline-block;
+      width: 2px;
+      height: 16px;
+      background: var(--focus-color, var(--g-primary));
+      margin-left: 3px;
+      animation: blink-cursor 0.7s ease-in-out infinite;
+      vertical-align: text-bottom;
+      box-shadow: 0 0 8px var(--focus-color, var(--g-primary));
+    }
+
+    @keyframes blink-cursor {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.2; }
+    }
+
+    /* Code in messages — Enhanced */
+    .chat-bubble code {
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.5) 0%, rgba(0, 0, 0, 0.4) 100%);
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 0.88em;
+      color: #E879F9;
+      border: 1px solid rgba(232, 121, 249, 0.15);
+    }
+
+    .chat-bubble pre {
+      background: linear-gradient(135deg, rgba(0, 0, 0, 0.55) 0%, rgba(0, 0, 0, 0.45) 100%);
+      padding: 14px 16px;
+      border-radius: 10px;
+      overflow-x: auto;
+      margin: 10px 0;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .chat-bubble pre code {
+      background: none;
+      padding: 0;
+      color: #A5F3FC;
+    }
+
+    /* Legacy single message style (fallback) */
+    .chat-message {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border-left: 3px solid transparent;
+    }
+
+    .chat-message.user {
+      border-left-color: var(--g-primary);
+      background: linear-gradient(90deg, color-mix(in srgb, var(--g-primary) 8%, transparent) 0%, color-mix(in srgb, var(--g-primary) 2%, transparent) 100%);
+    }
+
+    .chat-message.assistant {
+      border-left-color: var(--focus-color, #2ECC71);
+      background: linear-gradient(90deg, rgba(46, 204, 113, 0.08) 0%, rgba(46, 204, 113, 0.02) 100%);
+    }
+
+    .chat-message.system {
+      border-left-color: #9B59B6;
+      background: linear-gradient(90deg, rgba(155, 89, 182, 0.08) 0%, rgba(155, 89, 182, 0.02) 100%);
+    }
+
+    .chat-role {
+      font-size: 9px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      opacity: 0.7;
+    }
+
+    .chat-message.user .chat-role {
+      color: var(--g-primary);
+    }
+
+    .chat-message.assistant .chat-role {
+      color: var(--focus-color, #2ECC71);
+    }
+
+    .chat-message.system .chat-role {
+      color: #9B59B6;
+    }
+
+    .chat-content {
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.88);
+      line-height: 1.6;
+      word-break: break-word;
+      white-space: pre-wrap;
+    }
+
+    /* Loading & Empty States */
+    .chat-loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      height: 100%;
+      font-size: 13px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .loading-spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid color-mix(in srgb, var(--g-primary) 20%, transparent);
+      border-top-color: var(--focus-color, var(--g-primary));
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    .chat-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      gap: 8px;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .empty-icon {
+      font-size: 28px;
+      opacity: 0.5;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Focus Chat Input — Premium Glassmorphism Style */
+    .focus-chat-input {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      background: linear-gradient(
+        180deg,
+        rgba(255, 255, 255, 0.04) 0%,
+        rgba(255, 255, 255, 0.02) 100%
+      );
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      position: relative;
+    }
+
+    .focus-chat-input::before {
+      content: '';
+      position: absolute;
+      top: -1px;
+      left: 20px;
+      right: 20px;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        var(--focus-color, color-mix(in srgb, var(--g-primary) 25%, transparent)) 50%,
+        transparent 100%
+      );
+    }
+
+    .focus-chat-input input {
+      flex: 1;
+      background: linear-gradient(
+        135deg,
+        rgba(0, 0, 0, 0.4) 0%,
+        rgba(0, 0, 0, 0.3) 100%
+      );
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 12px 16px;
+      color: rgba(255, 255, 255, 0.95);
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 13px;
+      outline: none;
+      transition: all 0.25s ease;
+    }
+
+    .focus-chat-input input::placeholder {
+      color: rgba(255, 255, 255, 0.35);
+    }
+
+    .focus-chat-input input:focus {
+      border-color: var(--focus-color, color-mix(in srgb, var(--g-primary) 50%, transparent));
+      box-shadow: 
+        0 0 0 3px rgba(var(--focus-color-rgb, 255, 215, 0), 0.1),
+        0 0 20px rgba(var(--focus-color-rgb, 255, 215, 0), 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      background: linear-gradient(
+        135deg,
+        rgba(0, 0, 0, 0.5) 0%,
+        rgba(0, 0, 0, 0.4) 100%
+      );
+    }
+
+    .focus-chat-input .send-btn {
+      padding: 12px 20px;
+      background: linear-gradient(
+        135deg,
+        var(--focus-color, var(--g-primary)) 0%,
+        rgba(var(--focus-color-rgb, 255, 215, 0), 0.8) 100%
+      );
+      border: none;
+      border-radius: 10px;
+      color: #000;
+      font-family: 'JetBrains Mono', 'Fira Code', monospace;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 
+        0 2px 8px rgba(var(--focus-color-rgb, 255, 215, 0), 0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+    }
+
+    .focus-chat-input .send-btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 
+        0 4px 16px rgba(var(--focus-color-rgb, 255, 215, 0), 0.4),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    }
+
+    .focus-chat-input .send-btn:active {
+      transform: translateY(0);
+    }
+
+    .focus-chat-input .send-btn.sent {
+      background: linear-gradient(135deg, #2ECC71 0%, #27AE60 100%);
+      box-shadow: 0 2px 12px rgba(46, 204, 113, 0.4);
+    }
+
+    /* Close Session Button — Sub-Agents Only */
+    .close-session-btn {
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      color: rgba(255, 255, 255, 0.5);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: auto;
+    }
+
+    .close-session-btn:hover {
+      background: rgba(231, 76, 60, 0.2);
+      border-color: rgba(231, 76, 60, 0.5);
+      color: #E74C3C;
+      transform: scale(1.05);
+    }
+
+    .close-session-btn:active {
+      transform: scale(0.95);
+    }
+
+    .focus-chat-header-controls {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Activity Log Panel */
+    /* ═══════════════════════════════════════════════════════════════
+       ACTIVITY FEED PANEL — Real-time command log
+       ═══════════════════════════════════════════════════════════════ */
+    .activity-panel {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 420px;
+      max-height: 80vh;
+      background: linear-gradient(180deg, rgba(0,0,0,0.94) 0%, rgba(5,5,15,0.97) 100%);
+      border: 2px solid transparent;
+      border-radius: 16px;
+      overflow: hidden;
+      backdrop-filter: blur(24px);
+      z-index: 100;
+      pointer-events: auto;
+      animation: panelSlideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1), electricBorderPanel 4s ease-in-out infinite;
+    }
+    
+    @keyframes panelSlideIn {
+      from {
+        opacity: 0;
+        transform: translateY(-50%) translateX(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(-50%) translateX(0);
+      }
+    }
+    
+    @keyframes electricBorderPanel {
+      0%, 100% {
+        border-color: color-mix(in srgb, var(--g-primary) 40%, transparent);
+        box-shadow: 
+          0 0 30px color-mix(in srgb, var(--g-primary) 15%, transparent),
+          0 0 60px color-mix(in srgb, var(--g-primary) 8%, transparent),
+          inset 0 1px 0 rgba(255, 255, 255, 0.1),
+          inset 0 0 30px color-mix(in srgb, var(--g-primary) 3%, transparent);
+      }
+      50% {
+        border-color: color-mix(in srgb, var(--g-primary) 70%, transparent);
+        box-shadow: 
+          0 0 50px color-mix(in srgb, var(--g-primary) 25%, transparent),
+          0 0 100px color-mix(in srgb, var(--g-primary) 12%, transparent),
+          0 0 150px color-mix(in srgb, var(--g-primary) 5%, transparent),
+          inset 0 1px 0 rgba(255, 255, 255, 0.15),
+          inset 0 0 50px color-mix(in srgb, var(--g-primary) 6%, transparent);
+      }
+    }
+    
+    /* Electric top border accent */
+    .activity-panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        color-mix(in srgb, var(--g-primary) 30%, transparent) 20%,
+        var(--g-primary) 50%,
+        color-mix(in srgb, var(--g-primary) 30%, transparent) 80%,
+        transparent 100%
+      );
+      animation: electricScanHorizontal 2s ease-in-out infinite;
+    }
+    
+    @keyframes electricScanHorizontal {
+      0%, 100% { 
+        opacity: 0.6;
+        background-position: -100% 0;
+      }
+      50% { 
+        opacity: 1;
+        background-position: 100% 0;
+      }
+    }
+
+    .activity-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: linear-gradient(180deg, color-mix(in srgb, var(--g-primary) 12%, transparent) 0%, color-mix(in srgb, var(--g-primary) 3%, transparent) 100%);
+      border-bottom: 1px solid color-mix(in srgb, var(--g-primary) 25%, transparent);
+      position: relative;
+    }
+    
+    /* Flowing electricity line under header */
+    .activity-header::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 1px;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        var(--g-primary),
+        transparent
+      );
+      background-size: 200% 100%;
+      animation: flowLine 3s linear infinite;
+    }
+    
+    @keyframes flowLine {
+      0% { background-position: 200% 0; }
+      100% { background-position: -200% 0; }
+    }
+
+    .activity-title {
+      font-size: 14px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: var(--g-primary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-shadow: 
+        0 0 10px color-mix(in srgb, var(--g-primary) 60%, transparent),
+        0 0 20px color-mix(in srgb, var(--g-primary) 30%, transparent);
+    }
+
+    .activity-toggle {
+      background: color-mix(in srgb, var(--g-primary) 8%, transparent);
+      border: 1px solid color-mix(in srgb, var(--g-primary) 30%, transparent);
+      border-radius: 6px;
+      color: var(--g-primary);
+      cursor: pointer;
+      font-size: 16px;
+      padding: 6px 10px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .activity-toggle:hover {
+      background: color-mix(in srgb, var(--g-primary) 20%, transparent);
+      transform: scale(1.1) rotate(90deg);
+      box-shadow: 0 0 15px color-mix(in srgb, var(--g-primary) 40%, transparent);
+    }
+
+    .activity-list {
+      max-height: calc(80vh - 60px);
+      overflow-y: auto;
+      padding: 12px;
+    }
+
+    .activity-list::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .activity-list::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, var(--g-primary) 0%, #FFA500 100%);
+      border-radius: 3px;
+      box-shadow: 0 0 6px color-mix(in srgb, var(--g-primary) 50%, transparent);
+    }
+    
+    .activity-list::-webkit-scrollbar-track {
+      background: color-mix(in srgb, var(--g-primary) 5%, transparent);
+      border-radius: 3px;
+    }
+
+    .activity-entry {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      padding: 14px 16px;
+      margin-bottom: 8px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+      border-radius: 12px;
+      border-left: 3px solid var(--entry-color, var(--g-primary));
+      animation: slideInActivity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      box-shadow: 
+        0 2px 10px rgba(0,0,0,0.3),
+        inset 0 1px 0 rgba(255, 255, 255, 0.03);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Electric hover effect */
+    .activity-entry::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(var(--entry-color-rgb, 255, 215, 0), 0.08),
+        rgba(var(--entry-color-rgb, 255, 215, 0), 0.15),
+        rgba(var(--entry-color-rgb, 255, 215, 0), 0.08),
+        transparent
+      );
+      transition: left 0.5s ease;
+    }
+    
+    .activity-entry:hover::before {
+      left: 100%;
+    }
+
+    .activity-entry:hover {
+      background: linear-gradient(135deg, rgba(255, 255, 255, 0.08) 0%, rgba(255, 255, 255, 0.03) 100%);
+      transform: translateX(-4px);
+      border-left-width: 4px;
+      box-shadow: 
+        0 4px 20px rgba(0,0,0,0.4),
+        0 0 15px color-mix(in srgb, var(--entry-color, var(--g-primary)) 20%, transparent),
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    .activity-entry.new {
+      animation: popInActivity 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes slideInActivity {
+      from {
+        opacity: 0;
+        transform: translateX(40px) scale(0.9);
+      }
+      to {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
+    }
+
+    @keyframes popInActivity {
+      0% {
+        opacity: 0;
+        transform: translateX(60px) scale(0.7);
+      }
+      60% {
+        transform: translateX(-8px) scale(1.05);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
+    }
+    
+    .activity-name {
+      font-size: 15px;
+      font-weight: 600;
+      color: #FFFFFF;
+    }
+    
+    .activity-type {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 4px 10px;
+      border-radius: 6px;
+    }
+    
+    .activity-params {
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(0,0,0,0.4);
+      padding: 8px 12px;
+      border-radius: 6px;
+      max-width: 100%;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    
+    .activity-agent {
+      font-size: 11px;
+      color: var(--entry-color, var(--g-primary));
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    @keyframes popIn {
+      0% {
+        opacity: 0;
+        transform: translateX(40px) scale(0.8);
+      }
+      60% {
+        transform: translateX(-5px) scale(1.02);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0) scale(1);
+      }
+    }
+
+    .activity-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .activity-icon {
+      font-size: 12px;
+      width: 20px;
+      text-align: center;
+    }
+
+    .activity-type {
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .activity-type.tool {
+      background: rgba(46, 204, 113, 0.2);
+      color: #2ECC71;
+    }
+
+    .activity-type.mcp {
+      background: rgba(155, 89, 182, 0.2);
+      color: #9B59B6;
+    }
+
+    .activity-type.spawn {
+      background: rgba(52, 152, 219, 0.2);
+      color: #3498DB;
+    }
+
+    .activity-type.message {
+      background: color-mix(in srgb, var(--g-primary) 20%, transparent);
+      color: var(--g-primary);
+    }
+
+    .activity-type.error {
+      background: rgba(231, 76, 60, 0.2);
+      color: #E74C3C;
+    }
+
+    .activity-name {
+      font-size: 12px;
+      font-weight: 500;
+      color: rgba(255, 255, 255, 0.9);
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .activity-entry-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 4px;
+    }
+
+    .activity-message {
+      font-size: 11px;
+      color: rgba(255, 255, 255, 0.8);
+      line-height: 1.4;
+      word-break: break-word;
+    }
+
+    .activity-status {
+      font-size: 10px;
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .activity-status.pending {
+      color: #F39C12;
+    }
+
+    .activity-status.success {
+      color: #2ECC71;
+    }
+
+    .activity-status.error {
+      color: #E74C3C;
+    }
+
+    .activity-agent {
+      font-size: 9px;
+      color: var(--entry-color, rgba(255, 255, 255, 0.4));
+      font-weight: 500;
+    }
+
+    .activity-params {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.5);
+      font-family: 'JetBrains Mono', monospace;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 6px 8px;
+      border-radius: 4px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 100%;
+    }
+
+    .activity-time {
+      font-size: 9px;
+      color: rgba(255, 255, 255, 0.3);
+    }
+
+    .activity-duration {
+      font-size: 9px;
+      color: color-mix(in srgb, var(--g-primary) 60%, transparent);
+    }
+
+    .activity-empty {
+      padding: 24px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.3);
+      font-size: 11px;
+    }
+
+    .activity-minimize {
+      position: absolute;
+      right: 16px;
+      top: 12px;
+      background: rgba(0, 0, 0, 0.8);
+      border: 1px solid color-mix(in srgb, var(--g-primary) 30%, transparent);
+      border-radius: 8px;
+      padding: 8px 12px;
+      cursor: pointer;
+      color: var(--g-primary);
+      font-size: 11px;
+      z-index: 100;
+      transition: all 0.2s;
+      pointer-events: auto;
+    }
+
+    .activity-minimize:hover {
+      background: color-mix(in srgb, var(--g-primary) 10%, transparent);
+      transform: scale(1.02);
+    }
+
+    /* ===== CLEAN HUD STYLING FOR FOCUS CHAT PANEL ===== */
+    
+    /* Apply subtle HUD aesthetic - reduced glow for cleaner look */
+    .focus-chat-panel {
+      /* Base container with subtle glow */
+      border: 1px solid rgba(var(--focus-color-rgb, 255, 215, 0), 0.35) !important;
+      box-shadow: 
+        0 0 20px rgba(var(--focus-color-rgb, 255, 215, 0), 0.12),
+        0 0 40px rgba(var(--focus-color-rgb, 255, 215, 0), 0.05),
+        inset 0 0 15px rgba(var(--focus-color-rgb, 255, 215, 0), 0.02),
+        0 0 1px rgba(var(--focus-color-rgb, 255, 215, 0), 0.5) !important;
+      animation: focusPanelGlow 5s ease-in-out infinite alternate !important;
+      font-family: 'Courier New', 'Consolas', monospace !important;
+    }
+    
+    @keyframes focusPanelGlow {
+      0% { 
+        box-shadow: 
+          0 0 20px rgba(var(--focus-color-rgb, 255, 215, 0), 0.12),
+          0 0 40px rgba(var(--focus-color-rgb, 255, 215, 0), 0.05),
+          inset 0 0 15px rgba(var(--focus-color-rgb, 255, 215, 0), 0.02),
+          0 0 1px rgba(var(--focus-color-rgb, 255, 215, 0), 0.5);
+      }
+      100% { 
+        box-shadow: 
+          0 0 25px rgba(var(--focus-color-rgb, 255, 215, 0), 0.18),
+          0 0 50px rgba(var(--focus-color-rgb, 255, 215, 0), 0.08),
+          inset 0 0 20px rgba(var(--focus-color-rgb, 255, 215, 0), 0.03),
+          0 0 1px rgba(var(--focus-color-rgb, 255, 215, 0), 0.6);
+      }
+    }
+    
+    /* Subtle scanlines overlay - reduced intensity for cleaner look */
+    .focus-chat-panel::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.03) 0px,
+        rgba(0, 0, 0, 0.03) 1px,
+        transparent 1px,
+        transparent 4px
+      );
+      pointer-events: none;
+      z-index: 10;
+      border-radius: inherit;
+      opacity: 0.5;
+    }
+    
+    /* Very subtle grid pattern - almost invisible for atmosphere */
+    .focus-chat-panel::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        linear-gradient(rgba(var(--focus-color-rgb, 255, 215, 0), 0.008) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(var(--focus-color-rgb, 255, 215, 0), 0.008) 1px, transparent 1px);
+      background-size: 30px 30px;
+      pointer-events: none;
+      z-index: 9;
+      border-radius: inherit;
+      opacity: 0.4;
+    }
+    
+    /* Corner brackets for HUD effect */
+    .focus-chat-panel .focus-chat-header::before,
+    .focus-chat-panel .focus-chat-header::after {
+      content: '[';
+      position: absolute;
+      font-size: 18px;
+      color: var(--focus-color, var(--g-primary));
+      opacity: 0.7;
+      font-family: monospace;
+      text-shadow: 0 0 5px var(--focus-color, var(--g-primary));
+    }
+    
+    .focus-chat-panel .focus-chat-header::before {
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    
+    .focus-chat-panel .focus-chat-header::after {
+      content: ']';
+      right: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+    }
+    
+    /* HUD-style header */
+    .focus-chat-header {
+      border-bottom: 1px solid rgba(var(--focus-color-rgb, 255, 215, 0), 0.3) !important;
+      background: linear-gradient(
+        180deg,
+        rgba(var(--focus-color-rgb, 255, 215, 0), 0.15) 0%,
+        rgba(var(--focus-color-rgb, 255, 215, 0), 0.05) 100%
+      ) !important;
+    }
+    
+    .focus-chat-title {
+      font-family: 'Courier New', monospace !important;
+      text-transform: uppercase !important;
+      letter-spacing: 2px !important;
+      text-shadow: 0 0 10px var(--focus-color, var(--g-primary)) !important;
+      animation: hudTitleGlow 2s ease-in-out infinite alternate !important;
+    }
+    
+    @keyframes hudTitleGlow {
+      0% { text-shadow: 0 0 8px var(--focus-color, var(--g-primary)); }
+      100% { text-shadow: 0 0 15px var(--focus-color, var(--g-primary)), 0 0 30px var(--focus-color, var(--g-primary)); }
+    }
+    
+    /* HUD-style messages */
+    .focus-chat-messages {
+      font-family: 'Courier New', monospace !important;
+    }
+    
+    .chat-bubble {
+      font-family: 'Courier New', monospace !important;
+      border: 1px solid rgba(var(--focus-color-rgb, 255, 215, 0), 0.2) !important;
+      text-shadow: 0 0 1px rgba(var(--focus-color-rgb, 255, 215, 0), 0.3);
+    }
+    
+    .chat-group.assistant .chat-bubble {
+      border-color: rgba(var(--focus-color-rgb, 255, 215, 0), 0.3) !important;
+      box-shadow: 0 0 10px rgba(var(--focus-color-rgb, 255, 215, 0), 0.1) !important;
+    }
+    
+    /* HUD-style input */
+    .focus-chat-input input {
+      font-family: 'Courier New', monospace !important;
+      border: 1px solid rgba(var(--focus-color-rgb, 255, 215, 0), 0.3) !important;
+    }
+    
+    .focus-chat-input input:focus {
+      border-color: var(--focus-color, var(--g-primary)) !important;
+      box-shadow: 0 0 15px rgba(var(--focus-color-rgb, 255, 215, 0), 0.3) !important;
+    }
+    
+    .focus-chat-input .send-btn {
+      font-family: 'Courier New', monospace !important;
+      text-transform: uppercase !important;
+      letter-spacing: 1px !important;
+    }
+
+    /* Legacy activity-feed classes for backwards compat */
+    .activity-feed-panel { display: none; }
+    
+    /* Minimal HUD terminal panel fallback */
+    .hud-terminal-panel { display: none; }
+    .hud-minimize-btn { display: none; }
+  `;
+
+  // HUD CSS cleanup complete - 2026-03-22
+  // Removed duplicate HUD terminal panel CSS
+  // Focus chat panel now uses HUD styling via --focus-color CSS variable
+
+  /* CLEANUP_MARKER - Start removal of broken HUD CSS */
+  private static readonly HUD_CLEANUP_MARKER = `
+    /* This entire block was duplicate HUD CSS that broke the build */
+    /* Original CSS is in the styles block above as .focus-chat-panel HUD styling */
+    .hud-terminal-panel::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: 
+        linear-gradient(rgba(0, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0, 255, 255, 0.03) 1px, transparent 1px);
+      background-size: 20px 20px;
+      pointer-events: none;
+      z-index: 9;
+    }
+
+    /* CRT Screen Curve Effect */
+    .hud-crt-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: radial-gradient(
+        ellipse at center,
+        transparent 0%,
+        transparent 60%,
+        rgba(0, 0, 0, 0.3) 100%
+      );
+      pointer-events: none;
+      z-index: 11;
+      border-radius: 4px;
+    }
+
+    /* Corner Brackets */
+    .hud-corner {
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-color: rgba(0, 255, 255, 0.8);
+      border-style: solid;
+      z-index: 12;
+      pointer-events: none;
+    }
+
+    .hud-corner.top-left {
+      top: 4px;
+      left: 4px;
+      border-width: 2px 0 0 2px;
+    }
+
+    .hud-corner.top-right {
+      top: 4px;
+      right: 4px;
+      border-width: 2px 2px 0 0;
+    }
+
+    .hud-corner.bottom-left {
+      bottom: 4px;
+      left: 4px;
+      border-width: 0 0 2px 2px;
+    }
+
+    .hud-corner.bottom-right {
+      bottom: 4px;
+      right: 4px;
+      border-width: 0 2px 2px 0;
+    }
+
+    /* Scanning Line Animation */
+    .hud-scan-line {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(0, 255, 255, 0.5) 20%,
+        rgba(0, 255, 255, 0.8) 50%,
+        rgba(0, 255, 255, 0.5) 80%,
+        transparent 100%
+      );
+      z-index: 13;
+      pointer-events: none;
+      animation: hudScanLine 4s linear infinite;
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.6);
+    }
+
+    @keyframes hudScanLine {
+      0% { top: 0%; opacity: 0; }
+      5% { opacity: 1; }
+      95% { opacity: 1; }
+      100% { top: 100%; opacity: 0; }
+    }
+
+    /* HUD Header / Drag Handle */
+    .hud-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      background: linear-gradient(
+        180deg,
+        rgba(0, 255, 255, 0.12) 0%,
+        rgba(0, 255, 255, 0.04) 100%
+      );
+      border-bottom: 1px solid rgba(0, 255, 255, 0.3);
+      position: relative;
+      z-index: 15;
+      cursor: grab;
+    }
+
+    .hud-header:active {
+      cursor: grabbing;
+    }
+
+    .hud-drag-handle {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+    }
+
+    .hud-status-indicators {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hud-status-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #0f0;
+      box-shadow: 0 0 8px #0f0, 0 0 16px rgba(0, 255, 0, 0.5);
+      animation: hudDotBlink 1.5s ease-in-out infinite;
+    }
+
+    .hud-status-dot.secondary {
+      background: #0ff;
+      box-shadow: 0 0 8px #0ff, 0 0 16px rgba(0, 255, 255, 0.5);
+      animation-delay: 0.3s;
+    }
+
+    .hud-status-dot.tertiary {
+      background: #ff0;
+      box-shadow: 0 0 8px #ff0, 0 0 16px rgba(255, 255, 0, 0.5);
+      animation-delay: 0.6s;
+    }
+
+    @keyframes hudDotBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .hud-title {
+      font-size: 11px;
+      font-weight: bold;
+      color: #0ff;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      text-shadow: 0 0 10px #0ff, 0 0 20px rgba(0, 255, 255, 0.5);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hud-title-text {
+      animation: hudTitleGlow 2s ease-in-out infinite alternate;
+    }
+
+    @keyframes hudTitleGlow {
+      0% { text-shadow: 0 0 10px #0ff, 0 0 20px rgba(0, 255, 255, 0.5); }
+      100% { text-shadow: 0 0 15px #0ff, 0 0 30px rgba(0, 255, 255, 0.7), 0 0 40px rgba(0, 255, 255, 0.3); }
+    }
+
+    .hud-status-text {
+      font-size: 9px;
+      color: #0f0;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 2px 6px;
+      border: 1px solid rgba(0, 255, 0, 0.4);
+      border-radius: 2px;
+      background: rgba(0, 255, 0, 0.1);
+      animation: hudStatusPulse 2s ease-in-out infinite;
+    }
+
+    @keyframes hudStatusPulse {
+      0%, 100% { border-color: rgba(0, 255, 0, 0.4); background: rgba(0, 255, 0, 0.1); }
+      50% { border-color: rgba(0, 255, 0, 0.7); background: rgba(0, 255, 0, 0.2); }
+    }
+
+    .hud-header-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hud-timestamp {
+      font-size: 10px;
+      color: rgba(0, 255, 255, 0.7);
+      font-family: 'Courier New', monospace;
+      letter-spacing: 1px;
+    }
+
+    .hud-msg-count {
+      font-size: 9px;
+      color: #0ff;
+      padding: 2px 6px;
+      border: 1px solid rgba(0, 255, 255, 0.4);
+      border-radius: 2px;
+      background: rgba(0, 255, 255, 0.1);
+    }
+
+    .hud-close-btn {
+      width: 22px;
+      height: 22px;
+      padding: 0;
+      background: rgba(255, 0, 0, 0.1);
+      border: 1px solid rgba(255, 0, 0, 0.4);
+      border-radius: 2px;
+      color: #f55;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .hud-close-btn:hover {
+      background: rgba(255, 0, 0, 0.25);
+      border-color: #f00;
+      color: #f00;
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.4);
+    }
+
+    /* HUD Content List */
+    .hud-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      z-index: 5;
+    }
+
+    .hud-content::-webkit-scrollbar {
+      width: 4px;
+    }
+
+    .hud-content::-webkit-scrollbar-track {
+      background: rgba(0, 255, 255, 0.05);
+      border-radius: 2px;
+    }
+
+    .hud-content::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, rgba(0, 255, 255, 0.5) 0%, rgba(0, 255, 255, 0.2) 100%);
+      border-radius: 2px;
+    }
+
+    /* HUD Entry Items */
+    .hud-entry {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      padding: 8px 10px;
+      background: linear-gradient(
+        135deg,
+        rgba(0, 255, 255, 0.06) 0%,
+        rgba(0, 255, 255, 0.02) 100%
+      );
+      border: 1px solid rgba(0, 255, 255, 0.15);
+      border-left: 2px solid var(--entry-color, #0ff);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      position: relative;
+      font-family: 'Courier New', monospace;
+    }
+
+    .hud-entry::before {
+      content: '>';
+      position: absolute;
+      left: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--entry-color, #0ff);
+      font-size: 10px;
+      opacity: 0;
+      transition: all 0.2s ease;
+    }
+
+    .hud-entry:hover {
+      background: linear-gradient(
+        135deg,
+        rgba(0, 255, 255, 0.12) 0%,
+        rgba(0, 255, 255, 0.05) 100%
+      );
+      border-color: rgba(0, 255, 255, 0.35);
+      transform: translateX(4px);
+      box-shadow: 
+        0 0 15px rgba(0, 255, 255, 0.15),
+        inset 0 0 10px rgba(0, 255, 255, 0.05);
+    }
+
+    .hud-entry:hover::before {
+      opacity: 1;
+      left: 4px;
+    }
+
+    .hud-entry.new {
+      animation: hudEntrySlideIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes hudEntrySlideIn {
+      0% {
+        opacity: 0;
+        transform: translateX(40px);
+        filter: blur(4px);
+      }
+      60% {
+        transform: translateX(-4px);
+      }
+      100% {
+        opacity: 1;
+        transform: translateX(0);
+        filter: blur(0);
+      }
+    }
+
+    .hud-entry-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hud-entry-icon {
+      font-size: 12px;
+      width: 18px;
+      text-align: center;
+      filter: drop-shadow(0 0 4px currentColor);
+    }
+
+    .hud-entry-type {
+      font-size: 8px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      padding: 2px 5px;
+      border: 1px solid currentColor;
+      color: var(--type-color, #0ff);
+      background: transparent;
+    }
+
+    .hud-entry-type.tool { --type-color: #0f0; color: #0f0; }
+    .hud-entry-type.mcp { --type-color: #b39ddb; color: #b39ddb; }
+    .hud-entry-type.spawn { --type-color: #64b5f6; color: #64b5f6; }
+    .hud-entry-type.message { --type-color: var(--g-primary); color: var(--g-primary); }
+    .hud-entry-type.error { --type-color: #f44; color: #f44; }
+    .hud-entry-type.complete { --type-color: #0f0; color: #0f0; }
+    .hud-entry-type.thinking { --type-color: #ff0; color: #ff0; }
+
+    .hud-entry-name {
+      font-size: 10px;
+      color: rgba(255, 255, 255, 0.9);
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .hud-entry-status {
+      font-size: 10px;
+      width: 14px;
+      text-align: center;
+    }
+
+    .hud-entry-status.pending {
+      color: #ff0;
+      animation: hudStatusSpin 1s linear infinite;
+    }
+
+    @keyframes hudStatusSpin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    .hud-entry-status.success { color: #0f0; }
+    .hud-entry-status.error { color: #f44; }
+
+    .hud-entry-meta {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding-left: 26px;
+      font-size: 9px;
+    }
+
+    .hud-entry-agent {
+      color: var(--entry-color, #0ff);
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .hud-entry-time {
+      color: rgba(255, 255, 255, 0.35);
+      margin-left: auto;
+    }
+
+    .hud-entry-duration {
+      color: rgba(0, 255, 255, 0.7);
+      padding: 1px 4px;
+      border: 1px solid rgba(0, 255, 255, 0.2);
+    }
+
+    .hud-entry-params {
+      font-size: 9px;
+      color: rgba(0, 255, 255, 0.5);
+      background: rgba(0, 0, 0, 0.4);
+      padding: 4px 8px;
+      margin-left: 26px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      border-left: 1px solid rgba(0, 255, 255, 0.2);
+    }
+
+    /* HUD Empty State */
+    .hud-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      padding: 60px 20px;
+      color: rgba(0, 255, 255, 0.4);
+      text-align: center;
+      position: relative;
+      z-index: 5;
+    }
+
+    .hud-empty-icon {
+      font-size: 36px;
+      animation: hudEmptyPulse 2s ease-in-out infinite;
+      filter: drop-shadow(0 0 10px rgba(0, 255, 255, 0.5));
+    }
+
+    @keyframes hudEmptyPulse {
+      0%, 100% { transform: scale(1); opacity: 0.5; }
+      50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    .hud-empty-text {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: rgba(0, 255, 255, 0.5);
+    }
+
+    .hud-empty-subtext {
+      font-size: 9px;
+      color: rgba(0, 255, 255, 0.3);
+      max-width: 200px;
+      line-height: 1.5;
+    }
+
+    /* Minimized HUD Button */
+    .hud-minimize-btn {
+      position: absolute;
+      right: 12px;
+      top: 12px;
+      background: rgba(0, 20, 30, 0.9);
+      border: 1px solid rgba(0, 255, 255, 0.5);
+      border-radius: 2px;
+      padding: 8px 14px;
+      cursor: pointer;
+      color: #0ff;
+      font-family: 'Courier New', monospace;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      z-index: 100;
+      pointer-events: auto;
+      transition: all 0.2s ease;
+      box-shadow: 0 0 15px rgba(0, 255, 255, 0.2);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .hud-minimize-btn:hover {
+      background: rgba(0, 40, 50, 0.95);
+      border-color: #0ff;
+      box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
+      transform: scale(1.02);
+    }
+
+    .hud-minimize-btn::before {
+      content: '◢';
+      font-size: 8px;
+      animation: hudMinBtnPulse 1.5s ease-in-out infinite;
+    }
+
+    @keyframes hudMinBtnPulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+
+    .hud-minimize-count {
+      padding: 2px 6px;
+      background: rgba(0, 255, 255, 0.2);
+      border: 1px solid rgba(0, 255, 255, 0.4);
+      font-size: 9px;
+    }
+
+    /* Legacy activity-feed classes for backwards compat */
+    .activity-feed-panel { display: none; }
+  `;
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.updateComplete.then(() => {
+      this.initGalaxyBackground();
+      this.initScene();
+
+      // Pause both rAF loops (THREE scene + OGL galaxy) when the mesh is
+      // offscreen or the tab is hidden; throttle to 30fps when the window is
+      // blurred. onChange re-kicks whichever loops have stopped.
+      this.meshPauseCtrl = createCanvasPause(this, { throttleWhenBlurred: true });
+      this.meshPauseCtrl.onChange = (active) => {
+        if (active && this.animationId == null) this.startAnimation();
+      };
+      this.meshPauseCtrl.start();
+
+      // Load persisted state from localStorage
+      this.loadPersistedState();
+      
+      // Clear any stale state on init (but keep loaded sub-nets)
+      this.sessionToAgent.clear();
+      this.subNetSpawnIndex.clear();
+      this.initialPollComplete = false; // Reset so first poll doesn't animate
+      
+      // Wait a bit for client to be available
+      setTimeout(() => {
+        this.subscribeToEvents();
+        this.pollSessions();
+        this.pollFederation();
+        this.pollSubagentActivity(); // Poll for sub-agent activity
+        this.pollAndRenderSubagentSessions(); // Poll and render session nodes
+      }, 1000);
+      
+      setInterval(() => this.pollSessions(), 3000);
+      setInterval(() => this.pollFederation(), 5000);
+      setInterval(() => this.pollSubagentActivity(), 2000); // Poll sub-agents every 2s for activity
+      setInterval(() => this.pollAndRenderSubagentSessions(), 2000); // Poll and render session nodes
+      
+      // Persist state periodically for refresh recovery
+      setInterval(() => this.persistState(), 5000);
+      
+      // Broadcast state to federation periodically
+      setInterval(() => this.broadcastMeshState(), 10000);
+    });
+  }
+  
+  /**
+   * Save mesh state to localStorage for persistence across refresh
+   */
+  private persistState() {
+    try {
+      const state = {
+        timestamp: Date.now(),
+        activityLog: this.activityLog.slice(-30), // Keep last 30 entries
+        subNetBubbles: Array.from(this.subNetBubbles.entries()).map(([key, bubble]) => ({
+          sessionKey: key,
+          label: bubble.label,
+          parentAgentId: bubble.parentAgentId,
+          isThinking: bubble.isThinking,
+          intensity: bubble.intensity,
+          lastActiveTime: bubble.lastActiveTime,
+        })),
+        focusedAgent: this.focusedAgent,
+        showActivityLog: this.showActivityLog,
+      };
+      localStorage.setItem('neural-mesh-state', JSON.stringify(state));
+    } catch (e) {
+      // Silently fail if localStorage unavailable
+    }
+  }
+  
+  /**
+   * Load persisted state from localStorage
+   */
+  private loadPersistedState() {
+    try {
+      const stored = localStorage.getItem('neural-mesh-state');
+      if (!stored) return;
+      
+      const state = JSON.parse(stored);
+      
+      // Only load if recent (within 5 minutes)
+      if (Date.now() - state.timestamp > 5 * 60 * 1000) {
+        localStorage.removeItem('neural-mesh-state');
+        return;
+      }
+      
+      // Restore activity log
+      if (state.activityLog && Array.isArray(state.activityLog)) {
+        this.activityLog = state.activityLog;
+      }
+      
+      // Restore UI state
+      if (state.showActivityLog !== undefined) {
+        this.showActivityLog = state.showActivityLog;
+      }
+      
+      console.log('[NeuralMesh] Loaded persisted state:', {
+        activityEntries: this.activityLog.length,
+        subNets: state.subNetBubbles?.length || 0,
+      });
+    } catch (e) {
+      console.warn('[NeuralMesh] Failed to load persisted state:', e);
+    }
+  }
+
+  updated(changedProperties: Map<string, any>) {
+    super.updated(changedProperties);
+    // Re-poll when client becomes available
+    if (changedProperties.has('client') && this.client) {
+      console.log('[NeuralMesh] Client property updated, re-polling...');
+      this.pollSessions();
+      this.subscribeToEvents();
+    }
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    this.meshPauseCtrl?.stop();
+    this.meshPauseCtrl = null;
+    this.galaxyPauseCtrl?.stop();
+    this.galaxyPauseCtrl = null;
+    if (this.animationId) cancelAnimationFrame(this.animationId);
+    if (this.galaxyAnimId) cancelAnimationFrame(this.galaxyAnimId);
+    if (this.controls) this.controls.dispose();
+    if (this.renderer) this.renderer.dispose();
+    // Cleanup OGL resources
+    if (this.oglRenderer) {
+      const gl = this.oglRenderer.gl;
+      gl.getExtension('WEBGL_lose_context')?.loseContext();
+      this.oglRenderer = null;
+      this.oglProgram = null;
+      this.oglMesh = null;
+    }
+  }
+
+  private initGalaxyBackground() {
+    const galaxyContainer = this.shadowRoot?.querySelector('.galaxy-bg') as HTMLDivElement;
+    if (!galaxyContainer) {
+      console.warn('[NeuralMesh] Galaxy container not found');
+      return;
+    }
+    
+    // Create canvas for OGL galaxy
+    const canvas = document.createElement('canvas');
+    canvas.style.width = '100%';
+    canvas.style.height = '100%';
+    galaxyContainer.appendChild(canvas);
+    this.galaxyCanvas = canvas;
+    this.galaxyStartTime = performance.now();
+    
+    // Initialize OGL renderer
+    try {
+      this.oglRenderer = new Renderer({
+        canvas,
+        dpr: Math.min(window.devicePixelRatio, 1.5),
+        alpha: true,
+        premultipliedAlpha: false,
+      });
+    } catch (e) {
+      console.warn('[NeuralMesh] OGL Renderer creation failed:', e);
+      return;
+    }
+    
+    const gl = this.oglRenderer.gl;
+    
+    // Resize handler
+    const resize = () => {
+      const rect = galaxyContainer.getBoundingClientRect();
+      const w = rect.width || window.innerWidth;
+      const h = rect.height || window.innerHeight;
+      if (w > 0 && h > 0 && this.oglRenderer) {
+        this.oglRenderer.setSize(w, h);
+        if (this.oglProgram) {
+          this.oglProgram.uniforms.uResolution.value = [w, h];
+        }
+      }
+    };
+    
+    // Mouse tracking for shader interaction
+    const handleMouseMove = (e: MouseEvent) => {
+      const rect = galaxyContainer.getBoundingClientRect();
+      this.galaxyMousePos.targetX = (e.clientX - rect.left) / rect.width;
+      this.galaxyMousePos.targetY = 1.0 - (e.clientY - rect.top) / rect.height;
+    };
+    
+    galaxyContainer.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('resize', resize);
+    
+    const resizeObserver = new ResizeObserver(() => resize());
+    resizeObserver.observe(galaxyContainer);
+    
+    // OGL Galaxy Vertex Shader
+    const vertex = /* glsl */ `
+      attribute vec2 position;
+      attribute vec2 uv;
+      varying vec2 vUv;
+      void main() {
+        vUv = uv;
+        gl_Position = vec4(position, 0, 1);
+      }
+    `;
+    
+    // OGL Galaxy Fragment Shader - EXACT ReactBits Galaxy shader
+    const fragment = /* glsl */ `
+      precision highp float;
+      
+      uniform float uTime;
+      uniform vec2 uResolution;
+      uniform vec2 uFocal;
+      uniform vec2 uRotation;
+      uniform float uStarSpeed;
+      uniform float uDensity;
+      uniform float uHueShift;
+      uniform float uSpeed;
+      uniform vec2 uMouse;
+      uniform float uGlowIntensity;
+      uniform float uSaturation;
+      uniform bool uMouseRepulsion;
+      uniform float uTwinkleIntensity;
+      uniform float uRotationSpeed;
+      uniform float uRepulsionStrength;
+      uniform float uMouseActiveFactor;
+      uniform float uAutoCenterRepulsion;
+      uniform bool uTransparent;
+      
+      varying vec2 vUv;
+      
+      #define NUM_LAYER 4.0
+      #define STAR_COLOR_CUTOFF 0.2
+      #define MAT45 mat2(0.7071, -0.7071, 0.7071, 0.7071)
+      #define PERIOD 3.0
+      
+      float Hash21(vec2 p) {
+        p = fract(p * vec2(123.34, 456.21));
+        p += dot(p, p + 45.32);
+        return fract(p.x * p.y);
+      }
+      
+      float tri(float x) {
+        return abs(fract(x) * 2.0 - 1.0);
+      }
+      
+      float tris(float x) {
+        float t = fract(x);
+        return 1.0 - smoothstep(0.0, 1.0, abs(2.0 * t - 1.0));
+      }
+      
+      float trisn(float x) {
+        float t = fract(x);
+        return 2.0 * (1.0 - smoothstep(0.0, 1.0, abs(2.0 * t - 1.0))) - 1.0;
+      }
+      
+      vec3 hsv2rgb(vec3 c) {
+        vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+        vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+        return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+      }
+      
+      float Star(vec2 uv, float flare) {
+        float d = length(uv);
+        float m = (0.05 * uGlowIntensity) / d;
+        float rays = smoothstep(0.0, 1.0, 1.0 - abs(uv.x * uv.y * 1000.0));
+        m += rays * flare * uGlowIntensity;
+        uv *= MAT45;
+        rays = smoothstep(0.0, 1.0, 1.0 - abs(uv.x * uv.y * 1000.0));
+        m += rays * 0.3 * flare * uGlowIntensity;
+        m *= smoothstep(1.0, 0.2, d);
+        return m;
+      }
+      
+      vec3 StarLayer(vec2 uv) {
+        vec3 col = vec3(0.0);
+        vec2 gv = fract(uv) - 0.5;
+        vec2 id = floor(uv);
+        
+        for (int y = -1; y <= 1; y++) {
+          for (int x = -1; x <= 1; x++) {
+            vec2 offset = vec2(float(x), float(y));
+            vec2 si = id + vec2(float(x), float(y));
+            float seed = Hash21(si);
+            float size = fract(seed * 345.32);
+            float glossLocal = tri(uStarSpeed / (PERIOD * seed + 1.0));
+            float flareSize = smoothstep(0.9, 1.0, size) * glossLocal;
+            
+            float red = smoothstep(STAR_COLOR_CUTOFF, 1.0, Hash21(si + 1.0)) + STAR_COLOR_CUTOFF;
+            float blu = smoothstep(STAR_COLOR_CUTOFF, 1.0, Hash21(si + 3.0)) + STAR_COLOR_CUTOFF;
+            float grn = min(red, blu) * seed;
+            vec3 base = vec3(red, grn, blu);
+            
+            float hue = atan(base.g - base.r, base.b - base.r) / (2.0 * 3.14159) + 0.5;
+            hue = fract(hue + uHueShift / 360.0);
+            float sat = length(base - vec3(dot(base, vec3(0.299, 0.587, 0.114)))) * uSaturation;
+            float val = max(max(base.r, base.g), base.b);
+            base = hsv2rgb(vec3(hue, sat, val));
+            
+            vec2 pad = vec2(tris(seed * 34.0 + uTime * uSpeed / 10.0), 
+                           tris(seed * 38.0 + uTime * uSpeed / 30.0)) - 0.5;
+            float star = Star(gv - offset - pad, flareSize);
+            vec3 color = base;
+            
+            float twinkle = trisn(uTime * uSpeed + seed * 6.2831) * 0.5 + 1.0;
+            twinkle = mix(1.0, twinkle, uTwinkleIntensity);
+            star *= twinkle;
+            
+            col += star * size * color;
+          }
+        }
+        return col;
+      }
+      
+      void main() {
+        vec2 focalPx = uFocal * uResolution;
+        vec2 uv = (vUv * uResolution - focalPx) / uResolution.y;
+        vec2 mouseNorm = uMouse - vec2(0.5);
+        
+        if (uAutoCenterRepulsion > 0.0) {
+          vec2 centerUV = vec2(0.0, 0.0);
+          float centerDist = length(uv - centerUV);
+          vec2 repulsion = normalize(uv - centerUV) * (uAutoCenterRepulsion / (centerDist + 0.1));
+          uv += repulsion * 0.05;
+        } else if (uMouseRepulsion) {
+          vec2 mousePosUV = (uMouse * uResolution - focalPx) / uResolution.y;
+          float mouseDist = length(uv - mousePosUV);
+          vec2 repulsion = normalize(uv - mousePosUV) * (uRepulsionStrength / (mouseDist + 0.1));
+          uv += repulsion * 0.05 * uMouseActiveFactor;
+        } else {
+          vec2 mouseOffset = mouseNorm * 0.1 * uMouseActiveFactor;
+          uv += mouseOffset;
+        }
+        
+        float autoRotAngle = uTime * uRotationSpeed;
+        mat2 autoRot = mat2(cos(autoRotAngle), -sin(autoRotAngle), 
+                           sin(autoRotAngle), cos(autoRotAngle));
+        uv = autoRot * uv;
+        uv = mat2(uRotation.x, -uRotation.y, uRotation.y, uRotation.x) * uv;
+        
+        vec3 col = vec3(0.0);
+        
+        for (float i = 0.0; i < 1.0; i += 1.0 / NUM_LAYER) {
+          float depth = fract(i + uStarSpeed * uSpeed);
+          float scale = mix(20.0 * uDensity, 0.5 * uDensity, depth);
+          float fade = depth * smoothstep(1.0, 0.9, depth);
+          col += StarLayer(uv * scale + i * 453.32) * fade;
+        }
+        
+        // Terminal grain overlay - subtle film grain effect
+        vec2 grainCoord = vUv * uResolution * 0.5;
+        float grain = Hash21(grainCoord + uTime * 100.0);
+        grain = (grain - 0.5) * 0.08; // Subtle grain intensity
+        col += grain;
+        
+        // Slight scanline effect
+        float scanline = sin(vUv.y * uResolution.y * 0.8) * 0.02 + 1.0;
+        col *= scanline;
+        
+        // Drop overall opacity slightly (0.85 instead of 1.0)
+        float baseOpacity = 0.85;
+        
+        if (uTransparent) {
+          float alpha = length(col);
+          alpha = smoothstep(0.0, 0.3, alpha);
+          alpha = min(alpha * baseOpacity, 1.0);
+          gl_FragColor = vec4(col * 0.9, alpha); // Slightly dimmer
+        } else {
+          gl_FragColor = vec4(col * 0.9, baseOpacity);
+        }
+      }
+    `;
+    
+    // Create geometry and program
+    const geometry = new Triangle(gl);
+    
+    this.oglProgram = new Program(gl, {
+      vertex,
+      fragment,
+      uniforms: {
+        uTime: { value: 0 },
+        uResolution: { value: [window.innerWidth, window.innerHeight] },
+        uFocal: { value: [0.5, 0.5] },
+        uRotation: { value: [1.0, 0.0] },
+        uMouse: { value: [0.5, 0.5] },
+        uMouseRepulsion: { value: true },
+        uMouseActiveFactor: { value: 0.0 },
+        uRepulsionStrength: { value: 2.0 },
+        uGlowIntensity: { value: 0.3 },
+        uDensity: { value: 1.0 },         // Match example
+        uHueShift: { value: 140 },        // Match example - warm gold/cyan
+        uTwinkleIntensity: { value: 0.3 },
+        uRotationSpeed: { value: 0.1 },
+        uSaturation: { value: 0.0 },      // Low saturation like example
+        uStarSpeed: { value: 0.5 },
+        uSpeed: { value: 1.0 },
+        uAutoCenterRepulsion: { value: 0.0 },
+        uTransparent: { value: true },
+      },
+    });
+    
+    this.oglMesh = new Mesh(gl, { geometry, program: this.oglProgram });
+    
+    // Initial resize
+    resize();
+    setTimeout(resize, 50);
+    
+    // Animation loop with mouse active factor
+    let frameCount = 0;
+    let mouseActiveFactor = 0.0;
+    let targetMouseActive = 0.0;
+    
+    const animate = () => {
+      this.galaxyAnimId = requestAnimationFrame(animate);
+
+      if (!this.oglRenderer || !this.oglMesh || !this.oglProgram) return;
+
+      // Skip the GL render when offscreen / tab hidden, or on throttled frames
+      // when the window is blurred — the cheap rAF tick keeps state coherent.
+      // Own controller so its throttle clock doesn't fight the THREE loop's.
+      if (this.galaxyPauseCtrl &&
+          (!this.galaxyPauseCtrl.isActive() || !this.galaxyPauseCtrl.wantsFrame(performance.now()))) {
+        return;
+      }
+
+      const elapsed = (performance.now() - this.galaxyStartTime) * 0.001;
+      
+      // Smooth mouse position lerping (matching example's 0.05 factor)
+      const lerpFactor = 0.05;
+      this.galaxyMousePos.x += (this.galaxyMousePos.targetX - this.galaxyMousePos.x) * lerpFactor;
+      this.galaxyMousePos.y += (this.galaxyMousePos.targetY - this.galaxyMousePos.y) * lerpFactor;
+      
+      // Smooth mouse active factor (for repulsion strength)
+      mouseActiveFactor += (targetMouseActive - mouseActiveFactor) * lerpFactor;
+      
+      // Update uniforms - matching example exactly
+      this.oglProgram.uniforms.uTime.value = elapsed;
+      this.oglProgram.uniforms.uStarSpeed.value = (elapsed * 0.5) / 10.0; // starSpeed * time / 10
+      this.oglProgram.uniforms.uMouse.value = [this.galaxyMousePos.x, this.galaxyMousePos.y];
+      this.oglProgram.uniforms.uMouseActiveFactor.value = mouseActiveFactor;
+      
+      // Render
+      this.oglRenderer.render({ scene: this.oglMesh });
+      
+      if (frameCount === 0) {
+        console.log('[NeuralMesh] OGL Galaxy first frame rendered');
+      }
+      frameCount++;
+    };
+    
+    // Update mouse handlers for active factor
+    const handleMouseMoveActive = () => { targetMouseActive = 1.0; };
+    const handleMouseLeaveActive = () => { targetMouseActive = 0.0; };
+    galaxyContainer.addEventListener('mouseenter', handleMouseMoveActive);
+    galaxyContainer.addEventListener('mouseleave', handleMouseLeaveActive);
+    
+    if (!this.galaxyPauseCtrl) {
+      this.galaxyPauseCtrl = createCanvasPause(this, { throttleWhenBlurred: true });
+      this.galaxyPauseCtrl.start();
+    }
+    this.galaxyAnimId = requestAnimationFrame(animate);
+    console.log('[NeuralMesh] OGL Galaxy background initialized');
+  }
+
+  private initScene() {
+    this.container = this.shadowRoot?.querySelector('.canvas-container') as HTMLDivElement;
+    if (!this.container) return;
+
+    const w = this.container.clientWidth;
+    const h = this.container.clientHeight;
+
+    this.scene = new THREE.Scene();
+    // Transparent background to show galaxy behind
+    this.scene.background = null;
+    // Lighter fog that doesn't completely obscure distant objects
+    this.scene.fog = new THREE.Fog(0x000000, 30, 100);
+
+    this.camera = new THREE.PerspectiveCamera(50, w / h, 0.1, 200);
+    this.camera.position.set(0, 8, 25); // Much further back for very wide layout
+    this.camera.lookAt(0, 0, 0);
+
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+    this.renderer.setClearColor(0x000000, 0); // Transparent background
+    this.renderer.setSize(w, h);
+    this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.5));
+    this.container.appendChild(this.renderer.domElement);
+
+    // OrbitControls for zoom/drag
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.enableDamping = true;
+    this.controls.dampingFactor = 0.05;
+    this.controls.minDistance = 5;
+    this.controls.maxDistance = 60;
+    this.controls.enablePan = true;
+    this.controls.autoRotate = false;
+    this.controls.target.set(0, 0, 0);
+
+    this.mainGroup = new THREE.Group();
+    this.scene.add(this.mainGroup);
+
+    // Lights
+    const ambient = new THREE.AmbientLight(0xffffff, 0.2);
+    this.scene.add(ambient);
+
+    new ResizeObserver(() => {
+      if (!this.container || !this.camera || !this.renderer) return;
+      const w = this.container.clientWidth;
+      const h = this.container.clientHeight;
+      this.camera.aspect = w / h;
+      this.camera.updateProjectionMatrix();
+      this.renderer.setSize(w, h);
+    }).observe(this.container);
+
+    // Click handler for focus on agent or sub-net bubble
+    this.renderer.domElement.addEventListener('click', (event) => this.handleCanvasClick(event));
+
+    this.startAnimation();
+  }
+
+  private handleCanvasClick(event: MouseEvent) {
+    if (!this.renderer || !this.camera || !this.mainGroup || this.isLocked) return;
+
+    const rect = this.renderer.domElement.getBoundingClientRect();
+    this.mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    this.mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+    this.raycaster.setFromCamera(this.mouse, this.camera);
+    
+    // Collect all clickable meshes
+    const meshesToCheck: THREE.Object3D[] = [];
+    
+    // Add agent network nodes
+    this.agents.forEach(agent => {
+      agent.nodes.forEach(node => {
+        (node as any).__agentId = agent.id;
+        (node as any).__type = 'agent';
+        meshesToCheck.push(node);
+      });
+    });
+    
+    // Add sub-net bubble nodes
+    this.subNetBubbles.forEach(bubble => {
+      bubble.nodes.forEach(node => {
+        (node as any).__sessionKey = bubble.sessionKey;
+        (node as any).__agentId = bubble.agentId;
+        (node as any).__type = 'subnet';
+        meshesToCheck.push(node);
+      });
+    });
+
+    const intersects = this.raycaster.intersectObjects(meshesToCheck, false);
+    
+    if (intersects.length > 0) {
+      const hitObject = intersects[0].object;
+      const type = (hitObject as any).__type;
+      
+      if (type === 'subnet') {
+        // Clicked on a sub-net bubble - focus on that specific session
+        const sessionKey = (hitObject as any).__sessionKey;
+        const agentId = (hitObject as any).__agentId;
+        if (sessionKey) {
+          this.focusOnSubNet(sessionKey, agentId);
+        }
+      } else if (type === 'agent') {
+        // Clicked on an agent network - show agent info or list of sessions
+        const agentId = (hitObject as any).__agentId;
+        if (agentId) {
+          this.focusOnAgent(agentId);
+        }
+      }
+    }
+  }
+
+  private focusOnSubNet(sessionKey: string, agentId: string) {
+    const bubble = this.subNetBubbles.get(sessionKey);
+    const agent = this.agents.get(agentId);
+    if (!bubble || !agent || !this.camera || !this.controls || !this.mainGroup) return;
+
+    // Save current camera state for unlock
+    this.savedCameraPosition = this.camera.position.clone();
+    this.savedControlsTarget = this.controls.target.clone();
+
+    // Calculate world position of sub-net bubble
+    const worldPos = bubble.position.clone();
+    worldPos.applyMatrix4(this.mainGroup.matrixWorld);
+
+    // Target position: zoom in CLOSE to the sub-net for immersive focus view
+    const targetCameraPos = new THREE.Vector3(
+      worldPos.x + 1.2,
+      worldPos.y + 0.8,
+      worldPos.z + 2.5
+    );
+
+    // Animate camera
+    this.cameraAnimating = true;
+    this.focusedAgent = agentId;
+    this.focusedSession = sessionKey;
+    this.isLocked = true;
+    
+    // Fetch session history for focused sub-net
+    this.fetchFocusedSessionHistory(sessionKey);
+
+    // Disable rotation/pan during lock, but keep zoom enabled
+    if (this.controls) {
+      this.controls.enableRotate = false;
+      this.controls.enablePan = false;
+      this.controls.enableZoom = true; // Allow zoom in fixed view
+    }
+
+    const startPos = this.camera.position.clone();
+    const startTarget = this.controls.target.clone();
+    const duration = 800;
+    const startTime = Date.now();
+
+    const animateCamera = () => {
+      const elapsed = Date.now() - startTime;
+      const t = Math.min(elapsed / duration, 1);
+      // Ease out cubic
+      const eased = 1 - Math.pow(1 - t, 3);
+
+      this.camera!.position.lerpVectors(startPos, targetCameraPos, eased);
+      this.controls!.target.lerpVectors(startTarget, worldPos, eased);
+      this.controls!.update();
+
+      if (t < 1) {
+        requestAnimationFrame(animateCamera);
+      } else {
+        this.cameraAnimating = false;
+      }
+    };
+
+    animateCamera();
+    this.requestUpdate();
+  }
+
+  private focusOnAgent(agentId: string) {
+    const agent = this.agents.get(agentId);
+    if (!agent || !this.camera || !this.controls || !this.mainGroup) return;
+
+    // Save current camera state for unlock
+    this.savedCameraPosition = this.camera.position.clone();
+    this.savedControlsTarget = this.controls.target.clone();
+
+    // Calculate world position of agent
+    const worldPos = agent.position.clone();
+    worldPos.applyMatrix4(this.mainGroup.matrixWorld);
+
+    // Target position: zoom in CLOSE to the agent for immersive focus view
+    const targetCameraPos = new THREE.Vector3(
+      worldPos.x + 1.5,
+      worldPos.y + 1.0,
+      worldPos.z + 3
+    );
+
+    // Animate camera
+    this.cameraAnimating = true;
+    this.focusedAgent = agentId;
+    this.focusedSession = null; // No specific session, showing agent overview
+    this.isLocked = true;
+    
+    // For main agents, fetch the main session (e.g., agent:main:main)
+    // Extract agent type from agentId (e.g., "agent:main" -> "main")
+    const agentType = agentId.replace('agent:', '');
+    const mainSessionKey = `agent:${agentType}:main`;
+    
+    // Try to fetch the main session first, then fall back to active sessions
+    this.fetchNewestAgentSession(agentType, mainSessionKey, agent);
+
+    // Disable rotation/pan during lock, but keep zoom enabled
+    if (this.controls) {
+      this.controls.enableRotate = false;
+      this.controls.enablePan = false;
+      this.controls.enableZoom = true; // Allow zoom in fixed view
+    }
+
+    const startPos = this.camera.position.clone();
+    const startTarget = this.controls.target.clone();
+    const duration = 800;
+    const startTime = Date.now();
+
+    const animateCamera = () => {
+      const elapsed = Date.now() - startTime;
+      const t = Math.min(elapsed / duration, 1);
+      // Ease out cubic
+      const eased = 1 - Math.pow(1 - t, 3);
+
+      this.camera!.position.lerpVectors(startPos, targetCameraPos, eased);
+      this.controls!.target.lerpVectors(startTarget, worldPos, eased);
+      this.controls!.update();
+
+      if (t < 1) {
+        requestAnimationFrame(animateCamera);
+      } else {
+        this.cameraAnimating = false;
+      }
+    };
+
+    animateCamera();
+    this.requestUpdate();
+  }
+
+  private async fetchNewestAgentSession(agentType: string, mainSessionKey: string, agent: AgentNetwork) {
+    const callMethod = this.client?.call || this.client?.invoke || this.client?.request;
+    if (!callMethod) {
+      this.fetchFocusedSessionHistory(mainSessionKey);
+      return;
+    }
+    
+    try {
+      // Get all sessions and find the newest one for this agent type
+      const result = await callMethod.call(this.client, 'sessions.list', { limit: 50 });
+      const sessions = result?.sessions || [];
+      
+      // Filter sessions for this agent type and sort by most recent activity
+      const agentSessions = sessions
+        .filter((s: any) => {
+          const key = s.sessionKey || s.key || s.id || '';
+          return key.includes(`agent:${agentType}:`);
+        })
+        .sort((a: any, b: any) => {
+          const aTime = a.lastActivityAt || a.updatedAt || a.createdAt || 0;
+          const bTime = b.lastActivityAt || b.updatedAt || b.createdAt || 0;
+          return new Date(bTime).getTime() - new Date(aTime).getTime();
+        });
+      
+      console.log('[NeuralMesh] Found', agentSessions.length, 'sessions for', agentType);
+      
+      if (agentSessions.length > 0) {
+        // Get the newest session
+        const newestSession = agentSessions[0];
+        const sessionKey = newestSession.sessionKey || newestSession.key || newestSession.id;
+        console.log('[NeuralMesh] Using newest session:', sessionKey);
+        this.fetchFocusedSessionHistory(sessionKey);
+      } else {
+        // Fall back to main session key
+        console.log('[NeuralMesh] No sessions found, using main session:', mainSessionKey);
+        this.fetchFocusedSessionHistory(mainSessionKey);
+      }
+    } catch (e) {
+      console.error('[NeuralMesh] Error fetching sessions:', e);
+      // Fall back to main session or active sessions
+      if (agent.activeSessions && agent.activeSessions.size > 0) {
+        const sessions = Array.from(agent.activeSessions);
+        this.fetchFocusedSessionHistory(sessions[sessions.length - 1]);
+      } else {
+        this.fetchFocusedSessionHistory(mainSessionKey);
+      }
+    }
+  }
+
+  private async fetchFocusedSessionHistory(sessionKey: string) {
+    this.focusChatLoading = true;
+    this.focusChatMessages = [];
+    this.streamingMessage = null;
+    this.requestUpdate();
+    
+    const callMethod = this.client?.call || this.client?.invoke || this.client?.request;
+    if (!callMethod) {
+      console.warn('[NeuralMesh] No client call method available');
+      this.focusChatLoading = false;
+      return;
+    }
+    
+    // Methods to try in order
+    const methodsToTry = [
+      { method: 'chat.history', params: { sessionKey, limit: 25 } },
+      { method: 'session.history.get', params: { sessionKey, limit: 25, includeTools: false } },
+      { method: 'sessions.history', params: { sessionKey, limit: 25, includeTools: false } },
+    ];
+    
+    let result: any = null;
+    
+    for (const { method, params } of methodsToTry) {
+      try {
+        console.log('[NeuralMesh] Trying:', method, 'for', sessionKey);
+        result = await callMethod.call(this.client, method, params);
+        if (result) {
+          console.log('[NeuralMesh] Success with', method, ':', result);
+          break;
+        }
+      } catch (e) {
+        console.log('[NeuralMesh]', method, 'failed:', (e as Error).message);
+      }
+    }
+    
+    // Parse result from various formats
+    const messages = result?.messages || result?.history || result?.data?.messages || result?.data || [];
+    
+    if (Array.isArray(messages) && messages.length > 0) {
+      this.focusChatMessages = messages
+        .filter((m: any) => m.role === 'user' || m.role === 'assistant')
+        .slice(-20)
+        .map((m: any) => {
+          let content = m.content;
+          // Handle array content (Claude format)
+          if (Array.isArray(content)) {
+            content = content
+              .filter((c: any) => c.type === 'text' || !c.type)
+              .map((c: any) => c.text || c.content || '')
+              .join(' ');
+          }
+          // Handle _extractedText
+          if (m._extractedText) {
+            content = m._extractedText;
+          }
+          return {
+            role: m.role,
+            content: typeof content === 'string' 
+              ? content.substring(0, 500) + (content.length > 500 ? '...' : '')
+              : '[Complex content]'
+          };
+        });
+      console.log('[NeuralMesh] Loaded', this.focusChatMessages.length, 'messages');
+    } else {
+      // Fallback to agent's stored messages
+      const agent = this.agents.get(sessionKey);
+      if (agent?.latestMessages?.length) {
+        this.focusChatMessages = agent.latestMessages.slice(-20);
+        console.log('[NeuralMesh] Using agent latestMessages:', this.focusChatMessages.length);
+      } else {
+        console.log('[NeuralMesh] No messages found for:', sessionKey);
+      }
+    }
+    
+    this.focusChatLoading = false;
+    this.requestUpdate();
+    
+    // Scroll to bottom after render
+    this.scrollChatToBottom();
+  }
+  
+  // Helper method to scroll chat to bottom reliably
+  private scrollChatToBottom() {
+    requestAnimationFrame(() => {
+      const chatContainer = this.shadowRoot?.querySelector('.focus-chat-messages') as HTMLElement;
+      if (chatContainer) {
+        chatContainer.scrollTo({
+          top: chatContainer.scrollHeight,
+          behavior: 'smooth'
+        });
+      }
+    });
+  }
+
+  // Real-time chat update for focused session
+  private streamingMessage: { sessionKey: string; content: string; role: string } | null = null;
+  
+  private updateFocusedChatRealtime(sessionKey: string, deltaText: string, role: string) {
+    // Check if this session is currently focused
+    const isFocused = this.focusedSession === sessionKey || this.focusedAgent === sessionKey;
+    if (!isFocused) return;
+    
+    if (!this.streamingMessage || this.streamingMessage.sessionKey !== sessionKey) {
+      // Start new streaming message
+      this.streamingMessage = { sessionKey, content: deltaText, role };
+      this.focusChatMessages = [
+        ...this.focusChatMessages,
+        { role, content: deltaText + '▌' }
+      ];
+    } else {
+      // Append to existing streaming message
+      this.streamingMessage.content += deltaText;
+      // Update last message in place
+      const lastIdx = this.focusChatMessages.length - 1;
+      if (lastIdx >= 0 && this.focusChatMessages[lastIdx].role === role) {
+        this.focusChatMessages = [
+          ...this.focusChatMessages.slice(0, lastIdx),
+          { role, content: this.streamingMessage.content + '▌' }
+        ];
+      }
+    }
+    
+    this.requestUpdate();
+    
+    // Auto-scroll using smooth helper
+    this.scrollChatToBottom();
+  }
+  
+  private addFocusedChatMessage(sessionKey: string, content: string, role: string) {
+    const isFocused = this.focusedSession === sessionKey || this.focusedAgent === sessionKey;
+    if (!isFocused) return;
+    
+    // Finalize streaming message if this is the same role
+    if (this.streamingMessage?.sessionKey === sessionKey && this.streamingMessage?.role === role) {
+      // Replace streaming message with final
+      const lastIdx = this.focusChatMessages.length - 1;
+      if (lastIdx >= 0) {
+        const displayContent = typeof content === 'string' 
+          ? content.substring(0, 500) + (content.length > 500 ? '...' : '')
+          : this.streamingMessage.content;
+        this.focusChatMessages = [
+          ...this.focusChatMessages.slice(0, lastIdx),
+          { role, content: displayContent }
+        ];
+      }
+      this.streamingMessage = null;
+    } else {
+      // New message
+      this.streamingMessage = null;
+      const displayContent = typeof content === 'string' 
+        ? content.substring(0, 500) + (content.length > 500 ? '...' : '')
+        : '[Complex content]';
+      
+      // Avoid duplicates
+      const lastMsg = this.focusChatMessages[this.focusChatMessages.length - 1];
+      if (!lastMsg || lastMsg.role !== role || lastMsg.content !== displayContent) {
+        this.focusChatMessages = [
+          ...this.focusChatMessages,
+          { role, content: displayContent }
+        ];
+      }
+    }
+    
+    // Keep last 20 messages
+    if (this.focusChatMessages.length > 20) {
+      this.focusChatMessages = this.focusChatMessages.slice(-20);
+    }
+    
+    this.requestUpdate();
+    
+    // Auto-scroll using smooth helper
+    this.scrollChatToBottom();
+  }
+
+  private unlockView() {
+    if (!this.camera || !this.controls) return;
+
+    this.cameraAnimating = true;
+
+    const startPos = this.camera.position.clone();
+    const startTarget = this.controls.target.clone();
+    const duration = 600;
+    const startTime = Date.now();
+    
+    // NEW: Keep camera centered on last focused agent/cluster, just zoom out
+    // Find the last focused agent position to keep it as center
+    const lastFocusedId = this.focusedSession || this.focusedAgent;
+    let targetCenter = new THREE.Vector3(0, 0, 0); // Default to origin
+    
+    if (lastFocusedId) {
+      // Check if it's an agent
+      const agent = this.agents.get(lastFocusedId);
+      if (agent) {
+        targetCenter = agent.position.clone();
+      } else {
+        // Check if it's a sub-net bubble
+        const bubble = this.subNetBubbles.get(lastFocusedId);
+        if (bubble) {
+          targetCenter = bubble.position.clone();
+        }
+      }
+    }
+    
+    // Calculate zoomed-out camera position (pull back from target center)
+    const ZOOM_OUT_DISTANCE = 25;
+    const direction = startPos.clone().sub(startTarget).normalize();
+    const targetCameraPos = targetCenter.clone().add(direction.multiplyScalar(ZOOM_OUT_DISTANCE));
+    targetCameraPos.y = Math.max(targetCameraPos.y, 8); // Keep camera above
+
+    const animateBack = () => {
+      const elapsed = Date.now() - startTime;
+      const t = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - t, 3);
+
+      // Animate to zoomed-out view of last focused item
+      this.camera!.position.lerpVectors(startPos, targetCameraPos, eased);
+      this.controls!.target.lerpVectors(startTarget, targetCenter, eased);
+      this.controls!.update();
+
+      if (t < 1) {
+        requestAnimationFrame(animateBack);
+      } else {
+        this.cameraAnimating = false;
+        // Re-enable all controls on unlock
+        this.controls!.enabled = true;
+        this.controls!.enableRotate = true;
+        this.controls!.enablePan = true;
+        this.controls!.enableZoom = true;
+        this.isLocked = false;
+        // Keep focusedAgent reference so we know what was last focused
+        // this.focusedAgent = null; // DON'T reset - keep for reference
+        this.focusedSession = null;
+        this.focusChatMessages = [];
+        this.focusChatLoading = false;
+        this.savedCameraPosition = null;
+        this.savedControlsTarget = null;
+        this.requestUpdate();
+      }
+    };
+
+    animateBack();
+  }
+
+  // Send message to focused session
+  private async sendMessageToSession(message: string) {
+    const targetSession = this.focusedSession || this.focusedAgent;
+    if (!targetSession || !message.trim()) return;
+    
+    const callMethod = this.client?.call || this.client?.invoke || this.client?.request;
+    if (!callMethod) {
+      console.warn('[NeuralMesh] No client call method available for sending message');
+      return;
+    }
+    
+    console.log('[NeuralMesh] Sending message to session:', targetSession, message.substring(0, 50));
+    
+    // Add user message to chat immediately for responsive UI
+    this.focusChatMessages = [
+      ...this.focusChatMessages,
+      { role: 'user', content: message.substring(0, 500) }
+    ];
+    this.requestUpdate();
+    this.scrollChatToBottom();
+    
+    try {
+      // Try sessions.send method
+      await callMethod.call(this.client, 'sessions.send', {
+        sessionKey: targetSession,
+        message: message
+      });
+      console.log('[NeuralMesh] Message sent successfully');
+      return true;
+    } catch (e) {
+      console.warn('[NeuralMesh] sessions.send failed, trying chat.send:', e);
+      try {
+        // Fallback to chat.send
+        await callMethod.call(this.client, 'chat.send', {
+          sessionKey: targetSession,
+          message: message
+        });
+        console.log('[NeuralMesh] Message sent via chat.send');
+        return true;
+      } catch (e2) {
+        console.error('[NeuralMesh] Failed to send message:', e2);
+        return false;
+      }
+    }
+  }
+  
+  // Handle input submit (Enter key or Send button)
+  private handleChatInputSubmit(event: Event) {
+    const input = this.shadowRoot?.querySelector('.focus-chat-input input') as HTMLInputElement;
+    const sendBtn = this.shadowRoot?.querySelector('.focus-chat-input .send-btn') as HTMLButtonElement;
+    if (!input) return;
+    
+    const message = input.value.trim();
+    if (!message) return;
+    
+    // Clear input immediately
+    input.value = '';
+    
+    // Send the message
+    this.sendMessageToSession(message).then((success) => {
+      if (success && sendBtn) {
+        // Show brief "Sent!" feedback
+        sendBtn.textContent = 'Sent!';
+        sendBtn.classList.add('sent');
+        setTimeout(() => {
+          sendBtn.textContent = 'Send';
+          sendBtn.classList.remove('sent');
+        }, 1000);
+      }
+    });
+  }
+  
+  // Handle input keypress (Enter to submit)
+  private handleChatInputKeypress(event: KeyboardEvent) {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
+      this.handleChatInputSubmit(event);
+    }
+  }
+  
+  // Close/despawn a sub-net bubble session
+  private closeSubNetSession(sessionKey: string) {
+    if (!sessionKey) return;
+    
+    const bubble = this.subNetBubbles.get(sessionKey);
+    if (!bubble) {
+      console.warn('[NeuralMesh] Cannot close non-existent sub-net:', sessionKey);
+      return;
+    }
+    
+    console.log('[NeuralMesh] Closing sub-net session:', sessionKey);
+    
+    // Trigger despawn animation
+    this.despawnSubNetBubble(sessionKey);
+    
+    // Unlock the view since we're closing this session's panel
+    this.unlockView();
+  }
+
+  private subscribeToEvents() {
+    // Try to get client from multiple sources
+    if (!this.client) {
+      this.client = (window as any).gatewayClient 
+        || (window as any).client 
+        || (window as any).app?.client
+        || document.querySelector('infinibot-app')?.client;
+    }
+    
+    if (!this.client?.subscribe) {
+      console.log('[NeuralMesh] No client.subscribe, retrying in 2s...');
+      setTimeout(() => this.subscribeToEvents(), 2000);
+      return;
+    }
+
+    console.log('[NeuralMesh] Subscribing to gateway events...');
+
+    try {
+      this.client.subscribe((evt: any) => {
+        const kind = evt?.event || evt?.kind || evt?.type;
+        const data = evt?.payload || evt?.data || evt;
+        
+        // Debug: log ALL events to see what we're receiving
+        if (kind && kind !== 'presence.update' && kind !== 'tick' && kind !== 'health') {
+          console.log('[NeuralMesh] Event:', kind, JSON.stringify(data).substring(0, 200));
+        }
+        
+        // Handle federation.event wrapper
+        if (kind === 'federation.event' && data?.event) {
+          const innerEvent = data.event;
+          const innerKind = innerEvent?.type || innerEvent?.kind;
+          const innerPayload = innerEvent?.payload || innerEvent?.data || innerEvent;
+          console.log('[NeuralMesh] 🚀 Federation event:', innerKind, JSON.stringify(innerPayload).substring(0, 200));
+          
+          // Handle session.spawned from federation events - ONLY after initial poll
+          if (innerKind === 'session.spawned') {
+            if (!this.initialPollComplete) {
+              console.log('[NeuralMesh] Ignoring spawn event during init');
+              return;
+            }
+            const spawnKey = innerPayload?.sessionKey || innerPayload?.childSessionKey;
+            // Skip sessions that existed on initial load
+            if (spawnKey && this.initialLoadSessions.has(spawnKey)) {
+              console.log('[NeuralMesh] Ignoring spawn event for pre-existing session:', spawnKey);
+              return;
+            }
+            const spawnLabel = innerPayload?.label || innerPayload?.task || 'Sub-Agent';
+            const parentKey = innerPayload?.parentSessionKey || innerPayload?.spawnedBy || 'agent:main:main';
+            console.log('[NeuralMesh] 🟢 SPAWN EVENT:', { spawnKey, spawnLabel, parentKey });
+            if (spawnKey) {
+              this.handleSessionSpawn(spawnKey, spawnLabel, parentKey);
+              // Fire animations for new spawn
+              const agentType = this.extractAgentType(spawnKey);
+              const agent = this.agents.get(`agent:${agentType}`);
+              if (agent) {
+                this.fireSpawnConnectionEffect(agent, spawnKey);
+              }
+              // Fire POWER-UP animation on inter-agent connector (MAIN → target)
+              this.firePowerUpConnector('agent:main', `agent:${agentType}`);
+            }
+            return;
+          }
+          
+          // Handle session.message for flow animation
+          if (innerKind === 'session.message') {
+            const msgSession = innerPayload?.sessionKey;
+            const msgParent = innerPayload?.parentSessionKey;
+            if (msgSession && msgParent) {
+              this.sendFlowMessage(msgParent, msgSession);
+            }
+            return;
+          }
+        }
+        
+        // Handle the primary "chat" event from gateway
+        if (kind === 'chat') {
+          const sessionKey = data?.sessionKey || 'agent:main:main';
+          const state = data?.state;
+          const delta = data?.delta;
+          
+          // ★ ROBUST TEXT EXTRACTION: Handle content block arrays from gateway
+          let deltaText = '';
+          const extractText = (val: any): string => {
+            if (typeof val === 'string') return val;
+            if (val?.text && typeof val.text === 'string') return val.text;
+            if (val?.content && typeof val.content === 'string') return val.content;
+            // Handle content block arrays: [{ type: "text", text: "..." }]
+            if (Array.isArray(val)) {
+              return val
+                .map(block => {
+                  if (typeof block === 'string') return block;
+                  if (block?.type === 'text' && typeof block.text === 'string') return block.text;
+                  if (typeof block?.text === 'string') return block.text;
+                  if (typeof block?.content === 'string') return block.content;
+                  return '';
+                })
+                .filter(Boolean)
+                .join('');
+            }
+            return '';
+          };
+          
+          // Primary source: message.content array (gateway format)
+          deltaText = extractText(data?.message?.content)
+            || extractText(delta?.content) 
+            || extractText(delta?.text) 
+            || extractText(data?.text) 
+            || '';
+          
+          const role = data?.role || delta?.role || (data?.message ? 'assistant' : null);
+          
+          // Detect tool use from delta
+          const toolName = delta?.name || delta?.tool || delta?.toolName;
+          const deltaType = delta?.type;
+          
+          // Tool detection
+          if (deltaType === 'tool_use' || deltaType === 'tool_call' || toolName) {
+            console.log('[NeuralMesh] 🔧 TOOL DETECTED:', toolName || 'unknown');
+            this.addActivityEntry({
+              type: 'tool',
+              agentId: sessionKey,
+              name: toolName || delta?.function?.name || 'tool',
+              params: this.truncateParams(delta?.input || delta?.arguments || delta?.partial_json),
+              status: 'pending',
+            });
+          }
+          
+          // Detect tool results
+          if (deltaType === 'tool_result' || delta?.tool_use_id) {
+            const isError = delta?.is_error || delta?.isError;
+            this.updateActivityStatus(delta?.name || 'tool', isError ? 'error' : 'success');
+          }
+          
+          // Detect content blocks with tool use
+          if (delta?.content_block?.type === 'tool_use') {
+            const block = delta.content_block;
+            console.log('[NeuralMesh] 🔧 TOOL BLOCK:', block.name);
+            this.addActivityEntry({
+              type: 'tool',
+              agentId: sessionKey,
+              name: block.name || 'tool',
+              status: 'pending',
+            });
+          }
+          
+          // Detect input_json_delta (tool params streaming)
+          if (deltaType === 'input_json_delta' && delta?.partial_json) {
+            // Tool is actively receiving params - show activity
+            this.handleSessionActivity(sessionKey, 5);
+          }
+          
+          if (state === 'delta') {
+            // Streaming tokens - session is thinking/responding
+            this.handleTokenStream(sessionKey, deltaText);
+            
+            // Update focused session chat in real-time
+            if (deltaText) {
+              this.updateFocusedChatRealtime(sessionKey, deltaText, 'assistant');
+            }
+          } else if (state === 'final' || state === 'done') {
+            // Response complete
+            const finalContent = data?.message?.content || data?.content;
+            if (finalContent) {
+              this.addFocusedChatMessage(sessionKey, finalContent, role || 'assistant');
+            }
+            this.handleThinkingComplete(sessionKey);
+          } else if (state === 'error' || state === 'aborted') {
+            // Response ended (error or abort) - TRIGGER IMMEDIATE DESPAWN
+            this.handleSessionComplete(sessionKey);
+          }
+          
+          // Also handle user messages
+          if (role === 'user') {
+            const userContent = data?.message?.content || data?.content || deltaText;
+            if (userContent) {
+              this.addFocusedChatMessage(sessionKey, userContent, 'user');
+            }
+          }
+          return;
+        }
+        
+        // Handle 'agent' events
+        if (kind === 'agent') {
+          const sessionKey = data?.sessionKey || 'agent:main:main';
+          const stream = data?.stream;
+          const runState = data?.state;
+          const toolData = data?.data;
+          
+          // 'stream: assistant' with early events = thinking started
+          if (stream === 'assistant' || stream === 'thinking') {
+            this.handleThinkingStart(sessionKey);
+          }
+          
+          // Tool stream
+          if (stream === 'tool') {
+            console.log('[NeuralMesh] 🔧 AGENT TOOL EVENT:', toolData);
+            const toolName = toolData?.name || toolData?.tool || toolData?.function?.name || 'tool';
+            const toolStatus = toolData?.status || toolData?.state;
+            
+            if (toolStatus === 'start' || toolStatus === 'running' || !toolStatus) {
+              this.addActivityEntry({
+                type: 'tool',
+                agentId: sessionKey,
+                name: toolName,
+                params: this.truncateParams(toolData?.input || toolData?.args),
+                status: 'pending',
+              });
+            } else if (toolStatus === 'done' || toolStatus === 'complete' || toolStatus === 'success') {
+              this.updateActivityStatus(toolName, 'success');
+            } else if (toolStatus === 'error' || toolStatus === 'failed') {
+              this.updateActivityStatus(toolName, 'error');
+              this.addActivityEntry({
+                type: 'error',
+                agentId: sessionKey,
+                name: `${toolName} failed`,
+                params: toolData?.error,
+                status: 'error',
+              });
+            }
+          }
+          
+          // Lifecycle events
+          if (stream === 'lifecycle') {
+            const phase = toolData?.phase;
+            if (phase === 'start') {
+              this.handleThinkingStart(sessionKey);
+            } else if (phase === 'end' || phase === 'error') {
+              this.handleSessionComplete(sessionKey);
+            }
+          }
+          
+          // Run completed or errored - TRIGGER IMMEDIATE DESPAWN
+          if (runState === 'done' || runState === 'error' || runState === 'aborted') {
+            this.handleSessionComplete(sessionKey);
+          }
+          return;
+        }
+        
+        switch (kind) {
+          case 'session:thinking':
+          case 'thinking':
+            this.handleThinkingStart(data?.sessionKey || data?.session);
+            break;
+            
+          case 'session:stream':
+          case 'stream':
+          case 'token':
+            this.handleTokenStream(data?.sessionKey || data?.session);
+            break;
+            
+          case 'session:complete':
+          case 'complete':
+          case 'done':
+            this.handleSessionComplete(data?.sessionKey || data?.session);
+            break;
+            
+          case 'spawn:started':
+          case 'spawn':
+          case 'subagent:spawn':
+          case 'session:spawn':
+          case 'session.spawned':
+            // Only process spawn events AFTER initial poll complete
+            if (!this.initialPollComplete) {
+              console.log('[NeuralMesh] Ignoring spawn event during init:', kind);
+              break;
+            }
+            const spawnKey = data?.sessionKey || data?.childSessionKey || data?.runId;
+            // Skip sessions that existed on initial load
+            if (spawnKey && this.initialLoadSessions.has(spawnKey)) {
+              console.log('[NeuralMesh] Ignoring spawn event for pre-existing session:', spawnKey);
+              break;
+            }
+            const spawnLabel = data?.label || data?.task || 'Sub-Agent';
+            const parentKey = data?.parentSessionKey || data?.parentSession || data?.spawnerSession || data?.spawnedBy || 'agent:main:main';
+            console.log('[NeuralMesh] SPAWN EVENT:', { kind, spawnKey, spawnLabel, parentKey, data });
+            if (spawnKey) {
+              this.handleSessionSpawn(spawnKey, spawnLabel, parentKey);
+              // Fire animations
+              const agentType = this.extractAgentType(spawnKey);
+              const agent = this.agents.get(`agent:${agentType}`);
+              if (agent) {
+                this.fireSpawnConnectionEffect(agent, spawnKey);
+              }
+              // Fire POWER-UP animation on inter-agent connector (MAIN → target)
+              this.firePowerUpConnector('agent:main', `agent:${agentType}`);
+              
+              // Immediately update session nodes to show new spawn
+              this.pollAndRenderSubagentSessions();
+            }
+            break;
+            
+          case 'subagent:complete':
+          case 'subagent:done':
+          case 'subagent:finished':
+          case 'session:done':
+            // Handle subagent/session completion
+            const completedSessionKey = data?.sessionKey || data?.runId;
+            console.log('[NeuralMesh] 🏁 SESSION COMPLETE:', completedSessionKey);
+            if (completedSessionKey) {
+              // Find the parent agent and trigger completion animation
+              const agentType = this.extractAgentType(completedSessionKey);
+              const agent = this.agents.get(`agent:${agentType}`);
+              if (agent) {
+                this.celebrateCompletion(agent);
+              }
+              // Update session nodes to remove completed session
+              setTimeout(() => this.pollAndRenderSubagentSessions(), 1000);
+            }
+            break;
+            
+          case 'spawn:completed':
+            const completeKey = data?.sessionKey || data?.runId;
+            this.handleSessionComplete(completeKey);
+            break;
+            
+          case 'federation:node:connected':
+          case 'federation:node:disconnected':
+          case 'node:connected':
+          case 'node:disconnected':
+            this.pollFederation();
+            break;
+            
+          case 'agent:activity':
+          case 'activity':
+            const actKey = data?.sessionKey;
+            if (data?.status === 'thinking' || data?.status === 'working') {
+              this.handleThinkingStart(actKey);
+              const actCluster = this.findClusterForSession(actKey);
+              if (actCluster && actCluster.type === 'federation') {
+                this.animateCharacterTravel('local', actCluster.id);
+              }
+            } else if (data?.status === 'idle' || data?.status === 'completed') {
+              this.handleSessionComplete(actKey);
+            }
+            break;
+            
+          case 'mesh:message':
+          case 'sessions:send':
+          case 'federation:message':
+          case 'session:message':
+          case 'subagent:message':
+            const from = data?.from || data?.fromSession || data?.parentSession;
+            const to = data?.to || data?.toSession || data?.sessionKey || data?.childSession;
+            if (from && to && from !== to) {
+              console.log('[NeuralMesh] 📨 MESSAGE:', from, '→', to);
+              this.sendFlowMessage(from, to);
+              const fromCluster = this.findClusterForSession(from);
+              const toCluster = this.findClusterForSession(to);
+              if (fromCluster && toCluster && fromCluster.id !== toCluster.id) {
+                this.animateCharacterTravel(fromCluster.id, toCluster.id);
+              }
+            }
+            break;
+            
+          // Tool and MCP activity events
+          case 'tool:start':
+          case 'tool:call':
+          case 'tool_use':
+            this.addActivityEntry({
+              type: 'tool',
+              agentId: data?.sessionKey || 'agent:main:main',
+              name: data?.tool || data?.name || data?.toolName || 'tool',
+              params: this.truncateParams(data?.params || data?.input || data?.arguments),
+              status: 'pending',
+            });
+            break;
+            
+          case 'tool:result':
+          case 'tool:complete':
+          case 'tool:done':
+          case 'tool_result':
+            this.updateActivityStatus(data?.tool || data?.name || data?.toolName, 'success', data?.duration);
+            break;
+            
+          case 'tool:error':
+            this.updateActivityStatus(data?.tool || data?.name, 'error', data?.duration);
+            this.addActivityEntry({
+              type: 'error',
+              agentId: data?.sessionKey || 'agent:main:main',
+              name: `${data?.tool || 'Tool'} failed`,
+              params: data?.error?.message || data?.error,
+              status: 'error',
+            });
+            break;
+            
+          case 'mcp:call':
+          case 'mcp:invoke':
+          case 'mcp:request':
+            this.addActivityEntry({
+              type: 'mcp',
+              agentId: data?.sessionKey || 'agent:main:main',
+              name: `${data?.server || 'MCP'}::${data?.method || data?.tool || 'call'}`,
+              params: this.truncateParams(data?.params || data?.args),
+              status: 'pending',
+            });
+            break;
+            
+          case 'mcp:result':
+          case 'mcp:response':
+            this.updateActivityStatus(data?.method || data?.tool, 'success', data?.duration);
+            break;
+            
+          case 'mcp:error':
+            this.updateActivityStatus(data?.method || data?.tool, 'error', data?.duration);
+            break;
+            
+          // Federation mesh sync - receive state from other nodes
+          case 'mesh.sync':
+          case 'federation.mesh':
+            this.handleFederationMeshSync(data);
+            break;
+        }
+      });
+      console.log('[NeuralMesh] Subscribed to gateway events');
+      
+      // Broadcast initial mesh state to federation
+      this.broadcastMeshState();
+      
+    } catch (e) {
+      console.warn('[NeuralMesh] Failed to subscribe:', e);
+    }
+  }
+  
+  /**
+   * Handle mesh state sync from federation nodes
+   */
+  private handleFederationMeshSync(data: any) {
+    if (!data?.nodeId || !data?.agents) return;
+    
+    console.log('[NeuralMesh] Federation mesh sync from:', data.nodeId);
+    
+    // Add/update agents from remote node
+    const remoteAgents = data.agents || [];
+    remoteAgents.forEach((remoteAgent: any, index: number) => {
+      const agentId = `federation:${data.nodeId}:${remoteAgent.id}`;
+      
+      if (!this.agents.has(agentId)) {
+        // Count existing federation nodes for proper positioning
+        const fedCount = Array.from(this.agents.values()).filter(a => a.agentType === 'federation').length;
+        this.addAgent(
+          agentId,
+          remoteAgent.name?.substring(0, 12) || remoteAgent.id?.substring(0, 12) || 'REMOTE',
+          fedCount,
+          [],
+          'federation',
+          data.nodeId
+        );
+      }
+      
+      // Update activity state
+      const agent = this.agents.get(agentId);
+      if (agent) {
+        agent.isThinking = remoteAgent.isThinking || false;
+        agent.intensity = remoteAgent.intensity || 0;
+        agent.lastActiveTime = Date.now();
+      }
+    });
+    
+    this.updateInterAgentLines();
+    this.updateDeviceLabels();
+    this.requestUpdate();
+  }
+  
+  /**
+   * Broadcast current mesh state to federation
+   */
+  private broadcastMeshState() {
+    if (!this.client?.call && !this.client?.invoke) return;
+    
+    const callMethod = this.client.call || this.client.invoke;
+    
+    // Build state from current agents
+    const agentStates = Array.from(this.agents.entries())
+      .filter(([id, _]) => !id.startsWith('federation:')) // Only local agents
+      .map(([id, agent]) => ({
+        id: id.replace('agent:', ''),
+        name: agent.name,
+        isThinking: agent.isThinking,
+        intensity: agent.intensity,
+        activeSessions: agent.activeSessions.size,
+      }));
+    
+    // Try to broadcast via federation
+    try {
+      callMethod.call(this.client, 'federation.broadcast', {
+        type: 'mesh.sync',
+        payload: {
+          agents: agentStates,
+          subNets: this.subNetBubbles.size,
+          timestamp: Date.now(),
+        }
+      }).catch(() => {
+        // Federation broadcast not available, ignore silently
+      });
+    } catch {
+      // Ignore - federation may not be configured
+    }
+  }
+
+  // Activity log helpers
+  private addActivityEntry(entry: Partial<ActivityEntry>) {
+    const agentId = entry.agentId || 'agent:main:main';
+    const resolvedAgentId = this.extractAgentType(agentId);
+    const agent = this.agents.get(resolvedAgentId);
+    
+    // Update last active time for the agent
+    if (agent) {
+      agent.lastActiveTime = Date.now();
+    }
+    
+    // Also update sub-net bubble if this is a session
+    const bubble = this.subNetBubbles.get(agentId);
+    if (bubble) {
+      bubble.lastActiveTime = Date.now();
+    }
+    
+    const agentColor = agent ? this.colorToHex(agent.color) : 'var(--g-primary)';
+    const agentName = agent?.name || this.extractName(agentId);
+    
+    const newEntry: ActivityEntry = {
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      timestamp: Date.now(),
+      type: entry.type || 'tool',
+      agentId,
+      agentName,
+      name: entry.name || 'unknown',
+      params: entry.params,
+      status: entry.status || 'pending',
+      color: agentColor,
+      isNew: true,
+    };
+    
+    this.activityLog = [...this.activityLog, newEntry];
+    
+    // Limit to last 50 entries
+    if (this.activityLog.length > 50) {
+      this.activityLog = this.activityLog.slice(-50);
+    }
+    
+    // Spawn 3D activity fragment from the neural network
+    if (agent) {
+      const fragmentType = entry.type === 'error' ? 'error' : 
+                          entry.type === 'mcp' ? 'mcp' : 
+                          entry.type === 'spawn' ? 'spawn' : 'tool';
+      this.spawnActivityFragment(agent, entry.name || 'unknown', fragmentType);
+      
+      // ★ NEW: Spawn 3D floating log line with timestamp
+      const logType = entry.type === 'error' ? 'error' : 
+                      entry.type === 'mcp' ? 'mcp' : 
+                      entry.type === 'spawn' ? 'spawn' : 
+                      entry.type === 'result' ? 'result' : 'tool';
+      this.spawn3DLogLine(resolvedAgentId, entry.name || 'unknown', logType as any);
+      
+      // Extra burst for dramatic effect
+      this.burstFiring(agent, 8);
+      
+      // Mark agent as actively working
+      agent.isThinking = true;
+      agent.intensity = Math.min(100, agent.intensity + 30);
+    }
+    
+    this.requestUpdate();
+    
+    // Auto-scroll to bottom
+    setTimeout(() => {
+      const list = this.shadowRoot?.querySelector('.activity-list');
+      if (list) list.scrollTop = 0; // Reversed list, so scroll to top
+    }, 50);
+  }
+  
+  private updateActivityStatus(name: string, status: 'success' | 'error', duration?: number) {
+    const entry = [...this.activityLog].reverse().find(e => 
+      e.name.includes(name) && e.status === 'pending'
+    );
+    if (entry) {
+      entry.status = status;
+      entry.duration = duration;
+      
+      // Spawn result fragment + 3D log line
+      const agentId = this.extractAgentType(entry.agentId);
+      const agent = this.agents.get(agentId);
+      if (agent) {
+        const resultText = status === 'success' 
+          ? `✓ ${name.substring(0, 18)}` 
+          : `✕ ${name.substring(0, 18)}`;
+        this.spawnActivityFragment(agent, resultText, status === 'success' ? 'result' : 'error');
+        
+        // Spawn 3D log line for result
+        const durationStr = duration ? ` (${duration}ms)` : '';
+        this.spawn3DLogLine(agentId, `${resultText}${durationStr}`, status === 'success' ? 'result' : 'error');
+      }
+      
+      this.requestUpdate();
+    }
+  }
+  
+  private truncateParams(params: any): string {
+    if (!params) return '';
+    try {
+      const str = typeof params === 'string' ? params : JSON.stringify(params);
+      return str.length > 60 ? str.substring(0, 60) + '...' : str;
+    } catch {
+      return '[complex]';
+    }
+  }
+
+  // ===== CORE REFACTOR: Agent Type Extraction =====
+  
+  /**
+   * Extract the agent TYPE from a session key.
+   * e.g., "agent:coder-claude:subagent:abc123" → "coder-claude"
+   * e.g., "agent:main:main" → "main"
+   * e.g., "agent:opus:spawn:xyz" → "opus"
+   */
+  private extractAgentType(sessionKey: string): string {
+    if (!sessionKey) return 'main';
+    
+    const parts = sessionKey.split(':');
+    if (parts.length >= 2 && parts[0] === 'agent') {
+      return parts[1]; // Return the agent type (second part)
+    }
+    
+    // Fallback: return the key itself
+    return sessionKey;
+  }
+
+  /**
+   * Get or create the agent network for an agent type
+   */
+  private getOrCreateAgentNetwork(agentType: string): AgentNetwork | null {
+    const agentKey = `agent:${agentType}`;
+    
+    // Check if network already exists
+    if (this.agents.has(agentKey)) {
+      return this.agents.get(agentKey)!;
+    }
+    
+    // Create new network for this agent type
+    const index = this.agents.size;
+    this.addAgent(agentKey, agentType.toUpperCase().substring(0, 12), index, [], 'local');
+    this.updateInterAgentLines();
+    this.updateDeviceLabels();
+    
+    return this.agents.get(agentKey) || null;
+  }
+
+  /**
+   * Handle a new session spawn - create SubNetBubble attached to MAIN (Infini) network
+   * ALL sub-nets connect to MAIN as the central orchestrator, regardless of spawn source
+   */
+  private handleSessionSpawn(sessionKey: string, label: string, parentSessionKey: string) {
+    if (!this.mainGroup || !this.scene) return;
+    
+    // Don't re-create if already exists
+    if (this.subNetBubbles.has(sessionKey)) {
+      console.log('[NeuralMesh] Sub-net already exists:', sessionKey);
+      return;
+    }
+    
+    // Extract the agent type from session key (for tracking/coloring)
+    const agentType = this.extractAgentType(sessionKey);
+    console.log('[NeuralMesh] Spawning sub-net bubble:', sessionKey, 'for agent type:', agentType, 'ATTACHED TO MAIN');
+    
+    // ALWAYS attach sub-nets to MAIN (Infini) network - Infini is the orchestrator
+    // User-spawned sessions and programmatic spawns all connect through MAIN
+    const mainAgent = this.getOrCreateAgentNetwork('main');
+    if (!mainAgent) {
+      console.warn('[NeuralMesh] Could not find/create MAIN agent network');
+      return;
+    }
+    
+    // Track this session under MAIN (the orchestrator)
+    mainAgent.activeSessions.add(sessionKey);
+    this.sessionToAgent.set(sessionKey, 'main'); // Connected to main
+    
+    // Also track the actual agent type for the session (for coloring/labeling)
+    (this.subNetBubbles as any).__agentTypeMap = (this.subNetBubbles as any).__agentTypeMap || new Map();
+    (this.subNetBubbles as any).__agentTypeMap.set(sessionKey, agentType);
+    
+    // Get current sibling count for MAIN's sub-nets
+    const siblingCount = mainAgent.activeSessions.size;
+    
+    // Create the sub-net bubble attached to MAIN with proper arc index
+    this.createSubNetBubble(sessionKey, label, mainAgent, siblingCount - 1, siblingCount);
+    
+    // Reposition ALL sibling sub-nets around MAIN to fan out properly
+    this.repositionSiblingSubNets(mainAgent);
+    
+    // Fire burst from MAIN (the orchestrator)
+    this.burstFiring(mainAgent, 8);
+    
+    // Also fire connection to the actual agent type network for visual effect
+    const actualAgentNetwork = this.agents.get(`agent:${agentType}`);
+    if (actualAgentNetwork && actualAgentNetwork !== mainAgent) {
+      this.firePowerUpConnector('agent:main', `agent:${agentType}`);
+    }
+    
+    this.requestUpdate();
+  }
+  
+  /**
+   * Reposition all sibling sub-nets for an agent to fan out in arc
+   */
+  private repositionSiblingSubNets(parentAgent: AgentNetwork) {
+    if (!parentAgent.activeSessions || parentAgent.activeSessions.size === 0) return;
+    
+    const sessions = Array.from(parentAgent.activeSessions);
+    const totalCount = sessions.length;
+    
+    console.log('[NeuralMesh] Repositioning', totalCount, 'sub-nets for', parentAgent.id);
+    
+    sessions.forEach((sessionKey, index) => {
+      const bubble = this.subNetBubbles.get(sessionKey);
+      if (!bubble || bubble.despawnAnimation) return;
+      
+      // Calculate new arc position
+      const newPos = this.calculateSubNetArcPosition(parentAgent, index, totalCount);
+      
+      // Calculate new scale based on sibling count
+      const newScale = this.calculateSubNetScale(totalCount);
+      
+      // Animate to new position smoothly
+      this.animateSubNetReposition(bubble, newPos, newScale);
+    });
+  }
+  
+  /**
+   * Calculate arc position for a sub-net based on index and total siblings
+   * INCREASED DISTANCE for better visual separation from parent
+   */
+  private calculateSubNetArcPosition(parentAgent: AgentNetwork, index: number, totalCount: number): THREE.Vector3 {
+    // Arc parameters - INCREASED DISTANCE
+    const arcAngle = Math.PI * 0.75; // 135 degrees total arc (wider spread)
+    const BASE_DISTANCE = 3.5; // INCREASED from 1.8 to 3.5 for better spacing
+    const Y_OFFSET = -2.2; // INCREASED from -1.4 for more vertical separation
+    
+    // Dynamic distance - spreads further when more sub-nets
+    const DISTANCE = BASE_DISTANCE + (totalCount > 3 ? (totalCount - 3) * 0.3 : 0);
+    
+    if (totalCount === 1) {
+      // Single sub-net: directly below and in front
+      return parentAgent.position.clone().add(new THREE.Vector3(0, Y_OFFSET, DISTANCE * 0.6));
+    }
+    
+    // Multiple sub-nets: fan out in arc
+    const angleStep = arcAngle / Math.max(1, totalCount - 1);
+    const startAngle = -arcAngle / 2;
+    const angle = startAngle + index * angleStep;
+    
+    // Calculate position on arc (arc is in XZ plane, below parent)
+    const x = Math.sin(angle) * DISTANCE;
+    const z = Math.cos(angle) * DISTANCE * 0.6; // Slight depth variation
+    const y = Y_OFFSET - Math.abs(Math.sin(angle)) * 0.5; // More dip at edges
+    
+    return parentAgent.position.clone().add(new THREE.Vector3(x, y, z));
+  }
+  
+  /**
+   * Calculate scale for sub-net based on sibling count
+   * LARGER scales for better visibility and clickability
+   */
+  private calculateSubNetScale(totalCount: number): number {
+    // Larger scales - sub-nets should be visible and easy to click
+    if (totalCount === 1) return 0.70;
+    if (totalCount === 2) return 0.65;
+    if (totalCount <= 4) return 0.55;
+    if (totalCount <= 6) return 0.50;
+    return 0.45; // Many sub-nets: still visible
+  }
+  
+  /**
+   * Animate sub-net to new position smoothly
+   */
+  private animateSubNetReposition(bubble: SubNetBubble, targetPos: THREE.Vector3, targetScale: number) {
+    const startPos = bubble.group.position.clone();
+    const startScale = bubble.group.scale.x;
+    const duration = 400;
+    const startTime = Date.now();
+    
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const t = Math.min(elapsed / duration, 1);
+      
+      // Ease out cubic
+      const eased = 1 - Math.pow(1 - t, 3);
+      
+      // Interpolate position
+      bubble.group.position.lerpVectors(startPos, targetPos, eased);
+      bubble.position.copy(bubble.group.position);
+      
+      // Interpolate scale
+      const newScale = startScale + (targetScale - startScale) * eased;
+      bubble.group.scale.setScalar(newScale);
+      
+      // Update connection line
+      this.updateSubNetConnectionLine(bubble);
+      
+      // Update label position
+      bubble.label.position.set(
+        bubble.group.position.x,
+        bubble.group.position.y + 0.7,
+        bubble.group.position.z
+      );
+      
+      if (t < 1) {
+        requestAnimationFrame(animate);
+      }
+    };
+    
+    animate();
+  }
+
+  /**
+   * Create a sub-net bubble attached to an agent network
+   */
+  private createSubNetBubble(sessionKey: string, label: string, parentAgent: AgentNetwork, arcIndex: number, siblingCount: number = 1) {
+    if (!this.mainGroup || !this.scene) return;
+    
+    // Calculate target position using arc positioning based on sibling count
+    const targetPos = this.calculateSubNetArcPosition(parentAgent, arcIndex, siblingCount);
+    
+    // Calculate scale based on sibling count
+    const initialScale = this.calculateSubNetScale(siblingCount);
+    
+    // Create small bubble network
+    const group = new THREE.Group();
+    group.position.copy(parentAgent.position); // Start at parent, animate to target
+    group.scale.setScalar(0.01); // Start tiny
+    this.mainGroup.add(group);
+    
+    // Create network nodes - LARGER like main networks for visibility & clickability
+    const nodes: THREE.Mesh[] = [];
+    const edges: THREE.Line[] = [];
+    const nodePositions: THREE.Vector3[] = [];
+    const NUM_NODES = 20; // More nodes like main networks
+    const RADIUS = 0.6; // Larger radius
+    const NODE_SIZE = 0.06; // Larger nodes for easy clicking
+    const color = parentAgent.color;
+    
+    // Create nodes using Fibonacci sphere distribution (like main agents)
+    for (let i = 0; i < NUM_NODES; i++) {
+      const phi = Math.acos(1 - 2 * (i + 0.5) / NUM_NODES);
+      const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+      const r = RADIUS * (0.85 + Math.random() * 0.3);
+      
+      const pos = new THREE.Vector3(
+        r * Math.sin(phi) * Math.cos(theta),
+        r * Math.sin(phi) * Math.sin(theta),
+        r * Math.cos(phi)
+      );
+      nodePositions.push(pos.clone());
+      
+      // Node geometry - octahedron like main agents, LARGER for clickability
+      const geo = new THREE.OctahedronGeometry(NODE_SIZE, 0);
+      const mat = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(color),
+        transparent: true,
+        opacity: 0.95,
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.copy(pos);
+      mesh.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+      
+      // Mark as clickable for raycasting
+      (mesh as any).__isSubNetNode = true;
+      (mesh as any).__sessionKey = sessionKey;
+      (mesh as any).__agentId = parentAgent.id;
+      
+      group.add(mesh);
+      nodes.push(mesh);
+    }
+    
+    // Create edges between nearby nodes - VISIBLE like main networks
+    const edgeMat = new THREE.LineBasicMaterial({
+      color: new THREE.Color(color),
+      transparent: true,
+      opacity: 0.6, // Higher opacity for visibility (like main nets)
+    });
+    
+    for (let i = 0; i < nodePositions.length; i++) {
+      for (let j = i + 1; j < nodePositions.length; j++) {
+        const dist = nodePositions[i].distanceTo(nodePositions[j]);
+        // Connect nodes within threshold - generous for mesh look
+        if (dist < RADIUS * 0.9) {
+          const points = [nodePositions[i], nodePositions[j]];
+          const edgeGeo = new THREE.BufferGeometry().setFromPoints(points);
+          const edge = new THREE.Line(edgeGeo, edgeMat.clone());
+          (edge as any).__isSubNetEdge = true;
+          group.add(edge);
+          edges.push(edge);
+        }
+      }
+    }
+    
+    // Store edges in group for later access
+    (group as any).__edges = edges;
+    (group as any).__nodePositions = nodePositions;
+    
+    // ★ VISUAL ENHANCEMENT: Glow ring for sub-net (like main agents)
+    const glowRingGeo = new THREE.RingGeometry(RADIUS + 0.1, RADIUS + 0.2, 32);
+    const glowRingMat = new THREE.MeshBasicMaterial({
+      color: color,
+      transparent: true,
+      opacity: 0,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    const glowRing = new THREE.Mesh(glowRingGeo, glowRingMat);
+    glowRing.rotation.x = Math.PI / 2;
+    (glowRing as any).__isGlowRing = true;
+    group.add(glowRing);
+    
+    // ★ VISUAL ENHANCEMENT: Progress ring for sub-net
+    const progressRingGeo = new THREE.RingGeometry(RADIUS + 0.25, RADIUS + 0.35, 32, 1, 0, 0.001);
+    const progressRingMat = new THREE.MeshBasicMaterial({
+      color: 0x2ECC71,
+      transparent: true,
+      opacity: 0,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    const progressRing = new THREE.Mesh(progressRingGeo, progressRingMat);
+    progressRing.rotation.x = Math.PI / 2;
+    (progressRing as any).__isProgressRing = true;
+    group.add(progressRing);
+    
+    // Create small label
+    const displayLabel = label.substring(0, 10).toUpperCase();
+    const labelSprite = this.createSmallLabel('⚡ ' + displayLabel, color);
+    labelSprite.position.set(parentAgent.position.x, parentAgent.position.y + 0.8, parentAgent.position.z);
+    labelSprite.material.opacity = 0;
+    this.scene.add(labelSprite);
+    
+    // Create GREEN connection line to parent
+    const start = parentAgent.position.clone();
+    const end = targetPos.clone();
+    const mid = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+    mid.y += 0.3; // Small arc
+    
+    const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+    const points = curve.getPoints(20);
+    
+    // Main connection line - BRIGHT GREEN
+    const lineMat = new THREE.LineBasicMaterial({
+      color: 0x2ECC71, // Green
+      transparent: true,
+      opacity: 0.9,
+    });
+    
+    // Glow line
+    const glowMat = new THREE.LineBasicMaterial({
+      color: 0x2ECC71,
+      transparent: true,
+      opacity: 0.5,
+    });
+    
+    const lineGeo = new THREE.BufferGeometry().setFromPoints(points);
+    const glowGeo = new THREE.BufferGeometry().setFromPoints(points);
+    
+    const connectionLine = new THREE.Line(lineGeo, lineMat);
+    const glowLine = new THREE.Line(glowGeo, glowMat);
+    
+    (connectionLine as any).__curvePoints = points;
+    
+    this.mainGroup.add(glowLine);
+    this.mainGroup.add(connectionLine);
+    
+    const bubble: SubNetBubble = {
+      sessionKey,
+      agentId: parentAgent.id,
+      group,
+      nodes,
+      label: labelSprite,
+      position: targetPos,
+      connectionLine,
+      glowLine,
+      flowParticles: [],
+      isActive: true,
+      isThinking: true,
+      intensity: 50,
+      startTime: Date.now(),
+      lastActiveTime: Date.now(),
+      arcIndex,
+      firingPulses: [],
+      spawnAnimation: {
+        progress: 0,
+        startPos: parentAgent.position.clone(),
+        targetPos: targetPos.clone(),
+      },
+      // Track scale for proper animation
+      targetScale: initialScale,
+      progressValue: 0,
+      pulsePhase: Math.random() * Math.PI * 2,
+    };
+    
+    this.subNetBubbles.set(sessionKey, bubble);
+    
+    // Start spawn animation
+    this.animateSubNetSpawn(bubble);
+  }
+
+  private animateSubNetSpawn(bubble: SubNetBubble) {
+    if (!bubble.spawnAnimation) return;
+    
+    const duration = 800; // Fast spawn
+    const startTime = Date.now();
+    const anim = bubble.spawnAnimation;
+    const targetScale = bubble.targetScale || 0.55;
+    
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const t = Math.min(elapsed / duration, 1);
+      
+      // Ease out elastic for bouncy effect
+      const easeOutElastic = (x: number): number => {
+        const c4 = (2 * Math.PI) / 3;
+        return x === 0 ? 0 : x === 1 ? 1 : Math.pow(2, -10 * x) * Math.sin((x * 10 - 0.75) * c4) + 1;
+      };
+      
+      const eased = easeOutElastic(t);
+      
+      // Animate position from parent to target
+      bubble.group.position.lerpVectors(anim.startPos, anim.targetPos, Math.min(t * 1.5, 1));
+      
+      // Scale up with bounce (to dynamic targetScale based on sibling count)
+      const scale = Math.min(eased, 1) * targetScale;
+      bubble.group.scale.setScalar(scale);
+      
+      // Fade in label
+      (bubble.label.material as THREE.SpriteMaterial).opacity = Math.min(t * 2, 1);
+      bubble.label.position.set(
+        bubble.group.position.x,
+        bubble.group.position.y + 0.7,
+        bubble.group.position.z
+      );
+      
+      // Update connection line
+      this.updateSubNetConnectionLine(bubble);
+      
+      if (t < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        bubble.spawnAnimation = undefined;
+        bubble.position.copy(anim.targetPos);
+        
+        console.log('[NeuralMesh] Sub-net spawn complete:', bubble.sessionKey);
+      }
+    };
+    
+    animate();
+  }
+
+  private updateSubNetConnectionLine(bubble: SubNetBubble) {
+    const parentAgent = this.agents.get(bubble.agentId);
+    if (!parentAgent) return;
+    
+    const start = parentAgent.position.clone();
+    const end = bubble.group.position.clone();
+    
+    // Validate positions before creating curve
+    if (!this.isValidVector3(start) || !this.isValidVector3(end)) return;
+    
+    const mid = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+    mid.y += 0.3;
+    
+    const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+    const points = curve.getPoints(20);
+    
+    // Validate points before updating geometry
+    const validPoints = this.getValidPoints(points);
+    if (validPoints.length < 2) return;
+    
+    bubble.connectionLine.geometry.setFromPoints(validPoints);
+    bubble.glowLine.geometry.setFromPoints(validPoints);
+    (bubble.connectionLine as any).__curvePoints = validPoints;
+  }
+
+  /**
+   * Handle session activity (tokens, thinking, etc.)
+   */
+  private handleSessionActivity(sessionKey: string, intensityBoost: number = 5) {
+    const agentType = this.extractAgentType(sessionKey);
+    
+    // Update sub-net bubble if exists
+    const bubble = this.subNetBubbles.get(sessionKey);
+    if (bubble) {
+      const wasThinking = bubble.isThinking;
+      bubble.isThinking = true;
+      bubble.intensity = Math.min(100, bubble.intensity + intensityBoost);
+      bubble.lastActiveTime = Date.now();
+      
+      // Burst of pulses when first starting to think
+      if (!wasThinking) {
+        this.burstSubNetFiring(bubble, 5);
+      }
+      // Regular pulses during activity
+      else if (Math.random() < 0.3 + intensityBoost / 50) {
+        this.fireSubNetPulse(bubble);
+      }
+      
+      // Send flow particle to parent occasionally
+      if (Math.random() < 0.1) {
+        this.createFlowParticle(bubble, 'toParent');
+      }
+    }
+    
+    // Also update parent agent
+    const agentKey = `agent:${agentType}`;
+    const agent = this.agents.get(agentKey);
+    if (agent) {
+      agent.lastActiveTime = Date.now();
+      agent.isThinking = true;
+      agent.intensity = Math.min(100, agent.intensity + intensityBoost / 2);
+    }
+  }
+
+  private fireSubNetPulse(bubble: SubNetBubble) {
+    if (bubble.nodes.length < 2) return;
+    
+    const startIdx = Math.floor(Math.random() * bubble.nodes.length);
+    const endIdx = Math.floor(Math.random() * bubble.nodes.length);
+    if (startIdx === endIdx) return;
+    
+    const startPos = bubble.nodes[startIdx].position.clone();
+    const endPos = bubble.nodes[endIdx].position.clone();
+    
+    // Validate positions
+    if (!this.isValidVector3(startPos) || !this.isValidVector3(endPos)) return;
+    
+    const mid = new THREE.Vector3().addVectors(startPos, endPos).multiplyScalar(0.5);
+    
+    const curve = new THREE.QuadraticBezierCurve3(startPos, mid, endPos);
+    const curvePoints = curve.getPoints(10);
+    
+    // Validate curve points
+    const validPoints = this.getValidPoints(curvePoints);
+    if (validPoints.length < 2) return;
+    
+    const parentAgent = this.agents.get(bubble.agentId);
+    const color = parentAgent?.color || 0x2ECC71;
+    
+    const lineMat = new THREE.LineBasicMaterial({
+      color: 0xFFFFFF,
+      transparent: true,
+      opacity: 0,
+    });
+    
+    const glowMat = new THREE.LineBasicMaterial({
+      color: color,
+      transparent: true,
+      opacity: 0,
+    });
+    
+    const lineGeo = new THREE.BufferGeometry().setFromPoints(validPoints);
+    const glowGeo = new THREE.BufferGeometry().setFromPoints(validPoints);
+    
+    const line = new THREE.Line(lineGeo, lineMat);
+    const glowLine = new THREE.Line(glowGeo, glowMat);
+    
+    (line as any).__curvePoints = validPoints;
+    
+    bubble.group.add(glowLine);
+    bubble.group.add(line);
+    
+    bubble.firingPulses.push({
+      progress: 0,
+      speed: 0.02 + Math.random() * 0.01,
+      line,
+      glowLine,
+    });
+  }
+  
+  /**
+   * Burst firing for sub-net bubbles (like main agents)
+   */
+  private burstSubNetFiring(bubble: SubNetBubble, count: number) {
+    for (let i = 0; i < count; i++) {
+      setTimeout(() => {
+        this.fireSubNetPulse(bubble);
+      }, i * 60);
+    }
+  }
+
+  private handleThinkingStart(sessionKey: string) {
+    if (!sessionKey) return;
+    
+    const agentType = this.extractAgentType(sessionKey);
+    
+    // Ensure agent network exists
+    const agent = this.getOrCreateAgentNetwork(agentType);
+    
+    if (agent && !agent.isThinking) {
+      agent.isThinking = true;
+      agent.intensity = 30;
+      agent.lastTokenTime = Date.now();
+      agent.lastActiveTime = Date.now();
+      
+      // Big burst when thinking starts
+      this.burstFiring(agent, 15);
+      
+      // ★ DISABLED: Random thought words - using real streamed tokens instead
+      // Stream fragments appear via handleStreamingChunk with actual content
+    }
+    
+    // Update sub-net bubble activity
+    this.handleSessionActivity(sessionKey, 30);
+    
+    this.requestUpdate();
+    console.log('[NeuralMesh] Thinking started for:', sessionKey, '(agent:', agentType, ')');
+  }
+
+  private handleTokenStream(sessionKey: string, deltaText?: string) {
+    if (!sessionKey) return;
+    
+    const agentType = this.extractAgentType(sessionKey);
+    const agent = this.getOrCreateAgentNetwork(agentType);
+    
+    if (agent) {
+      const wasThinking = agent.isThinking;
+      agent.isThinking = true;
+      const now = Date.now();
+      agent.tokenBuffer.push(now);
+      agent.lastTokenTime = now;
+      agent.lastActiveTime = now;
+      agent.tokenBuffer = agent.tokenBuffer.filter(t => now - t < 2000);
+      agent.intensity = Math.min(100, (agent.tokenBuffer.length / 2) * 8);
+      
+      // Initial burst when starting to think
+      if (!wasThinking) {
+        this.burstFiring(agent, 12);
+      }
+      
+      // ★ REAL TOKEN STREAM: Accumulate and spawn actual generated text
+      // Ensure deltaText is actually a string
+      const textToAdd = typeof deltaText === 'string' ? deltaText : '';
+      
+      if (textToAdd.length > 0) {
+        agent.streamText += textToAdd;
+        
+        // Spawn text fragment every 4-5 characters for constant token flow
+        if (agent.streamText.length > 4) {
+          // Extract word boundaries when possible, or just chunk
+          const spaceIdx = agent.streamText.indexOf(' ');
+          let fragmentLen = spaceIdx > 0 && spaceIdx <= 15 ? spaceIdx + 1 : Math.min(10, agent.streamText.length);
+          const fragment = agent.streamText.substring(0, fragmentLen).trim();
+          
+          if (fragment.length > 1) {
+            this.spawnStreamFragment(agent, fragment);
+          }
+          agent.streamText = agent.streamText.substring(fragmentLen);
+        }
+      }
+      
+      // Fire pulses
+      this.firePulse(agent);
+      
+      if (Math.random() < 0.4 + (agent.intensity / 200)) {
+        this.firePulse(agent);
+      }
+    }
+    
+    // Update sub-net bubble
+    this.handleSessionActivity(sessionKey, 5);
+    
+    this.requestUpdate();
+  }
+
+  private handleThinkingComplete(sessionKey: string) {
+    if (!sessionKey) return;
+    
+    const agentType = this.extractAgentType(sessionKey);
+    const agentKey = `agent:${agentType}`;
+    const agent = this.agents.get(agentKey);
+    
+    // Update sub-net bubble
+    const bubble = this.subNetBubbles.get(sessionKey);
+    if (bubble) {
+      bubble.isThinking = false;
+      bubble.intensity = 0;
+      bubble.lastActiveTime = Date.now();
+    }
+    
+    // Only mark agent as not thinking if no other sessions are active
+    if (agent) {
+      let anyThinking = false;
+      agent.activeSessions.forEach(sess => {
+        const b = this.subNetBubbles.get(sess);
+        if (b && b.isThinking) anyThinking = true;
+      });
+      
+      if (!anyThinking) {
+        agent.isThinking = false;
+        agent.intensity = 0;
+      }
+      agent.lastActiveTime = Date.now();
+    }
+    
+    this.requestUpdate();
+  }
+
+  /**
+   * Handle session complete - TRIGGER IMMEDIATE DESPAWN of sub-net bubble
+   */
+  private handleSessionComplete(sessionKey: string) {
+    if (!sessionKey) return;
+    
+    console.log('[NeuralMesh] 🔴 Session complete, despawning:', sessionKey);
+    
+    // First, mark as not thinking
+    this.handleThinkingComplete(sessionKey);
+    
+    // Then trigger immediate despawn
+    if (this.subNetBubbles.has(sessionKey)) {
+      this.despawnSubNetBubble(sessionKey);
+    }
+    
+    // Update session nodes to ensure completion is reflected immediately
+    setTimeout(() => this.pollAndRenderSubagentSessions(), 500);
+  }
+
+  /**
+   * Despawn a sub-net bubble with fast animation
+   */
+  private despawnSubNetBubble(sessionKey: string) {
+    const bubble = this.subNetBubbles.get(sessionKey);
+    if (!bubble || bubble.despawnAnimation) return;
+    
+    console.log('[NeuralMesh] 💨 Starting sub-net despawn:', sessionKey);
+    
+    bubble.despawnAnimation = {
+      startTime: Date.now(),
+      phase: 'shrink',
+    };
+    
+    // Remove from parent agent's active sessions
+    const agentType = this.sessionToAgent.get(sessionKey);
+    if (agentType) {
+      const agentKey = `agent:${agentType}`;
+      const agent = this.agents.get(agentKey);
+      if (agent) {
+        agent.activeSessions.delete(sessionKey);
+      }
+    }
+    
+    // Start fast despawn animation (1.5 seconds)
+    this.animateSubNetDespawn(bubble);
+  }
+
+  private animateSubNetDespawn(bubble: SubNetBubble) {
+    if (!bubble.despawnAnimation) return;
+    
+    const anim = bubble.despawnAnimation;
+    const elapsed = Date.now() - anim.startTime;
+    const totalDuration = 1500; // Fast 1.5 second despawn
+    
+    const t = Math.min(elapsed / totalDuration, 1);
+    
+    if (t < 0.5) {
+      // Phase 1: Shrink (0-750ms)
+      anim.phase = 'shrink';
+      const shrinkT = t / 0.5;
+      const easeIn = shrinkT * shrinkT;
+      
+      // Shrink group
+      const startScale = 0.55;
+      bubble.group.scale.setScalar(startScale * (1 - easeIn * 0.8));
+      
+      // Nodes flash bright
+      bubble.nodes.forEach(node => {
+        const mat = node.material as THREE.MeshBasicMaterial;
+        mat.color.lerpColors(
+          new THREE.Color(mat.color.getHex()),
+          new THREE.Color(0xFFFFFF),
+          easeIn * 0.5
+        );
+        mat.opacity = 1 - easeIn * 0.3;
+      });
+      
+      // Label fades
+      (bubble.label.material as THREE.SpriteMaterial).opacity = 1 - easeIn;
+      
+      // Connection line fades
+      (bubble.connectionLine.material as THREE.LineBasicMaterial).opacity = 0.9 * (1 - easeIn);
+      (bubble.glowLine.material as THREE.LineBasicMaterial).opacity = 0.5 * (1 - easeIn);
+      
+    } else {
+      // Phase 2: Fade out (750-1500ms)
+      anim.phase = 'fade';
+      const fadeT = (t - 0.5) / 0.5;
+      
+      // Fade everything
+      bubble.nodes.forEach(node => {
+        const mat = node.material as THREE.MeshBasicMaterial;
+        mat.opacity = 0.7 * (1 - fadeT);
+      });
+      
+      (bubble.label.material as THREE.SpriteMaterial).opacity = 0;
+      (bubble.connectionLine.material as THREE.LineBasicMaterial).opacity = 0;
+      (bubble.glowLine.material as THREE.LineBasicMaterial).opacity = 0;
+      
+      // Final shrink
+      bubble.group.scale.setScalar(0.1 * (1 - fadeT));
+    }
+    
+    if (t < 1) {
+      requestAnimationFrame(() => this.animateSubNetDespawn(bubble));
+    } else {
+      // Animation complete - remove fully
+      anim.phase = 'done';
+      this.cleanupSubNetBubble(bubble.sessionKey);
+      console.log('[NeuralMesh] 💨 Sub-net despawn complete:', bubble.sessionKey);
+    }
+  }
+
+  private cleanupSubNetBubble(sessionKey: string) {
+    const bubble = this.subNetBubbles.get(sessionKey);
+    if (!bubble) return;
+    
+    // Get parent agent for repositioning siblings after removal
+    const agentType = this.sessionToAgent.get(sessionKey);
+    const parentAgentKey = agentType ? `agent:${agentType}` : null;
+    const parentAgent = parentAgentKey ? this.agents.get(parentAgentKey) : null;
+    
+    // Remove from scene
+    if (this.mainGroup) {
+      this.mainGroup.remove(bubble.group);
+      this.mainGroup.remove(bubble.connectionLine);
+      this.mainGroup.remove(bubble.glowLine);
+    }
+    if (this.scene) {
+      this.scene.remove(bubble.label);
+    }
+    
+    // Dispose geometries and materials
+    bubble.nodes.forEach(node => {
+      node.geometry.dispose();
+      (node.material as THREE.Material).dispose();
+    });
+    
+    // Dispose glow ring and progress ring
+    bubble.group.traverse((child) => {
+      if ((child as any).__isGlowRing || (child as any).__isProgressRing) {
+        (child as THREE.Mesh).geometry.dispose();
+        ((child as THREE.Mesh).material as THREE.Material).dispose();
+      }
+    });
+    
+    bubble.connectionLine.geometry.dispose();
+    (bubble.connectionLine.material as THREE.Material).dispose();
+    bubble.glowLine.geometry.dispose();
+    (bubble.glowLine.material as THREE.Material).dispose();
+    
+    bubble.label.material.dispose();
+    (bubble.label.material as THREE.SpriteMaterial).map?.dispose();
+    
+    // Clean up flow particles
+    bubble.flowParticles.forEach(p => {
+      this.mainGroup?.remove(p.mesh);
+      p.mesh.geometry.dispose();
+      (p.mesh.material as THREE.Material).dispose();
+    });
+    
+    // Clean up firing pulses
+    bubble.firingPulses.forEach(pulse => {
+      bubble.group.remove(pulse.line);
+      bubble.group.remove(pulse.glowLine);
+      pulse.line.geometry.dispose();
+      pulse.glowLine.geometry.dispose();
+      (pulse.line.material as THREE.Material).dispose();
+      (pulse.glowLine.material as THREE.Material).dispose();
+    });
+    
+    // Remove from maps
+    this.subNetBubbles.delete(sessionKey);
+    this.sessionToAgent.delete(sessionKey);
+    
+    // Mark as dismissed to prevent respawning stale sessions
+    this.dismissedSessions.add(sessionKey);
+    
+    // Reposition remaining siblings so they fan out properly
+    if (parentAgent && parentAgent.activeSessions.size > 0) {
+      setTimeout(() => {
+        this.repositionSiblingSubNets(parentAgent);
+      }, 100);
+    }
+    
+    this.requestUpdate();
+  }
+
+  // Send message flow animation between parent and child
+  private sendFlowMessage(fromId: string, toId: string) {
+    // Try to find matching sub-net bubble
+    const toBubble = this.subNetBubbles.get(toId);
+    const fromBubble = this.subNetBubbles.get(fromId);
+    
+    if (toBubble) {
+      // Sending TO a sub-net bubble
+      this.createFlowParticle(toBubble, 'toChild');
+      toBubble.lastActiveTime = Date.now();
+    }
+    
+    if (fromBubble) {
+      // Sending FROM a sub-net bubble back to parent
+      this.createFlowParticle(fromBubble, 'toParent');
+      fromBubble.lastActiveTime = Date.now();
+    }
+    
+    // Update agent last active times
+    const fromAgentType = this.extractAgentType(fromId);
+    const toAgentType = this.extractAgentType(toId);
+    
+    const fromAgent = this.agents.get(`agent:${fromAgentType}`);
+    const toAgent = this.agents.get(`agent:${toAgentType}`);
+    
+    if (fromAgent) fromAgent.lastActiveTime = Date.now();
+    if (toAgent) toAgent.lastActiveTime = Date.now();
+    
+    console.log('[NeuralMesh] 💬 Flow message:', fromId, '→', toId);
+  }
+
+  private createFlowParticle(bubble: SubNetBubble, direction: 'toChild' | 'toParent') {
+    if (!this.mainGroup) return;
+    
+    // Create glowing particle
+    const particleGeo = new THREE.SphereGeometry(0.08, 8, 8);
+    const particleMat = new THREE.MeshBasicMaterial({
+      color: 0x2ECC71, // Green for sub-net flow
+      transparent: true,
+      opacity: 0.9,
+    });
+    const particle = new THREE.Mesh(particleGeo, particleMat);
+    
+    // Start position
+    const points = (bubble.connectionLine as any).__curvePoints as THREE.Vector3[];
+    if (points && points.length > 0) {
+      const startIdx = direction === 'toChild' ? 0 : points.length - 1;
+      particle.position.copy(points[startIdx]);
+    }
+    
+    this.mainGroup.add(particle);
+    
+    bubble.flowParticles.push({
+      mesh: particle,
+      progress: direction === 'toChild' ? 0 : 1,
+      speed: 0.015 + Math.random() * 0.01,
+      direction,
+      color: 0x2ECC71,
+    });
+  }
+
+  private extractName(sessionKey: string): string {
+    if (!sessionKey) return 'UNKNOWN';
+    const parts = sessionKey.split(':');
+    if (parts.length >= 2) {
+      return parts[1].toUpperCase().substring(0, 14);
+    }
+    return sessionKey.substring(0, 14).toUpperCase();
+  }
+
+  // Cache for cluster-agent fetches. The mesh polls every few seconds and
+  // creates the same agents per federation node — refetching `agents.list`
+  // every render would hammer the gateway. 30s is short enough that adding
+  // a new agent in System Agents shows up promptly without spamming.
+  private agentRosterCache: { fetchedAt: number; agents: Array<{ id: string; name: string }> } | null = null;
+  private readonly AGENT_ROSTER_TTL_MS = 30_000;
+
+  /**
+   * Fetch the agent roster used to populate every federation cluster. Reads
+   * the operator's actual `config.agents.list` via `agents.list` so the
+   * mesh and the System Agents UI render the same set. Falls back to the
+   * minimal "main" entry if the gateway returns nothing — better an empty
+   * cluster than no rendering at all.
+   */
+  private async fetchClusterAgents(): Promise<Array<{ id: string; name: string }>> {
+    const now = Date.now();
+    if (this.agentRosterCache && now - this.agentRosterCache.fetchedAt < this.AGENT_ROSTER_TTL_MS) {
+      return this.agentRosterCache.agents;
+    }
+    const callMethod = this.client?.call || this.client?.invoke || this.client?.request;
+    if (!callMethod) return [];
+    try {
+      const res = await callMethod.call(this.client, 'agents.list', {});
+      const list = Array.isArray(res?.agents) ? res.agents : Array.isArray(res?.list) ? res.list : [];
+      const mapped = list
+        .filter((a: any) => a && typeof a.id === 'string')
+        // Skip "main"/"ASH" — the cluster always renders that as the central node already.
+        .filter((a: any) => a.id !== 'main' && a.id !== 'default')
+        .map((a: any) => ({
+          id: String(a.id),
+          name: String(a.name ?? a.id).toUpperCase(),
+        }));
+      this.agentRosterCache = { fetchedAt: now, agents: mapped };
+      return mapped;
+    } catch (e) {
+      console.log('[NeuralMesh] agents.list failed:', e);
+      return this.agentRosterCache?.agents ?? [];
+    }
+  }
+
+  private async pollFederation() {
+    const callMethod = this.client?.call || this.client?.invoke || this.client?.request;
+    if (!callMethod) return;
+    
+    try {
+      // Collect nodes from ALL sources (same approach as federation controller)
+      let nodes: any[] = [];
+      
+      // 1. Try federation.nodes.list (hub-connected nodes)
+      try {
+        const fedResult = await callMethod.call(this.client, 'federation.nodes.list', {});
+        if (fedResult?.nodes && Array.isArray(fedResult.nodes)) {
+          nodes.push(...fedResult.nodes);
+          console.log('[NeuralMesh] federation.nodes.list returned', fedResult.nodes.length, 'nodes');
+        }
+      } catch (e) {
+        console.log('[NeuralMesh] federation.nodes.list failed:', e);
+      }
+      
+      // 2. Try node.list (mobile/paired nodes) — THIS IS THE KEY MISSING CALL
+      try {
+        const mobileResult = await callMethod.call(this.client, 'node.list', {});
+        if (mobileResult?.nodes && Array.isArray(mobileResult.nodes)) {
+          // Avoid duplicates by ID
+          const existingIds = new Set(nodes.map((n: any) => n.id || n.nodeId));
+          const newNodes = mobileResult.nodes.filter((n: any) => !existingIds.has(n.id || n.nodeId));
+          nodes.push(...newNodes);
+          console.log('[NeuralMesh] node.list returned', mobileResult.nodes.length, 'nodes (', newNodes.length, 'new)');
+        }
+      } catch (e) {
+        console.log('[NeuralMesh] node.list failed:', e);
+      }
+      
+      // 3. Try nodes.status for real satellite information
+      try {
+        const nodesResult = await callMethod.call(this.client, 'nodes.status', {});
+        if (nodesResult?.nodes && Array.isArray(nodesResult.nodes)) {
+          // Avoid duplicates by ID
+          const existingIds = new Set(nodes.map((n: any) => n.id || n.nodeId));
+          const newNodes = nodesResult.nodes.filter((n: any) => !existingIds.has(n.id || n.nodeId));
+          nodes.push(...newNodes);
+          console.log('[NeuralMesh] nodes.status returned', nodesResult.nodes.length, 'nodes (', newNodes.length, 'new)');
+        }
+      } catch (e) {
+        console.log('[NeuralMesh] nodes.status failed:', e);
+      }
+      
+      // 4. Fallback to federation.status if nothing found
+      if (nodes.length === 0) {
+        try {
+          const statusResult = await callMethod.call(this.client, 'federation.status', {});
+          if (statusResult?.nodes && Array.isArray(statusResult.nodes)) {
+            nodes = statusResult.nodes;
+            console.log('[NeuralMesh] federation.status returned', nodes.length, 'nodes');
+          }
+        } catch (e) {
+          console.log('[NeuralMesh] federation.status failed:', e);
+        }
+      }
+      
+      console.log('[NeuralMesh] Total federation nodes found:', nodes.length);
+      
+      // Process each federated node - CREATE FULL CLUSTERS with agents
+      if (nodes.length > 0) {
+        console.log('[NeuralMesh] Processing', nodes.length, 'federation nodes');
+        
+        console.log('[NeuralMesh] === Starting federation node processing ===');
+        for (const node of nodes) {
+          // Skip local node
+          const isLocal = node.isLocal === true || node.id === 'local' || node.nodeId === 'local';
+          if (isLocal) {
+            console.log('[NeuralMesh] Skipping local node');
+            continue;
+          }
+          
+          const nodeRawId = node.id || node.nodeId || node.name;
+          const clusterId = `fed:${nodeRawId}`;
+          const nodeName = (node.name || node.displayName || nodeRawId || 'Node').toUpperCase();
+          
+          console.log('[NeuralMesh] 🌐 Processing federation node:', nodeName, 'clusterId:', clusterId, 'raw:', JSON.stringify(node).substring(0, 200));
+          
+          // Get or create cluster for this federation node
+          const cluster = this.getOrCreateCluster(clusterId, 'federation', nodeName);
+          cluster.connected = true;
+          cluster.lastSeenConnected = Date.now();
+          console.log('[NeuralMesh] Cluster ready:', clusterId, 'center:', cluster.centerPosition, 'agents:', cluster.agentIds.size);
+          
+          // Create MAIN/ASH agent for this cluster if not exists
+          const mainAgentId = `${clusterId}:main`;
+          console.log('[NeuralMesh] Creating main agent:', mainAgentId, 'exists:', this.agents.has(mainAgentId));
+          if (!this.agents.has(mainAgentId)) {
+            this.addAgentToCluster(mainAgentId, 'ASH', clusterId, nodeName, true, []);
+            console.log('[NeuralMesh] ✅ Added main agent for cluster:', clusterId);
+          }
+          
+          // Add agents from the operator's real config to this federation
+          // cluster. The list used to be hardcoded here (DEV / CLAUDE CODER /
+          // ARCHITECT / etc.), which made the mesh render agents that didn't
+          // exist in `config.agents.list` and couldn't be messaged. The
+          // canonical roster now lives at `src/agents/standard-roster.ts`,
+          // gets seeded into config on wizard finalize, and is fetched via
+          // `agents.list` so the mesh and the System Agents UI stay in sync.
+          const standardAgents = await this.fetchClusterAgents();
+          console.log('[NeuralMesh] Adding', standardAgents.length, 'agents to cluster (from config)');
+          for (const agentDef of standardAgents) {
+            const agentId = `${clusterId}:${agentDef.id}`;
+            if (!this.agents.has(agentId)) {
+              this.addAgentToCluster(agentId, agentDef.name, clusterId, nodeName, false, []);
+            }
+          }
+          
+          console.log('[NeuralMesh] Federation cluster complete:', clusterId, 'total agents:', cluster.agentIds.size);
+          
+          // Update activity state for main agent
+          const mainAgent = this.agents.get(mainAgentId);
+          if (mainAgent) {
+            mainAgent.lastActiveTime = Date.now();
+            const agentCount = node.agents ?? node.agentCount ?? node.activeAgents ?? cluster.agentIds.size;
+            mainAgent.intensity = Math.min(100, agentCount * 15);
+          }
+        }
+        console.log('[NeuralMesh] === Federation processing complete ===');
+        
+        this.updateInterAgentLines();
+        this.updateDeviceLabels();
+      }
+    } catch (e) {
+      console.warn('[NeuralMesh] Federation poll error:', e);
+    }
+  }
+
+  private findClusterForSession(sessionKey: string): DeviceCluster | null {
+    if (!sessionKey) return null;
+    if (sessionKey.startsWith('fed:')) {
+      const parts = sessionKey.split(':');
+      const fedId = `fed:${parts[1]}`;
+      return this.clusters.get(fedId) ?? null;
+    }
+    if (sessionKey.startsWith('federation:')) {
+      const parts = sessionKey.split(':');
+      const fedId = `fed:${parts[1]}`;
+      return this.clusters.get(fedId) ?? null;
+    }
+    const parentId = this.sessionToAgent.get(sessionKey);
+    if (parentId) {
+      for (const cluster of this.clusters.values()) {
+        if (cluster.agentIds.has(parentId)) return cluster;
+      }
+    }
+    if (sessionKey.startsWith('agent:')) {
+      return this.clusters.get('local') ?? null;
+    }
+    return null;
+  }
+
+  private async pollSessions() {
+    if (!this.client) {
+      this.client = (window as any).gatewayClient 
+        || (window as any).client 
+        || (window as any).app?.client
+        || document.querySelector('infinibot-app')?.client;
+    }
+    
+    const callMethod = this.client?.call || this.client?.invoke || this.client?.request || this.client?.send;
+    
+    if (!callMethod) {
+      if (this.agents.size === 0) {
+        this.addAgent('agent:main', 'MAIN', 0, [], 'local');
+        this.updateInterAgentLines();
+        this.updateDeviceLabels();
+      }
+      return;
+    }
+
+    try {
+      // STEP 1: Load ALL configured agents from config
+      let agentsList: any[] = [];
+      let agentTypes: string[] = [];
+      
+      try {
+        const snapshot = await callMethod.call(this.client, 'config.get', {});
+        console.log('[NeuralMesh] Raw config.get response:', JSON.stringify(snapshot).substring(0, 500));
+        
+        // config.get returns a snapshot with config nested under .config (same as agents-management.ts)
+        const config = snapshot?.config || snapshot;
+        agentsList = config?.agents?.list || [];
+        
+        console.log('[NeuralMesh] Config snapshot:', { 
+          hasConfig: !!config, 
+          hasAgents: !!config?.agents,
+          listLength: agentsList.length,
+          agentIds: agentsList.map((a: any) => a.id)
+        });
+        
+        // Extract agent IDs from the list array
+        agentTypes = agentsList.map((a: any) => a.id).filter(Boolean);
+      } catch (configErr) {
+        console.error('[NeuralMesh] Config load failed:', configErr);
+      }
+      
+      // Fallback: if no agents from config, use known defaults
+      if (agentTypes.length === 0) {
+        console.warn('[NeuralMesh] No agents from config, using defaults');
+        agentTypes = ['main', 'coder', 'coder-claude', 'coder-gemini', 'webdev', 'qa', 'opus', 'graphic-designer', 'designer', 'monitor'];
+        agentsList = agentTypes.map(id => ({ id, name: id }));
+      }
+      
+      console.log('[NeuralMesh] Loading', agentTypes.length, 'configured agents:', agentTypes);
+      
+      // Create networks for ALL configured agents
+      agentTypes.forEach((agentKey: string, index: number) => {
+        const agentId = `agent:${agentKey}`;
+        if (!this.agents.has(agentId)) {
+          // Get display name from config or use ID
+          const agentConfig = agentsList.find((a: any) => a.id === agentKey);
+          const displayName = (agentConfig?.name || agentKey).toUpperCase().substring(0, 12);
+          console.log('[NeuralMesh] Adding agent:', agentId, 'name:', displayName);
+          this.addAgent(agentId, displayName, index, [], 'local');
+        }
+      });
+      
+      // STEP 1.5: Load federated agents from sessions.list with includeFederated
+      try {
+        const fedResult = await callMethod.call(this.client, 'sessions.list', { includeFederated: true });
+        const fedSessions = fedResult?.sessions || [];
+        
+        fedSessions.forEach((session: any) => {
+          // session.node is the federation node ID/name from sessions.list
+          const sessionNode = session.node || session.nodeId;
+          const isRemote = session.remote === true || (sessionNode && sessionNode !== 'local');
+          if (isRemote && sessionNode) {
+            const nodeAgentId = `federation:${sessionNode}`;
+            if (!this.agents.has(nodeAgentId)) {
+              const nodeName = (session.nodeName || sessionNode).toUpperCase().substring(0, 12);
+              // Count existing federation nodes for proper positioning
+              const fedCount = Array.from(this.agents.values()).filter(a => a.agentType === 'federation').length;
+              this.addAgent(nodeAgentId, nodeName, fedCount, [], 'federation', sessionNode);
+            }
+          }
+        });
+      } catch (e) {
+        // Federation not available, skip
+      }
+      
+      // STEP 2: Poll active sessions and create sub-nets (no messageLimit param)
+      const result = await callMethod.call(this.client, 'sessions.list', {});
+      const sessions = result?.sessions || [];
+      
+      console.log('[NeuralMesh] Active sessions:', sessions.length);
+      
+      if (Array.isArray(sessions)) {
+        sessions.forEach((session: any) => {
+          const sessionKey = session.sessionKey || session.key || session.id;
+          if (!sessionKey) return;
+          
+          const agentType = this.extractAgentType(sessionKey);
+          
+          // Check if this session belongs to a remote node (federation)
+          const sessionNode = session.node || session.nodeId;
+          const isRemote = session.remote === true || (sessionNode && sessionNode !== 'local');
+          
+          // Determine the correct agent key and cluster for this session
+          let agentKey: string;
+          let clusterType: 'local' | 'federation';
+          let clusterId: string;
+          let clusterName: string;
+          
+          if (isRemote && sessionNode) {
+            // Remote session - use federation cluster
+            clusterId = `fed:${sessionNode}`;
+            clusterName = sessionNode.toUpperCase().substring(0, 12);
+            agentKey = `${clusterId}:${agentType}`;  // e.g., "fed:Robo1:canvas"
+            clusterType = 'federation';
+          } else {
+            // Local session
+            clusterId = 'local';
+            clusterName = 'LOCAL';
+            agentKey = `agent:${agentType}`;
+            clusterType = 'local';
+          }
+          
+          // Ensure agent network exists (even if not in config)
+          if (!this.agents.has(agentKey)) {
+            // Use addAgentToCluster to properly place agent in correct cluster
+            const isMain = agentType === 'main';
+            this.addAgentToCluster(agentKey, agentType.toUpperCase().substring(0, 12), clusterId, clusterName, isMain, []);
+          }
+          
+          const agent = this.agents.get(agentKey);
+          if (agent) {
+            agent.lastActiveTime = Date.now();
+            
+            // Check if session is a sub-agent spawn OR a secondary session for this agent
+            // Sub-agents: agent:coder:subagent:xxx, agent:opus:spawn:xxx
+            // Secondary sessions: agent:main:webchat:xxx, agent:main:telegram:xxx (not agent:main:main)
+            // UI-spawned sessions: agent:coder:mesh:xxx, agent:opus:main (non-main agents)
+            // Duplicate main sessions: agent:main:webchat-xxx should be subnets of agent:main:main
+            const isSubAgent = sessionKey.includes(':subagent:') || sessionKey.includes(':spawn:') || sessionKey.includes(':mesh:');
+            // Duplicate main agent sessions (webchat, telegram, etc.) should spawn as subnets immediately
+            const isDuplicateMainSession = agentType === 'main' && sessionKey !== 'agent:main:main';
+            const isSecondarySession = !isSubAgent && !sessionKey.endsWith(':main') && sessionKey.split(':').length >= 3;
+            const isUserSpawnedAgent = agentType !== 'main' && !sessionKey.includes(':main:'); // User spawned via UI
+            const shouldCreateSubNet = isSubAgent || isSecondarySession || isUserSpawnedAgent || isDuplicateMainSession;
+            
+            // Track all sessions seen on first poll - these are "pre-existing"
+            // and should be ignored by spawn events later
+            if (!this.initialPollComplete && shouldCreateSubNet) {
+              this.initialLoadSessions.add(sessionKey);
+            }
+            
+            // DISABLED: Don't spawn subnets from poll loop AT ALL
+            // Subnets should ONLY appear from real-time spawn events (session.spawned, spawn:started, etc.)
+            // This prevents ALL old sessions from appearing on load or refresh
+            // The spawn event handlers at lines ~3449 and ~3670 handle real-time spawns
+            
+            // Update thinking state - only animate after initial poll
+            const isActive = session.isThinking || session.status === 'thinking' || session.status === 'working';
+            if (isActive) {
+              // Resurrect dismissed session if it becomes active again
+              if (this.dismissedSessions.has(sessionKey)) {
+                console.log('[NeuralMesh] Resurrecting dismissed session (now active):', sessionKey);
+                this.dismissedSessions.delete(sessionKey);
+              }
+              
+              if (!agent.isThinking) {
+                agent.isThinking = true;
+                if (this.initialPollComplete) {
+                  this.burstFiring(agent, 6);
+                }
+              }
+              
+              // Also update sub-net bubble thinking state AND lastActiveTime
+              const bubble = this.subNetBubbles.get(sessionKey);
+              if (bubble) {
+                bubble.isThinking = true;
+                bubble.intensity = Math.min(100, bubble.intensity + 10);
+                bubble.lastActiveTime = Date.now(); // Keep alive while active
+              }
+            } else {
+              // Session exists but not active - clear thinking state so it can be cleaned up
+              const bubble = this.subNetBubbles.get(sessionKey);
+              if (bubble && bubble.isThinking) {
+                bubble.isThinking = false;
+              }
+            }
+          }
+        });
+        
+        // STEP 3: Clean up stale sub-nets (sessions that no longer exist)
+        const activeSubAgentKeys = new Set(
+          sessions
+            .filter((s: any) => {
+              const key = s.sessionKey || s.key || s.id;
+              if (!key) return false;
+              // Include subagents, spawns, secondary sessions, AND duplicate main sessions
+              const isSubAgent = key.includes(':subagent:') || key.includes(':spawn:');
+              const agentType = this.extractAgentType(key);
+              const isDuplicateMainSession = agentType === 'main' && key !== 'agent:main:main';
+              const isSecondarySession = !isSubAgent && !key.endsWith(':main') && key.split(':').length >= 3;
+              return isSubAgent || isSecondarySession || isDuplicateMainSession;
+            })
+            .map((s: any) => s.sessionKey || s.key || s.id)
+        );
+        
+        const staleSubNets: string[] = [];
+        const stuckSubNets: string[] = [];
+        
+        this.subNetBubbles.forEach((bubble, key) => {
+          const inactiveTime = Date.now() - bubble.lastActiveTime;
+
+          const cluster = this.findClusterForSession(key);
+          const isProtectedFedCluster = !!cluster
+            && cluster.type === 'federation'
+            && cluster.connected === true
+            && (Date.now() - (cluster.lastSeenConnected ?? 0)) < 30000;
+
+          // If session is not in active sub-agent list, mark for removal
+          if (!activeSubAgentKeys.has(key)) {
+            // Short grace period of 5 seconds
+            if (inactiveTime > 5000 && !isProtectedFedCluster) {
+              staleSubNets.push(key);
+            }
+          }
+
+          // ALSO check for stuck bubbles that have been inactive too long (60 seconds)
+          // This catches orphaned bubbles even if they're still in the active list
+          if (inactiveTime > 60000 && !bubble.despawnAnimation && !isProtectedFedCluster) {
+            stuckSubNets.push(key);
+          }
+        });
+        
+        // Despawn stale sub-nets immediately
+        if (staleSubNets.length > 0) {
+          console.log('[NeuralMesh] Cleaning up', staleSubNets.length, 'stale sub-nets');
+          staleSubNets.forEach(key => {
+            this.cleanupSubNetBubble(key); // Direct cleanup, no animation
+          });
+        }
+        
+        // Force cleanup stuck sub-nets with animation
+        if (stuckSubNets.length > 0) {
+          console.log('[NeuralMesh] ⚠️ Force cleaning', stuckSubNets.length, 'STUCK sub-nets');
+          stuckSubNets.forEach(key => {
+            const bubble = this.subNetBubbles.get(key);
+            if (bubble) {
+              bubble.isThinking = false; // Clear stuck thinking state
+              this.despawnSubNetBubble(key);
+            }
+          });
+        }
+        
+        this.updateInterAgentLines();
+        this.updateDeviceLabels();
+        this.requestUpdate();
+        
+        // Mark initial poll as complete - animations will fire from now on
+        if (!this.initialPollComplete) {
+          console.log('[NeuralMesh] Initial poll complete - animations enabled');
+          this.initialPollComplete = true;
+        }
+      }
+    } catch (e) {
+      console.warn('[NeuralMesh] Failed to poll sessions:', e);
+    }
+  }
+  
+  /**
+   * Poll subagent activity and populate activity feed
+   */
+  private knownSubagentRuns = new Set<string>();
+  
+  private async pollSubagentActivity() {
+    if (!this.client) return;
+    
+    const callMethod = this.client?.call || this.client?.invoke || this.client?.request || this.client?.send;
+    if (!callMethod) return;
+    
+    try {
+      const result = await callMethod.call(this.client, 'subagents.list', { limit: 20, includeCompleted: true });
+      const subagents = result?.subagents || result?.list || [];
+      
+      if (!Array.isArray(subagents)) return;
+      
+      subagents.forEach((sa: any) => {
+        const runId = sa.runId || sa.id;
+        const label = sa.label || sa.task?.substring(0, 50) || 'Sub-Agent';
+        const status = sa.status || 'pending';
+        const sessionKey = sa.sessionKey || `agent:${this.extractAgentType(label)}:subagent:${runId}`;
+        
+        // Track each unique run
+        const entryKey = `${runId}-${status}`;
+        
+        // Add activity for new spawns
+        if (status === 'running' || status === 'pending' || status === 'working') {
+          if (!this.knownSubagentRuns.has(`${runId}-spawn`)) {
+            this.knownSubagentRuns.add(`${runId}-spawn`);
+            this.addActivityEntry({
+              type: 'spawn',
+              agentId: sessionKey,
+              name: `${label}`,
+              params: `Status: ${status}`,
+              status: 'pending',
+            });
+          }
+        }
+        
+        // Add activity for completions
+        if (status === 'complete' || status === 'done') {
+          if (!this.knownSubagentRuns.has(`${runId}-complete`)) {
+            this.knownSubagentRuns.add(`${runId}-complete`);
+            this.addActivityEntry({
+              type: 'spawn',
+              agentId: sessionKey,
+              name: `${label}`,
+              params: sa.result?.substring(0, 100) || 'Completed',
+              status: 'success',
+            });
+          }
+        }
+        
+        // Add activity for errors
+        if (status === 'error' || status === 'failed') {
+          if (!this.knownSubagentRuns.has(`${runId}-error`)) {
+            this.knownSubagentRuns.add(`${runId}-error`);
+            this.addActivityEntry({
+              type: 'error',
+              agentId: sessionKey,
+              name: `${label}`,
+              params: sa.error || 'Failed',
+              status: 'error',
+            });
+          }
+        }
+      });
+      
+      // Cleanup old known runs (keep last 100)
+      if (this.knownSubagentRuns.size > 100) {
+        const arr = Array.from(this.knownSubagentRuns);
+        this.knownSubagentRuns = new Set(arr.slice(-50));
+      }
+      
+    } catch (e) {
+      // Silently fail - subagents API might not be available
+    }
+  }
+
+  /**
+   * Poll and render running subagent sessions as visual nodes
+   * This extends the existing activity tracking to actually show session nodes in the mesh
+   */
+  private async pollAndRenderSubagentSessions() {
+    if (!this.client) return;
+    
+    const callMethod = this.client?.call || this.client?.invoke || this.client?.request || this.client?.send;
+    if (!callMethod) return;
+    
+    try {
+      // Get all running subagent sessions
+      const result = await callMethod.call(this.client, 'subagents.list', { 
+        limit: 50, 
+        includeCompleted: false // Only get running sessions for visual nodes
+      });
+      const subagents = result?.subagents || result?.list || [];
+      
+      if (!Array.isArray(subagents)) return;
+      
+      // Track which session keys are currently active
+      const activeSubagentSessionKeys = new Set<string>();
+      
+      // Process each running subagent
+      subagents.forEach((sa: any) => {
+        const runId = sa.runId || sa.id;
+        const sessionKey = sa.sessionKey;
+        const label = sa.label || sa.task?.substring(0, 30) || 'Sub-Agent';
+        const status = sa.status || 'pending';
+        const agentId = sa.agentId || 'main'; // Which agent type spawned this
+        
+        // Only render visual nodes for running/active sessions
+        if (!sessionKey || !['running', 'working', 'pending', 'starting'].includes(status)) {
+          return;
+        }
+        
+        activeSubagentSessionKeys.add(sessionKey);
+        
+        // Find the parent agent network
+        const parentAgentKey = `agent:${agentId}`;
+        const parentAgent = this.agents.get(parentAgentKey) || this.agents.get('agent:main');
+        
+        if (!parentAgent) {
+          console.warn('[NeuralMesh] No parent agent found for subagent:', agentId, sessionKey);
+          return;
+        }
+        
+        // Create sub-net bubble if it doesn't exist
+        if (!this.subNetBubbles.has(sessionKey)) {
+          console.log('[NeuralMesh] 🧠 Creating session node for:', sessionKey, 'label:', label, 'status:', status);
+          
+          // Calculate sibling count for positioning
+          const siblingCount = Array.from(this.subNetBubbles.values())
+            .filter(bubble => bubble.agentId === parentAgent.id).length;
+          
+          // Create the visual sub-net bubble
+          this.createSubNetBubble(sessionKey, label, parentAgent, siblingCount, siblingCount + 1);
+          
+          // Set the bubble as active and thinking if appropriate
+          const bubble = this.subNetBubbles.get(sessionKey);
+          if (bubble) {
+            bubble.isActive = true;
+            bubble.isThinking = ['running', 'working'].includes(status);
+            bubble.progressValue = sa.progress || 0;
+            bubble.lastActiveTime = Date.now();
+          }
+        } else {
+          // Update existing bubble
+          const bubble = this.subNetBubbles.get(sessionKey);
+          if (bubble) {
+            bubble.isActive = true;
+            bubble.isThinking = ['running', 'working'].includes(status);
+            bubble.progressValue = sa.progress || 0;
+            bubble.lastActiveTime = Date.now();
+            
+            // Update label if it changed
+            if (bubble.label && bubble.label.material.map?.image) {
+              const canvas = bubble.label.material.map.image;
+              if (canvas && canvas.getContext) {
+                this.updateSubNetLabel(bubble, label);
+              }
+            }
+          }
+        }
+      });
+      
+      // Clean up session bubbles that are no longer active
+      const staleSessions: string[] = [];
+      this.subNetBubbles.forEach((bubble, sessionKey) => {
+        if (!activeSubagentSessionKeys.has(sessionKey)) {
+          // Only clean up session bubbles, not regular sub-nets
+          if (sessionKey.includes(':subagent:') || sessionKey.startsWith('agent:') && sessionKey.split(':').length === 4) {
+            staleSessions.push(sessionKey);
+          }
+        }
+      });
+      
+      // Remove stale session bubbles
+      if (staleSessions.length > 0) {
+        console.log('[NeuralMesh] 🧹 Cleaning up', staleSessions.length, 'completed session nodes');
+        staleSessions.forEach(sessionKey => {
+          this.despawnSubNetBubble(sessionKey);
+        });
+      }
+      
+      console.log('[NeuralMesh] 📊 Session nodes status:', {
+        active: activeSubagentSessionKeys.size,
+        total: this.subNetBubbles.size,
+        cleaned: staleSessions.length
+      });
+      
+    } catch (e) {
+      // Silently fail - subagents API might not be available
+      console.warn('[NeuralMesh] Failed to poll subagent sessions:', e);
+    }
+  }
+  
+  /**
+   * Update sub-net bubble label text
+   */
+  private updateSubNetLabel(bubble: SubNetBubble, newText: string) {
+    if (!bubble.label || !bubble.label.material.map?.image) return;
+    
+    const canvas = bubble.label.material.map.image as HTMLCanvasElement;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+    
+    // Clear and redraw
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = '#ffffff';
+    ctx.font = 'bold 20px monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(newText, canvas.width / 2, canvas.height / 2 + 7);
+    
+    bubble.label.material.map!.needsUpdate = true;
+  }
+  
+  private animateCharacterTravel(fromClusterId: string, toClusterId: string, color: number = 0x00FFFF) {
+    if (!this.mainGroup) return;
+    const fromCluster = this.clusters.get(fromClusterId);
+    const toCluster = this.clusters.get(toClusterId);
+    if (!fromCluster || !toCluster) return;
+    const fromMainId = fromCluster.mainAgentId;
+    const toMainId = toCluster.mainAgentId;
+    if (!fromMainId || !toMainId) return;
+    const fromAgent = this.agents.get(fromMainId);
+    const toAgent = this.agents.get(toMainId);
+    if (!fromAgent || !toAgent) return;
+
+    const start = fromAgent.position.clone();
+    const end = toAgent.position.clone();
+    const mid = start.clone().add(end).multiplyScalar(0.5);
+    mid.y += 8;
+    const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+
+    const geo = new THREE.SphereGeometry(0.25, 12, 12);
+    const mat = new THREE.MeshBasicMaterial({
+      color,
+      transparent: true,
+      opacity: 1,
+      blending: THREE.AdditiveBlending,
+    });
+    const sphere = new THREE.Mesh(geo, mat);
+    sphere.position.copy(start);
+    this.mainGroup.add(sphere);
+
+    const duration = 1200;
+    const startTime = Date.now();
+    const tmp = new THREE.Vector3();
+    const step = () => {
+      const elapsed = Date.now() - startTime;
+      const t = Math.min(1, elapsed / duration);
+      const eased = 1 - Math.pow(1 - t, 3);
+      curve.getPoint(eased, tmp);
+      sphere.position.copy(tmp);
+      if (t < 1) {
+        requestAnimationFrame(step);
+      } else {
+        this.mainGroup?.remove(sphere);
+        geo.dispose();
+        mat.dispose();
+      }
+    };
+    requestAnimationFrame(step);
+
+    const targetGroup = toAgent.group;
+    if (targetGroup) {
+      const pulseStart = Date.now();
+      const pulseDur = 250;
+      const pulse = () => {
+        const e = Date.now() - pulseStart;
+        const p = Math.min(1, e / pulseDur);
+        const s = p < 0.5 ? 1 + 0.6 * (p / 0.5) : 1.3 - 0.3 * ((p - 0.5) / 0.5);
+        targetGroup.scale.setScalar(s);
+        if (p < 1) requestAnimationFrame(pulse);
+        else targetGroup.scale.setScalar(1);
+      };
+      requestAnimationFrame(pulse);
+    }
+  }
+
+  /**
+   * Fire a spawn connection effect - particles traveling from parent to new sub-net
+   */
+  private fireSpawnConnectionEffect(parentAgent: AgentNetwork, sessionKey: string) {
+    const bubble = this.subNetBubbles.get(sessionKey);
+    if (!bubble || !bubble.connectionLine) return;
+    
+    const curvePoints = (bubble.connectionLine as any).__curvePoints as THREE.Vector3[];
+    if (!curvePoints || curvePoints.length === 0) return;
+    
+    // Create multiple particles that travel along the connection line
+    const numParticles = 8;
+    for (let i = 0; i < numParticles; i++) {
+      setTimeout(() => {
+        this.createSpawnParticle(bubble, curvePoints, parentAgent.color);
+      }, i * 80);
+    }
+    
+    // Flash the connection line green
+    if (bubble.connectionLine) {
+      const lineMat = bubble.connectionLine.material as THREE.LineBasicMaterial;
+      const originalColor = lineMat.color.getHex();
+      lineMat.color.setHex(0x00FF00);
+      lineMat.opacity = 1;
+      
+      setTimeout(() => {
+        lineMat.color.setHex(originalColor);
+        lineMat.opacity = 0.6;
+      }, 500);
+    }
+  }
+  
+  /**
+   * Create a single particle that travels along spawn connection
+   */
+  private createSpawnParticle(bubble: SubNetBubble, curvePoints: THREE.Vector3[], color: number) {
+    if (!this.mainGroup) return;
+    
+    const particleGeo = new THREE.SphereGeometry(0.04, 8, 8);
+    const particleMat = new THREE.MeshBasicMaterial({
+      color: 0x00FF00, // Green for spawn
+      transparent: true,
+      opacity: 1,
+      blending: THREE.AdditiveBlending,
+    });
+    
+    const particle = new THREE.Mesh(particleGeo, particleMat);
+    particle.position.copy(curvePoints[0]);
+    this.mainGroup.add(particle);
+    
+    // Animate particle along curve
+    const duration = 800;
+    const startTime = Date.now();
+    
+    const animateParticle = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(1, elapsed / duration);
+      
+      // Smooth easing
+      const eased = 1 - Math.pow(1 - progress, 3);
+      const pointIndex = Math.floor(eased * (curvePoints.length - 1));
+      
+      if (pointIndex < curvePoints.length) {
+        particle.position.copy(curvePoints[pointIndex]);
+      }
+      
+      // Pulse the particle
+      const pulse = 1 + Math.sin(elapsed * 0.02) * 0.3;
+      particle.scale.setScalar(pulse);
+      particleMat.opacity = 1 - progress * 0.5;
+      
+      if (progress < 1) {
+        requestAnimationFrame(animateParticle);
+      } else {
+        // Burst at destination
+        particle.scale.setScalar(2);
+        particleMat.opacity = 1;
+        
+        setTimeout(() => {
+          this.mainGroup?.remove(particle);
+          particleGeo.dispose();
+          particleMat.dispose();
+        }, 100);
+      }
+    };
+    
+    requestAnimationFrame(animateParticle);
+  }
+  
+  /**
+   * Fire NEON POWER-UP animation on inter-agent connector line
+   * Like electricity traveling through a wire with glow
+   */
+  private firePowerUpConnector(fromAgentId: string, toAgentId: string) {
+    if (!this.mainGroup) return;
+    
+    // Find the inter-agent line connecting these two agents
+    const targetLine = this.interAgentLines.find(line => {
+      const lineA = (line as any).agentA;
+      const lineB = (line as any).agentB;
+      return (lineA === fromAgentId && lineB === toAgentId) ||
+             (lineA === toAgentId && lineB === fromAgentId);
+    });
+    
+    if (!targetLine) {
+      console.log('[NeuralMesh] No connector found between', fromAgentId, 'and', toAgentId);
+      return;
+    }
+    
+    const curvePoints = (targetLine as any).curvePoints as THREE.Vector3[];
+    if (!curvePoints || curvePoints.length === 0) return;
+    
+    console.log('[NeuralMesh] ⚡ Firing power-up animation:', fromAgentId, '→', toAgentId);
+    
+    // Flash the line NEON GREEN
+    const lineMat = targetLine.material as THREE.LineBasicMaterial;
+    const originalColor = lineMat.color.getHex();
+    const originalOpacity = lineMat.opacity;
+    
+    // Initial flash
+    lineMat.color.setHex(0x00FF00);
+    lineMat.opacity = 1;
+    
+    // Create POWER SURGE particles traveling along the wire
+    const numParticles = 15;
+    const particleDelay = 40; // Fast succession
+    
+    for (let i = 0; i < numParticles; i++) {
+      setTimeout(() => {
+        this.createPowerParticle(curvePoints, i);
+      }, i * particleDelay);
+    }
+    
+    // Create GLOW TRAIL effect
+    this.createGlowTrail(curvePoints);
+    
+    // Fade line back to normal after animation
+    setTimeout(() => {
+      lineMat.color.setHex(originalColor);
+      lineMat.opacity = originalOpacity;
+    }, 1200);
+  }
+  
+  /**
+   * Create a single power particle that travels along connector
+   */
+  private createPowerParticle(curvePoints: THREE.Vector3[], index: number) {
+    if (!this.mainGroup) return;
+    
+    // Particle with neon glow
+    const size = 0.08 + Math.random() * 0.04;
+    const particleGeo = new THREE.SphereGeometry(size, 8, 8);
+    const particleMat = new THREE.MeshBasicMaterial({
+      color: 0x00FF00,
+      transparent: true,
+      opacity: 1,
+      blending: THREE.AdditiveBlending,
+    });
+    
+    const particle = new THREE.Mesh(particleGeo, particleMat);
+    particle.position.copy(curvePoints[0]);
+    this.mainGroup.add(particle);
+    
+    // Create glow halo around particle
+    const glowGeo = new THREE.SphereGeometry(size * 2.5, 8, 8);
+    const glowMat = new THREE.MeshBasicMaterial({
+      color: 0x00FF00,
+      transparent: true,
+      opacity: 0.4,
+      blending: THREE.AdditiveBlending,
+    });
+    const glow = new THREE.Mesh(glowGeo, glowMat);
+    particle.add(glow);
+    
+    // Animate along curve - FAST!
+    const duration = 400 + Math.random() * 200;
+    const startTime = Date.now();
+    
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(1, elapsed / duration);
+      
+      // Ease out for acceleration feel
+      const eased = 1 - Math.pow(1 - progress, 2);
+      const pointIndex = Math.floor(eased * (curvePoints.length - 1));
+      
+      if (pointIndex < curvePoints.length) {
+        particle.position.copy(curvePoints[pointIndex]);
+      }
+      
+      // Pulse the particle
+      const pulse = 1 + Math.sin(elapsed * 0.03) * 0.3;
+      particle.scale.setScalar(pulse);
+      
+      // Trail fade
+      particleMat.opacity = 1 - progress * 0.3;
+      glowMat.opacity = 0.4 * (1 - progress * 0.5);
+      
+      if (progress < 1) {
+        requestAnimationFrame(animate);
+      } else {
+        // Burst at destination
+        particle.scale.setScalar(3);
+        glowMat.opacity = 0.8;
+        
+        setTimeout(() => {
+          this.mainGroup?.remove(particle);
+          particleGeo.dispose();
+          particleMat.dispose();
+          glowGeo.dispose();
+          glowMat.dispose();
+        }, 100);
+      }
+    };
+    
+    requestAnimationFrame(animate);
+  }
+  
+  /**
+   * Create glowing trail effect along connector
+   */
+  private createGlowTrail(curvePoints: THREE.Vector3[]) {
+    if (!this.mainGroup) return;
+    
+    // Validate curve points
+    const validPoints = this.getValidPoints(curvePoints);
+    if (validPoints.length < 2) return;
+    
+    // Create thick glowing line that fades
+    const glowMat = new THREE.LineBasicMaterial({
+      color: 0x00FF00,
+      transparent: true,
+      opacity: 0.8,
+      blending: THREE.AdditiveBlending,
+    });
+    
+    const geo = new THREE.BufferGeometry().setFromPoints(validPoints);
+    const glowLine = new THREE.Line(geo, glowMat);
+    this.mainGroup.add(glowLine);
+    
+    // Animate the glow fading
+    const startTime = Date.now();
+    const duration = 800;
+    
+    const animateGlow = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(1, elapsed / duration);
+      
+      glowMat.opacity = 0.8 * (1 - progress);
+      
+      if (progress < 1) {
+        requestAnimationFrame(animateGlow);
+      } else {
+        this.mainGroup?.remove(glowLine);
+        geo.dispose();
+        glowMat.dispose();
+      }
+    };
+    
+    requestAnimationFrame(animateGlow);
+  }
+
+  /**
+   * Add an agent to a specific cluster
+   * Used for federation nodes where each device has its own agent cluster
+   */
+  private addAgentToCluster(
+    id: string,
+    name: string,
+    clusterId: string,
+    clusterName: string,
+    isMain: boolean = false,
+    messages: { role: string; content: string; }[] = []
+  ) {
+    console.log('[NeuralMesh] addAgentToCluster called:', { id, name, clusterId, isMain });
+    
+    if (!this.mainGroup || !this.scene) {
+      console.warn('[NeuralMesh] addAgentToCluster: mainGroup or scene not ready');
+      return;
+    }
+    if (this.agents.has(id)) {
+      console.log('[NeuralMesh] addAgentToCluster: agent already exists:', id);
+      return;
+    }
+    
+    // Get or create the cluster
+    const clusterType = clusterId === 'local' ? 'local' : 'federation';
+    const cluster = this.getOrCreateCluster(clusterId, clusterType, clusterName);
+    
+    // Calculate position within cluster
+    const indexInCluster = cluster.agentIds.size;
+    const position = this.calculatePositionInCluster(cluster.centerPosition, indexInCluster, isMain);
+    const color = AGENT_COLORS[indexInCluster % AGENT_COLORS.length];
+    
+    console.log('[NeuralMesh] Adding agent to cluster:', { id, name, clusterId, isMain, indexInCluster, position: `(${position.x.toFixed(1)}, ${position.y.toFixed(1)}, ${position.z.toFixed(1)})` });
+    
+    // Create network
+    const { group, nodes, edges, nodePositions, glowRing, progressRing } = this.createNetwork(position, color);
+    this.mainGroup.add(group);
+    
+    // Create label WITH device prefix for federation agents
+    // Format: "ROBO1: ASH" or "ROBO2: DEV" for federation, just "ASH" or "DEV" for local
+    let labelText = name;
+    if (clusterId !== 'local' && clusterName) {
+      // Shorten cluster name if too long (e.g., "NODE_MN1TP..." → "ROBO1")
+      const shortClusterName = clusterName.length > 8 ? clusterName.substring(0, 6) : clusterName;
+      labelText = `${shortClusterName}: ${name}`;
+    }
+    const label = this.createLabel(labelText, color);
+    label.position.set(position.x, position.y + 2, position.z);
+    this.scene.add(label);
+    
+    const agent: AgentNetwork = {
+      id,
+      name,
+      color,
+      position,
+      group,
+      nodes,
+      edges,
+      nodePositions,
+      label,
+      isThinking: false,
+      intensity: 0,
+      tokenBuffer: [],
+      lastTokenTime: 0,
+      firingPulses: [],
+      thoughtWords: [],
+      latestMessages: messages,
+      agentType: clusterType,
+      nodeId: clusterId === 'local' ? undefined : clusterId,
+      lastActiveTime: Date.now(),
+      streamText: '',
+      streamFragments: [],
+      activityFragments: [],
+      activeSessions: new Set(),
+      glowRing,
+      progressRing,
+      progressValue: 0,
+      pulsePhase: Math.random() * Math.PI * 2,
+      celebrationParticles: [],
+      wasThinking: false,
+    };
+    
+    this.agents.set(id, agent);
+    
+    // Add to cluster
+    cluster.agentIds.add(id);
+    if (isMain) {
+      cluster.mainAgentId = id;
+    }
+    
+    this.requestUpdate();
+  }
+
+  private addAgent(
+    id: string, 
+    name: string, 
+    index: number, 
+    messages: { role: string; content: string; }[] = [],
+    agentType: AgentType = 'local',
+    nodeId?: string
+  ) {
+    if (!this.mainGroup || !this.scene) return;
+    if (this.agents.has(id)) return;
+    
+    // For local agents, use cluster-based positioning
+    if (agentType === 'local') {
+      const isMain = name.toUpperCase() === 'MAIN' || name.toUpperCase() === 'ASH' || index === 0;
+      this.addAgentToCluster(id, name, 'local', 'LOCAL', isMain, messages);
+      return;
+    }
+    
+    console.log('[NeuralMesh] Adding agent:', { id, name, agentType, nodeId });
+    
+    const color = AGENT_COLORS[index % AGENT_COLORS.length];
+    const position = this.calculatePosition(agentType, index);
+    
+    // Create network with visual enhancements
+    const { group, nodes, edges, nodePositions, glowRing, progressRing } = this.createNetwork(position, color);
+    this.mainGroup.add(group);
+    
+    // Create label
+    const labelPrefix = agentType === 'federation' ? '🌐 ' : agentType === 'subagent' ? '🔹 ' : '';
+    const label = this.createLabel(labelPrefix + name, color);
+    label.position.set(position.x, position.y + 2, position.z);
+    this.scene.add(label);
+    
+    const agent: AgentNetwork = {
+      id,
+      name,
+      color,
+      position,
+      group,
+      nodes,
+      edges,
+      nodePositions,
+      label,
+      isThinking: false,
+      intensity: 0,
+      tokenBuffer: [],
+      lastTokenTime: 0,
+      firingPulses: [],
+      thoughtWords: [],
+      latestMessages: messages,
+      agentType,
+      nodeId,
+      lastActiveTime: Date.now(),
+      streamText: '',
+      streamFragments: [],
+      activityFragments: [],
+      activeSessions: new Set(),
+      // Visual enhancement properties
+      glowRing,
+      progressRing,
+      progressValue: 0,
+      pulsePhase: Math.random() * Math.PI * 2,
+      celebrationParticles: [],
+      wasThinking: false,
+    };
+    
+    this.agents.set(id, agent);
+    this.requestUpdate();
+  }
+
+  /**
+   * Get or create a device cluster
+   * Each device (local or federation node) has its own cluster with a center position
+   */
+  private getOrCreateCluster(clusterId: string, type: 'local' | 'federation', name: string): DeviceCluster {
+    if (this.clusters.has(clusterId)) {
+      return this.clusters.get(clusterId)!;
+    }
+    
+    // Calculate cluster center position
+    const clusterIndex = this.clusters.size;
+    const centerPosition = this.calculateClusterCenter(type, clusterIndex);
+    
+    // Create cluster label - positioned ABOVE the cluster center
+    const labelText = type === 'local' ? '⬢ LOCAL AGENTS' : `🌐 ${name.toUpperCase()}`;
+    const labelHeight = type === 'local' ? 18 : 14; // Local label higher
+    const labelPos = centerPosition.clone();
+    labelPos.y += labelHeight; // Always above the cluster
+    const labelColor = type === 'local' ? 0x00FFFF : 0xFFD700;
+    
+    let label: THREE.Sprite | null = null;
+    if (this.scene && this.mainGroup) {
+      label = this.createClusterLabel(labelText, labelColor);
+      label.position.copy(labelPos);
+      this.mainGroup.add(label); // Add to mainGroup so it rotates with scene
+    }
+    
+    const cluster: DeviceCluster = {
+      id: clusterId,
+      name,
+      type,
+      centerPosition,
+      mainAgentId: null,
+      agentIds: new Set(),
+      label,
+      clusterIndex,
+      connected: true,
+      lastSeenConnected: Date.now(),
+    };
+
+    this.clusters.set(clusterId, cluster);
+    console.log('[NeuralMesh] Created cluster:', clusterId, 'at', centerPosition);
+    return cluster;
+  }
+  
+  /**
+   * Calculate the center position for a device cluster
+   * Federation clusters orbit LOCAL in a FIBONACCI SPHERE pattern
+   */
+  private calculateClusterCenter(type: 'local' | 'federation', clusterIndex: number): THREE.Vector3 {
+    if (type === 'local') {
+      return new THREE.Vector3(0, 0, 0);
+    }
+    
+    // Count existing federation clusters
+    let fedCount = 0;
+    this.clusters.forEach(c => {
+      if (c.type === 'federation') fedCount++;
+    });
+    
+    // FIBONACCI SPHERE: Federation clusters orbit around LOCAL cluster
+    const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5)); // ~137.5 degrees
+    const ORBIT_RADIUS = 55; // Distance from local cluster center
+    const MAX_CLUSTERS = 12; // Max clusters for phi calculation
+    
+    // Spherical Fibonacci distribution
+    const i = fedCount;
+    const phi = Math.acos(1 - (i + 0.5) / Math.max(MAX_CLUSTERS, fedCount + 1));
+    const theta = i * GOLDEN_ANGLE;
+
+    // Convert to Cartesian (Y-up coordinate system)
+    const x = ORBIT_RADIUS * Math.sin(phi) * Math.cos(theta);
+    const y = ORBIT_RADIUS * Math.cos(phi) * 0.4;
+    const z = -Math.abs(ORBIT_RADIUS * Math.sin(phi) * Math.sin(theta));
+    
+    console.log('[NeuralMesh] Federation cluster FIBONACCI position:', { fedCount, phi: phi.toFixed(2), theta: theta.toFixed(2), x: x.toFixed(1), y: y.toFixed(1), z: z.toFixed(1) });
+    
+    return new THREE.Vector3(x, y, z);
+  }
+
+  /**
+   * Calculate agent position WITHIN a cluster
+   * Index 0 = main/ASH agent at center, others orbit around
+   */
+  private calculatePositionInCluster(clusterCenter: THREE.Vector3, indexInCluster: number, isMain: boolean): THREE.Vector3 {
+    const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
+    
+    // Main agent is at cluster center
+    if (isMain || indexInCluster === 0) {
+      return clusterCenter.clone();
+    }
+    
+    // Other agents orbit around the main agent
+    const SPHERE_RADIUS = 10; // Orbit radius
+    const i = indexInCluster - 1; // 0-based for non-main agents
+    const MAX_AGENTS = 12;
+    
+    const phi = Math.acos(1 - 2 * (i + 0.5) / MAX_AGENTS);
+    const theta = i * GOLDEN_ANGLE;
+    
+    const x = clusterCenter.x + SPHERE_RADIUS * Math.sin(phi) * Math.cos(theta);
+    const y = clusterCenter.y + SPHERE_RADIUS * Math.cos(phi);
+    const z = clusterCenter.z + SPHERE_RADIUS * Math.sin(phi) * Math.sin(theta);
+    
+    return new THREE.Vector3(x, y, z);
+  }
+
+  private calculatePosition(type: AgentType, indexInType: number): THREE.Vector3 {
+    // Legacy method - still used for subagents
+    const GOLDEN_ANGLE = Math.PI * (3 - Math.sqrt(5));
+    
+    if (type === 'local') {
+      if (indexInType === 0) {
+        return new THREE.Vector3(0, 0, 0);
+      }
+      const SPHERE_RADIUS = 10;
+      const i = indexInType - 1;
+      const MAX_AGENTS = 12;
+      const phi = Math.acos(1 - 2 * (i + 0.5) / MAX_AGENTS);
+      const theta = i * GOLDEN_ANGLE;
+      return new THREE.Vector3(
+        SPHERE_RADIUS * Math.sin(phi) * Math.cos(theta),
+        SPHERE_RADIUS * Math.cos(phi),
+        SPHERE_RADIUS * Math.sin(phi) * Math.sin(theta)
+      );
+    } else if (type === 'federation') {
+      // Federation agents should use cluster-based positioning
+      // This is a fallback - should use addAgentToCluster instead
+      const CLUSTER_SPACING = 35;
+      const x = 30 + indexInType * CLUSTER_SPACING;
+      return new THREE.Vector3(x, 0, 0);
+    } else {
+      // Sub-agent sphere below parent
+      const SPHERE_RADIUS = 4;
+      const phi = Math.acos(1 - 2 * (indexInType + 0.5) / 6);
+      const theta = indexInType * GOLDEN_ANGLE;
+      return new THREE.Vector3(
+        SPHERE_RADIUS * Math.sin(phi) * Math.cos(theta),
+        -8 + SPHERE_RADIUS * Math.cos(phi),
+        SPHERE_RADIUS * Math.sin(phi) * Math.sin(theta)
+      );
+    }
+  }
+
+  private createNetwork(center: THREE.Vector3, color: number) {
+    const group = new THREE.Group();
+    group.position.copy(center);
+    
+    const NUM_NODES = 40;
+    const RADIUS = 1.0;
+    const NODE_SIZE = 0.06;
+    const nodes: THREE.Mesh[] = [];
+    const edges: THREE.Line[] = [];
+    const nodePositions: THREE.Vector3[] = [];
+    
+    // Large invisible hit sphere
+    const hitGeo = new THREE.SphereGeometry(1.5, 16, 16);
+    const hitMat = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false });
+    const hitSphere = new THREE.Mesh(hitGeo, hitMat);
+    (hitSphere as any).__isHitSphere = true;
+    group.add(hitSphere);
+    nodes.push(hitSphere);
+    
+    // Nodes
+    for (let i = 0; i < NUM_NODES; i++) {
+      const phi = Math.acos(1 - 2 * (i + 0.5) / NUM_NODES);
+      const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+      const r = RADIUS * (0.9 + Math.random() * 0.2);
+      
+      const pos = new THREE.Vector3(
+        r * Math.sin(phi) * Math.cos(theta),
+        r * Math.sin(phi) * Math.sin(theta),
+        r * Math.cos(phi)
+      );
+      nodePositions.push(pos);
+      
+      const geo = new THREE.SphereGeometry(NODE_SIZE, 8, 8);
+      const mat = new THREE.MeshBasicMaterial({
+        color: new THREE.Color(color),
+        transparent: true,
+        opacity: 1.0,
+      });
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.copy(pos);
+      group.add(mesh);
+      nodes.push(mesh);
+    }
+    
+    // Edges
+    const baseMat = new THREE.LineBasicMaterial({ color: 0x555555, transparent: true, opacity: 0.25 });
+    const connected = new Set<string>();
+    for (let i = 0; i < NUM_NODES; i++) {
+      for (let c = 0; c < 4 + Math.floor(Math.random() * 3); c++) {
+        let j = Math.floor(Math.random() * NUM_NODES);
+        const key = `${Math.min(i,j)}-${Math.max(i,j)}`;
+        if (j !== i && !connected.has(key)) {
+          connected.add(key);
+          const geo = new THREE.BufferGeometry().setFromPoints([nodePositions[i], nodePositions[j]]);
+          const line = new THREE.Line(geo, baseMat.clone());
+          group.add(line);
+          edges.push(line);
+        }
+      }
+    }
+    
+    // Simple glow ring for active state indication (merkaba removed)
+    const glowRingGeo = new THREE.RingGeometry(RADIUS + 0.55, RADIUS + 0.65, 64);
+    const glowRingMat = new THREE.MeshBasicMaterial({
+      color: color,
+      transparent: true,
+      opacity: 0,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    const glowRing = new THREE.Mesh(glowRingGeo, glowRingMat);
+    glowRing.rotation.x = Math.PI / 2;
+    (glowRing as any).__isGlowRing = true;
+    group.add(glowRing);
+    
+    // ★ VISUAL ENHANCEMENT: Ultra-thin stylish progress ring
+    const progressRingGeo = new THREE.RingGeometry(RADIUS + 1.1, RADIUS + 1.13, 128, 1, 0, 0.001);
+    const progressRingMat = new THREE.MeshBasicMaterial({
+      color: 0x00FFAA, // Cyan-green glow
+      transparent: true,
+      opacity: 0,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    const progressRing = new THREE.Mesh(progressRingGeo, progressRingMat);
+    progressRing.rotation.x = Math.PI / 2;
+    (progressRing as any).__isProgressRing = true;
+    group.add(progressRing);
+    
+    // ★ Inner accent ring - hairline thin
+    const innerAccentGeo = new THREE.RingGeometry(RADIUS + 1.05, RADIUS + 1.07, 128);
+    const innerAccentMat = new THREE.MeshBasicMaterial({
+      color: color,
+      transparent: true,
+      opacity: 0.15,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    const innerAccent = new THREE.Mesh(innerAccentGeo, innerAccentMat);
+    innerAccent.rotation.x = Math.PI / 2;
+    (innerAccent as any).__isInnerAccent = true;
+    group.add(innerAccent);
+    
+    // ★ Outer accent ring - subtle glow
+    const outerAccentGeo = new THREE.RingGeometry(RADIUS + 1.15, RADIUS + 1.17, 128);
+    const outerAccentMat = new THREE.MeshBasicMaterial({
+      color: color,
+      transparent: true,
+      opacity: 0.1,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    const outerAccent = new THREE.Mesh(outerAccentGeo, outerAccentMat);
+    outerAccent.rotation.x = Math.PI / 2;
+    (outerAccent as any).__isOuterAccent = true;
+    group.add(outerAccent);
+    
+    // ★ VISUAL ENHANCEMENT: Secondary pulsing halo - moved further out
+    const pulseHaloGeo = new THREE.RingGeometry(RADIUS + 1.25, RADIUS + 1.28, 64);
+    const pulseHaloMat = new THREE.MeshBasicMaterial({
+      color: color,
+      transparent: true,
+      opacity: 0,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    const pulseHalo = new THREE.Mesh(pulseHaloGeo, pulseHaloMat);
+    pulseHalo.rotation.x = Math.PI / 2;
+    (pulseHalo as any).__isPulseHalo = true;
+    group.add(pulseHalo);
+    
+    return { group, nodes, edges, nodePositions, glowRing, progressRing };
+  }
+
+  private createLabel(text: string, color: number): THREE.Sprite {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+    canvas.width = 512;  // Larger canvas for better resolution
+    canvas.height = 80;
+    
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+    ctx.roundRect(4, 4, canvas.width - 8, canvas.height - 8, 8);
+    ctx.fill();
+    
+    // Glow effect
+    ctx.shadowColor = '#' + color.toString(16).padStart(6, '0');
+    ctx.shadowBlur = 8;
+    ctx.strokeStyle = '#' + color.toString(16).padStart(6, '0');
+    ctx.lineWidth = 2;
+    ctx.roundRect(4, 4, canvas.width - 8, canvas.height - 8, 8);
+    ctx.stroke();
+    
+    ctx.fillStyle = '#' + color.toString(16).padStart(6, '0');
+    ctx.font = 'bold 32px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text.substring(0, 20), canvas.width / 2, canvas.height / 2);
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    const mat = new THREE.SpriteMaterial({ map: texture, transparent: true });
+    const sprite = new THREE.Sprite(mat);
+    sprite.scale.set(3.5, 0.55, 1);  // Larger scale for visibility when zoomed out
+    
+    return sprite;
+  }
+
+  private createSmallLabel(text: string, color: number): THREE.Sprite {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+    canvas.width = 180;
+    canvas.height = 32;
+    
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.roundRect(0, 0, canvas.width, canvas.height, 4);
+    ctx.fill();
+    
+    ctx.fillStyle = '#' + color.toString(16).padStart(6, '0');
+    ctx.font = 'bold 14px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text.substring(0, 14), canvas.width / 2, canvas.height / 2);
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    const mat = new THREE.SpriteMaterial({ map: texture, transparent: true });
+    const sprite = new THREE.Sprite(mat);
+    sprite.scale.set(1.0, 0.18, 1);
+    
+    return sprite;
+  }
+
+  /**
+   * Create a large, prominent label for device clusters
+   */
+  private createClusterLabel(text: string, color: number): THREE.Sprite {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+    canvas.width = 512;
+    canvas.height = 64;
+    
+    // Background with glow effect
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.85)';
+    ctx.roundRect(10, 5, canvas.width - 20, canvas.height - 10, 8);
+    ctx.fill();
+    
+    // Border with color
+    ctx.strokeStyle = '#' + color.toString(16).padStart(6, '0');
+    ctx.lineWidth = 3;
+    ctx.roundRect(10, 5, canvas.width - 20, canvas.height - 10, 8);
+    ctx.stroke();
+    
+    // Text with glow
+    ctx.shadowColor = '#' + color.toString(16).padStart(6, '0');
+    ctx.shadowBlur = 10;
+    ctx.fillStyle = '#' + color.toString(16).padStart(6, '0');
+    ctx.font = 'bold 28px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text.substring(0, 20), canvas.width / 2, canvas.height / 2);
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    const mat = new THREE.SpriteMaterial({ map: texture, transparent: true });
+    const sprite = new THREE.Sprite(mat);
+    sprite.scale.set(4.0, 0.5, 1); // Large scale for cluster labels
+    
+    return sprite;
+  }
+
+  private updateInterAgentLines() {
+    if (!this.mainGroup) return;
+    
+    // Remove old lines
+    this.interAgentLines.forEach(line => {
+      this.mainGroup!.remove(line);
+      line.geometry.dispose();
+      (line.material as THREE.Material).dispose();
+    });
+    this.interAgentLines = [];
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // PART 1: INTRA-CLUSTER CONNECTIONS (Fibonacci spiral pattern within each cluster)
+    // ═══════════════════════════════════════════════════════════════════
+    
+    this.clusters.forEach(cluster => {
+      const clusterAgents = Array.from(cluster.agentIds)
+        .map(id => this.agents.get(id))
+        .filter((a): a is AgentNetwork => a !== undefined);
+      
+      if (clusterAgents.length < 2) return;
+      
+      // Find main agent for this cluster
+      const mainAgent = cluster.mainAgentId ? this.agents.get(cluster.mainAgentId) : null;
+      
+      // Connect all agents to main (star topology from center)
+      if (mainAgent) {
+        for (const agent of clusterAgents) {
+          if (agent.id === mainAgent.id) continue;
+          
+          const start = mainAgent.position.clone();
+          const end = agent.position.clone();
+          
+          if (!this.isValidVector3(start) || !this.isValidVector3(end)) continue;
+          
+          const dir = end.clone().sub(start).normalize();
+          start.add(dir.clone().multiplyScalar(1.2));
+          end.sub(dir.clone().multiplyScalar(1.2));
+          
+          const mid = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+          mid.y += 0.5;
+          
+          const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+          const points = curve.getPoints(20);
+          const validPoints = this.getValidPoints(points);
+          if (validPoints.length < 2) continue;
+          
+          // Intra-cluster lines are subtle gray
+          const mat = new THREE.LineBasicMaterial({ 
+            color: 0x666666, 
+            transparent: true, 
+            opacity: 0.25 
+          });
+          const geo = new THREE.BufferGeometry().setFromPoints(validPoints);
+          const line = new THREE.Line(geo, mat);
+          (line as any).isIntraCluster = true;
+          this.mainGroup!.add(line);
+          this.interAgentLines.push(line);
+        }
+      }
+      
+      // Connect outer agents in Fibonacci spiral sequence
+      const outerAgents = clusterAgents.filter(a => a.id !== cluster.mainAgentId);
+      for (let i = 0; i < outerAgents.length; i++) {
+        // Connect to next agent in sequence (creates ring)
+        const next = (i + 1) % outerAgents.length;
+        const agentA = outerAgents[i];
+        const agentB = outerAgents[next];
+        
+        const start = agentA.position.clone();
+        const end = agentB.position.clone();
+        
+        if (!this.isValidVector3(start) || !this.isValidVector3(end)) continue;
+        
+        const dir = end.clone().sub(start).normalize();
+        start.add(dir.clone().multiplyScalar(1.2));
+        end.sub(dir.clone().multiplyScalar(1.2));
+        
+        const mid = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+        
+        const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+        const points = curve.getPoints(15);
+        const validPoints = this.getValidPoints(points);
+        if (validPoints.length < 2) continue;
+        
+        // Outer ring connections are dimmer
+        const mat = new THREE.LineBasicMaterial({ 
+          color: 0x444444, 
+          transparent: true, 
+          opacity: 0.15 
+        });
+        const geo = new THREE.BufferGeometry().setFromPoints(validPoints);
+        const line = new THREE.Line(geo, mat);
+        (line as any).isIntraCluster = true;
+        this.mainGroup!.add(line);
+        this.interAgentLines.push(line);
+      }
+    });
+    
+    // ═══════════════════════════════════════════════════════════════════
+    // PART 2: INTER-CLUSTER CONNECTIONS (ASH to ASH only)
+    // ═══════════════════════════════════════════════════════════════════
+    
+    const mainAgents: AgentNetwork[] = [];
+    
+    // Find all main agents (one per cluster)
+    this.clusters.forEach(cluster => {
+      if (cluster.mainAgentId) {
+        const mainAgent = this.agents.get(cluster.mainAgentId);
+        if (mainAgent) {
+          mainAgents.push(mainAgent);
+        }
+      }
+    });
+    
+    // Fallback: If no clusters, look for agent:main (legacy)
+    if (mainAgents.length === 0) {
+      const legacyMain = this.agents.get('agent:main');
+      if (legacyMain) mainAgents.push(legacyMain);
+    }
+    
+    // Draw GOLD connections between main agents (ASH to ASH)
+    for (let i = 0; i < mainAgents.length; i++) {
+      for (let j = i + 1; j < mainAgents.length; j++) {
+        const agentA = mainAgents[i];
+        const agentB = mainAgents[j];
+        
+        const start = agentA.position.clone();
+        const end = agentB.position.clone();
+        const dir = end.clone().sub(start).normalize();
+        
+        start.add(dir.clone().multiplyScalar(1.5));
+        end.sub(dir.clone().multiplyScalar(1.5));
+        
+        if (!this.isValidVector3(start) || !this.isValidVector3(end)) continue;
+        
+        const mid = new THREE.Vector3().addVectors(start, end).multiplyScalar(0.5);
+        mid.y += 5; // Higher arc for inter-cluster
+        
+        const curve = new THREE.QuadraticBezierCurve3(start, mid, end);
+        const points = curve.getPoints(50);
+        const validPoints = this.getValidPoints(points);
+        if (validPoints.length < 2) continue;
+        
+        // Inter-cluster = GOLD and prominent
+        const mat = new THREE.LineBasicMaterial({ 
+          color: 0xFFD700, 
+          transparent: true, 
+          opacity: 0.7,
+          linewidth: 2 
+        });
+        const geo = new THREE.BufferGeometry().setFromPoints(validPoints);
+        const line = new THREE.Line(geo, mat);
+        (line as any).isInterCluster = true;
+        this.mainGroup!.add(line);
+        this.interAgentLines.push(line);
+        
+        // Glow effect for inter-cluster
+        const glowMat = new THREE.LineBasicMaterial({
+          color: 0xFFD700,
+          transparent: true,
+          opacity: 0.25
+        });
+        const glowGeo = new THREE.BufferGeometry().setFromPoints(validPoints);
+        const glowLine = new THREE.Line(glowGeo, glowMat);
+        this.mainGroup!.add(glowLine);
+        this.interAgentLines.push(glowLine);
+      }
+    }
+  }
+
+  private updateDeviceLabels() {
+    if (!this.scene || !this.mainGroup) return;
+    
+    // Count local and federation agents
+    let localCount = 0;
+    let federationCount = 0;
+    
+    this.agents.forEach((agent, id) => {
+      if (id.startsWith('federation:')) {
+        federationCount++;
+      } else {
+        localCount++;
+      }
+    });
+    
+    // Remove old device labels
+    const oldLabels = this.mainGroup.children.filter(c => (c as any).__isDeviceLabel);
+    oldLabels.forEach(l => this.mainGroup?.remove(l));
+    
+    // Create LOCAL label if we have local agents
+    if (localCount > 0) {
+      const localLabel = this.createDeviceLabel('LOCAL AGENTS', new THREE.Vector3(0, 12, 0), 0x00FFFF);
+      (localLabel as any).__isDeviceLabel = true;
+      this.mainGroup.add(localLabel);
+    }
+    
+    // Create FEDERATION label if we have federation agents
+    if (federationCount > 0) {
+      const fedLabel = this.createDeviceLabel('FEDERATION', new THREE.Vector3(20, 8, 0), 0xFFD700);
+      (fedLabel as any).__isDeviceLabel = true;
+      this.mainGroup.add(fedLabel);
+    }
+  }
+  
+  private createDeviceLabel(text: string, position: THREE.Vector3, color: number): THREE.Sprite {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+    canvas.width = 512;
+    canvas.height = 64;
+    
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    
+    ctx.strokeStyle = `#${color.toString(16).padStart(6, '0')}`;
+    ctx.lineWidth = 2;
+    ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
+    
+    ctx.font = 'bold 28px "Courier New", monospace';
+    ctx.fillStyle = `#${color.toString(16).padStart(6, '0')}`;
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    const material = new THREE.SpriteMaterial({ map: texture, transparent: true });
+    const sprite = new THREE.Sprite(material);
+    sprite.position.copy(position);
+    sprite.scale.set(6, 0.75, 1);
+    
+    return sprite;
+  }
+  
+  /**
+   * Clean up ALL stale sub-net bubbles (call on init or refresh)
+   */
+  private clearAllSubNets() {
+    console.log('[NeuralMesh] Clearing all sub-nets:', this.subNetBubbles.size);
+    
+    const keysToRemove = Array.from(this.subNetBubbles.keys());
+    keysToRemove.forEach(key => {
+      this.cleanupSubNetBubble(key);
+    });
+    
+    this.subNetBubbles.clear();
+    this.sessionToAgent.clear();
+    this.subNetSpawnIndex.clear();
+    this.dismissedSessions.clear(); // Reset dismissed sessions on full clear
+    this.initialLoadSessions.clear(); // Reset initial load tracking on full clear
+  }
+
+  private burstFiring(agent: AgentNetwork, count: number) {
+    for (let i = 0; i < count; i++) {
+      setTimeout(() => {
+        this.firePulse(agent);
+        // ★ DISABLED: Random thought words - real tokens come from stream
+      }, i * 60);
+    }
+  }
+
+  private firePulse(agent: AgentNetwork) {
+    if (agent.nodePositions.length < 2) return;
+    
+    const startIdx = Math.floor(Math.random() * agent.nodePositions.length);
+    const startPos = agent.nodePositions[startIdx];
+    
+    // Validate start position
+    if (!this.isValidVector3(startPos)) return;
+    
+    let bestIdx = -1;
+    let bestScore = -Infinity;
+    
+    for (let j = 0; j < agent.nodePositions.length; j++) {
+      if (j === startIdx) continue;
+      const endPos = agent.nodePositions[j];
+      if (!this.isValidVector3(endPos)) continue;
+      const mid = new THREE.Vector3().addVectors(startPos, endPos).multiplyScalar(0.5);
+      const score = -mid.length() + Math.random() * 0.3;
+      if (score > bestScore) {
+        bestScore = score;
+        bestIdx = j;
+      }
+    }
+    
+    if (bestIdx < 0) return;
+    
+    const endPos = agent.nodePositions[bestIdx];
+    
+    // Validate end position
+    if (!this.isValidVector3(endPos)) return;
+    
+    const centerPoint = new THREE.Vector3(
+      (Math.random() - 0.5) * 0.15,
+      (Math.random() - 0.5) * 0.15,
+      (Math.random() - 0.5) * 0.15
+    );
+    
+    const curve = new THREE.QuadraticBezierCurve3(startPos.clone(), centerPoint, endPos.clone());
+    const curvePoints = curve.getPoints(20);
+    
+    // Validate curve points
+    const validPoints = this.getValidPoints(curvePoints);
+    if (validPoints.length < 2) return;
+    
+    const speed = 0.012 + (agent.intensity / 100) * 0.025 + Math.random() * 0.008;
+    
+    const lineMat = new THREE.LineBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0 });
+    const glowMat = new THREE.LineBasicMaterial({ color: agent.color, transparent: true, opacity: 0, linewidth: 2 });
+    
+    const lineGeo = new THREE.BufferGeometry().setFromPoints(validPoints);
+    const glowGeo = new THREE.BufferGeometry().setFromPoints(validPoints);
+    
+    const line = new THREE.Line(lineGeo, lineMat);
+    const glowLine = new THREE.Line(glowGeo, glowMat);
+    
+    const particleGeo = new THREE.SphereGeometry(0.03, 8, 8);
+    const particleMat = new THREE.MeshBasicMaterial({ color: 0xFFFFFF, transparent: true, opacity: 0 });
+    const particleMesh = new THREE.Mesh(particleGeo, particleMat);
+    particleMesh.position.copy(startPos);
+    
+    (line as any).__curvePoints = validPoints;
+    
+    agent.group.add(glowLine);
+    agent.group.add(line);
+    agent.group.add(particleMesh);
+    
+    agent.firingPulses.push({ progress: 0, speed, line, glowLine, particleMesh });
+    this.totalFirings++;
+  }
+
+  private spawnThoughtWord(agent: AgentNetwork) {
+    if (agent.nodePositions.length === 0) return;
+    
+    const nodeIndex = Math.floor(Math.random() * agent.nodePositions.length);
+    const word = THOUGHT_WORDS[Math.floor(Math.random() * THOUGHT_WORDS.length)];
+    
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+    canvas.width = 320;
+    canvas.height = 80;
+    
+    // WHITE text with slight transparency for thought words
+    ctx.fillStyle = '#FFFFFF';
+    ctx.globalAlpha = 0.8; // Slight transparency
+    ctx.font = 'bold 42px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(word, canvas.width / 2, canvas.height / 2);
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    const mat = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0, depthWrite: false });
+    const sprite = new THREE.Sprite(mat);
+    sprite.scale.set(1.2, 0.3, 1);
+    
+    const pos = agent.nodePositions[nodeIndex].clone();
+    pos.y += 0.15 + Math.random() * 0.1;
+    pos.x += (Math.random() - 0.5) * 0.2;
+    sprite.position.copy(pos);
+    
+    agent.group.add(sprite);
+    
+    agent.thoughtWords.push({
+      sprite,
+      life: 0,
+      maxLife: 1.5 + Math.random() * 1.0,
+      nodeIndex,
+      fadeIn: true,
+    });
+  }
+
+  private spawnStreamFragment(agent: AgentNetwork, text: string) {
+    if (!this.mainGroup) return;
+    
+    // ★ SAFEGUARD: Ensure text is a string
+    if (typeof text !== 'string') {
+      console.warn('[NeuralMesh] spawnStreamFragment received non-string:', text);
+      text = String(text?.text || text?.content || text || '');
+    }
+    if (!text || text === '[object Object]' || text.length < 1) return;
+    
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+    canvas.width = 512;
+    canvas.height = 80;
+    
+    // ★ REAL TOKENS: Clean look with subtle glow
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.35)';
+    ctx.roundRect(4, 4, canvas.width - 8, canvas.height - 8, 6);
+    ctx.fill();
+    
+    // Bright cyan-white text for visibility
+    ctx.fillStyle = '#E0FFFF';
+    ctx.globalAlpha = 0.95;
+    ctx.font = 'bold 36px JetBrains Mono, Consolas, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    
+    // Add subtle glow
+    ctx.shadowColor = '#00FFFF';
+    ctx.shadowBlur = 8;
+    ctx.fillText(text.substring(0, 18), canvas.width / 2, canvas.height / 2);
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    const mat = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0, depthWrite: false });
+    const sprite = new THREE.Sprite(mat);
+    sprite.scale.set(2.0, 0.35, 1);
+    
+    // Cascade position - newer tokens appear higher, flow downward
+    const stackIndex = agent.streamFragments.length % 8;
+    const startY = agent.position.y + 1.2 - stackIndex * 0.3;
+    const xOffset = (Math.random() - 0.5) * 0.8;
+    
+    sprite.position.set(
+      agent.position.x + xOffset,
+      startY,
+      agent.position.z + (Math.random() - 0.5) * 0.4
+    );
+    
+    this.mainGroup.add(sprite);
+    
+    // Allow more tokens visible at once (10 instead of 6)
+    if (agent.streamFragments.length >= 10) {
+      const old = agent.streamFragments.shift()!;
+      this.mainGroup.remove(old.sprite);
+      old.sprite.material.dispose();
+      old.sprite.material.map?.dispose();
+    }
+    
+    agent.streamFragments.push({
+      sprite,
+      text,
+      life: 0,
+      maxLife: 2.5 + Math.random() * 1.5, // Faster lifecycle for constant flow
+      velocity: new THREE.Vector3(xOffset * 0.05, -0.12 - Math.random() * 0.08, (Math.random() - 0.5) * 0.03),
+      startY,
+    });
+  }
+
+  private spawnActivityFragment(
+    agent: AgentNetwork, 
+    text: string, 
+    type: 'tool' | 'mcp' | 'spawn' | 'result' | 'error' | 'thinking'
+  ) {
+    if (!this.mainGroup) return;
+    
+    const colors: Record<string, { bg: string; text: string; glow: number; border: string }> = {
+      tool: { bg: 'rgba(46, 204, 113, 0.9)', text: '#FFFFFF', glow: 0x2ECC71, border: '#2ECC71' },
+      mcp: { bg: 'rgba(155, 89, 182, 0.9)', text: '#FFFFFF', glow: 0x9B59B6, border: '#9B59B6' },
+      spawn: { bg: 'rgba(52, 152, 219, 0.9)', text: '#FFFFFF', glow: 0x3498DB, border: '#3498DB' },
+      result: { bg: 'rgba(39, 174, 96, 0.9)', text: '#FFFFFF', glow: 0x27AE60, border: '#27AE60' },
+      error: { bg: 'rgba(231, 76, 60, 0.9)', text: '#FFFFFF', glow: 0xE74C3C, border: '#E74C3C' },
+      thinking: { bg: 'color-mix(in srgb, var(--g-primary) 90%, transparent)', text: '#000000', glow: 0xFFD700, border: 'var(--g-primary)' },
+    };
+    const colorSet = colors[type] || colors.tool;
+    
+    // LARGER canvas for better visibility when zoomed out
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+    const displayText = text.substring(0, 28);
+    canvas.width = 800;
+    canvas.height = 120;
+    
+    // Strong glow effect
+    ctx.shadowColor = colorSet.border;
+    ctx.shadowBlur = 25;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+    
+    // Background pill
+    ctx.fillStyle = colorSet.bg;
+    ctx.beginPath();
+    ctx.roundRect(10, 10, canvas.width - 20, canvas.height - 20, 30);
+    ctx.fill();
+    
+    // Border
+    ctx.strokeStyle = colorSet.border;
+    ctx.lineWidth = 4;
+    ctx.stroke();
+    
+    const icons: Record<string, string> = {
+      tool: '🔧', mcp: '🔌', spawn: '🚀', result: '✓', error: '✕', thinking: '💭'
+    };
+    
+    // Text with shadow for readability
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = colorSet.text;
+    ctx.font = 'bold 42px JetBrains Mono, monospace';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(`${icons[type]} ${displayText}`, canvas.width / 2, canvas.height / 2);
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    const mat = new THREE.SpriteMaterial({ map: texture, transparent: true, opacity: 0, depthWrite: false });
+    const sprite = new THREE.Sprite(mat);
+    
+    // MUCH LARGER scale for visibility at any zoom level
+    const baseScale = 2.0 + Math.random() * 0.5;
+    sprite.scale.set(5.0 * baseScale, 0.75 * baseScale, 1);
+    
+    // Start position: burst outward from agent
+    const angle = Math.random() * Math.PI * 2;
+    const elevation = (Math.random() - 0.5) * Math.PI * 0.6; // Less vertical spread
+    const radius = 2.0 + Math.random() * 1.0;
+    
+    const startPos = new THREE.Vector3(
+      agent.position.x + Math.cos(angle) * Math.cos(elevation) * radius,
+      agent.position.y + Math.sin(elevation) * radius + 1.5, // Start slightly above
+      agent.position.z + Math.sin(angle) * Math.cos(elevation) * radius
+    );
+    sprite.position.copy(startPos);
+    
+    // Velocity: float upward and outward
+    const direction = new THREE.Vector3().subVectors(startPos, agent.position).normalize();
+    const velocity = new THREE.Vector3(
+      direction.x * (2.0 + Math.random()),
+      2.5 + Math.random() * 1.5, // Strong upward movement
+      direction.z * (2.0 + Math.random())
+    );
+    
+    this.mainGroup.add(sprite);
+    
+    // Allow more fragments visible at once
+    if (agent.activityFragments.length >= 20) {
+      const old = agent.activityFragments.shift()!;
+      this.mainGroup.remove(old.sprite);
+      old.sprite.material.dispose();
+      old.sprite.material.map?.dispose();
+    }
+    
+    agent.activityFragments.push({
+      sprite,
+      bgMesh: null as any,
+      text,
+      type,
+      life: 0,
+      maxLife: 6 + Math.random() * 3, // Longer visible time
+      velocity,
+      startPos: startPos.clone(),
+      scale: baseScale,
+      rotation: Math.random() * 0.2 - 0.1,
+      rotationSpeed: (Math.random() - 0.5) * 0.3,
+    });
+    
+    this.burstFiring(agent, 8);
+  }
+
+  /**
+   * ★ 3D ACTIVITY LOG: Spawn a floating log line that stacks above an agent
+   * Creates timestamped console-style output floating from the neural net
+   */
+  private spawn3DLogLine(
+    agentId: string,
+    text: string,
+    type: 'tool' | 'mcp' | 'spawn' | 'result' | 'error' | 'system' = 'tool'
+  ) {
+    if (!this.mainGroup) return;
+    
+    const agent = this.agents.get(agentId);
+    if (!agent) return;
+    
+    const now = Date.now();
+    const timestamp = new Date().toLocaleTimeString('en-US', { hour12: false });
+    
+    // Color scheme based on type
+    const colors: Record<string, { bg: string; text: string; accent: string }> = {
+      tool: { bg: 'rgba(46, 204, 113, 0.92)', text: '#FFFFFF', accent: '#2ECC71' },
+      mcp: { bg: 'rgba(155, 89, 182, 0.92)', text: '#FFFFFF', accent: '#9B59B6' },
+      spawn: { bg: 'rgba(52, 152, 219, 0.92)', text: '#FFFFFF', accent: '#3498DB' },
+      result: { bg: 'rgba(39, 174, 96, 0.92)', text: '#FFFFFF', accent: '#27AE60' },
+      error: { bg: 'rgba(231, 76, 60, 0.92)', text: '#FFFFFF', accent: '#E74C3C' },
+      system: { bg: 'color-mix(in srgb, var(--g-primary) 92%, transparent)', text: '#000000', accent: 'var(--g-primary)' },
+    };
+    const colorSet = colors[type] || colors.tool;
+    
+    // Icons
+    const icons: Record<string, string> = {
+      tool: '🔧', mcp: '🔌', spawn: '🚀', result: '✓', error: '✕', system: '⚡'
+    };
+    
+    // Create canvas for log line
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d')!;
+    const displayText = `[${timestamp}] ${icons[type]} ${text}`.substring(0, 50);
+    canvas.width = 1024;
+    canvas.height = 64;
+    
+    // Background with rounded corners
+    ctx.shadowColor = colorSet.accent;
+    ctx.shadowBlur = 15;
+    ctx.fillStyle = colorSet.bg;
+    ctx.beginPath();
+    ctx.roundRect(8, 8, canvas.width - 16, canvas.height - 16, 12);
+    ctx.fill();
+    
+    // Left accent bar
+    ctx.shadowBlur = 0;
+    ctx.fillStyle = colorSet.accent;
+    ctx.fillRect(8, 8, 6, canvas.height - 16);
+    
+    // Text
+    ctx.fillStyle = colorSet.text;
+    ctx.font = 'bold 32px JetBrains Mono, monospace';
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(displayText, 28, canvas.height / 2);
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    const mat = new THREE.SpriteMaterial({ 
+      map: texture, 
+      transparent: true, 
+      opacity: 0,  // Start invisible, fade in
+      depthWrite: false 
+    });
+    const sprite = new THREE.Sprite(mat);
+    sprite.scale.set(8, 0.5, 1);  // Wide for log line readability
+    
+    // Position: start at agent position, will animate to stack position
+    const stackIndex = this.activityLogLines.filter(l => l.agentId === agentId).length;
+    const targetY = agent.position.y + 5 + (stackIndex * this.LOG_LINE_HEIGHT);
+    
+    sprite.position.set(
+      agent.position.x + 6,  // Offset to the right of agent
+      agent.position.y + 2,  // Start near agent
+      agent.position.z
+    );
+    
+    this.mainGroup.add(sprite);
+    
+    // Add to tracking array
+    this.activityLogLines.push({
+      sprite,
+      text,
+      timestamp,
+      type,
+      agentId,
+      createdAt: now,
+      targetY,
+      currentY: agent.position.y + 2,
+      opacity: 0,
+      fadeStartTime: null,
+    });
+    
+    // Shift existing lines up to make room
+    this.activityLogLines
+      .filter(l => l.agentId === agentId && l.createdAt < now)
+      .forEach(l => {
+        l.targetY += this.LOG_LINE_HEIGHT;
+      });
+    
+    // Remove old lines if too many
+    const agentLines = this.activityLogLines.filter(l => l.agentId === agentId);
+    if (agentLines.length > this.MAX_LOG_LINES) {
+      const oldest = agentLines[0];
+      oldest.fadeStartTime = now - this.LOG_FADE_TIME; // Force immediate fade
+    }
+    
+    // Trigger activity fragment burst too for visual pop
+    this.spawnActivityFragment(agent, text.substring(0, 20), type === 'system' ? 'thinking' : type as any);
+  }
+
+  /**
+   * Update 3D log lines - animate positions, handle fading
+   */
+  private update3DLogLines(deltaTime: number) {
+    const now = Date.now();
+    const toRemove: ActivityLogLine[] = [];
+    
+    for (const line of this.activityLogLines) {
+      const agent = this.agents.get(line.agentId);
+      if (!agent) {
+        toRemove.push(line);
+        continue;
+      }
+      
+      // Animate Y position smoothly to target
+      const yDiff = line.targetY - line.currentY;
+      line.currentY += yDiff * 0.08;  // Smooth interpolation
+      
+      // Update sprite position (follow agent X/Z, animate Y)
+      line.sprite.position.set(
+        agent.position.x + 8,  // Offset to right
+        line.currentY,
+        agent.position.z
+      );
+      
+      // Fade in new lines
+      if (line.opacity < 1 && !line.fadeStartTime) {
+        line.opacity = Math.min(1, line.opacity + deltaTime * 3);
+        (line.sprite.material as THREE.SpriteMaterial).opacity = line.opacity;
+      }
+      
+      // Start fading after LOG_FADE_TIME
+      if (!line.fadeStartTime && (now - line.createdAt) > this.LOG_FADE_TIME) {
+        line.fadeStartTime = now;
+      }
+      
+      // Fade out
+      if (line.fadeStartTime) {
+        const fadeProgress = (now - line.fadeStartTime) / this.LOG_FADE_DURATION;
+        line.opacity = Math.max(0, 1 - fadeProgress);
+        (line.sprite.material as THREE.SpriteMaterial).opacity = line.opacity;
+        
+        if (line.opacity <= 0) {
+          toRemove.push(line);
+        }
+      }
+    }
+    
+    // Remove faded lines
+    for (const line of toRemove) {
+      this.mainGroup?.remove(line.sprite);
+      line.sprite.material.dispose();
+      (line.sprite.material as THREE.SpriteMaterial).map?.dispose();
+      const idx = this.activityLogLines.indexOf(line);
+      if (idx >= 0) this.activityLogLines.splice(idx, 1);
+    }
+  }
+
+  /**
+   * ★ VISUAL ENHANCEMENT: Celebrate task completion with dramatic effects
+   */
+  private celebrateCompletion(agent: AgentNetwork) {
+    if (!this.mainGroup) return;
+    
+    console.log('[NeuralMesh] 🎉 Celebrating completion for:', agent.id);
+    
+    // Large particle burst
+    for (let i = 0; i < 20; i++) {
+      this.burstFiring(agent, 5);
+    }
+    
+    // Flash nodes green
+    agent.nodes.forEach(node => {
+      if ((node as any).__isHitSphere) return;
+      const mat = node.material as THREE.MeshBasicMaterial;
+      const originalColor = mat.color.getHex();
+      mat.color.setHex(0x00FF00);
+      
+      // Fade back to original
+      setTimeout(() => {
+        mat.color.setHex(originalColor);
+      }, 500);
+    });
+    
+    // Create success particles
+    for (let i = 0; i < 30; i++) {
+      const geo = new THREE.SphereGeometry(0.05 + Math.random() * 0.05, 8, 8);
+      const mat = new THREE.MeshBasicMaterial({
+        color: 0x00FF00,
+        transparent: true,
+        opacity: 1,
+      });
+      const particle = new THREE.Mesh(geo, mat);
+      
+      const angle = Math.random() * Math.PI * 2;
+      const elevation = (Math.random() - 0.5) * Math.PI;
+      particle.position.set(
+        agent.position.x + Math.cos(angle) * 0.5,
+        agent.position.y + Math.sin(elevation) * 0.5,
+        agent.position.z + Math.sin(angle) * 0.5
+      );
+      
+      (particle as any).__velocity = new THREE.Vector3(
+        Math.cos(angle) * (2 + Math.random() * 2),
+        2 + Math.random() * 3,
+        Math.sin(angle) * (2 + Math.random() * 2)
+      );
+      (particle as any).__life = 0;
+      
+      this.mainGroup.add(particle);
+      agent.celebrationParticles.push(particle);
+    }
+    
+    // Spawn success fragment
+    this.spawnActivityFragment(agent, '✓ COMPLETE!', 'result');
+  }
+
+  private colorToHex(color: number): string {
+    return '#' + color.toString(16).padStart(6, '0');
+  }
+
+  private colorToRgb(color: number): string {
+    const r = (color >> 16) & 255;
+    const g = (color >> 8) & 255;
+    const b = color & 255;
+    return `${r}, ${g}, ${b}`;
+  }
+
+  private truncateSessionId(id: string): string {
+    if (id.length <= 24) return id;
+    const parts = id.split(':');
+    if (parts.length >= 3) return `${parts[0]}:${parts[1]}:${parts[2].substring(0, 8)}...`;
+    return id.substring(0, 24) + '...';
+  }
+
+  private formatActivityTime(timestamp: number): string {
+    const now = Date.now();
+    const diff = now - timestamp;
+    
+    if (diff < 1000) return 'now';
+    if (diff < 60000) return `${Math.floor(diff / 1000)}s ago`;
+    if (diff < 3600000) return `${Math.floor(diff / 60000)}m ago`;
+    if (diff < 86400000) return `${Math.floor(diff / 3600000)}h ago`;
+    
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  }
+
+  private startAnimation() {
+    const animate = () => {
+      // Stop entirely while offscreen / tab hidden — onChange re-kicks us.
+      if (this.meshPauseCtrl && !this.meshPauseCtrl.isActive()) {
+        this.animationId = null;
+        return;
+      }
+      this.animationId = requestAnimationFrame(animate);
+
+      // Throttle gate: skip frame work when the window is blurred.
+      if (this.meshPauseCtrl && !this.meshPauseCtrl.wantsFrame(performance.now())) return;
+
+      const delta = this.clock.getDelta();
+      const elapsed = this.clock.getElapsedTime();
+      
+      // FPS counter
+      this.frameCount++;
+      if (elapsed - this.lastFpsTime >= 1) {
+        this.fps = this.frameCount;
+        this.frameCount = 0;
+        this.lastFpsTime = elapsed;
+      }
+      
+      if (!this.mainGroup || !this.renderer || !this.scene || !this.camera) return;
+      
+      if (this.controls) this.controls.update();
+      
+      // Slow rotation
+      this.mainGroup.rotation.y += delta * 0.05;
+      
+      // Update each agent
+      this.agents.forEach(agent => {
+        if (agent.despawnAnimation) return;
+        
+        // Decay intensity
+        if (Date.now() - agent.lastTokenTime > 500) {
+          agent.intensity = Math.max(0, agent.intensity - delta * 25);
+        }
+        
+        // ★ VISUAL ENHANCEMENT 1: Scale up active networks
+        const targetScale = agent.isThinking ? 1.25 : 1.0;
+        const currentScale = agent.group.scale.x;
+        const newScale = THREE.MathUtils.lerp(currentScale, targetScale, delta * 3);
+        agent.group.scale.setScalar(newScale);
+        
+        // ★ VISUAL ENHANCEMENT 2: Glow ring animation for active agents
+        agent.group.traverse((child) => {
+          if ((child as any).__isGlowRing) {
+            const glowRing = child as THREE.Mesh;
+            const mat = glowRing.material as THREE.MeshBasicMaterial;
+            const isFocusedAgent = this.focusedAgent === agent.id || this.focusedSession === agent.id;
+            
+            if (agent.isThinking) {
+              agent.pulsePhase += delta * 2;
+              const pulse = Math.sin(agent.pulsePhase) * 0.5 + 0.5;
+              const focusMultiplier = this.isLocked && !isFocusedAgent ? 0.15 : 1.0;
+              mat.opacity = (0.3 + pulse * 0.4) * focusMultiplier;
+              
+              // Pulsing scale
+              const pulseScale = 1 + Math.sin(agent.pulsePhase * 2) * 0.1;
+              glowRing.scale.setScalar(pulseScale);
+            } else {
+              const targetOpacity = this.isLocked && !isFocusedAgent ? 0 : 0;
+              mat.opacity = THREE.MathUtils.lerp(mat.opacity, targetOpacity, delta * 3);
+            }
+          }
+          
+          // ★ UNIFIED RING SYSTEM: All rings align horizontally into ONE thin static line when activated
+          // When net is active (thinking), all rings collapse into single unified horizontal line
+          const UNIFIED_RING_SCALE = 1.15; // All rings converge to same scale
+          const isFocusedAgent = this.focusedAgent === agent.id || this.focusedSession === agent.id;
+          
+          if ((child as any).__isPulseHalo) {
+            const halo = child as THREE.Mesh;
+            const mat = halo.material as THREE.MeshBasicMaterial;
+            
+            if (agent.isThinking || this.isLocked) {
+              // ★ ACTIVATED: Snap to horizontal, static, unified line
+              halo.rotation.x = THREE.MathUtils.lerp(halo.rotation.x, Math.PI / 2, delta * 8);
+              halo.rotation.y = THREE.MathUtils.lerp(halo.rotation.y, 0, delta * 8);
+              halo.rotation.z = THREE.MathUtils.lerp(halo.rotation.z, 0, delta * 5); // Static, no spin
+              halo.scale.setScalar(THREE.MathUtils.lerp(halo.scale.x, UNIFIED_RING_SCALE, delta * 5));
+              
+              if (this.isLocked && !isFocusedAgent) {
+                mat.opacity = THREE.MathUtils.lerp(mat.opacity, 0, delta * 5);
+              } else {
+                const pulse = Math.sin(elapsed * 2) * 0.15 + 0.85;
+                mat.opacity = THREE.MathUtils.lerp(mat.opacity, 0.7 * pulse, delta * 3);
+              }
+            } else {
+              // Idle: slow 3D orbit
+              halo.rotation.x = Math.PI / 2 + Math.sin(elapsed * 0.3) * 0.4;
+              halo.rotation.y = Math.sin(elapsed * 0.25) * 0.3;
+              halo.rotation.z += delta * 0.3;
+              mat.opacity = 0.08;
+            }
+          }
+          
+          if ((child as any).__isInnerAccent) {
+            const ring = child as THREE.Mesh;
+            const mat = ring.material as THREE.MeshBasicMaterial;
+            
+            if (agent.isThinking || this.isLocked) {
+              // ★ ACTIVATED: Snap to horizontal, merge into unified line
+              ring.rotation.x = THREE.MathUtils.lerp(ring.rotation.x, Math.PI / 2, delta * 8);
+              ring.rotation.y = THREE.MathUtils.lerp(ring.rotation.y, 0, delta * 8);
+              ring.rotation.z = THREE.MathUtils.lerp(ring.rotation.z, 0, delta * 5);
+              ring.scale.setScalar(THREE.MathUtils.lerp(ring.scale.x, UNIFIED_RING_SCALE, delta * 5));
+              
+              if (this.isLocked && !isFocusedAgent) {
+                mat.opacity = THREE.MathUtils.lerp(mat.opacity, 0, delta * 5);
+              } else {
+                mat.opacity = THREE.MathUtils.lerp(mat.opacity, 0.5, delta * 3);
+              }
+            } else {
+              // Idle: orbit on tilted axis
+              ring.rotation.x = Math.PI / 2 + Math.sin(elapsed * 0.4) * 0.5;
+              ring.rotation.y = Math.cos(elapsed * 0.3) * 0.4;
+              ring.rotation.z += delta * 0.2;
+              mat.opacity = 0.12;
+            }
+          }
+          
+          if ((child as any).__isOuterAccent) {
+            const ring = child as THREE.Mesh;
+            const mat = ring.material as THREE.MeshBasicMaterial;
+            
+            if (agent.isThinking || this.isLocked) {
+              // ★ ACTIVATED: Snap to horizontal, merge into unified line
+              ring.rotation.x = THREE.MathUtils.lerp(ring.rotation.x, Math.PI / 2, delta * 8);
+              ring.rotation.y = THREE.MathUtils.lerp(ring.rotation.y, 0, delta * 8);
+              ring.rotation.z = THREE.MathUtils.lerp(ring.rotation.z, 0, delta * 5);
+              ring.scale.setScalar(THREE.MathUtils.lerp(ring.scale.x, UNIFIED_RING_SCALE, delta * 5));
+              
+              if (this.isLocked && !isFocusedAgent) {
+                mat.opacity = THREE.MathUtils.lerp(mat.opacity, 0, delta * 5);
+              } else {
+                mat.opacity = THREE.MathUtils.lerp(mat.opacity, 0.4, delta * 3);
+              }
+            } else {
+              // Idle: counter-orbit
+              ring.rotation.x = Math.PI / 2 + Math.cos(elapsed * 0.35) * 0.6;
+              ring.rotation.y = Math.sin(elapsed * 0.25) * 0.5;
+              ring.rotation.z -= delta * 0.15;
+              mat.opacity = 0.08;
+            }
+          }
+          
+          // ★ VISUAL ENHANCEMENT 3: Progress ring
+          if ((child as any).__isProgressRing) {
+            const progRing = child as THREE.Mesh;
+            const mat = progRing.material as THREE.MeshBasicMaterial;
+            
+            if (agent.isThinking || agent.intensity > 0) {
+              // Update progress value based on intensity
+              agent.progressValue = THREE.MathUtils.lerp(agent.progressValue, agent.intensity / 100, delta * 2);
+              
+              // Recreate ring geometry with new arc
+              const arcLength = agent.progressValue * Math.PI * 2;
+              if (arcLength > 0.01) {
+                progRing.geometry.dispose();
+                progRing.geometry = new THREE.RingGeometry(1.3, 1.45, 64, 1, -Math.PI / 2, arcLength);
+                mat.opacity = 0.7;
+                mat.color.setHex(0x2ECC71);
+              }
+              
+              // Rotate the progress ring
+              progRing.rotation.z = elapsed * 0.5;
+            } else {
+              agent.progressValue = THREE.MathUtils.lerp(agent.progressValue, 0, delta * 3);
+              mat.opacity = THREE.MathUtils.lerp(mat.opacity, 0, delta * 3);
+            }
+          }
+        });
+        
+        // ★ VISUAL ENHANCEMENT 5: Detect state changes for celebration
+        if (agent.wasThinking && !agent.isThinking && agent.intensity < 5) {
+          // Just finished thinking - celebrate!
+          this.celebrateCompletion(agent);
+        }
+        agent.wasThinking = agent.isThinking;
+        
+        // ★ Update celebration particles
+        agent.celebrationParticles = agent.celebrationParticles.filter(particle => {
+          const vel = (particle as any).__velocity as THREE.Vector3;
+          const life = ((particle as any).__life as number) || 0;
+          (particle as any).__life = life + delta;
+          
+          // Apply velocity and gravity
+          particle.position.add(vel.clone().multiplyScalar(delta));
+          vel.y -= 9.8 * delta;
+          
+          // Fade out
+          const mat = particle.material as THREE.MeshBasicMaterial;
+          mat.opacity = Math.max(0, 1 - life / 2);
+          
+          // Remove after 2 seconds
+          if (life > 2) {
+            this.mainGroup?.remove(particle);
+            particle.geometry.dispose();
+            mat.dispose();
+            return false;
+          }
+          return true;
+        });
+        
+        // Network rotation
+        const rotSpeed = agent.isThinking ? 0.4 : 0.1;
+        agent.group.rotation.y += delta * rotSpeed;
+        
+        // Update label position
+        const worldPos = agent.position.clone();
+        worldPos.applyMatrix4(this.mainGroup!.matrixWorld);
+        agent.label.position.set(worldPos.x, worldPos.y + 1.6 + (newScale - 1) * 0.5, worldPos.z);
+        
+        // Pulse nodes
+        agent.nodes.forEach((node, i) => {
+          if ((node as any).__isHitSphere) return;
+          const mat = node.material as THREE.MeshBasicMaterial;
+          const rate = agent.isThinking ? (4 + agent.intensity * 0.05) : 1.5;
+          const phase = (elapsed * rate + i * 0.15) % (Math.PI * 2);
+          
+          const baseOpacity = agent.isThinking ? 0.85 : 0.6;
+          const pulseAmount = agent.isThinking ? 0.15 : 0.1;
+          mat.opacity = baseOpacity + Math.sin(phase) * pulseAmount;
+          
+          if (agent.isThinking && agent.intensity > 50) {
+            const whiteMix = (agent.intensity - 50) / 100;
+            mat.color.setHex(agent.color).lerp(new THREE.Color(0xFFFFFF), whiteMix * 0.4);
+          } else {
+            mat.color.setHex(agent.color);
+          }
+        });
+        
+        // Edges
+        agent.edges.forEach((edge, i) => {
+          const mat = edge.material as THREE.LineBasicMaterial;
+          if (agent.isThinking) {
+            const phase = (elapsed * 3 + i * 0.2) % (Math.PI * 2);
+            const wave = Math.sin(phase);
+            mat.opacity = 0.4 + wave * 0.2 + (agent.intensity / 200);
+            mat.color.setHex(agent.color);
+          } else {
+            mat.opacity = 0.25;
+            mat.color.setHex(0x555555);
+          }
+        });
+        
+        // Update pulses
+        agent.firingPulses = agent.firingPulses.filter(pulse => {
+          pulse.progress += pulse.speed;
+          
+          const headPos = Math.min(pulse.progress, 1);
+          const fadeIn = Math.min(pulse.progress * 4, 1);
+          const fadeOut = Math.max(0, 1 - (pulse.progress - 0.7) * 3);
+          const intensity = fadeIn * fadeOut;
+          
+          (pulse.line.material as THREE.LineBasicMaterial).opacity = intensity * 0.9;
+          (pulse.glowLine.material as THREE.LineBasicMaterial).opacity = intensity * 0.5;
+          
+          if (pulse.particleMesh) {
+            const curvePoints = (pulse.line as any).__curvePoints as THREE.Vector3[];
+            if (curvePoints && curvePoints.length > 0) {
+              const pointIndex = Math.floor(headPos * (curvePoints.length - 1));
+              const clampedIndex = Math.min(pointIndex, curvePoints.length - 1);
+              pulse.particleMesh.position.copy(curvePoints[clampedIndex]);
+              const pulseGlow = 0.7 + Math.sin(elapsed * 15) * 0.3;
+              (pulse.particleMesh.material as THREE.MeshBasicMaterial).opacity = intensity * pulseGlow;
+            }
+          }
+          
+          if (pulse.progress >= 1.2) {
+            agent.group.remove(pulse.line);
+            agent.group.remove(pulse.glowLine);
+            pulse.line.geometry.dispose();
+            pulse.glowLine.geometry.dispose();
+            (pulse.line.material as THREE.Material).dispose();
+            (pulse.glowLine.material as THREE.Material).dispose();
+            if (pulse.particleMesh) {
+              agent.group.remove(pulse.particleMesh);
+              pulse.particleMesh.geometry.dispose();
+              (pulse.particleMesh.material as THREE.Material).dispose();
+            }
+            return false;
+          }
+          return true;
+        });
+        
+        // Update thought words
+        agent.thoughtWords = agent.thoughtWords.filter(tw => {
+          tw.life += delta;
+          const lifeRatio = tw.life / tw.maxLife;
+          const mat = tw.sprite.material as THREE.SpriteMaterial;
+          
+          if (lifeRatio < 0.2) {
+            mat.opacity = (lifeRatio / 0.2) * 0.6;
+          } else if (lifeRatio > 0.7) {
+            mat.opacity = ((1 - lifeRatio) / 0.3) * 0.6;
+          } else {
+            mat.opacity = 0.5 + Math.sin(elapsed * 4) * 0.1;
+          }
+          
+          tw.sprite.position.y += delta * 0.03;
+          
+          if (tw.life >= tw.maxLife) {
+            agent.group.remove(tw.sprite);
+            mat.dispose();
+            tw.sprite.material.map?.dispose();
+            return false;
+          }
+          return true;
+        });
+        
+        // Continuous firing
+        const fireRate = agent.isThinking ? 0.03 + (agent.intensity / 300) : 0.002;
+        if (Math.random() < fireRate) {
+          this.firePulse(agent);
+        }
+        
+        // ★ DISABLED: Random thought words - now using only REAL streamed tokens
+        // Stream fragments (actual tokens) are spawned in handleStreamingChunk
+        
+        // Update stream fragments
+        agent.streamFragments = agent.streamFragments.filter(frag => {
+          frag.life += delta;
+          const lifeRatio = frag.life / frag.maxLife;
+          const mat = frag.sprite.material as THREE.SpriteMaterial;
+          
+          if (lifeRatio < 0.1) {
+            mat.opacity = (lifeRatio / 0.1) * 0.85;
+          } else if (lifeRatio > 0.6) {
+            mat.opacity = ((1 - lifeRatio) / 0.4) * 0.85;
+          } else {
+            mat.opacity = 0.85;
+          }
+          
+          frag.sprite.position.x += frag.velocity.x * delta;
+          frag.sprite.position.y += frag.velocity.y * delta;
+          frag.sprite.position.z += frag.velocity.z * delta;
+          
+          const scale = 1 - (lifeRatio * 0.3);
+          frag.sprite.scale.set(1.2 * scale, 0.15 * scale, 1);
+          
+          if (frag.life >= frag.maxLife) {
+            this.mainGroup?.remove(frag.sprite);
+            mat.dispose();
+            frag.sprite.material.map?.dispose();
+            return false;
+          }
+          return true;
+        });
+        
+        // Update activity fragments
+        agent.activityFragments = agent.activityFragments.filter(frag => {
+          frag.life += delta;
+          const lifeRatio = frag.life / frag.maxLife;
+          const mat = frag.sprite.material as THREE.SpriteMaterial;
+          
+          if (lifeRatio < 0.15) {
+            const popProgress = lifeRatio / 0.15;
+            const overshoot = Math.sin(popProgress * Math.PI) * 0.3;
+            mat.opacity = popProgress * 0.95;
+            const popScale = frag.scale * (0.5 + popProgress * 0.5 + overshoot);
+            frag.sprite.scale.set(1.6 * popScale, 0.24 * popScale, 1);
+          } else if (lifeRatio > 0.7) {
+            mat.opacity = ((1 - lifeRatio) / 0.3) * 0.95;
+          } else {
+            mat.opacity = 0.95;
+          }
+          
+          const drag = 0.97;
+          frag.velocity.multiplyScalar(drag);
+          frag.velocity.y -= 0.01 * delta * 60;
+          
+          frag.sprite.position.x += frag.velocity.x * delta;
+          frag.sprite.position.y += frag.velocity.y * delta;
+          frag.sprite.position.z += frag.velocity.z * delta;
+          
+          if (lifeRatio > 0.15) {
+            const shrink = 1 - ((lifeRatio - 0.15) / 0.85) * 0.4;
+            frag.sprite.scale.set(1.6 * frag.scale * shrink, 0.24 * frag.scale * shrink, 1);
+          }
+          
+          if (frag.life >= frag.maxLife) {
+            this.mainGroup?.remove(frag.sprite);
+            mat.dispose();
+            frag.sprite.material.map?.dispose();
+            return false;
+          }
+          return true;
+        });
+      });
+      
+      // Update 3D Activity Log Lines (floating console output)
+      this.update3DLogLines(delta);
+      
+      // Update sub-net bubbles
+      this.subNetBubbles.forEach(bubble => {
+        if (bubble.despawnAnimation) return;
+        
+        // ★ VISUAL ENHANCEMENT: Scale up active sub-nets based on dynamic target
+        const baseScale = bubble.targetScale || 0.55;
+        const targetScale = bubble.isThinking ? baseScale * 1.15 : baseScale;
+        const currentScale = bubble.group.scale.x;
+        const newScale = THREE.MathUtils.lerp(currentScale, targetScale, delta * 3);
+        bubble.group.scale.setScalar(newScale);
+        
+        // Rotate faster when active
+        const rotSpeed = bubble.isThinking ? 0.6 : 0.2;
+        bubble.group.rotation.y += delta * rotSpeed;
+        
+        // Initialize pulse phase if not set
+        if (bubble.pulsePhase === undefined) bubble.pulsePhase = Math.random() * Math.PI * 2;
+        if (bubble.progressValue === undefined) bubble.progressValue = 0;
+        
+        // ★ VISUAL ENHANCEMENT: Glow ring animation for sub-nets
+        bubble.group.traverse((child) => {
+          if ((child as any).__isGlowRing) {
+            const glowRing = child as THREE.Mesh;
+            const mat = glowRing.material as THREE.MeshBasicMaterial;
+            
+            if (bubble.isThinking) {
+              bubble.pulsePhase! += delta * 2;
+              const pulse = Math.sin(bubble.pulsePhase!) * 0.5 + 0.5;
+              mat.opacity = 0.25 + pulse * 0.35;
+              
+              // Pulsing scale
+              const pulseScale = 1 + Math.sin(bubble.pulsePhase! * 2) * 0.15;
+              glowRing.scale.setScalar(pulseScale);
+              
+              // Rotate slowly
+              glowRing.rotation.z += delta * 0.5;
+            } else {
+              mat.opacity = THREE.MathUtils.lerp(mat.opacity, 0, delta * 3);
+            }
+          }
+          
+          // ★ Progress ring for sub-net
+          if ((child as any).__isProgressRing) {
+            const progRing = child as THREE.Mesh;
+            const mat = progRing.material as THREE.MeshBasicMaterial;
+            
+            if (bubble.isThinking || bubble.intensity > 0) {
+              // Update progress value based on intensity
+              bubble.progressValue = THREE.MathUtils.lerp(bubble.progressValue!, bubble.intensity / 100, delta * 2);
+              
+              // Recreate ring geometry with new arc
+              const arcLength = bubble.progressValue! * Math.PI * 2;
+              if (arcLength > 0.01) {
+                progRing.geometry.dispose();
+                progRing.geometry = new THREE.RingGeometry(0.5, 0.6, 32, 1, -Math.PI / 2, arcLength);
+                mat.opacity = 0.6;
+                mat.color.setHex(0x2ECC71);
+              }
+              
+              // Rotate the progress ring
+              progRing.rotation.z = elapsed * 0.5;
+            } else {
+              bubble.progressValue = THREE.MathUtils.lerp(bubble.progressValue!, 0, delta * 3);
+              mat.opacity = THREE.MathUtils.lerp(mat.opacity, 0, delta * 3);
+            }
+          }
+        });
+        
+        // Pulse nodes when active
+        bubble.nodes.forEach((node, i) => {
+          const mat = node.material as THREE.MeshBasicMaterial;
+          if (bubble.isThinking) {
+            const phase = (elapsed * 4 + i * 0.2) % (Math.PI * 2);
+            mat.opacity = 0.8 + Math.sin(phase) * 0.2;
+            
+            // Flash brighter at high intensity
+            if (bubble.intensity > 50) {
+              const whiteMix = (bubble.intensity - 50) / 100;
+              const parentAgent = this.agents.get(bubble.agentId);
+              const baseColor = parentAgent?.color || 0xFFD700;
+              mat.color.setHex(baseColor);
+              mat.color.lerp(new THREE.Color(0xFFFFFF), whiteMix * 0.3);
+            }
+          } else {
+            mat.opacity = THREE.MathUtils.lerp(mat.opacity, 0.7, delta * 2);
+          }
+        });
+        
+        // Connection line brightness
+        const lineMat = bubble.connectionLine.material as THREE.LineBasicMaterial;
+        const connGlowMat = bubble.glowLine.material as THREE.LineBasicMaterial;
+        if (bubble.isThinking) {
+          const pulse = Math.sin(elapsed * 4) * 0.2 + 0.8;
+          lineMat.opacity = pulse;
+          connGlowMat.opacity = pulse * 0.6;
+        } else {
+          lineMat.opacity = THREE.MathUtils.lerp(lineMat.opacity, 0.5, delta * 2);
+          connGlowMat.opacity = THREE.MathUtils.lerp(connGlowMat.opacity, 0.3, delta * 2);
+        }
+        
+        // ★ Spawn activity fragments from sub-nets too!
+        if (bubble.isThinking && Math.random() < 0.005 + bubble.intensity / 2000) {
+          this.fireSubNetPulse(bubble);
+        }
+        
+        // Update flow particles
+        bubble.flowParticles = bubble.flowParticles.filter(particle => {
+          if (particle.direction === 'toChild') {
+            particle.progress += particle.speed;
+          } else {
+            particle.progress -= particle.speed;
+          }
+          
+          const points = (bubble.connectionLine as any).__curvePoints as THREE.Vector3[];
+          if (points && points.length > 0) {
+            const t = Math.max(0, Math.min(1, particle.progress));
+            const pointIndex = Math.floor(t * (points.length - 1));
+            const clampedIndex = Math.max(0, Math.min(pointIndex, points.length - 1));
+            particle.mesh.position.copy(points[clampedIndex]);
+          }
+          
+          const mat = particle.mesh.material as THREE.MeshBasicMaterial;
+          if (particle.progress < 0.1) {
+            mat.opacity = (particle.progress / 0.1) * 0.9;
+          } else if (particle.progress > 0.9) {
+            mat.opacity = ((1 - particle.progress) / 0.1) * 0.9;
+          } else {
+            mat.opacity = 0.9;
+          }
+          
+          const pulseScale = 1 + Math.sin(elapsed * 15) * 0.3;
+          particle.mesh.scale.setScalar(pulseScale);
+          
+          const done = particle.direction === 'toChild' ? particle.progress >= 1 : particle.progress <= 0;
+          if (done) {
+            this.mainGroup?.remove(particle.mesh);
+            particle.mesh.geometry.dispose();
+            (particle.mesh.material as THREE.Material).dispose();
+            return false;
+          }
+          return true;
+        });
+        
+        // Update sub-net pulses
+        bubble.firingPulses = bubble.firingPulses.filter(pulse => {
+          pulse.progress += pulse.speed;
+          
+          const fadeIn = Math.min(pulse.progress * 4, 1);
+          const fadeOut = Math.max(0, 1 - (pulse.progress - 0.7) * 3);
+          const intensity = fadeIn * fadeOut;
+          
+          (pulse.line.material as THREE.LineBasicMaterial).opacity = intensity * 0.8;
+          (pulse.glowLine.material as THREE.LineBasicMaterial).opacity = intensity * 0.4;
+          
+          if (pulse.progress >= 1.2) {
+            bubble.group.remove(pulse.line);
+            bubble.group.remove(pulse.glowLine);
+            pulse.line.geometry.dispose();
+            pulse.glowLine.geometry.dispose();
+            (pulse.line.material as THREE.Material).dispose();
+            (pulse.glowLine.material as THREE.Material).dispose();
+            return false;
+          }
+          return true;
+        });
+        
+        // Update label position
+        bubble.label.position.set(
+          bubble.group.position.x,
+          bubble.group.position.y + 0.7,
+          bubble.group.position.z
+        );
+      });
+      
+      // ★ AUTO-CLEANUP: Despawn inactive sub-nets
+      const INACTIVE_TIMEOUT_MS = 30000; // 30 seconds for non-thinking
+      const HARD_TIMEOUT_MS = 90000; // 90 seconds HARD limit - despawn even if "thinking"
+      const DUPLICATE_MAIN_TIMEOUT_MS = 10000; // 10 seconds for duplicate main sessions (webchat tabs)
+      const now = Date.now();
+      this.subNetBubbles.forEach((bubble, sessionKey) => {
+        // Skip if already despawning
+        if (bubble.despawnAnimation) return;
+        
+        const inactiveTime = now - bubble.lastActiveTime;
+        const agentType = this.extractAgentType(sessionKey);
+        const isDuplicateMain = agentType === 'main' && sessionKey !== 'agent:main:main';
+        
+        // HARD TIMEOUT: Force despawn stuck bubbles after 90 seconds regardless of state
+        if (inactiveTime > HARD_TIMEOUT_MS) {
+          console.log(`[NeuralMesh] ⚠️ FORCE despawning STUCK sub-net: ${sessionKey} (inactive ${Math.round(inactiveTime / 1000)}s, isThinking=${bubble.isThinking})`);
+          bubble.isThinking = false; // Clear thinking flag
+          this.despawnSubNetBubble(sessionKey);
+          return;
+        }
+        
+        // Faster cleanup for duplicate main sessions (browser tabs) - 10s timeout
+        if (isDuplicateMain && !bubble.isThinking && inactiveTime > DUPLICATE_MAIN_TIMEOUT_MS) {
+          console.log(`[NeuralMesh] Auto-despawning duplicate main session: ${sessionKey} (inactive ${Math.round(inactiveTime / 1000)}s)`);
+          this.despawnSubNetBubble(sessionKey);
+          return;
+        }
+        
+        // Normal timeout: only if not actively thinking
+        if (!bubble.isThinking && inactiveTime > INACTIVE_TIMEOUT_MS) {
+          console.log(`[NeuralMesh] Auto-despawning inactive sub-net: ${sessionKey} (inactive for ${Math.round(inactiveTime / 1000)}s)`);
+          this.despawnSubNetBubble(sessionKey);
+        }
+      });
+      
+      // Render
+      this.renderer.render(this.scene, this.camera);
+    };
+    
+    animate();
+  }
+
+  private renderAgentGroup(type: string, label: string, agents: AgentNetwork[]) {
+    if (agents.length === 0) return '';
+    
+    return html`
+      <div class="agent-group">
+        <div class="agent-group-header ${type}">
+          ${label}
+          <span class="count">${agents.length}</span>
+        </div>
+        ${agents.map(agent => html`
+          <div class="agent-card-wrapper">
+            <div 
+              class="agent-card ${agent.isThinking ? 'thinking' : ''}"
+              style="--agent-color: ${this.colorToHex(agent.color)}"
+              @mouseenter=${() => { this.hoveredAgent = agent.id; this.requestUpdate(); }}
+              @mouseleave=${() => { this.hoveredAgent = null; this.requestUpdate(); }}
+            >
+              <div class="agent-dot"></div>
+              <div class="agent-name">${agent.name}</div>
+              ${agent.intensity > 0 ? html`
+                <div class="agent-intensity">${Math.round(agent.intensity)}%</div>
+              ` : ''}
+            </div>
+          </div>
+        `)}
+      </div>
+    `;
+  }
+
+  private getActivityIcon(type: string): string {
+    switch (type) {
+      case 'tool': return '🔧';
+      case 'mcp': return '🔌';
+      case 'spawn': return '🚀';
+      case 'message': return '💬';
+      case 'error': return '❌';
+      case 'complete': return '✅';
+      case 'thinking': return '⏳';
+      default: return '⚡';
+    }
+  }
+  
+  private formatTime(timestamp: number): string {
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString('en-US', { hour12: false, hour: '2-digit', minute: '2-digit', second: '2-digit' });
+  }
+
+  private formatTimeAgo(timestamp: number): string {
+    const seconds = Math.floor((Date.now() - timestamp) / 1000);
+    if (seconds < 5) return 'now';
+    if (seconds < 60) return `${seconds}s ago`;
+    const minutes = Math.floor(seconds / 60);
+    if (minutes < 60) return `${minutes}m ago`;
+    const hours = Math.floor(minutes / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+  }
+
+  private handleActivityEntryClick(entry: ActivityEntry) {
+    // Focus on the agent that produced this activity
+    const agentType = this.extractAgentType(entry.agentId);
+    const agentKey = `agent:${agentType}`;
+    
+    // Check if there's a specific session (sub-net bubble)
+    if (this.subNetBubbles.has(entry.agentId)) {
+      this.focusOnSubNet(entry.agentId, agentKey);
+    } else if (this.agents.has(agentKey)) {
+      this.focusOnAgent(agentKey);
+    }
+  }
+
+  // ===== HUD PANEL DRAG HANDLERS =====
+  private handleHudDragStart(e: MouseEvent) {
+    // Only drag from the header
+    const target = e.target as HTMLElement;
+    if (!target.closest('.hud-drag-handle')) return;
+    
+    e.preventDefault();
+    this.hudDragging = true;
+    
+    const panel = this.shadowRoot?.querySelector('.hud-terminal-panel') as HTMLElement;
+    if (!panel) return;
+    
+    const rect = panel.getBoundingClientRect();
+    this.hudDragOffset = {
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    };
+    
+    // Add global listeners
+    document.addEventListener('mousemove', this.handleHudDragMove);
+    document.addEventListener('mouseup', this.handleHudDragEnd);
+  }
+
+  private handleHudDragMove = (e: MouseEvent) => {
+    if (!this.hudDragging) return;
+    
+    e.preventDefault();
+    
+    // Calculate new position
+    const newX = e.clientX - this.hudDragOffset.x;
+    const newY = e.clientY - this.hudDragOffset.y;
+    
+    // Get viewport bounds
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const panelWidth = 340;
+    const panelHeight = 500;
+    
+    // Clamp to viewport
+    this.hudPosition = {
+      x: Math.max(0, Math.min(vw - panelWidth, newX)),
+      y: Math.max(0, Math.min(vh - panelHeight, newY))
+    };
+    
+    this.requestUpdate();
+  };
+
+  private handleHudDragEnd = () => {
+    this.hudDragging = false;
+    document.removeEventListener('mousemove', this.handleHudDragMove);
+    document.removeEventListener('mouseup', this.handleHudDragEnd);
+  };
+
+  private getHudPositionStyle(): string {
+    if (this.hudPosition.x === -1) {
+      // Default position: right side
+      return 'right: 12px; top: 12px;';
+    }
+    return `left: ${this.hudPosition.x}px; top: ${this.hudPosition.y}px;`;
+  }
+
+  private getCurrentTimestamp(): string {
+    const now = new Date();
+    return now.toLocaleTimeString('en-US', { 
+      hour12: false, 
+      hour: '2-digit', 
+      minute: '2-digit', 
+      second: '2-digit' 
+    });
+  }
+
+  render() {
+    const agentList = Array.from(this.agents.values());
+    const focusedAgentData = this.focusedAgent ? this.agents.get(this.focusedAgent) : null;
+    
+    return html`
+      <div class="galaxy-bg"></div>
+      <div class="canvas-container ${this.isLocked ? 'locked' : ''}"></div>
+      
+      <div class="overlay">
+        <div class="status">
+          <div class="status-dot"></div>
+          ${this.client ? 'LIVE' : 'DEMO'}
+        </div>
+        
+        ${this.isLocked && focusedAgentData ? html`
+          <div class="focused-label" style="--focus-color: ${this.colorToHex(focusedAgentData.color)}">
+            ${focusedAgentData.name}
+          </div>
+          <div class="focus-header-controls">
+            <button class="focus-header-btn unlock-btn" @click=${() => this.unlockView()} title="Unlock view">
+              ${icons.x}
+            </button>
+          </div>
+          
+          <div class="focus-chat-panel" style="--focus-color: ${this.colorToHex(focusedAgentData.color)}; --focus-color-rgb: ${this.colorToRgb(focusedAgentData.color)}">
+            <div class="focus-chat-header">
+              <div class="focus-chat-title">Session Feed</div>
+              <div class="focus-chat-header-controls">
+                <div class="focus-chat-session">${this.truncateSessionId(focusedAgentData.id)}</div>
+              </div>
+            </div>
+            <div class="focus-chat-messages">
+              ${this.focusChatLoading ? html`
+                <div class="chat-loading">
+                  <div class="loading-spinner"></div>
+                  <span>Loading messages...</span>
+                </div>
+              ` : this.focusChatMessages.length === 0 ? html`
+                <div class="chat-empty">
+                  <span class="empty-icon">${icons.messageSquare}</span>
+                  <span>No messages yet</span>
+                </div>
+              ` : this.focusChatMessages.filter(msg => msg.content && msg.content.trim().length > 0).map(msg => html`
+                <div class="chat-group ${msg.role}">
+                  <div class="chat-avatar ${msg.role}">
+                    ${msg.role === 'user' ? icons.person : msg.role === 'assistant' ? html`<img src="/infinibot-logo.png" alt="AI" class="avatar-icon" />` : icons.settings}
+                  </div>
+                  <div class="chat-bubble">${msg.content}</div>
+                </div>
+              `)}
+            </div>
+            <div class="focus-chat-input">
+              <input type="text" placeholder="Send message to session..." @keypress=${(e: KeyboardEvent) => this.handleChatInputKeypress(e)} />
+              <button class="send-btn" @click=${(e: Event) => this.handleChatInputSubmit(e)}>Send</button>
+            </div>
+          </div>
+        ` : ''}
+        
+        <!-- Activity Panel - Always visible -->
+        <button class="activity-float-btn ${this.showActivityLog ? 'active' : ''}" @click=${() => this.showActivityLog = !this.showActivityLog} title="${this.showActivityLog ? 'Hide Activity' : 'Show Activity'}">
+          ${icons.zap} <span class="activity-count">${this.activityLog.length}</span>
+        </button>
+        
+        ${this.showActivityLog ? html`
+          <div class="activity-panel" style="--focus-color: var(--g-primary)">
+            <div class="activity-header">
+              <div class="activity-title">${icons.zap} Activity Log</div>
+              <button class="activity-toggle" @click=${() => this.showActivityLog = false}>${icons.x}</button>
+            </div>
+            <div class="activity-list">
+              ${this.activityLog.length === 0 ? html`
+                <div class="activity-entry" style="opacity: 0.5; text-align: center;">
+                  <span>No activity yet</span>
+                </div>
+              ` : this.activityLog.slice().reverse().slice(0, 30).map(entry => html`
+                <div class="activity-entry ${entry.type}" style="--entry-color: ${entry.color || 'var(--g-primary)'}" @click=${() => this.handleActivityEntryClick(entry)}>
+                  <div class="activity-entry-header">
+                    <span class="activity-agent">${entry.agentName || entry.agentId || 'System'}</span>
+                    <span class="activity-time">${this.formatActivityTime(entry.timestamp)}</span>
+                  </div>
+                  <div class="activity-message">${entry.name}${entry.params ? ': ' + entry.params.substring(0, 50) : ''}</div>
+                  <div class="activity-status ${entry.status}">${entry.status}${entry.duration ? ` (${entry.duration}ms)` : ''}</div>
+                </div>
+              `)}
+            </div>
+          </div>
+        ` : ''}
+        
+        ${!this.isLocked ? html`
+          <div class="agent-list">
+            ${this.renderAgentGroup('active', '● Active', agentList.filter(a => a.isThinking || a.intensity > 0))}
+            ${this.renderAgentGroup('local', '◆ Local', agentList.filter(a => a.agentType === 'local' && !a.isThinking && a.intensity === 0))}
+            ${this.renderAgentGroup('federation', 'Federation', agentList.filter(a => a.agentType === 'federation' && !a.isThinking && a.intensity === 0))}
+          </div>
+        ` : ''}
+        
+        <div class="stats">
+          <div class="stat">
+            <span class="stat-label">Agents</span>
+            <span class="stat-value">${this.agents.size}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Sessions</span>
+            <span class="stat-value">${this.subNetBubbles.size}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Firings</span>
+            <span class="stat-value">${this.totalFirings}</span>
+          </div>
+          <div class="stat">
+            <span class="stat-label">FPS</span>
+            <span class="stat-value">${this.fps}</span>
+          </div>
+        </div>
+        
+        <div class="title">Agent Mesh Network</div>
+      </div>
+      
+    `;
+  }
+}
+
+declare global {
+  interface HTMLElementTagNameMap {
+    "neural-mesh-viz": NeuralMeshViz;
+  }
+}

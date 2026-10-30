@@ -1,0 +1,138 @@
+.ba-glass.ba-glass.directories-page {
+  height: 100%;
+  min-height: 0;
+  padding: 18px clamp(12px, 2vw, 28px) 24px;
+  background: transparent;
+  color: var(--bag-text);
+  overflow: hidden;
+}
+.ba-glass.directories-page > .directories-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1480px;
+  margin-inline: auto;
+  border: 0;
+  border-radius: var(--bag-radius-lg);
+  background: var(--glass-sheen, none), var(--bag-panel);
+  box-shadow: var(--bag-shadow);
+  overflow: hidden;
+}
+.ba-glass.directories-page > .directories-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: var(--bag-hairline);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.ba-glass.directories-page :is(.dir-sidebar, .dir-detail, .dir-explorer-left, .dir-explorer-right, .dir-file-panel) {
+  background: transparent;
+  color: var(--bag-text);
+  border-color: var(--bag-line);
+}
+.ba-glass.directories-page :is(.dir-sidebar-header, .dir-tabs, .dir-explorer-toolbar, .dir-detail-header) {
+  border-color: var(--bag-line);
+  background: var(--bag-well);
+}
+.ba-glass.directories-page :is(.dir-item, .dir-file-row, .dir-peer-row, .dir-root-row) {
+  border-radius: 10px;
+  color: var(--bag-text);
+  transition: background 160ms, transform 160ms var(--bag-spring);
+}
+.ba-glass.directories-page :is(.dir-item, .dir-file-row, .dir-peer-row, .dir-root-row):hover {
+  background: var(--bag-hover);
+  transform: translateY(-1px);
+}
+.ba-glass.directories-page .dir-item.selected {
+  border-color: var(--bag-gold);
+  background: color-mix(in srgb, var(--bag-gold) 12%, transparent);
+}
+.ba-glass.directories-page :is(button, input, select, textarea) {
+  border-color: var(--bag-line-strong);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bag-card) 84%, transparent);
+  color: var(--bag-text);
+  font-family: var(--bag-font);
+}
+.ba-glass.directories-page :is(button, input, select, textarea):hover { border-color: var(--bag-gold); }
+.ba-glass.directories-page :is(.dir-primary-btn, button.primary) {
+  border-color: transparent;
+  background: var(--bag-gold-fill);
+  color: var(--bag-ink);
+}
+.ba-glass.directories-page :is(.dir-detail-empty, .dir-empty, .dir-explorer-empty) {
+  color: var(--bag-text-2);
+  font-family: var(--bag-font);
+}
+
+/* Federation explorer (fx-*): its inline sheet paints --bg-primary/#111
+   panes, which stay black on porcelain. Use the glass tiers instead. */
+.ba-glass.directories-page :is(.fx-explorer, .fx-tree-pane, .fx-list-pane, .fx-list) {
+  background: transparent;
+  color: var(--bag-text);
+  border-color: var(--bag-line);
+}
+.ba-glass.directories-page .fx-tree-pane { background: var(--bag-well); }
+.ba-glass.directories-page :is(.fx-tree-head, .fx-list-head, .fx-breadcrumb) {
+  background: color-mix(in srgb, var(--bag-text) 3%, transparent);
+  border-color: var(--bag-line);
+  color: var(--bag-text-3);
+}
+.ba-glass.directories-page :is(.fx-peer-row, .fx-tree-item, .fx-list-row) { color: var(--bag-text); border-radius: 9px; }
+.ba-glass.directories-page :is(.fx-peer-row, .fx-tree-item):hover,
+.ba-glass.directories-page .fx-list-row:hover { background: var(--bag-hover); }
+.ba-glass.directories-page .fx-tree-item.active { background: color-mix(in srgb, var(--bag-gold) 13%, transparent); color: var(--bag-gold); }
+.ba-glass.directories-page :is(.fx-cell-muted, .fx-crumb-sep, .fx-chevron, .fx-empty) { color: var(--bag-text-3); }
+.ba-glass.directories-page .fx-crumb { color: var(--bag-text-2); }
+.ba-glass.directories-page .fx-empty-icon { filter: drop-shadow(0 0 14px color-mix(in srgb, var(--bag-gold) 40%, transparent)); }
+.ba-glass.directories-page :is(.fx-ctx, .fx-dialog) {
+  background: var(--glass-sheen, none), var(--bag-float);
+  border: 1px solid var(--bag-line);
+  border-radius: var(--bag-radius-sm);
+  box-shadow: var(--glass-elev-4, var(--bag-shadow));
+  color: var(--bag-text);
+  backdrop-filter: var(--bag-blur);
+  -webkit-backdrop-filter: var(--bag-blur);
+}
+.ba-glass.directories-page .fx-ctx-item:hover { background: var(--bag-hover); }
+.ba-glass.directories-page .fx-dialog-sub { color: var(--bag-text-3); }
+.ba-glass.directories-page :is(.dir-tab, .dir-btn) { background: color-mix(in srgb, var(--bag-card) 84%, transparent); color: var(--bag-text-2); }
+.ba-glass.directories-page .dir-tab.active { background: color-mix(in srgb, var(--bag-gold) 16%, transparent); color: var(--bag-gold); border-color: var(--bag-line-strong); }
+.ba-glass.directories-page .dir-btn.primary { background: var(--bag-gold-fill); color: var(--bag-ink); border-color: transparent; }
+
+@media (max-width: 640px) {
+  /* Federation explorer: stack the peer tree above the file list instead of
+     squeezing the list next to a fixed 320px tree. */
+  .ba-glass.directories-page .fx-explorer { flex-direction: column; }
+  .ba-glass.directories-page .fx-tree-pane {
+    width: 100%;
+    min-width: 0;
+    max-height: 38vh;
+    border-right: 0;
+    border-bottom: 1px solid var(--bag-line);
+  }
+  .ba-glass.directories-page .fx-list-pane { min-height: 46vh; }
+  .ba-glass.ba-glass.directories-page { padding: 10px; overflow: auto; }
+  .ba-glass.directories-page > .directories-container { min-height: calc(100vh - 120px); overflow: visible; }
+  .ba-glass.directories-page .dir-content { flex-direction: column; }
+  .ba-glass.directories-page .dir-sidebar { width: 100%; min-width: 0; max-height: 42vh; border-right: 0; border-bottom: 1px solid var(--bag-line); }
+  .ba-glass.directories-page .dir-detail { min-height: 48vh; padding: 16px; }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .ba-glass.directories-page > .directories-container {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--glass-solid, var(--bag-float));
+  }
+}
+
+.ba-glass.directories-page .dir-tabbar {
+  background: color-mix(in srgb, var(--bag-text) 3%, transparent);
+  border-bottom-color: var(--bag-line);
+}

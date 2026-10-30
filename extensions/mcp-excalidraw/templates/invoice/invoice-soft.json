@@ -1,0 +1,55 @@
+{
+  "id": "invoice-soft",
+  "category": "invoice",
+  "name": "Invoice · Soft",
+  "width": 1240,
+  "height": 1754,
+  "background": "#0e1a14",
+  "createdAt": "2026-06-09",
+  "scene": {
+    "elements": [
+      {
+        "id": "invoice-soft-bg-accent",
+        "type": "rectangle",
+        "x": 0,
+        "y": 1368.1200000000001,
+        "width": 1240,
+        "height": 105.24,
+        "backgroundColor": "#22c55e",
+        "fillStyle": "solid",
+        "strokeColor": "transparent",
+        "strokeWidth": 0,
+        "roughness": 0
+      },
+      {
+        "id": "invoice-soft-title",
+        "type": "text",
+        "x": 124,
+        "y": 613.9,
+        "width": 992,
+        "height": 96,
+        "text": "Invoice title",
+        "fontSize": 64,
+        "fontFamily": 1,
+        "textAlign": "center",
+        "strokeColor": "#e6fff5"
+      },
+      {
+        "id": "invoice-soft-subtitle",
+        "type": "text",
+        "x": 124,
+        "y": 841.92,
+        "width": 992,
+        "height": 48,
+        "text": "Soft · 1240×1754",
+        "fontSize": 28,
+        "fontFamily": 2,
+        "textAlign": "center",
+        "strokeColor": "#e6fff5",
+        "opacity": 70
+      }
+    ],
+    "appState": {},
+    "files": {}
+  }
+}

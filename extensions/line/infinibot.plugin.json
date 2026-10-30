@@ -1,0 +1,23 @@
+{
+  "id": "line",
+  "name": "LINE",
+  "listing": {
+    "tagline": "A LINE Messaging API bot — popular in Japan, Taiwan and Thailand.",
+    "category": "channels",
+    "tags": [
+      "chat",
+      "asia"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "channels": [
+    "line"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

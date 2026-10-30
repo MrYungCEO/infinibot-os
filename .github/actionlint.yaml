@@ -1,0 +1,6 @@
+# actionlint configuration
+# https://github.com/rhysd/actionlint/blob/main/docs/config.md
+paths:
+  .github/workflows/**/*.yml:
+    ignore:
+      - 'shellcheck reported issue.+'

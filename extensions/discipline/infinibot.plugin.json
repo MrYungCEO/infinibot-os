@@ -1,0 +1,377 @@
+{
+  "manifestVersion": 2,
+  "id": "discipline",
+  "name": "Discipline",
+  "version": "2026.9.28",
+  "minHostVersion": "2026.6.30",
+  "publisher": "infinibot",
+  "license": "FSL-1.1-ALv2",
+  "description": "ADHD-friendly day planner: time blocks with routines, completions and day/week scores, saved schedule templates, business-aware block insights, block alerts and a Telegram bridge — plus the Focus board (your top five tasks/projects).",
+  "engines": {
+    "infinibot-plugin-api": "^2.0.0"
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "autoLog": {
+        "type": "boolean",
+        "description": "Log agent activity and task completions against the active block, auto-start the day on first activity and auto-complete a block when work lands inside it. Default on."
+      },
+      "alerts": {
+        "type": "boolean",
+        "description": "Block start / missed alerts, the 09:30 check-in and the 21:00 evening wrap (in-app + push). Default on."
+      },
+      "telegramBridge": {
+        "type": "boolean",
+        "description": "Send block start/end messages to the Telegram chat set in Discipline settings. Default on (still needs Telegram switched on in the page's settings)."
+      }
+    }
+  },
+  "uiHints": {
+    "autoLog": {
+      "label": "Auto-log agent activity"
+    },
+    "alerts": {
+      "label": "Block alerts & daily check-ins"
+    },
+    "telegramBridge": {
+      "label": "Telegram block messages"
+    }
+  },
+  "contributes": {
+    "learn": "learn.json",
+    "nav": [
+      {
+        "tab": "discipline",
+        "label": "Discipline",
+        "icon": "target",
+        "group": "Work"
+      }
+    ],
+    "pages": [
+      {
+        "tab": "discipline",
+        "route": "/discipline",
+        "builtin": "discipline",
+        "title": "Day planner"
+      },
+      {
+        "tab": "focus",
+        "route": "/focus",
+        "builtin": "focus",
+        "title": "Focus board"
+      }
+    ],
+    "navSection": {
+      "title": "Discipline",
+      "items": [
+        {
+          "page": "discipline",
+          "label": "Day",
+          "icon": "target"
+        },
+        {
+          "page": "focus",
+          "label": "Focus board",
+          "icon": "star"
+        }
+      ]
+    },
+    "mapRoom": {
+      "title": "Discipline Dojo",
+      "theme": "dojo",
+      "size": "S",
+      "placement": "north"
+    },
+    "subviews": [
+      {
+        "id": "focus",
+        "label": "Focus board",
+        "host": "discipline"
+      }
+    ],
+    "overlays": [
+      {
+        "id": "discipline-alerts",
+        "label": "Block alert toasts",
+        "trigger": "topbar"
+      }
+    ],
+    "rpc": [
+      {
+        "method": "discipline.state",
+        "scope": "read"
+      },
+      {
+        "method": "discipline.blocks.list",
+        "scope": "read"
+      },
+      {
+        "method": "discipline.blocks.create",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.blocks.update",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.blocks.delete",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.blocks.complete",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.blocks.uncomplete",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.blocks.overrides.reset",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.logs.list",
+        "scope": "read"
+      },
+      {
+        "method": "discipline.logs.create",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.logs.update",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.logs.delete",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.settings.get",
+        "scope": "read"
+      },
+      {
+        "method": "discipline.settings.update",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.routine.status",
+        "scope": "read"
+      },
+      {
+        "method": "discipline.routine.toggle",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.score.day",
+        "scope": "read"
+      },
+      {
+        "method": "discipline.score.range",
+        "scope": "read"
+      },
+      {
+        "method": "discipline.score.week",
+        "scope": "read"
+      },
+      {
+        "method": "discipline.templates.list",
+        "scope": "read"
+      },
+      {
+        "method": "discipline.templates.get",
+        "scope": "read"
+      },
+      {
+        "method": "discipline.templates.create",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.templates.update",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.templates.delete",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.templates.apply",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.events.list",
+        "scope": "read"
+      },
+      {
+        "method": "discipline.insights",
+        "scope": "read"
+      },
+      {
+        "method": "discipline.day.status",
+        "scope": "read"
+      },
+      {
+        "method": "discipline.start_day",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.end_day",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.shift_from_now",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.notion.status",
+        "scope": "read"
+      },
+      {
+        "method": "discipline.notion.connect",
+        "scope": "write",
+        "requires": [
+          "network:api.notion.com"
+        ]
+      },
+      {
+        "method": "discipline.notion.disconnect",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.notion.syncNow",
+        "scope": "write",
+        "requires": [
+          "network:api.notion.com"
+        ]
+      },
+      {
+        "method": "discipline.focus.list",
+        "scope": "read"
+      },
+      {
+        "method": "discipline.focus.status",
+        "scope": "read"
+      },
+      {
+        "method": "discipline.focus.get",
+        "scope": "read"
+      },
+      {
+        "method": "discipline.focus.contains",
+        "scope": "read"
+      },
+      {
+        "method": "discipline.focus.add.task",
+        "scope": "write",
+        "requires": [
+          "network:api.notion.com"
+        ]
+      },
+      {
+        "method": "discipline.focus.add.project",
+        "scope": "write",
+        "requires": [
+          "network:api.notion.com"
+        ]
+      },
+      {
+        "method": "discipline.focus.remove",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.focus.reorder",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.focus.moveUp",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.focus.moveDown",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.focus.clear",
+        "scope": "write"
+      },
+      {
+        "method": "discipline.focus.sync",
+        "scope": "write",
+        "requires": [
+          "network:api.notion.com"
+        ]
+      },
+      {
+        "method": "discipline.focus.set",
+        "scope": "write"
+      }
+    ],
+    "http": [],
+    "tools": [
+      {
+        "name": "discipline"
+      },
+      {
+        "name": "focus"
+      }
+    ],
+    "services": [
+      "discipline-runtime"
+    ]
+  },
+  "permissions": {
+    "network": [
+      "api.notion.com (Notion sync + Focus lookups, only when connected)"
+    ],
+    "fs": [
+      "<stateDir>/plugin-data/discipline",
+      "<stateDir>/discipline.db, discipline-notion.json, focus.json (one-time move in)"
+    ],
+    "exec": false,
+    "secrets": [
+      "NOTION_API_KEY"
+    ],
+    "channels": [
+      "telegram"
+    ],
+    "credits": false
+  },
+  "appearance": {
+    "accent": "token:primary",
+    "tint": "none",
+    "tintStrength": 0.06,
+    "density": "comfortable",
+    "fontScale": 1,
+    "icon": "target",
+    "monogram": "DS"
+  },
+  "listing": {
+    "tagline": "Plan your day in time blocks, keep your streak, and let your agents' work check the boxes for you.",
+    "description": "**Discipline** is a day planner built for people who drift.\n\n- **Time blocks** — lay out the day with routines, intents and hard / non-negotiable blocks; the page follows the clock and shows what's up now and next.\n- **It notices your work** — agent runs and finished kanban tasks are logged against the active block, the day starts itself on your first activity, and a block completes when real work lands inside it.\n- **Scores and streaks** — day and week scores, completion streaks and an end-of-day view.\n- **Insights per block** — each block gets a short, business-aware suggestion from your open tasks, deadlines and clients.\n- **Templates** — save a schedule (\"Workday\", \"Weekend\") and apply it in one step.\n- **Focus board** — pin up to five tasks or projects you're committing to.\n- **Alerts** — block start / missed alerts, a morning check-in and an evening wrap, in-app and on Telegram if you want.\n\nAgents can drive all of it through the `discipline` and `focus` tools.",
+    "category": "apps",
+    "tags": [
+      "planner",
+      "time-blocking",
+      "focus",
+      "adhd",
+      "routines",
+      "productivity"
+    ],
+    "cover": "assets/cover.svg",
+    "icon": "assets/icon.svg",
+    "screenshots": [
+      {
+        "src": "assets/shot-1.webp",
+        "caption": "Day — time blocks with the live now-line and today's score"
+      },
+      {
+        "src": "assets/shot-2.webp",
+        "caption": "Focus board — your top five, pulled from projects and tasks"
+      }
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  }
+}

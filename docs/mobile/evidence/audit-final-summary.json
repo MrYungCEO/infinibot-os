@@ -1,0 +1,15 @@
+{
+ "ranAt": "2026-10-01T05:49:48.988Z",
+ "build": "/tmp/mobile-ui/dist @ bb1f354a",
+ "entries": 97,
+ "nativeScreens": 56,
+ "webBackedEntries": 41,
+ "nativeCrashed": [],
+ "notOpened": [],
+ "pageErrors": [],
+ "failedRpcs": {},
+ "horizontalOverflow": [],
+ "maxRpcPerWindow": 29,
+ "totalRpcs": 278,
+ "note": "Web-backed entries only show the in-app host here (a browser cannot run a WebView); their routes are checked separately in shots-web2/results.json."
+}

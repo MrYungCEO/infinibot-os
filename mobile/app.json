@@ -1,0 +1,126 @@
+{
+  "expo": {
+    "name": "Infinibot",
+    "slug": "moltbot-mobile",
+    "version": "1.0.3",
+    "orientation": "default",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "ios": {
+      "supportsTablet": true,
+      "requireFullScreen": true,
+      "bundleIdentifier": "com.example.infinibot",
+      "buildNumber": "2",
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIBackgroundModes": [
+          "audio",
+          "voip",
+          "remote-notification"
+        ],
+        "NSCameraUsageDescription": "Infinibot Glasses needs the camera to send what you're looking at to your InfiniBot agent.",
+        "NSMicrophoneUsageDescription": "Infinibot needs the microphone for voice calls with your AI agent.",
+        "NSBluetoothAlwaysUsageDescription": "Infinibot uses Bluetooth for audio routing during voice calls."
+      },
+      "associatedDomains": [
+        "applinks:infinibot-cloud.netlify.app"
+      ]
+    },
+    "android": {
+      "versionCode": 4,
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#050505"
+      },
+      "package": "com.example.infinibot",
+      "permissions": [
+        "RECEIVE_BOOT_COMPLETED",
+        "VIBRATE",
+        "WAKE_LOCK",
+        "CAMERA",
+        "RECORD_AUDIO",
+        "FOREGROUND_SERVICE",
+        "FOREGROUND_SERVICE_MICROPHONE",
+        "MODIFY_AUDIO_SETTINGS",
+        "BLUETOOTH",
+        "BLUETOOTH_CONNECT",
+        "POST_NOTIFICATIONS"
+      ],
+      "intentFilters": [
+        {
+          "action": "VIEW",
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ],
+          "data": [
+            {
+              "scheme": "infinibot"
+            }
+          ]
+        },
+        {
+          "action": "VIEW",
+          "autoVerify": true,
+          "category": [
+            "BROWSABLE",
+            "DEFAULT"
+          ],
+          "data": [
+            {
+              "scheme": "https",
+              "host": "infinibot-cloud.netlify.app",
+              "pathPrefix": "/m/"
+            }
+          ]
+        }
+      ]
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/notification-icon.png",
+          "color": "#FFD700",
+          "sounds": [],
+          "androidMode": "default",
+          "androidCollapsedTitle": "Infinibot"
+        }
+      ],
+      "expo-font",
+      [
+        "expo-screen-orientation",
+        {
+          "initialOrientation": "PORTRAIT_UP"
+        }
+      ],
+      [
+        "expo-audio",
+        {
+          "microphonePermission": "InfiniBot needs the microphone so you can talk to it and capture notes, ideas and tasks by voice."
+        }
+      ],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Infinibot Glasses needs the camera to send what you're looking at to your InfiniBot agent.",
+          "microphonePermission": "Infinibot needs the microphone for voice calls with your AI agent.",
+          "recordAudioAndroid": true
+        }
+      ],
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#050505",
+          "imageWidth": 200
+        }
+      ]
+    ],
+    "scheme": "infinibot"
+  }
+}

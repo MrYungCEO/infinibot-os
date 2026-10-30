@@ -1,0 +1,12 @@
+{
+  "name": "@infinibot/open-prose",
+  "version": "2026.11.1",
+  "type": "module",
+  "description": "OpenProse VM skill pack plugin (slash command + telemetry).",
+  "license": "FSL-1.1-ALv2",
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

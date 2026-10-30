@@ -1,0 +1,260 @@
+{
+  "tracks": [
+    {
+      "id": "content-studio",
+      "title": "Content Studio",
+      "summary": "Run your social content from one place: content pages per channel, Content Intelligence for your reels, and the CMO agent.",
+      "overview": "**Content Studio** is the social content workspace. It adds two pages under **Content › Content Studio**, plus a team of content agents.\n\n- **Pages** (`/content-pages`). A content page is one surface: an Instagram account, a YouTube channel, a blog, a newsletter. Creating one provisions its **Scripts**, **Videos**, **Content** and **Ideas** databases, and each page has insights and connections. Instagram is connected with a Graph API token and ManyChat with an API key; ManyChat only shows *connected* after ManyChat has verified the key.\n- **Intelligence** (`/content-intel`). Import your Instagram CSV export from Meta Business Suite, then transcribe reels, **score** them (hook, value, viral) against viral-format benchmarks for your niche, and read AI insights, scripts and trends.\n- **The CMO.** A Chief Marketing Officer agent you can chat with, grounded in your reel data. The plugin also seeds a content director, scriptwriter, brand designer and video editor agent.\n\nThe tours open dialogs and type into drafts only. They never create a page, import data, score reels (scoring calls a model) or send a message. Nothing here posts or publishes to a social network.",
+      "category": "Plugins",
+      "level": "beginner",
+      "order": 61,
+      "routes": ["/content-pages", "/content-intel"],
+      "signals": ["content-pages", "content-intel"],
+      "badge": { "id": "content-studio", "label": "Content Studio mastery", "icon": "🎬" },
+      "walkthroughs": [
+        {
+          "id": "content-pages",
+          "title": "Set up a content page",
+          "summary": "Find your pages, filter them, and walk through the new-page wizard.",
+          "estMinutes": 4,
+          "steps": [
+            {
+              "id": "header",
+              "title": "Your content pages",
+              "body": "One page per surface: an Instagram account, a YouTube channel, a blog. Each card shows the page's reach at a glance.",
+              "route": "/content-pages",
+              "target": "learn:content-pages-header",
+              "placement": "bottom",
+              "check": { "kind": "rpc", "method": "content.pages.list" },
+              "checkHint": "Loading your content pages…"
+            },
+            {
+              "id": "search",
+              "title": "Find a page",
+              "body": "Search by name, then narrow by business or surface with the two filters beside it.",
+              "target": "learn:content-pages-search",
+              "action": { "kind": "input", "sample": "brand" }
+            },
+            {
+              "id": "surface",
+              "title": "Filter by surface",
+              "body": "Show only Instagram, YouTube, TikTok, a blog, LinkedIn and so on.",
+              "target": "learn:content-pages-surface",
+              "placement": "bottom"
+            },
+            {
+              "id": "new",
+              "title": "Start a new page",
+              "body": "Click **New page** to open the setup wizard.",
+              "target": "learn:content-pages-new",
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "steps",
+              "title": "The wizard's steps",
+              "body": "Basics, Goals, Connections and Brand voice. Instagram pages add an **Instagram** step and an optional **ManyChat** step for DM automation.",
+              "target": "learn:content-pages-wizard-steps",
+              "placement": "bottom"
+            },
+            {
+              "id": "name",
+              "title": "Name the page",
+              "body": "Type a name. You also pick the surface, handle, URL, business and an optional owner agent here.",
+              "target": "learn:content-pages-wizard-name",
+              "action": { "kind": "input", "sample": "Main Instagram" }
+            },
+            {
+              "id": "create",
+              "title": "What Create page does",
+              "body": "On the last step, **Create page** saves the page and provisions its Scripts, Videos, Content and Ideas databases. Connect Instagram afterwards from the page's **Integrations** tab.",
+              "target": "learn:content-pages-wizard-foot",
+              "placement": "top"
+            },
+            {
+              "id": "close",
+              "title": "Close the wizard",
+              "body": "Click **×** to leave without creating anything.",
+              "target": "learn:content-pages-wizard-close",
+              "action": { "kind": "click" }
+            }
+          ]
+        },
+        {
+          "id": "content-intelligence",
+          "title": "Content Intelligence",
+          "summary": "Bring your reels in, then score, transcribe and read insights.",
+          "estMinutes": 3,
+          "steps": [
+            {
+              "id": "open-intel",
+              "title": "Open Intelligence",
+              "body": "Content Studio has two views: **Pages** and **Intelligence**. Click **Intelligence**.",
+              "route": "/content-pages",
+              "target": "a.host-subtabs__tab[data-host-view=\"intel\"]",
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "start",
+              "title": "Start with your data",
+              "body": "Intelligence analyses your own reels. Until you import some, this is the starting point.",
+              "target": ["learn:content-intel-onboarding", "learn:content-intel-subtabs"],
+              "placement": "bottom"
+            },
+            {
+              "id": "import",
+              "title": "Import an Instagram CSV",
+              "body": "Export your reels as CSV from Meta Business Suite, then import it here by file path on the gateway machine, optionally for one account. **Accounts** and **YouTube** in the header add more sources.",
+              "target": ["learn:content-intel-import", "learn:content-intel-subtabs"],
+              "placement": "bottom"
+            },
+            {
+              "id": "score",
+              "title": "Score and transcribe",
+              "body": "Once reels are in, **Transcribe** writes a script for each one and **Score all** rates hook, value and viral potential, then ranks it against viral-format benchmarks for your niche. Filter by scored, unscored or no script, and sort by views, saves, score or tier.",
+              "target": ["learn:content-intel-subtabs", "learn:content-intel-onboarding"],
+              "placement": "bottom",
+              "practice": { "mode": "explain", "note": "The tour doesn't start scoring or transcription: both run on your model and speech providers." }
+            },
+            {
+              "id": "tabs",
+              "title": "Overview, Scripts, Insights, Trends",
+              "body": "**Overview** is the reel grid with charts. **Scripts** lists transcribed, scored reels. **AI Insights** summarises what works. **Trends** shows topics, formats and signals from the last 30 days.",
+              "target": ["learn:content-intel-subtabs", "learn:content-intel-onboarding"],
+              "placement": "bottom"
+            }
+          ]
+        },
+        {
+          "id": "cmo-agent",
+          "title": "Talk to your CMO",
+          "summary": "Open agent chat, switch to the Chief Marketing Officer and draft a question.",
+          "estMinutes": 3,
+          "steps": [
+            {
+              "id": "open-chat",
+              "title": "Open agent chat",
+              "body": "Click **Chat** in the command bar. On a phone it sits under **More** (⋯). The shortcut is **⌘⇧M**.",
+              "route": "/content-pages",
+              "target": ["button[data-cb-item=\"chat\"]", ".cb-more__btn"],
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "open-chat-mobile",
+              "title": "Chat with an agent",
+              "body": "Pick **Chat with an agent**.",
+              "target": "button.cb-more__row[data-cb-proxy=\"chat\"]",
+              "action": { "kind": "click" },
+              "skipIf": { "kind": "any", "conditions": [{ "kind": "viewport", "minWidth": 801 }, { "kind": "element", "target": "learn:quick-chat" }] }
+            },
+            {
+              "id": "switcher",
+              "title": "Switch agent",
+              "body": "The header shows which agent you're talking to. Click it to switch.",
+              "target": "learn:quick-chat-switcher",
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "search",
+              "title": "Find the CMO",
+              "body": "Type **cmo**.",
+              "target": "[data-learn-id=\"quick-chat\"] .sw-search",
+              "action": { "kind": "input", "match": "cmo", "sample": "cmo" }
+            },
+            {
+              "id": "pick",
+              "title": "Pick the CMO",
+              "body": "Click **Chief Marketing Officer**. Content Studio adds this agent while the plugin is on.",
+              "target": "#sw-cmo",
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "draft",
+              "title": "Ask for ideas",
+              "body": "Draft a question about growth, hooks or a new script. The CMO works from your live reel data.",
+              "target": "learn:quick-chat-input",
+              "action": { "kind": "input", "sample": "Give me three hook ideas for next week" }
+            },
+            {
+              "id": "send",
+              "title": "Sending the message",
+              "body": "**Enter** sends it and the CMO replies here. The same chat is embedded on the Intelligence page once you have reels.",
+              "target": "[data-learn-id=\"quick-chat\"] .send",
+              "placement": "top",
+              "practice": { "mode": "explain", "note": "The tour doesn't send: a reply runs the agent on your model provider." }
+            },
+            {
+              "id": "close",
+              "title": "Close chat",
+              "body": "Click **×** or press **Esc**. The conversation history stays with the agent.",
+              "target": "learn:quick-chat-close",
+              "action": { "kind": "click" }
+            }
+          ]
+        }
+      ],
+      "quiz": [
+        {
+          "id": "page",
+          "prompt": "What is a content page?",
+          "options": [
+            "A blog post draft",
+            "One surface, such as an Instagram account or YouTube channel, with its own Scripts, Videos, Content and Ideas databases",
+            "A Notion page mirrored into InfiniBot",
+            "A landing page Content Studio publishes for you"
+          ],
+          "answer": 1,
+          "explain": "Creating a page provisions its four databases, and each page carries its own insights and connections."
+        },
+        {
+          "id": "import",
+          "prompt": "How do your reels get into Content Intelligence?",
+          "options": [
+            "Content Studio scrapes Instagram automatically",
+            "You import an Instagram CSV export from Meta Business Suite (or add YouTube channels)",
+            "You paste reel links into chat",
+            "They are synced from TikTok"
+          ],
+          "answer": 1,
+          "explain": "The welcome screen starts with a CSV import; YouTube channels can be added from the header."
+        },
+        {
+          "id": "score",
+          "prompt": "What does scoring a reel rate?",
+          "options": [
+            "File size and resolution",
+            "Hook, value and viral potential, ranked against viral-format benchmarks",
+            "Only the number of views",
+            "Spelling in the caption"
+          ],
+          "answer": 1,
+          "explain": "Scores cover hook, value and viral, and are compared with benchmarks for your niche."
+        },
+        {
+          "id": "cmo",
+          "prompt": "Where can you chat with the CMO agent?",
+          "options": [
+            "Only on Telegram",
+            "Through agent chat (switch to Chief Marketing Officer) and inline on the Intelligence page",
+            "Nowhere, it only runs on a schedule",
+            "In Settings › Models"
+          ],
+          "answer": 1,
+          "explain": "The CMO is a regular agent you can pick in agent chat; the Intelligence page embeds the same chat."
+        },
+        {
+          "id": "off",
+          "prompt": "What happens to your content data if you turn Content Studio off?",
+          "options": [
+            "It is deleted",
+            "It stays where it is and comes back when you turn the plugin on again",
+            "It is exported to Notion",
+            "It is moved to the trash for 30 days"
+          ],
+          "answer": 1,
+          "explain": "Disabling hides the pages, RPCs and agents but never deletes data."
+        }
+      ]
+    }
+  ],
+  "missions": []
+}

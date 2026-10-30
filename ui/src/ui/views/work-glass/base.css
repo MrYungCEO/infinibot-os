@@ -1,0 +1,222 @@
+/* ============================================================
+ * Work pages — shared glass layer (notes, kanban, schedule, docs, files,
+ * focus, discipline, issues, opportunities & friends, workspace, databases,
+ * prompt templates).
+ *
+ * Matches the Business hub look (views/business-hub/styles.ts) on top of the
+ * global --glass-* tokens (docs/ui/GLASS.md): layered frosted surfaces, a
+ * hairline gold gradient edge, a specular top light and a slow gold aurora.
+ * Everything is scoped under `.wg-page` (or a `.wg-*` class) so nothing leaks
+ * into other pages. Light theme, reduced motion / transparency and
+ * perf-mode follow the tokens automatically.
+ * ============================================================ */
+
+.wg-page {
+  --wg-gold: var(--glass-gold, #d9b45f);
+  --wg-gold-hi: var(--glass-gold-hi, #f1d38a);
+  --wg-gold-deep: var(--glass-gold-deep, #a8762c);
+  --wg-fg: var(--glass-fg, var(--text-strong, #f4f1ea));
+  --wg-fg-2: var(--glass-fg-2, var(--text, #c9c3b6));
+  --wg-fg-3: var(--glass-fg-3, var(--muted, #8f897c));
+  --wg-line: var(--glass-stroke, rgba(217, 180, 95, 0.14));
+  --wg-line-gold: var(--glass-stroke-gold, rgba(217, 180, 95, 0.34));
+  --wg-radius: var(--glass-radius-lg, 18px);
+  --wg-radius-sm: var(--glass-radius, 12px);
+  --wg-ease: var(--glass-ease, cubic-bezier(0.22, 1, 0.36, 1));
+  --wg-spring: var(--glass-spring, cubic-bezier(0.34, 1.56, 0.64, 1));
+  --wg-hairline: linear-gradient(135deg, var(--glass-gold-a40, rgba(241, 211, 138, 0.5)), var(--glass-gold-a06, rgba(217, 180, 95, 0.06)) 38%, transparent 62%, var(--glass-gold-a24, rgba(241, 211, 138, 0.28)));
+  position: relative;
+  isolation: isolate;
+  color: var(--wg-fg);
+  font-family: var(--glass-font, var(--font-ui, "Inter", -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif));
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Aurora: two slow gold orbs clipped to the page box ─────── */
+.wg-aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: -1;
+  border-radius: inherit;
+}
+.wg-aurora::before,
+.wg-aurora::after {
+  content: "";
+  position: absolute;
+  width: 56vmax;
+  height: 56vmax;
+  border-radius: 50%;
+  filter: blur(90px);
+  background: radial-gradient(circle, var(--glass-gold-a40, rgba(217, 180, 95, 0.4)), transparent 62%);
+  top: -36vmax;
+  left: -14vmax;
+  opacity: 0.38;
+  animation: wg-drift 40s var(--wg-ease) infinite alternate;
+}
+.wg-aurora::after {
+  background: radial-gradient(circle, var(--glass-gold-a24, rgba(168, 118, 44, 0.3)), transparent 60%);
+  top: auto;
+  left: auto;
+  bottom: -42vmax;
+  right: -20vmax;
+  opacity: 0.3;
+  animation-duration: 52s;
+}
+:root[data-theme="light"] .wg-aurora::before { opacity: 0.22; }
+:root[data-theme="light"] .wg-aurora::after { opacity: 0.16; }
+@keyframes wg-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(7vmax, 4vmax, 0) scale(1.1); }
+}
+
+/* ── Glass surfaces ──────────────────────────────────────────── */
+.wg-surface,
+.wg-card {
+  position: relative;
+  isolation: isolate;
+  border-radius: var(--wg-radius);
+  box-shadow: var(--glass-elev-2), var(--glass-specular, inset 0 1px 0 rgba(255, 255, 255, 0.06));
+}
+.wg-surface {
+  background: var(--glass-sheen), var(--glass-2);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+/* Cards sit on surfaces: no second blur. */
+.wg-card {
+  background: var(--glass-sheen), var(--glass-3);
+  border-radius: var(--wg-radius-sm);
+  box-shadow: var(--glass-elev-1), var(--glass-specular, inset 0 1px 0 rgba(255, 255, 255, 0.05));
+  transition: transform var(--glass-dur, 0.22s) var(--wg-spring), box-shadow var(--glass-dur, 0.22s) var(--wg-ease);
+}
+.wg-card--interactive { cursor: pointer; }
+.wg-card--interactive:hover { transform: var(--glass-lift, translateY(-2px)); box-shadow: var(--glass-elev-3), var(--glass-glow-soft); }
+.wg-card--interactive:active { transform: scale(0.992); }
+.wg-surface::before,
+.wg-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--wg-hairline);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  pointer-events: none;
+  z-index: 0;
+}
+.wg-card::before { background: var(--glass-edge-soft); }
+.wg-card--interactive:hover::before { background: var(--wg-hairline); }
+
+/* ── Hero header ─────────────────────────────────────────────── */
+.wg-hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 14px 18px;
+  flex-wrap: wrap;
+  padding: 4px 2px 16px;
+}
+.wg-hero__text { min-width: 0; flex: 1 1 320px; }
+.wg-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font: 600 11px/1 var(--glass-font, inherit);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--wg-gold);
+}
+.wg-eyebrow::before {
+  content: "";
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--wg-gold);
+  box-shadow: 0 0 10px var(--wg-gold);
+}
+.wg-title {
+  margin: 6px 0 0;
+  font: 650 clamp(24px, 2.4vw, 32px) / 1.1 var(--font-ui-display, var(--glass-font, inherit));
+  letter-spacing: -0.025em;
+  color: var(--wg-fg);
+}
+.wg-title .wg-gold,
+.wg-gold-text {
+  background: linear-gradient(120deg, var(--wg-gold-hi), var(--wg-gold) 45%, var(--wg-gold-deep));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+.wg-sub { margin: 6px 0 0; color: var(--wg-fg-2); font-size: 13.5px; line-height: 1.5; max-width: 720px; }
+.wg-hero__actions { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+/* ── Stat tiles ──────────────────────────────────────────────── */
+.wg-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 0 0 16px; }
+.wg-stat { padding: 14px 16px; }
+.wg-stat__label { font: 600 10.5px/1 var(--glass-font, inherit); letter-spacing: 0.14em; text-transform: uppercase; color: var(--wg-fg-3); }
+.wg-stat__value { margin-top: 8px; font: 650 24px/1 var(--font-ui-display, inherit); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; color: var(--wg-fg); }
+.wg-stat__hint { margin-top: 6px; font-size: 11.5px; color: var(--wg-fg-3); }
+
+/* ── Empty / skeleton ────────────────────────────────────────── */
+.wg-empty {
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 44px 20px;
+  text-align: center;
+  color: var(--wg-fg-2);
+}
+.wg-empty__icon {
+  display: grid;
+  place-items: center;
+  width: 54px;
+  height: 54px;
+  border-radius: 16px;
+  color: var(--wg-gold);
+  background: radial-gradient(circle at 30% 20%, var(--glass-gold-a24), var(--glass-gold-a06));
+  box-shadow: inset 0 0 0 1px var(--wg-line-gold), var(--glass-glow-soft);
+}
+.wg-empty__icon svg { width: 24px; height: 24px; }
+.wg-empty__title { font: 620 16px/1.3 var(--font-ui-display, inherit); color: var(--wg-fg); letter-spacing: -0.01em; }
+.wg-empty__body { font-size: 13px; max-width: 420px; line-height: 1.5; }
+.wg-skel {
+  border-radius: 10px;
+  background: linear-gradient(90deg, var(--glass-hover) 0%, var(--glass-gold-a10) 50%, var(--glass-hover) 100%);
+  background-size: 200% 100%;
+  animation: wg-shimmer 1.4s linear infinite;
+}
+@keyframes wg-shimmer { from { background-position: 200% 0; } to { background-position: -200% 0; } }
+
+/* ── Enter animation (spring rise) ───────────────────────────── */
+.wg-rise { animation: wg-rise 0.5s var(--wg-ease) both; }
+@keyframes wg-rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+
+/* ── Focus ring everywhere inside work pages ─────────────────── */
+.wg-page :is(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: none;
+  box-shadow: var(--glass-focus-ring, 0 0 0 2px var(--wg-gold));
+}
+
+/* ── Degraded modes ──────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .wg-aurora::before, .wg-aurora::after, .wg-skel, .wg-rise { animation: none !important; }
+  .wg-card--interactive:hover { transform: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .wg-surface { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--glass-solid); }
+  .wg-aurora { display: none; }
+}
+:root.perf-mode .wg-aurora::before,
+:root.perf-mode .wg-aurora::after { animation: none; }
+:root.perf-mode .wg-surface { backdrop-filter: none; -webkit-backdrop-filter: none; }
+
+@media (max-width: 640px) {
+  .wg-hero { padding-bottom: 12px; }
+  .wg-hero__actions { width: 100%; }
+  .wg-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .wg-stat__value { font-size: 20px; }
+}

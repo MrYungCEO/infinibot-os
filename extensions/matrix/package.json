@@ -1,0 +1,37 @@
+{
+  "name": "@infinibot/matrix",
+  "version": "2026.11.1",
+  "type": "module",
+  "description": "InfiniBot Matrix channel plugin",
+  "license": "FSL-1.1-ALv2",
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ],
+    "channel": {
+      "id": "matrix",
+      "label": "Matrix",
+      "selectionLabel": "Matrix (plugin)",
+      "docsPath": "/channels/matrix",
+      "docsLabel": "matrix",
+      "blurb": "open protocol; install the plugin to enable.",
+      "order": 70,
+      "quickstartAllowFrom": true
+    },
+    "install": {
+      "npmSpec": "@infinibot/matrix",
+      "localPath": "extensions/matrix",
+      "defaultChoice": "npm"
+    }
+  },
+  "dependencies": {
+    "@matrix-org/matrix-sdk-crypto-nodejs": "^0.4.0",
+    "markdown-it": "14.1.0",
+    "@vector-im/matrix-bot-sdk": "0.8.0-element.3",
+    "music-metadata": "^11.10.6",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "infinibot": "workspace:*"
+  }
+}

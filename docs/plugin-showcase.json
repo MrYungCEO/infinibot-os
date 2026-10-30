@@ -1,0 +1,587 @@
+{
+ "_about": "Shared InfiniBot plugin showcase content (KinglyVault, infinibotos.com, cloud.infinibotos.com). Facts come from the plugin manifests + the public registry (cloud.infinibotos.com/api/marketplace/index.json). NO prices here: prices, versions, icons and screenshots are read from the registry (at build time for static pages, at runtime on KV). Media = hosted course lessons on infinibot-media.netlify.app. Updated 2026-10-27.",
+ "media": "https://infinibot-media.netlify.app",
+ "reel": {
+  "video": "/plugins/2026-10-27/reels/infinibot-plugins-reel-720p.mp4",
+  "poster": "/plugins/2026-10-27/reels/infinibot-plugins-reel-poster.jpg",
+  "caption": "34-second overview: the plugins that plug into InfiniBot"
+ },
+ "kvCourseUrl": "https://kinglyvault.com/course/{course}/lesson/{lesson}",
+ "plugins": [
+  {
+   "id": "flypic",
+   "name": "FlyPic",
+   "kind": "marketplace",
+   "path": "content-machine",
+   "outcome": "Make AI images and videos (including motion swap) from InfiniBot chat or FlyPic's own studio.",
+   "forWho": "Creators, faceless-content operators and designers who want their agents to generate visuals on their own AI keys.",
+   "capabilities": [
+    "FlyPic's studio embedded 1:1: image + video, references, aspect and quality",
+    "Agent tools: generate, wait for the job, reuse an item as a reference",
+    "Your FlyPic library inside InfiniBot: filter, download, favorite, reuse"
+   ],
+   "steps": [
+    "Install FlyPic from the marketplace (or unlock it with CEO).",
+    "Click Connect FlyPic and approve on flypic.ai. Tokens are stored encrypted.",
+    "Ask an agent for an image or a video, or open the Studio page and generate yourself."
+   ],
+   "requirements": [
+    "A FlyPic account (connect in one click or paste a FlyPic API token)",
+    "Your own AI provider keys in FlyPic: it runs on them, not on InfiniBot credits",
+    "Agent access follows your FlyPic plan's MCP & API access"
+   ],
+   "faqs": [
+    {
+     "q": "Do I pay InfiniBot credits for generations?",
+     "a": "No. FlyPic runs on the AI provider keys in your FlyPic account."
+    },
+    {
+     "q": "Can I use it on InfiniBot Cloud?",
+     "a": "Yes. The registry lists FlyPic as available on InfiniBot Cloud."
+    },
+    {
+     "q": "Where do I learn motion swap?",
+     "a": "The Content Studio + FlyPic course has a Motion Swap lesson and a capstone that builds a motion-swap promo."
+    }
+   ],
+   "demo": {
+    "course": 35,
+    "lesson": 218,
+    "slug": "/courses/content-studio-flypic/2026-10-27/cf-03-flypic-tour/cf-03-flypic-tour",
+    "title": "The FlyPic Tour"
+   },
+   "examples": [
+    {
+     "course": 35,
+     "lesson": 229,
+     "slug": "/courses/content-studio-flypic/2026-10-27/cf-06-motion-swap/cf-06-motion-swap",
+     "title": "Motion Swap: put your character into any motion"
+    },
+    {
+     "course": 35,
+     "lesson": 231,
+     "slug": "/courses/content-studio-flypic/2026-10-27/cf-05-ai-model-characters/cf-05-ai-model-characters",
+     "title": "Consistent AI characters"
+    }
+   ],
+   "learn": {
+    "course": 35,
+    "lesson": 218,
+    "title": "Content Studio + FlyPic course"
+   }
+  },
+  {
+   "id": "content-studio",
+   "name": "Content Studio",
+   "kind": "marketplace",
+   "path": "content-machine",
+   "outcome": "Run your social content like a studio: a page per channel, scripts, reel intelligence and a CMO agent.",
+   "forWho": "Anyone posting to Instagram, TikTok, YouTube or LinkedIn who wants ideas, scripts and posting in one pipeline.",
+   "capabilities": [
+    "One content page per channel with scripts, ideas, goals and brand voice",
+    "Reel library with metrics, transcripts and viral-format scoring",
+    "CMO, Content Director, Scriptwriter, Brand Designer and Video Editor agents"
+   ],
+   "steps": [
+    "Install Content Studio from the marketplace.",
+    "Create a page for each channel and connect Instagram (Graph API token) if you want live stats.",
+    "Let the CMO agent draft scripts from your research and saved viral examples, then queue posts."
+   ],
+   "requirements": [
+    "Instagram Graph API token for live follower and reach stats (optional)",
+    "The reel pipeline (download, transcription, scoring) needs a self-hosted install with Python, gallery-dl and Whisper"
+   ],
+   "faqs": [
+    {
+     "q": "Does it post for me?",
+     "a": "It runs the pipeline from idea to queued post. Live posting to phones goes through Droid Swarm with an approval step."
+    },
+    {
+     "q": "What happens if I turn it off?",
+     "a": "Every page hides and background sync stops. Your data stays where it is."
+    }
+   ],
+   "demo": {
+    "course": 35,
+    "lesson": 215,
+    "slug": "/courses/content-studio-flypic/2026-10-27/cf-02-content-studio/cf-02-content-studio",
+    "title": "Content Studio: set up your pipeline"
+   },
+   "examples": [
+    {
+     "course": 35,
+     "lesson": 230,
+     "slug": "/courses/content-studio-flypic/2026-10-27/cf-07-posting-queue/cf-07-posting-queue",
+     "title": "From library to posted: the posting queue"
+    }
+   ],
+   "learn": {
+    "course": 35,
+    "lesson": 215,
+    "title": "Content Studio + FlyPic course"
+   }
+  },
+  {
+   "id": "droid-swarm",
+   "name": "Droid Swarm",
+   "kind": "marketplace",
+   "path": "content-machine",
+   "outcome": "Run a rack of Android phones from one console: devices, accounts, workflows and egress routes.",
+   "forWho": "Social media operators who run real accounts on real phones and want one console with human checkpoints.",
+   "capabilities": [
+    "Enrol phones over USB or wireless debugging, watch and drive the live screen",
+    "Assign accounts to phones; secrets never enter the database",
+    "Scheduled workflows, one egress route per phone and a full audit log"
+   ],
+   "steps": [
+    "Install adb on the computer running InfiniBot, then enable the plugin.",
+    "Enrol a phone with the companion APK or wireless debugging and pin it to your tailnet.",
+    "Import an account, bind it to a phone and approve your first post from Content Studio."
+   ],
+   "requirements": [
+    "Self-hosted InfiniBot (not available on InfiniBot Cloud)",
+    "One or more Android phones and adb on the host computer",
+    "Optional: Tailscale, Fly.io and Cloudflare for remote phones and egress"
+   ],
+   "responsibleUse": "Automating social accounts can break a platform's terms of service and can get accounts restricted or banned. Use your own accounts, respect each platform's rules and limits, and keep a human approval on every post. The course's Platform Rules lesson covers the real risks.",
+   "responsibleLesson": {
+    "course": 36,
+    "lesson": 217,
+    "title": "Platform Rules, Real Risk and Responsible Use"
+   },
+   "faqs": [
+    {
+     "q": "Does it work on InfiniBot Cloud?",
+     "a": "No. It controls phones on your own network with adb, so it needs a self-hosted InfiniBot."
+    },
+    {
+     "q": "Will it get my accounts banned?",
+     "a": "It can if you break a platform's rules. Droid Swarm adds limits and approval steps, but you are responsible for how accounts are used."
+    }
+   ],
+   "demo": {
+    "course": 36,
+    "lesson": 194,
+    "slug": "/courses/droid-swarm-social-ops/2026-10-27/ds-01-what-droid-swarm-is/ds-01-what-droid-swarm-is",
+    "title": "What Droid Swarm is (and what it refuses to do)"
+   },
+   "examples": [
+    {
+     "course": 36,
+     "lesson": 219,
+     "slug": "/courses/droid-swarm-social-ops/2026-10-27/ds-03-connect-phones/ds-03-connect-phones",
+     "title": "Connect your phones: pairing and live control"
+    }
+   ],
+   "learn": {
+    "course": 36,
+    "lesson": 194,
+    "title": "Droid Swarm course"
+   }
+  },
+  {
+   "id": "canvas-library",
+   "name": "HoloCanvas",
+   "kind": "marketplace",
+   "path": "web-agency",
+   "outcome": "Turn reports into narrated, shareable walkthroughs on an infinite canvas.",
+   "forWho": "Agencies and consultants who present proposals, audits and client walkthroughs.",
+   "capabilities": [
+    "Build a walkthrough from a report or pasted markdown in one click",
+    "Bake per-scene narration audio",
+    "Share a link or download a single-file HTML export"
+   ],
+   "steps": [
+    "Install HoloCanvas from the marketplace.",
+    "Pick a report (or paste markdown) and build a walkthrough.",
+    "Narrate it, then share the link or the HTML file with your client."
+   ],
+   "requirements": [
+    "Works on self-hosted InfiniBot and InfiniBot Cloud"
+   ],
+   "faqs": [
+    {
+     "q": "Do share links break if I turn the plugin off?",
+     "a": "No. The canvas runtime is part of InfiniBot core; turning the plugin off only hides the library."
+    }
+   ],
+   "demo": {
+    "course": 30,
+    "lesson": 201,
+    "slug": "/courses/ai-business-use-cases/2026-10-27/ucs-06-holocanvas-walkthroughs/ucs-06-holocanvas-walkthroughs",
+    "title": "Client walkthroughs as interactive canvases"
+   },
+   "learn": {
+    "course": 30,
+    "lesson": 201,
+    "title": "AI Business Use-Cases course"
+   }
+  },
+  {
+   "id": "robovoice",
+   "name": "Robovoice",
+   "kind": "marketplace",
+   "path": "automation-operator",
+   "outcome": "Give your agents a voice: characters, a speech pipeline and live calls.",
+   "forWho": "Businesses that want an AI receptionist or voice agents that answer with InfiniBot's brain.",
+   "capabilities": [
+    "Robovoice becomes InfiniBot's voice backend for every agent",
+    "Give each agent its own Robovoice character",
+    "Edit the speech-to-text, model and text-to-speech pipeline from InfiniBot"
+   ],
+   "steps": [
+    "Install Robovoice from the marketplace.",
+    "Link this install to your self-hosted Robovoice stack or Robovoice cloud.",
+    "Map agents to characters and take a call."
+   ],
+   "requirements": [
+    "A Robovoice self-hosted stack or a Robovoice cloud account",
+    "On Robovoice cloud, calls use your Robovoice wallet credits; self-hosted has no metering"
+   ],
+   "faqs": [
+    {
+     "q": "Which model answers the call?",
+     "a": "InfiniBot itself: a gateway agent or a CLI agent, streamed back for low-latency speech."
+    }
+   ],
+   "demo": {
+    "course": 30,
+    "lesson": 222,
+    "slug": "/courses/ai-business-use-cases/2026-10-27/ucs-04-voice-receptionist/ucs-04-voice-receptionist",
+    "title": "Voice receptionist: answer, qualify, take the message"
+   },
+   "learn": {
+    "course": 30,
+    "lesson": 222,
+    "title": "AI Business Use-Cases course"
+   }
+  },
+  {
+   "id": "business-agency",
+   "name": "Business & Agency",
+   "kind": "marketplace",
+   "path": "automation-operator",
+   "outcome": "Run the business side from your AI OS: HQ, clients, pipeline and agencies in one place.",
+   "forWho": "Freelancers and agencies who want CRM, invoicing and a sales pipeline next to their agents.",
+   "capabilities": [
+    "Business HQ with today's focus and decision-ready items",
+    "Client CRM with invoicing and payment links",
+    "Sales pipeline, lead capture and funnels"
+   ],
+   "steps": [
+    "Install Business & Agency from the marketplace.",
+    "Fill in your business profile and connect Whop, Stripe or Square (write-only keys).",
+    "Add clients and leads, and let the business agents brief you each day."
+   ],
+   "requirements": [
+    "Works on self-hosted InfiniBot and InfiniBot Cloud"
+   ],
+   "faqs": [
+    {
+     "q": "Is my data deleted if I turn it off?",
+     "a": "No. Pages and business agents hide; your data stays exactly where it is."
+    }
+   ],
+   "demo": {
+    "course": 30,
+    "lesson": 196,
+    "slug": "/courses/ai-business-use-cases/2026-10-27/ucs-01-lead-gen-crm/ucs-01-lead-gen-crm",
+    "title": "AI lead-gen to CRM follow-up"
+   },
+   "learn": {
+    "course": 30,
+    "lesson": 196,
+    "title": "AI Business Use-Cases course"
+   }
+  },
+  {
+   "id": "products",
+   "name": "Products",
+   "kind": "marketplace",
+   "path": "content-machine",
+   "outcome": "Run inventory and product strategy from one focused workspace.",
+   "forWho": "Sellers of physical or digital products who track stock, pricing and which products to back.",
+   "capabilities": [
+    "Catalog: SKU, price, cost, stock, media and vendors",
+    "Portfolio: validation stage, owner, target customer and revenue model",
+    "Product cards on Business HQ when Business & Agency is on"
+   ],
+   "steps": [
+    "Install Products from the marketplace.",
+    "Add catalog rows (they sync with Notion through the Databases system).",
+    "Track each product's validation stage and next decision in the Portfolio."
+   ],
+   "requirements": [
+    "Works on self-hosted InfiniBot and InfiniBot Cloud"
+   ],
+   "faqs": [],
+   "learn": {
+    "course": 29,
+    "lesson": 202,
+    "title": "Plugins: unlock in KinglyVault, install in InfiniBot"
+   }
+  },
+  {
+   "id": "infinicode",
+   "name": "InfiniCode",
+   "kind": "marketplace",
+   "path": "web-agency",
+   "outcome": "Mission control for your servers: a live mesh map, fleet hardware and maintenance runs.",
+   "forWho": "Developers and agencies who host client sites or servers.",
+   "capabilities": [
+    "Live mesh map of every node, agent and sector",
+    "CPU and memory per server, grouped by site",
+    "Queue a maintenance run on any node"
+   ],
+   "steps": [
+    "Install InfiniCode from the marketplace.",
+    "Run the infinicode CLI on each server (or use an HTTPS push token on InfiniBot Cloud).",
+    "Watch the fleet and queue maintenance from the panel."
+   ],
+   "requirements": [
+    "The infinicode CLI on each server you want to see"
+   ],
+   "faqs": [],
+   "learn": {
+    "course": 29,
+    "lesson": 202,
+    "title": "Plugins: unlock in KinglyVault, install in InfiniBot"
+   }
+  },
+  {
+   "id": "infinitrade",
+   "name": "Infinitrade",
+   "kind": "marketplace",
+   "path": null,
+   "outcome": "The Infinitrade market command center for TradeLocker: terminal, journal, scanner and research.",
+   "forWho": "TradeLocker traders who want their journal, scanner and research next to their agents.",
+   "capabilities": [
+    "Trading terminal, journal, scanner, signals and economic calendar",
+    "Analyst agent with live trade, chart and journal panels in chat",
+    "Read-only by default; orders need a separate permission and a typed confirmation"
+   ],
+   "steps": [
+    "Install Infinitrade from the marketplace.",
+    "Connect your TradeLocker account (read-only by default).",
+    "Open Market Command and ask the analyst agent about your journal."
+   ],
+   "requirements": [
+    "A TradeLocker account"
+   ],
+   "responsibleUse": "Trading carries risk. Infinitrade does not give financial advice.",
+   "faqs": [],
+   "learn": {
+    "course": 29,
+    "lesson": 202,
+    "title": "Plugins: unlock in KinglyVault, install in InfiniBot"
+   }
+  },
+  {
+   "id": "solatrix",
+   "name": "Solatrix",
+   "kind": "marketplace",
+   "path": null,
+   "outcome": "A Solana command deck: charts, wallets, copy engine and on-chain intelligence.",
+   "forWho": "Solana traders who want agents with strict, policy-controlled access.",
+   "capabilities": [
+    "Terminal with candles, token search and route comparison",
+    "Portfolio and wallets with encrypted keys and transfer previews",
+    "Agent access levels from Off to trade-with-approval, with hard limits"
+   ],
+   "steps": [
+    "Install Solatrix on a self-hosted InfiniBot.",
+    "Add a wallet; agent access starts Off.",
+    "Choose an access level and set limits before any agent trades."
+   ],
+   "requirements": [
+    "Self-hosted InfiniBot (coming soon to InfiniBot Cloud)"
+   ],
+   "responsibleUse": "Trading carries substantial risk. Solatrix is not financial advice.",
+   "faqs": [],
+   "learn": {
+    "course": 29,
+    "lesson": 202,
+    "title": "Plugins: unlock in KinglyVault, install in InfiniBot"
+   }
+  },
+  {
+   "id": "omniclinic",
+   "name": "OmniClinic",
+   "kind": "marketplace",
+   "path": null,
+   "outcome": "A research workspace for clinicians and students: a medical feed, cited briefings and clinic databases.",
+   "forWho": "Clinicians, medical students and researchers.",
+   "capabilities": [
+    "Feed of papers, trials and drug-safety notices from public sources",
+    "Ask a question, get a cited briefing",
+    "Your own tables for conditions, drugs, cases and protocols"
+   ],
+   "steps": [
+    "Install OmniClinic from the marketplace.",
+    "Pick your specialties for the intelligence feed.",
+    "Ask the research engine a question and save what matters to your databases."
+   ],
+   "requirements": [
+    "Works on self-hosted InfiniBot and InfiniBot Cloud"
+   ],
+   "responsibleUse": "OmniClinic is a study and research tool, not clinical decision support. InfiniBot Cloud is not a HIPAA-covered service.",
+   "faqs": [],
+   "learn": {
+    "course": 29,
+    "lesson": 202,
+    "title": "Plugins: unlock in KinglyVault, install in InfiniBot"
+   }
+  },
+  {
+   "id": "discipline",
+   "name": "Discipline",
+   "kind": "marketplace",
+   "path": null,
+   "outcome": "Plan your day in time blocks and let your agents' finished work check the boxes.",
+   "forWho": "Anyone who drifts and wants a planner that sees the work actually done.",
+   "capabilities": [
+    "Time blocks with a live now-line",
+    "Agent runs and tasks logged against the active block",
+    "Scores, streaks and Telegram alerts"
+   ],
+   "steps": [
+    "Install Discipline.",
+    "Lay out your day or apply a template.",
+    "Work; finished agent runs complete your blocks."
+   ],
+   "requirements": [
+    "Works on self-hosted InfiniBot and InfiniBot Cloud"
+   ],
+   "faqs": [],
+   "learn": {
+    "course": 29,
+    "lesson": 202,
+    "title": "Plugins: unlock in KinglyVault, install in InfiniBot"
+   }
+  },
+  {
+   "id": "whiteboard",
+   "name": "Whiteboard",
+   "kind": "marketplace",
+   "path": null,
+   "outcome": "Sketch and diagram on a live canvas your agents can draw on too.",
+   "forWho": "Anyone mapping ideas, flows or architecture with an agent.",
+   "capabilities": [
+    "Live Excalidraw canvas",
+    "Agents draw shapes, connectors and layouts",
+    "Saved boards and templates"
+   ],
+   "steps": [
+    "Install Whiteboard.",
+    "Open a board.",
+    "Ask an agent to diagram your flow."
+   ],
+   "requirements": [
+    "Works on self-hosted InfiniBot and InfiniBot Cloud"
+   ],
+   "faqs": [],
+   "learn": {
+    "course": 29,
+    "lesson": 202,
+    "title": "Plugins: unlock in KinglyVault, install in InfiniBot"
+   }
+  },
+  {
+   "id": "part-scan",
+   "name": "Part Scan",
+   "kind": "marketplace",
+   "path": null,
+   "outcome": "Scan a physical part with your camera and get a measured, textured 3D model.",
+   "forWho": "Makers, fabricators and repair shops.",
+   "capabilities": [
+    "Guided camera capture on a printed calibration mat",
+    "Measure dimensions in millimetres",
+    "Export GLB and STL"
+   ],
+   "steps": [
+    "Install Part Scan.",
+    "Turn on the worker on a machine with a supported NVIDIA GPU.",
+    "Capture, reconstruct and measure."
+   ],
+   "requirements": [
+    "3D reconstruction needs a self-hosted install with Docker and an NVIDIA GPU (CUDA 12.8)"
+   ],
+   "faqs": [],
+   "learn": {
+    "course": 29,
+    "lesson": 202,
+    "title": "Plugins: unlock in KinglyVault, install in InfiniBot"
+   }
+  },
+  {
+   "id": "community-manager",
+   "name": "Discord Community Manager",
+   "kind": "builtin",
+   "icon": "discord",
+   "path": "automation-operator",
+   "outcome": "Run your Discord with InfiniBot: welcome and verification, intake, tickets and moderation with approvals.",
+   "forWho": "Community owners and coaches running a Discord server.",
+   "capabilities": [
+    "Welcome, verification and an intake questionnaire with lead scoring",
+    "Ticket threads and scheduled posts",
+    "Moderation with an approval gate for bans, mass DMs and @everyone"
+   ],
+   "steps": [
+    "Connect your Discord bot to InfiniBot.",
+    "Run the guided setup wizard on the /community dashboard.",
+    "Review approvals before any ban, mass DM or @everyone goes out."
+   ],
+   "requirements": [
+    "A Discord server and a Discord bot",
+    "Included with InfiniBot, not sold separately: check that your InfiniBot shows the Community page"
+   ],
+   "faqs": [],
+   "demo": {
+    "course": 29,
+    "lesson": 203,
+    "slug": "/courses/infinibot-operator/2026-10-27/ibo-05-discord/ibo-05-discord",
+    "title": "Run your Discord with InfiniBot"
+   },
+   "learn": {
+    "course": 29,
+    "lesson": 203,
+    "title": "InfiniBot Operator course"
+   }
+  },
+  {
+   "id": "browser-relay",
+   "name": "Browser Relay extension",
+   "kind": "builtin",
+   "icon": "chrome",
+   "path": "web-agency",
+   "outcome": "Let agents work in your own logged-in Chrome, one tab you grant at a time.",
+   "forWho": "Anyone whose work lives in web apps their agents need to use.",
+   "capabilities": [
+    "Agents act in tabs you explicitly grant, or tabs they create",
+    "No cookies, passwords or storage are exported to agents",
+    "Page text is treated as data, never as instructions"
+   ],
+   "steps": [
+    "Install the InfiniBot Browser Relay extension in Chrome.",
+    "Pair it with a one-time code.",
+    "Grant the current tab, then ask an agent to do the task."
+   ],
+   "requirements": [
+    "Google Chrome",
+    "A local InfiniBot gateway (the relay is loopback-only)"
+   ],
+   "faqs": [],
+   "demo": {
+    "course": 29,
+    "lesson": 204,
+    "slug": "/courses/infinibot-operator/2026-10-27/ibo-06-browser-extension/ibo-06-browser-extension",
+    "title": "The browser extension, safely"
+   },
+   "learn": {
+    "course": 29,
+    "lesson": 204,
+    "title": "InfiniBot Operator course"
+   }
+  }
+ ]
+}

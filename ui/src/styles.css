@@ -1,0 +1,60 @@
+@import "./styles/base.css";
+@import "./styles/layout.css";
+@import "./styles/layout.mobile.css";
+@import "./styles/components.css";
+@import "./styles/config.css";
+@import "./styles/chat.css";
+@import "./styles/chat/sidebar-enhanced.css";
+@import "./styles/nav-enhanced.css";
+@import "./styles/host-subtabs.css";
+@import "./styles/terminal-clock.css";
+@import "./styles/onboarding.css";
+@import "./styles/channels.css";
+@import "./styles/kanban-perf.css";
+@import "./styles/droid-swarm.css";
+/* Premium glass system: --glass-* tokens, .g-* primitives, shell + chat
+   refinements (docs/ui/GLASS.md). After every legacy sheet so it refines. */
+@import "./styles/glass/index.css";
+/* Last: the global laptop/tablet scale must win over per-surface rules. */
+@import "./styles/viewport-scale.css";
+
+/* Language picker — one control instead of seven docked chips.
+   See renderLanguageToggle: the button row competed for header width with the
+   agent mesh and GPU readouts and collided with them on narrow viewports. */
+.lang-select {
+  display: inline-flex;
+  align-items: center;
+  min-width: 0;
+}
+.lang-select__control {
+  appearance: none;
+  max-width: 96px;
+  padding: 4px 22px 4px 9px;
+  border-radius: var(--g-radius-sm, 8px);
+  border: 1px solid var(--g-border);
+  background:
+    linear-gradient(45deg, transparent 50%, currentColor 50%) calc(100% - 12px) 50% / 5px 5px no-repeat,
+    var(--g-surface);
+  color: inherit;
+  font: inherit;
+  font-size: 11px;
+  line-height: 1.2;
+  text-overflow: ellipsis;
+  cursor: pointer;
+}
+.lang-select__control:hover { background-color: var(--g-surface-hover, var(--g-surface)); }
+.lang-select__control:focus-visible { outline: 2px solid var(--g-primary); outline-offset: 1px; }
+/* Options render in the OS menu, which does not inherit the glass surface. */
+.lang-select__control option { background: #101010; color: #eee; }
+/* Visually-hidden label text that assistive tech still announces. */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border: 0;
+}

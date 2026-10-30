@@ -1,0 +1,13 @@
+{
+  "name": "hello",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Hello — the example plugin the InfiniBot plugin docs walk through.",
+  "license": "MIT",
+  "infinibot": {
+    "extensions": [
+      "./index.js"
+    ]
+  }
+}

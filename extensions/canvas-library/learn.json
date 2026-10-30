@@ -1,0 +1,211 @@
+{
+  "tracks": [
+    {
+      "id": "canvas-library",
+      "title": "HoloCanvas",
+      "summary": "Browse, replay, build and share infinite-canvas walkthroughs from one library.",
+      "overview": "**HoloCanvas** is the library for your infinite-canvas walkthroughs: spatial presentations made of cards laid out on a canvas and a sequence of scenes that fly between them. It lives at `/canvas`.\n\n- **Browse.** A gallery of saved canvases with scene and card counts, filtered by tag. Canvases your agents save, such as work reviews, show up here too.\n- **Preview and replay.** Select a canvas to play it inline, or **Re-emit** it as an on-screen overlay.\n- **Build.** Turn a report into a walkthrough (each section becomes a card and a scene), paste a walkthrough payload as JSON, or load two short neutral examples.\n- **Narrate.** **Bake Narration** generates per-scene narration audio.\n- **Share and export.** Copy a `/canvas/<id>` share link or download a single-file HTML export.\n\nThe canvas runtime is part of InfiniBot core: agents can still show walkthroughs, and share links keep working when this plugin is off. Turning it off hides the library; your saved canvases are kept. The tours load the two example canvases (they're neutral and only added once) and open dialogs, but never delete, bake, re-emit or save anything else.",
+      "category": "Plugins",
+      "level": "beginner",
+      "order": 64,
+      "routes": ["/canvas"],
+      "signals": ["canvas"],
+      "badge": { "id": "canvas-library", "label": "HoloCanvas mastery", "icon": "🌀" },
+      "walkthroughs": [
+        {
+          "id": "library-tour",
+          "title": "Tour the library",
+          "summary": "The header actions, tag filter, gallery and preview pane.",
+          "estMinutes": 2,
+          "steps": [
+            {
+              "id": "header",
+              "title": "The HoloCanvas library",
+              "body": "Every saved walkthrough canvas in one place, with a count. The buttons on the right create new ones.",
+              "route": "/canvas",
+              "target": "learn:holocanvas-header",
+              "placement": "bottom"
+            },
+            {
+              "id": "tags",
+              "title": "Filter by tag",
+              "body": "Tags come from the canvases themselves. Pick one to narrow the gallery, or **All** to see everything.",
+              "target": "learn:holocanvas-tags",
+              "placement": "right"
+            },
+            {
+              "id": "gallery",
+              "title": "The gallery",
+              "body": "Each card shows the title, how many cards and scenes it has, its tags, and **✓ baked** once narration audio exists. Canvases your agents save, such as work reviews, land here too.",
+              "target": "learn:holocanvas-gallery",
+              "placement": "bottom"
+            },
+            {
+              "id": "inspector",
+              "title": "The preview pane",
+              "body": "Select a canvas and it plays here, with actions to narrate, share, export and re-show it.",
+              "target": "learn:holocanvas-inspector",
+              "placement": "left"
+            }
+          ]
+        },
+        {
+          "id": "preview-and-share",
+          "title": "Preview, replay and share",
+          "summary": "Load the example canvases, play one, and see how to share or export it.",
+          "estMinutes": 3,
+          "steps": [
+            {
+              "id": "examples",
+              "title": "Load the examples",
+              "body": "Click **Load examples** to add two short example canvases. They're neutral and only ever added once.",
+              "route": "/canvas",
+              "target": "learn:holocanvas-load-examples",
+              "action": { "kind": "click" },
+              "practice": { "mode": "sandbox", "note": "Adds the two built-in example canvases to your library (idempotent). Nothing else is changed." }
+            },
+            {
+              "id": "select",
+              "title": "Open a canvas",
+              "body": "Click a canvas card to preview it.",
+              "target": "learn:holocanvas-card",
+              "action": { "kind": "click" },
+              "waitMs": 12000
+            },
+            {
+              "id": "preview",
+              "title": "Play it inline",
+              "body": "The walkthrough plays here scene by scene. When it ends it starts again from the first scene.",
+              "target": "learn:holocanvas-preview",
+              "placement": "left"
+            },
+            {
+              "id": "share",
+              "title": "Share and export",
+              "body": "**Copy Link** copies a `/canvas/<id>` share link, which keeps working even with this plugin off. **Download HTML** saves a single-file export you can open anywhere.",
+              "target": ["learn:holocanvas-share", "learn:holocanvas-actions"],
+              "placement": "bottom"
+            },
+            {
+              "id": "narrate",
+              "title": "Narrate and re-show",
+              "body": "**Bake Narration** generates per-scene audio with your voice provider. **Re-emit** shows the canvas again as an on-screen overlay. **Delete** removes it from the library.",
+              "target": ["learn:holocanvas-bake", "learn:holocanvas-actions"],
+              "placement": "bottom",
+              "practice": { "mode": "explain", "note": "The tour doesn't bake (it uses your speech provider), re-emit or delete." }
+            }
+          ]
+        },
+        {
+          "id": "build-a-canvas",
+          "title": "Build a new canvas",
+          "summary": "From a report, or from a pasted walkthrough payload.",
+          "estMinutes": 3,
+          "steps": [
+            {
+              "id": "from-report",
+              "title": "Build from a report",
+              "body": "Click **From report**.",
+              "route": "/canvas",
+              "target": "learn:holocanvas-from-report",
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "report-list",
+              "title": "Pick a report",
+              "body": "Your reports are listed here. Converting one turns each section into a card and a scene, and saves the result to the library.",
+              "target": "learn:holocanvas-report-modal",
+              "placement": "center"
+            },
+            {
+              "id": "report-close",
+              "title": "Close",
+              "body": "Click **Close**.",
+              "target": "learn:holocanvas-report-close",
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "new",
+              "title": "Paste a payload",
+              "body": "Click **+ New** to save a canvas from its JSON payload.",
+              "target": "learn:holocanvas-new",
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "title",
+              "title": "Give it a title",
+              "body": "Type a title.",
+              "target": "[data-learn-id=\"holocanvas-new-modal\"] input",
+              "action": { "kind": "input", "sample": "Quarterly review" }
+            },
+            {
+              "id": "payload",
+              "title": "The payload",
+              "body": "Paste the walkthrough JSON: its `nodes` (the cards) and `scenes`. Agents produce this format when they show a walkthrough. Add comma-separated tags below it.",
+              "target": "[data-learn-id=\"holocanvas-new-modal\"] textarea",
+              "placement": "top"
+            },
+            {
+              "id": "cancel",
+              "title": "Cancel",
+              "body": "Click **Cancel** to close without saving.",
+              "target": "learn:holocanvas-new-cancel",
+              "action": { "kind": "click" }
+            }
+          ]
+        }
+      ],
+      "quiz": [
+        {
+          "id": "what",
+          "prompt": "What is a HoloCanvas walkthrough?",
+          "options": [
+            "A video file",
+            "Cards laid out on an infinite canvas plus a sequence of scenes that move between them",
+            "A slide deck exported from PowerPoint",
+            "A whiteboard drawing"
+          ],
+          "answer": 1,
+          "explain": "A canvas has nodes (cards) and scenes; playback moves through the scenes."
+        },
+        {
+          "id": "report",
+          "prompt": "What happens when you build a canvas from a report?",
+          "options": [
+            "The report is emailed",
+            "Each report section becomes a card and a scene",
+            "The report is deleted",
+            "Only the title is copied"
+          ],
+          "answer": 1,
+          "explain": "The report's sections map onto cards and scenes, and the canvas is saved to the library."
+        },
+        {
+          "id": "plugin-off",
+          "prompt": "You turn the HoloCanvas plugin off. What still works?",
+          "options": [
+            "Nothing, all canvases are deleted",
+            "Share links and agents showing walkthroughs; the library page is hidden and canvases are kept",
+            "Only the library page",
+            "Only downloaded HTML exports, and share links break"
+          ],
+          "answer": 1,
+          "explain": "The canvas runtime is core; the plugin only adds the library."
+        },
+        {
+          "id": "bake",
+          "prompt": "What does Bake Narration do?",
+          "options": [
+            "Compresses the canvas",
+            "Generates per-scene narration audio",
+            "Publishes the canvas publicly",
+            "Converts it to a PDF"
+          ],
+          "answer": 1,
+          "explain": "Baked canvases show a ✓ baked badge and play narration per scene."
+        }
+      ]
+    }
+  ],
+  "missions": []
+}

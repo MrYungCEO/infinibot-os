@@ -1,0 +1,23 @@
+<svg viewBox="0 0 440 230">
+  <g stroke="var(--gold)" stroke-width="1.6" fill="none">
+    <line x1="70" y1="115" x2="190" y2="40"><animate attributeName="stroke-dasharray" values="0 200;200 0" dur="2.2s" repeatCount="indefinite"/></line>
+    <line x1="70" y1="115" x2="190" y2="90"><animate attributeName="stroke-dasharray" values="0 200;200 0" dur="2.2s" begin="0.2s" repeatCount="indefinite"/></line>
+    <line x1="70" y1="115" x2="190" y2="140"><animate attributeName="stroke-dasharray" values="0 200;200 0" dur="2.2s" begin="0.4s" repeatCount="indefinite"/></line>
+    <line x1="70" y1="115" x2="190" y2="190"><animate attributeName="stroke-dasharray" values="0 200;200 0" dur="2.2s" begin="0.6s" repeatCount="indefinite"/></line>
+  </g>
+  <g font-family="Segoe UI" font-size="11" fill="#aab2cc" text-anchor="middle">
+    <circle cx="48" cy="115" r="26" fill="rgba(212,175,55,.16)" stroke="var(--gold)" stroke-width="1.5"/>
+    <text x="48" y="112" fill="#f4d77a" font-weight="700">VOICE</text><text x="48" y="126">you</text>
+    <g>
+      <circle cx="220" cy="40" r="20" fill="rgba(127,212,200,.14)" stroke="#7fd4c8"/><text x="220" y="44" fill="#cfe3d8">claude</text>
+      <circle cx="220" cy="90" r="20" fill="rgba(212,175,55,.14)" stroke="#d4af37"/><text x="220" y="94" fill="#f4d77a">codex</text>
+      <circle cx="220" cy="140" r="20" fill="rgba(155,140,255,.14)" stroke="#9b8cff"/><text x="220" y="144" fill="#c9bfff">gemini</text>
+      <circle cx="220" cy="190" r="20" fill="rgba(95,176,255,.14)" stroke="#5fb0ff"/><text x="220" y="194" fill="#bfe0ff">opencode</text>
+    </g>
+    <circle cx="135" cy="115" r="17" fill="rgba(244,215,122,.2)" stroke="#f4d77a" stroke-dasharray="3 3"><animateTransform attributeName="transform" type="rotate" from="0 135 115" to="360 135 115" dur="9s" repeatCount="indefinite"/></circle>
+    <text x="135" y="119" font-size="9" fill="#f4d77a">orch</text>
+    <text x="330" y="60" text-anchor="start" fill="#6b7392" font-size="10">isolated context</text>
+    <text x="330" y="118" text-anchor="start" fill="#6b7392" font-size="10">warm cache · own scope</text>
+    <text x="330" y="176" text-anchor="start" fill="#6b7392" font-size="10">parallel, off your path</text>
+  </g>
+</svg>

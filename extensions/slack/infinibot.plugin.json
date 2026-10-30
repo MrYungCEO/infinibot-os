@@ -1,0 +1,23 @@
+{
+  "id": "slack",
+  "name": "Slack",
+  "listing": {
+    "tagline": "Talk to your agents in Slack channels and direct messages.",
+    "category": "channels",
+    "tags": [
+      "team-chat",
+      "work"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "channels": [
+    "slack"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

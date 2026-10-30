@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Systems Intelligence Graph — Demo</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      background: #0a0a0a;
+      color: #e5e7eb;
+      font-family: system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    header {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+      padding: 16px 24px;
+    }
+    
+    h1 {
+      font-size: 24px;
+      color: #D4AF37;
+      margin-bottom: 8px;
+    }
+    
+    .subtitle {
+      font-size: 14px;
+      color: #9ca3af;
+    }
+    
+    #graph-container {
+      flex: 1;
+      min-height: 600px;
+      position: relative;
+    }
+    
+    .controls {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: rgba(26, 26, 46, 0.95);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 8px;
+      padding: 12px;
+      display: flex;
+      gap: 8px;
+    }
+    
+    button {
+      background: linear-gradient(135deg, #D4AF37 0%, #b8962e 100%);
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      color: #0a0a0a;
+      font-weight: 600;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s ease;
+    }
+    
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(212, 175, 55, 0.3);
+    }
+    
+    .legend {
+      position: fixed;
+      top: 100px;
+      left: 20px;
+      background: rgba(26, 26, 46, 0.95);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 8px;
+      padding: 16px;
+      font-size: 12px;
+    }
+    
+    .legend h3 {
+      color: #D4AF37;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+    
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    
+    .legend-shape {
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .legend-shape.hexagon { color: #D4AF37; }
+    .legend-shape.rect { color: #3B82F6; }
+    .legend-shape.circle-green { color: #22C55E; }
+    .legend-shape.diamond { color: #8B5CF6; }
+    .legend-shape.circle-emerald { color: #10B981; }
+    
+    .legend-label {
+      color: #9ca3af;
+    }
+    
+    .info-panel {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      background: rgba(26, 26, 46, 0.95);
+      border: 1px solid rgba(212, 175, 55, 0.2);
+      border-radius: 8px;
+      padding: 16px;
+      max-width: 300px;
+      display: none;
+    }
+    
+    .info-panel.visible {
+      display: block;
+    }
+    
+    .info-panel h3 {
+      color: #D4AF37;
+      margin-bottom: 8px;
+    }
+    
+    .info-panel .type {
+      font-size: 12px;
+      color: #6b7280;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+    
+    .info-panel .description {
+      color: #d1d5db;
+      font-size: 14px;
+    }
+    
+    .info-panel .connections {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255,255,255,0.1);
+    }
+    
+    .info-panel .connections h4 {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-bottom: 8px;
+    }
+    
+    .info-panel .connection-item {
+      font-size: 12px;
+      color: #d1d5db;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🌐 Systems Intelligence Graph</h1>
+    <p class="subtitle">Interactive ecosystem visualization with D3.js force-directed layout</p>
+  </header>
+
+  <div id="graph-container"></div>
+
+  <div class="legend">
+    <h3>Node Types</h3>
+    <div class="legend-item">
+      <div class="legend-shape hexagon">⬡</div>
+      <span class="legend-label">Business</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-shape rect">▢</div>
+      <span class="legend-label">Project</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-shape circle-green">●</div>
+      <span class="legend-label">Person</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-shape diamond">◆</div>
+      <span class="legend-label">Asset</span>
+    </div>
+    <div class="legend-item">
+      <div class="legend-shape circle-emerald">$</div>
+      <span class="legend-label">Revenue Stream</span>
+    </div>
+    
+    <h3 style="margin-top: 16px;">Edge Types</h3>
+    <div class="legend-item">
+      <svg width="30" height="10"><line x1="0" y1="5" x2="30" y2="5" stroke="#6b7280" stroke-width="2"/></svg>
+      <span class="legend-label">Feeds</span>
+    </div>
+    <div class="legend-item">
+      <svg width="30" height="10"><line x1="0" y1="5" x2="30" y2="5" stroke="#9ca3af" stroke-width="2" stroke-dasharray="6,4"/></svg>
+      <span class="legend-label">Depends On</span>
+    </div>
+    <div class="legend-item">
+      <svg width="30" height="10"><line x1="0" y1="5" x2="30" y2="5" stroke="#fbbf24" stroke-width="2"/></svg>
+      <span class="legend-label">Synergy</span>
+    </div>
+    <div class="legend-item">
+      <svg width="30" height="10"><line x1="0" y1="5" x2="30" y2="5" stroke="#60a5fa" stroke-width="4"/></svg>
+      <span class="legend-label">Resource Flow</span>
+    </div>
+    <div class="legend-item">
+      <svg width="30" height="10"><line x1="0" y1="5" x2="30" y2="5" stroke="#a78bfa" stroke-width="2" stroke-dasharray="2,4"/></svg>
+      <span class="legend-label">Attention Flow</span>
+    </div>
+  </div>
+
+  <div id="info-panel" class="info-panel">
+    <h3 id="node-name">Node Name</h3>
+    <div id="node-type" class="type">Type</div>
+    <div id="node-description" class="description">Description</div>
+    <div class="connections">
+      <h4>Connections</h4>
+      <div id="connection-list"></div>
+    </div>
+  </div>
+
+  <div class="controls">
+    <button onclick="resetZoom()">Reset View</button>
+    <button onclick="addRandomNode()">Add Node</button>
+    <button onclick="shuffleLayout()">Shuffle</button>
+  </div>
+
+  <script type="module">
+    // ============================================================
+    // Node Shape Definitions
+    // ============================================================
+
+    const NODE_STYLES = {
+      business: { color: "#D4AF37", shape: "hexagon", size: 40, glow: "rgba(212, 175, 55, 0.4)" },
+      project: { color: "#3B82F6", shape: "roundedRect", size: 35, glow: "rgba(59, 130, 246, 0.4)" },
+      person: { color: "#22C55E", shape: "circle", size: 30, glow: "rgba(34, 197, 94, 0.4)" },
+      asset: { color: "#8B5CF6", shape: "diamond", size: 32, glow: "rgba(139, 92, 246, 0.4)" },
+      revenue_stream: { color: "#10B981", shape: "circle", size: 28, glow: "rgba(16, 185, 129, 0.4)" },
+    };
+
+    const EDGE_STYLES = {
+      feeds: { strokeDasharray: "none", strokeWidth: 2, markerStart: false, markerEnd: true, color: "#6b7280" },
+      depends_on: { strokeDasharray: "6,4", strokeWidth: 2, markerStart: false, markerEnd: true, color: "#9ca3af" },
+      synergy: { strokeDasharray: "none", strokeWidth: 2, markerStart: true, markerEnd: true, color: "#fbbf24" },
+      resource_flow: { strokeDasharray: "none", strokeWidth: 4, markerStart: false, markerEnd: true, color: "#60a5fa" },
+      attention_flow: { strokeDasharray: "2,4", strokeWidth: 2, markerStart: false, markerEnd: true, color: "#a78bfa" },
+    };
+
+    // ============================================================
+    // Mock Data
+    // ============================================================
+
+    const MOCK_NODES = [
+      { id: "kk-studio", name: "KK Studio", type: "business", description: "Main creative agency - graphic design, video production, AI automation" },
+      { id: "kingly-vault", name: "Kingly Vault", type: "project", description: "Premium membership community for content creators" },
+      { id: "infinibot", name: "InfiniBot", type: "project", description: "AI Agent Infrastructure - multi-platform messaging + automation" },
+      { id: "ra-kaiun", name: "Ra Kai'Un", type: "person", description: "Founder & Lead Developer" },
+      { id: "servers", name: "GPU Servers", type: "asset", description: "RTX 4090 compute cluster for AI inference" },
+      { id: "subscriptions", name: "Subscriptions", type: "revenue_stream", description: "Recurring monthly revenue from memberships" },
+    ];
+
+    const MOCK_RELATIONSHIPS = [
+      { id: "r1", source: "kk-studio", target: "kingly-vault", type: "feeds", label: "produces content for" },
+      { id: "r2", source: "kingly-vault", target: "subscriptions", type: "resource_flow", label: "generates" },
+      { id: "r3", source: "ra-kaiun", target: "kk-studio", type: "attention_flow", label: "leads" },
+      { id: "r4", source: "infinibot", target: "kingly-vault", type: "feeds", label: "powers automation" },
+      { id: "r5", source: "servers", target: "infinibot", type: "resource_flow", label: "runs on" },
+      { id: "r6", source: "kk-studio", target: "infinibot", type: "synergy", label: "develops together" },
+      { id: "r7", source: "ra-kaiun", target: "infinibot", type: "attention_flow", label: "builds" },
+    ];
+
+    // ============================================================
+    // SVG Path Generators
+    // ============================================================
+
+    function hexagonPath(cx, cy, size) {
+      const points = [];
+      for (let i = 0; i < 6; i++) {
+        const angle = (Math.PI / 3) * i - Math.PI / 2;
+        points.push([cx + size * Math.cos(angle), cy + size * Math.sin(angle)]);
+      }
+      return `M ${points.map(p => p.join(",")).join(" L ")} Z`;
+    }
+
+    function diamondPath(cx, cy, size) {
+      const s = size * 1.2;
+      return `M ${cx},${cy - s} L ${cx + s},${cy} L ${cx},${cy + s} L ${cx - s},${cy} Z`;
+    }
+
+    function roundedRectPath(cx, cy, width, height, radius) {
+      const x = cx - width / 2;
+      const y = cy - height / 2;
+      return `
+        M ${x + radius},${y}
+        h ${width - 2 * radius}
+        a ${radius},${radius} 0 0 1 ${radius},${radius}
+        v ${height - 2 * radius}
+        a ${radius},${radius} 0 0 1 ${-radius},${radius}
+        h ${-(width - 2 * radius)}
+        a ${radius},${radius} 0 0 1 ${-radius},${-radius}
+        v ${-(height - 2 * radius)}
+        a ${radius},${radius} 0 0 1 ${radius},${-radius}
+        Z
+      `;
+    }
+
+    // ============================================================
+    // Graph State
+    // ============================================================
+
+    let nodes = [...MOCK_NODES];
+    let relationships = [...MOCK_RELATIONSHIPS];
+    let simulation, svg, g, zoom;
+    let selectedNodeId = null;
+    const container = document.getElementById('graph-container');
+    const width = container.clientWidth || 1200;
+    const height = container.clientHeight || 700;
+
+    // ============================================================
+    // Initialize Graph
+    // ============================================================
+
+    function initGraph() {
+      svg = d3.select('#graph-container')
+        .append('svg')
+        .attr('width', '100%')
+        .attr('height', '100%')
+        .attr('viewBox', `0 0 ${width} ${height}`)
+        .style('cursor', 'grab');
+
+      // Create defs
+      createDefs();
+
+      // Main group for zoom/pan
+      g = svg.append('g').attr('class', 'graph-main');
+
+      // Setup zoom
+      zoom = d3.zoom()
+        .scaleExtent([0.1, 4])
+        .on('zoom', (event) => {
+          g.attr('transform', event.transform);
+        });
+      svg.call(zoom);
+
+      // Double-click to reset zoom
+      svg.on('dblclick.zoom', null);
+      svg.on('dblclick', () => {
+        svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
+      });
+
+      // Click background to deselect
+      svg.on('click', () => selectNode(null));
+
+      // Create simulation
+      createSimulation();
+
+      // Render
+      renderEdges();
+      renderNodes();
+    }
+
+    function createDefs() {
+      const defs = svg.append('defs');
+
+      // Arrow markers
+      Object.entries(EDGE_STYLES).forEach(([type, style]) => {
+        defs.append('marker')
+          .attr('id', `arrow-${type}`)
+          .attr('viewBox', '0 -5 10 10')
+          .attr('refX', 20)
+          .attr('refY', 0)
+          .attr('markerWidth', 6)
+          .attr('markerHeight', 6)
+          .attr('orient', 'auto')
+          .append('path')
+          .attr('d', 'M0,-5L10,0L0,5')
+          .attr('fill', style.color);
+
+        defs.append('marker')
+          .attr('id', `arrow-start-${type}`)
+          .attr('viewBox', '0 -5 10 10')
+          .attr('refX', -10)
+          .attr('refY', 0)
+          .attr('markerWidth', 6)
+          .attr('markerHeight', 6)
+          .attr('orient', 'auto-start-reverse')
+          .append('path')
+          .attr('d', 'M10,-5L0,0L10,5')
+          .attr('fill', style.color);
+      });
+
+      // Glow filter
+      const glow = defs.append('filter')
+        .attr('id', 'glow')
+        .attr('x', '-50%')
+        .attr('y', '-50%')
+        .attr('width', '200%')
+        .attr('height', '200%');
+      glow.append('feGaussianBlur').attr('stdDeviation', '3').attr('result', 'coloredBlur');
+      const merge = glow.append('feMerge');
+      merge.append('feMergeNode').attr('in', 'coloredBlur');
+      merge.append('feMergeNode').attr('in', 'SourceGraphic');
+
+      // Selection glow
+      const selGlow = defs.append('filter')
+        .attr('id', 'selection-glow')
+        .attr('x', '-100%').attr('y', '-100%')
+        .attr('width', '300%').attr('height', '300%');
+      selGlow.append('feGaussianBlur').attr('stdDeviation', '4').attr('result', 'blur');
+      selGlow.append('feFlood').attr('flood-color', '#D4AF37').attr('result', 'color');
+      selGlow.append('feComposite').attr('in', 'color').attr('in2', 'blur').attr('operator', 'in').attr('result', 'coloredBlur');
+      const selMerge = selGlow.append('feMerge');
+      selMerge.append('feMergeNode').attr('in', 'coloredBlur');
+      selMerge.append('feMergeNode').attr('in', 'SourceGraphic');
+    }
+
+    function createSimulation() {
+      const linkData = relationships.map(r => ({
+        ...r,
+        source: nodes.find(n => n.id === r.source),
+        target: nodes.find(n => n.id === r.target),
+      })).filter(l => l.source && l.target);
+
+      simulation = d3.forceSimulation(nodes)
+        .force('link', d3.forceLink(linkData).id(d => d.id).distance(150).strength(0.5))
+        .force('charge', d3.forceManyBody().strength(-400))
+        .force('center', d3.forceCenter(width / 2, height / 2))
+        .force('collision', d3.forceCollide().radius(50))
+        .on('tick', tick);
+    }
+
+    function renderEdges() {
+      g.selectAll('.edges').remove();
+      const edgeGroup = g.append('g').attr('class', 'edges');
+
+      edgeGroup.selectAll('line')
+        .data(relationships)
+        .enter()
+        .append('line')
+        .attr('class', 'edge')
+        .attr('data-id', d => d.id)
+        .attr('data-source', d => d.source)
+        .attr('data-target', d => d.target)
+        .attr('stroke', d => EDGE_STYLES[d.type]?.color || '#6b7280')
+        .attr('stroke-width', d => EDGE_STYLES[d.type]?.strokeWidth || 2)
+        .attr('stroke-dasharray', d => EDGE_STYLES[d.type]?.strokeDasharray || 'none')
+        .attr('marker-end', d => EDGE_STYLES[d.type]?.markerEnd ? `url(#arrow-${d.type})` : null)
+        .attr('marker-start', d => EDGE_STYLES[d.type]?.markerStart ? `url(#arrow-start-${d.type})` : null)
+        .style('opacity', 0.7);
+    }
+
+    function renderNodes() {
+      g.selectAll('.nodes').remove();
+      const nodeGroup = g.append('g').attr('class', 'nodes');
+
+      const nodeEls = nodeGroup.selectAll('g.node')
+        .data(nodes)
+        .enter()
+        .append('g')
+        .attr('class', 'node')
+        .attr('data-id', d => d.id)
+        .style('cursor', 'pointer')
+        .call(d3.drag()
+          .on('start', dragStart)
+          .on('drag', dragging)
+          .on('end', dragEnd))
+        .on('mouseover', (event, d) => {
+          d3.select(event.currentTarget).select('.node-shape').style('filter', 'url(#glow)');
+        })
+        .on('mouseout', (event, d) => {
+          if (d.id !== selectedNodeId) {
+            d3.select(event.currentTarget).select('.node-shape').style('filter', null);
+          }
+        })
+        .on('click', (event, d) => {
+          event.stopPropagation();
+          selectNode(d.id);
+          showInfoPanel(d);
+        });
+
+      nodeEls.each(function(d) {
+        const g = d3.select(this);
+        const style = NODE_STYLES[d.type];
+
+        // Selection ring
+        g.append('circle')
+          .attr('class', 'selection-ring')
+          .attr('r', style.size + 8)
+          .attr('fill', 'none')
+          .attr('stroke', '#D4AF37')
+          .attr('stroke-width', 3)
+          .style('opacity', 0)
+          .style('filter', 'url(#selection-glow)');
+
+        // Shape
+        if (style.shape === 'circle') {
+          g.append('circle')
+            .attr('class', 'node-shape')
+            .attr('r', style.size)
+            .attr('fill', style.color)
+            .attr('stroke', '#1f2937')
+            .attr('stroke-width', 2);
+          if (d.type === 'revenue_stream') {
+            g.append('text')
+              .attr('text-anchor', 'middle')
+              .attr('dy', '0.35em')
+              .attr('fill', '#0a0a0a')
+              .attr('font-size', '18px')
+              .attr('font-weight', 'bold')
+              .text('$');
+          }
+        } else if (style.shape === 'hexagon') {
+          g.append('path')
+            .attr('class', 'node-shape')
+            .attr('d', hexagonPath(0, 0, style.size))
+            .attr('fill', style.color)
+            .attr('stroke', '#1f2937')
+            .attr('stroke-width', 2);
+        } else if (style.shape === 'diamond') {
+          g.append('path')
+            .attr('class', 'node-shape')
+            .attr('d', diamondPath(0, 0, style.size))
+            .attr('fill', style.color)
+            .attr('stroke', '#1f2937')
+            .attr('stroke-width', 2);
+        } else if (style.shape === 'roundedRect') {
+          g.append('path')
+            .attr('class', 'node-shape')
+            .attr('d', roundedRectPath(0, 0, style.size * 2.2, style.size * 1.5, 8))
+            .attr('fill', style.color)
+            .attr('stroke', '#1f2937')
+            .attr('stroke-width', 2);
+        }
+
+        // Label
+        g.append('text')
+          .attr('class', 'node-label')
+          .attr('text-anchor', 'middle')
+          .attr('dy', style.size + 18)
+          .attr('fill', '#e5e7eb')
+          .attr('font-size', '12px')
+          .text(d.name.length > 15 ? d.name.substring(0, 14) + '…' : d.name);
+      });
+    }
+
+    function tick() {
+      g.selectAll('.edge')
+        .attr('x1', d => nodes.find(n => n.id === d.source)?.x || 0)
+        .attr('y1', d => nodes.find(n => n.id === d.source)?.y || 0)
+        .attr('x2', d => nodes.find(n => n.id === d.target)?.x || 0)
+        .attr('y2', d => nodes.find(n => n.id === d.target)?.y || 0);
+
+      g.selectAll('.node')
+        .attr('transform', d => `translate(${d.x || 0}, ${d.y || 0})`);
+    }
+
+    function dragStart(event, d) {
+      if (!event.active) simulation.alphaTarget(0.3).restart();
+      d.fx = d.x;
+      d.fy = d.y;
+      svg.style('cursor', 'grabbing');
+    }
+
+    function dragging(event, d) {
+      d.fx = event.x;
+      d.fy = event.y;
+    }
+
+    function dragEnd(event, d) {
+      if (!event.active) simulation.alphaTarget(0);
+      d.x = d.fx;
+      d.y = d.fy;
+      svg.style('cursor', 'grab');
+    }
+
+    function selectNode(nodeId) {
+      selectedNodeId = nodeId;
+
+      g.selectAll('.node .selection-ring').style('opacity', 0);
+      g.selectAll('.node .node-shape').style('filter', null);
+      g.selectAll('.edge').style('opacity', 0.3);
+      g.selectAll('.node').style('opacity', 0.5);
+
+      if (!nodeId) {
+        g.selectAll('.edge').style('opacity', 0.7);
+        g.selectAll('.node').style('opacity', 1);
+        document.getElementById('info-panel').classList.remove('visible');
+        return;
+      }
+
+      const selected = g.select(`.node[data-id="${nodeId}"]`);
+      selected.select('.selection-ring').style('opacity', 1);
+      selected.select('.node-shape').style('filter', 'url(#glow)');
+      selected.style('opacity', 1);
+
+      const connected = new Set([nodeId]);
+      relationships.forEach(r => {
+        if (r.source === nodeId) connected.add(r.target);
+        if (r.target === nodeId) connected.add(r.source);
+      });
+
+      connected.forEach(id => {
+        g.select(`.node[data-id="${id}"]`).style('opacity', 1);
+      });
+
+      g.selectAll('.edge').style('opacity', d => {
+        return (d.source === nodeId || d.target === nodeId) ? 1 : 0.15;
+      });
+    }
+
+    function showInfoPanel(node) {
+      const panel = document.getElementById('info-panel');
+      document.getElementById('node-name').textContent = node.name;
+      document.getElementById('node-type').textContent = node.type.replace('_', ' ');
+      document.getElementById('node-description').textContent = node.description || 'No description';
+
+      const connections = relationships.filter(r => r.source === node.id || r.target === node.id);
+      const connList = document.getElementById('connection-list');
+      connList.innerHTML = connections.map(c => {
+        const other = c.source === node.id ? c.target : c.source;
+        const otherNode = nodes.find(n => n.id === other);
+        const dir = c.source === node.id ? '→' : '←';
+        return `<div class="connection-item">${dir} ${otherNode?.name || other} <span style="color: #6b7280">(${c.type})</span></div>`;
+      }).join('');
+
+      panel.classList.add('visible');
+    }
+
+    // ============================================================
+    // Public Functions
+    // ============================================================
+
+    window.resetZoom = function() {
+      svg.transition().duration(750).call(zoom.transform, d3.zoomIdentity);
+    };
+
+    window.addRandomNode = function() {
+      const types = ['business', 'project', 'person', 'asset', 'revenue_stream'];
+      const newNode = {
+        id: `node-${Date.now()}`,
+        name: `New ${types[Math.floor(Math.random() * types.length)]}`,
+        type: types[Math.floor(Math.random() * types.length)],
+        description: 'Dynamically added node',
+        x: width / 2 + (Math.random() - 0.5) * 200,
+        y: height / 2 + (Math.random() - 0.5) * 200,
+      };
+      nodes.push(newNode);
+
+      // Connect to random existing node
+      if (nodes.length > 1) {
+        const relTypes = ['feeds', 'depends_on', 'synergy', 'resource_flow', 'attention_flow'];
+        const randomTarget = nodes[Math.floor(Math.random() * (nodes.length - 1))];
+        relationships.push({
+          id: `rel-${Date.now()}`,
+          source: newNode.id,
+          target: randomTarget.id,
+          type: relTypes[Math.floor(Math.random() * relTypes.length)],
+        });
+      }
+
+      // Rebuild
+      simulation.stop();
+      createSimulation();
+      renderEdges();
+      renderNodes();
+    };
+
+    window.shuffleLayout = function() {
+      nodes.forEach(n => {
+        n.x = width / 2 + (Math.random() - 0.5) * 400;
+        n.y = height / 2 + (Math.random() - 0.5) * 400;
+        delete n.fx;
+        delete n.fy;
+      });
+      simulation.alpha(1).restart();
+    };
+
+    // Initialize on load
+    initGraph();
+  </script>
+</body>
+</html>

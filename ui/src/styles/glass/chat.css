@@ -1,0 +1,100 @@
+/* ============================================================
+ * InfiniBot Glass — light-DOM chat surfaces (views/chat.ts and any
+ * page that renders the shared ui/chat/* bubbles and tool cards).
+ *
+ * Shadow-DOM chats (webchat, agent-chat sidebar, grid panels) carry
+ * the same recipe in their own static styles, all reading --glass-*.
+ *
+ *   assistant → frosted glass bubble, gold hairline edge
+ *   user      → solid gold-tint bubble
+ *   tools     → compact glass cards with a status pill
+ *   streaming → gold shimmer caret
+ * ============================================================ */
+
+:root .chat-thread { font-family: var(--glass-font); }
+
+:root .chat-group .chat-bubble {
+  font-family: var(--glass-font);
+  font-size: 14px;
+  line-height: 1.6;
+  letter-spacing: -0.003em;
+  border-radius: 18px;
+  transition: box-shadow var(--glass-dur) var(--glass-ease), transform var(--glass-dur) var(--glass-spring);
+}
+:root .chat-group:not(.user) .chat-bubble {
+  background: var(--glass-sheen), var(--glass-3);
+  border: 1px solid var(--glass-stroke);
+  border-top-color: var(--glass-stroke-strong);
+  border-top-left-radius: 6px;
+  box-shadow: var(--glass-elev-1);
+  color: var(--glass-fg);
+}
+:root .chat-group.user .chat-bubble {
+  background: var(--glass-gold-tint);
+  border: 1px solid color-mix(in srgb, var(--glass-gold) 34%, transparent);
+  border-top-right-radius: 6px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 10px 26px -16px var(--glass-gold-a40);
+  color: var(--glass-fg);
+}
+:root .chat-group.user .chat-bubble::before { display: none; }
+:root .chat-group .chat-bubble:hover { transform: none; }
+:root .chat-group .chat-bubble :not(pre) > code {
+  font-family: var(--glass-font-mono);
+  font-size: 0.86em;
+  padding: 0.12em 0.42em;
+  border-radius: 6px;
+  background: var(--glass-gold-a10);
+  border: 1px solid var(--glass-stroke-gold);
+  color: var(--glass-gold-hi);
+}
+:root[data-theme="light"] .chat-group .chat-bubble :not(pre) > code { color: var(--glass-gold-deep); }
+:root .chat-group .chat-bubble pre {
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--glass-base) 70%, transparent);
+  border: 1px solid var(--glass-stroke);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+:root .chat-group .chat-bubble.streaming::after {
+  background: var(--glass-gold);
+  box-shadow: 0 0 10px var(--glass-gold);
+}
+:root .chat-group-timestamp,
+:root .chat-sender-name {
+  font-family: var(--glass-font);
+  font-variant-numeric: tabular-nums;
+  color: var(--glass-fg-3);
+}
+
+/* Tool-call cards */
+:root .chat-tool-card {
+  font-family: var(--glass-font);
+  border-radius: 12px;
+  background: var(--glass-sheen), var(--glass-2);
+  border: 1px solid var(--glass-stroke);
+  box-shadow: var(--glass-elev-1);
+  transition: border-color var(--glass-dur-fast) var(--glass-ease), transform var(--glass-dur-fast) var(--glass-spring);
+}
+:root .chat-tool-card:hover {
+  border-color: var(--glass-stroke-gold);
+  transform: var(--glass-lift);
+}
+:root .chat-tool-card__icon { color: var(--glass-gold); }
+:root .chat-tool-card__title { font-weight: 600; letter-spacing: -0.005em; }
+:root .chat-tool-card__preview,
+:root .chat-tool-card__inline { font-family: var(--glass-font-mono); color: var(--glass-fg-3); }
+
+/* Composer */
+:root .chat-compose {
+  background: var(--glass-sheen), var(--glass-2);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-stroke-strong);
+  border-radius: var(--glass-radius-lg);
+  box-shadow: var(--glass-elev-2);
+  transition: border-color var(--glass-dur) var(--glass-ease), box-shadow var(--glass-dur) var(--glass-ease);
+}
+:root .chat-compose:focus-within {
+  border-color: color-mix(in srgb, var(--glass-gold) 55%, transparent);
+  box-shadow: var(--glass-elev-2), var(--glass-focus-ring), 0 0 40px -12px var(--glass-gold-a40);
+}
+:root .chat-compose textarea { font-family: var(--glass-font); font-size: 14px; }

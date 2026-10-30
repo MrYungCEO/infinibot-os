@@ -1,0 +1,57 @@
+name: CLA
+
+# CLA Assistant (https://github.com/contributor-assistant/github-action).
+# Contributors sign CLA.md once by commenting on their pull request; signatures
+# are stored as JSON on the `cla-signatures` branch of this repository.
+#
+# OWNER setup before enabling:
+#   1. Have CLA.md reviewed and fill in the legal entity name.
+#   2. The branch `cla-signatures` is created automatically on first sign-off.
+#      Protect it from force pushes. To store signatures in a separate private
+#      repo instead, set remote-organization-name / remote-repository-name and
+#      add a PERSONAL_ACCESS_TOKEN secret.
+#   3. Keep `allowlist` up to date with bot accounts and maintainers.
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_target:
+    types: [opened, closed, synchronize]
+
+permissions:
+  actions: write
+  contents: write
+  pull-requests: write
+  statuses: write
+
+jobs:
+  cla:
+    name: CLA Assistant
+    runs-on: ubuntu-latest
+    # Only run on PR events, or on PR comments that are the signing sentence
+    # or a recheck request.
+    if: >-
+      github.event_name == 'pull_request_target' ||
+      (github.event.issue.pull_request &&
+        (github.event.comment.body == 'recheck' ||
+         github.event.comment.body == 'I have read the CLA Document and I hereby sign the CLA'))
+    steps:
+      - name: CLA Assistant
+        uses: contributor-assistant/github-action@v2.6.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          path-to-signatures: signatures/version1/cla.json
+          path-to-document: https://github.com/${{ github.repository }}/blob/main/CLA.md
+          branch: cla-signatures
+          # OWNER: add maintainer GitHub usernames (comma-separated).
+          allowlist: dependabot[bot],github-actions[bot],renovate[bot]
+          lock-pullrequest-aftermerge: false
+          custom-notsigned-prcomment: >-
+            Thanks for your contribution! Before we can merge it, please read the
+            [Contributor License Agreement](https://github.com/${{ github.repository }}/blob/main/CLA.md).
+            You keep your copyright; the CLA lets us ship your contribution in the
+            public FSL core (which converts to Apache-2.0 after two years) and in
+            commercial editions. To sign, reply to this pull request with the
+            sentence below.
+          custom-allsigned-prcomment: All contributors have signed the CLA. Thank you!

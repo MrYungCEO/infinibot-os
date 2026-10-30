@@ -1,0 +1,25 @@
+
+> moltbot-mobile@1.0.0 test
+> jest --testPathPattern='src/__tests__' --passWithNoTests
+
+PASS src/__tests__/session-sync.test.js
+PASS src/__tests__/mesh-layout.test.js
+PASS src/__tests__/screen-registry.test.js
+PASS src/__tests__/connection-logic.test.js
+PASS src/__tests__/mesh-liveness.test.js
+PASS src/__tests__/deep-links.test.js
+PASS src/__tests__/terminal-panels.test.js
+PASS src/__tests__/session-history.test.js
+PASS src/__tests__/gateway-host.test.js
+PASS src/__tests__/profile-store.test.js
+PASS src/__tests__/plugin-nav.test.js
+PASS src/__tests__/voice-route.test.js
+PASS src/__tests__/priorities-tree.test.js
+PASS src/__tests__/gateway-liveness.test.js
+
+Test Suites: 1 skipped, 14 passed, 14 of 15 total
+Tests:       4 skipped, 212 passed, 216 total
+Snapshots:   0 total
+Time:        1.134 s
+Ran all test suites matching /src\/__tests__/i.
+npm test exit code: 0

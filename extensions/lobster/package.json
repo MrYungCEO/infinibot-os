@@ -1,0 +1,12 @@
+{
+  "name": "@infinibot/lobster",
+  "version": "2026.11.1",
+  "type": "module",
+  "description": "Lobster workflow tool plugin (typed pipelines + resumable approvals)",
+  "license": "FSL-1.1-ALv2",
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

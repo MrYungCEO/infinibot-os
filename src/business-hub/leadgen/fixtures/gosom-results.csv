@@ -1,0 +1,4 @@
+input_id,link,title,category,address,open_hours,popular_times,website,phone,plus_code,review_count,review_rating,reviews_per_rating,latitude,longtitude,cid,status,descriptions,reviews_link,thumbnail,timezone,price_range,data_id,images,reservations,order_online,menu,owner,complete_address,about,user_reviews,emails
+1,https://www.google.com/maps/place/a,Boise Smiles Dental,Dentist,"123 Main St, Boise, ID 83702","{}",{},https://www.boisesmiles.com/,(208) 555-0101,,112,4.8,{},43.615,-116.2023,1,,"Gentle care, family friendly",,,,,,,,,,,"{""street"":""123 Main St"",""city"":""Boise"",""postal_code"":""83702"",""state"":""ID"",""country"":""US""}",,,"info@boisesmiles.com, jane.doe@boisesmiles.com"
+2,https://www.google.com/maps/place/b,"Downtown Dental, PLLC",Dental clinic,"9 Capitol Blvd, Boise, ID",{},{},,208-555-0177,,8,3.9,{},43.61,-116.2,2,,,,,,,,,,,,,,,,
+3,https://www.google.com/maps/place/c,,Dentist,,,,,,,,,,,,,,,,,,,,,,,,,,,

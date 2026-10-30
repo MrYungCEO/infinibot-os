@@ -1,0 +1,219 @@
+{
+  "products": [
+    {
+      "object": "list",
+      "has_more": false,
+      "data": [
+        { "id": "prod_S1", "object": "product", "name": "Agency Retainer", "created": 1767225600 }
+      ]
+    }
+  ],
+  "subscriptions": [
+    {
+      "object": "list",
+      "has_more": false,
+      "data": [
+        {
+          "id": "sub_1",
+          "object": "subscription",
+          "status": "active",
+          "currency": "usd",
+          "created": 1767225600,
+          "start_date": 1767225600,
+          "canceled_at": null,
+          "ended_at": null,
+          "current_period_end": 1772409600,
+          "customer": { "id": "cus_1", "email": "s1@example.com", "name": "Sam One" },
+          "items": {
+            "data": [
+              {
+                "quantity": 1,
+                "price": {
+                  "id": "price_m",
+                  "product": "prod_S1",
+                  "unit_amount": 10000,
+                  "recurring": { "interval": "month", "interval_count": 1 }
+                }
+              }
+            ]
+          }
+        },
+        {
+          "id": "sub_2",
+          "object": "subscription",
+          "status": "active",
+          "currency": "usd",
+          "created": 1767225600,
+          "start_date": 1767225600,
+          "canceled_at": null,
+          "ended_at": null,
+          "customer": { "id": "cus_2", "email": "s2@example.com" },
+          "items": {
+            "data": [
+              {
+                "quantity": 2,
+                "current_period_end": 1798761600,
+                "price": {
+                  "id": "price_w",
+                  "product": "prod_S1",
+                  "unit_amount": 1200,
+                  "recurring": { "interval": "week", "interval_count": 1 }
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ],
+  "charges": [
+    {
+      "object": "list",
+      "has_more": true,
+      "data": [
+        {
+          "id": "ch_3",
+          "object": "charge",
+          "amount": 5000,
+          "amount_refunded": 0,
+          "refunded": false,
+          "currency": "eur",
+          "status": "succeeded",
+          "created": 1769904000,
+          "description": "EU order",
+          "customer": "cus_3",
+          "billing_details": { "email": "s3@example.com", "name": "Sven Three" },
+          "receipt_email": null,
+          "invoice": null,
+          "balance_transaction": {
+            "id": "txn_3",
+            "amount": 5400,
+            "currency": "usd",
+            "fee": 187,
+            "net": 5213
+          }
+        },
+        {
+          "id": "ch_2",
+          "object": "charge",
+          "amount": 2000,
+          "amount_refunded": 500,
+          "refunded": false,
+          "currency": "usd",
+          "status": "succeeded",
+          "created": 1768694400,
+          "description": "Starter pack",
+          "customer": "cus_2",
+          "billing_details": { "email": "S2@Example.com", "name": null },
+          "receipt_email": null,
+          "invoice": null,
+          "balance_transaction": {
+            "id": "txn_2",
+            "amount": 2000,
+            "currency": "usd",
+            "fee": 88,
+            "net": 1912
+          }
+        }
+      ]
+    },
+    {
+      "object": "list",
+      "has_more": false,
+      "data": [
+        {
+          "id": "ch_1",
+          "object": "charge",
+          "amount": 10000,
+          "amount_refunded": 0,
+          "refunded": false,
+          "currency": "usd",
+          "status": "succeeded",
+          "created": 1767225600,
+          "description": "Agency Retainer",
+          "customer": "cus_1",
+          "billing_details": { "email": null, "name": "Sam One" },
+          "receipt_email": "s1@example.com",
+          "invoice": "in_1",
+          "balance_transaction": {
+            "id": "txn_1",
+            "amount": 10000,
+            "currency": "usd",
+            "fee": 320,
+            "net": 9680
+          }
+        },
+        {
+          "id": "ch_0",
+          "object": "charge",
+          "amount": 900,
+          "amount_refunded": 0,
+          "refunded": false,
+          "currency": "usd",
+          "status": "failed",
+          "created": 1767139200,
+          "description": "Declined",
+          "customer": null,
+          "billing_details": { "email": "z@example.com" },
+          "receipt_email": null,
+          "invoice": null,
+          "balance_transaction": null
+        }
+      ]
+    }
+  ],
+  "refunds": [
+    {
+      "object": "list",
+      "has_more": false,
+      "data": [
+        {
+          "id": "re_1",
+          "object": "refund",
+          "amount": 500,
+          "currency": "usd",
+          "status": "succeeded",
+          "created": 1768780800,
+          "charge": "ch_2",
+          "reason": "requested_by_customer"
+        }
+      ]
+    }
+  ],
+  "disputes": [{ "object": "list", "has_more": false, "data": [] }],
+  "payouts": [
+    {
+      "object": "list",
+      "has_more": false,
+      "data": [
+        {
+          "id": "po_1",
+          "object": "payout",
+          "amount": 15000,
+          "currency": "usd",
+          "status": "paid",
+          "created": 1769904000,
+          "arrival_date": 1770076800
+        }
+      ]
+    }
+  ],
+  "balance_transactions": [
+    {
+      "object": "list",
+      "has_more": true,
+      "data": [
+        { "id": "txn_3", "type": "charge", "amount": 5400, "currency": "usd", "fee": 187 },
+        { "id": "txn_r1", "type": "refund", "amount": -500, "currency": "usd", "fee": 0 }
+      ]
+    },
+    {
+      "object": "list",
+      "has_more": false,
+      "data": [
+        { "id": "txn_2", "type": "charge", "amount": 2000, "currency": "usd", "fee": 88 },
+        { "id": "txn_1", "type": "charge", "amount": 10000, "currency": "usd", "fee": 320 }
+      ]
+    }
+  ]
+}

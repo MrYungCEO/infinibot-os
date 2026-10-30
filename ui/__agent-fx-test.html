@@ -1,0 +1,40 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>agent-fx-layer test</title>
+    <style>
+      html, body { margin: 0; height: 100%; background: #07090d; overflow: hidden; }
+      #stage {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        background:
+          radial-gradient(1200px 700px at 50% 40%, #11151f 0%, #07090d 70%);
+      }
+      /* Fake "world" dots so we can eyeball that rings sit on agents. */
+      .agent-dot {
+        position: absolute;
+        width: 14px; height: 14px;
+        margin: -7px 0 0 -7px;
+        border-radius: 50%;
+        background: #1e293b;
+        border: 1px solid #334155;
+        box-shadow: 0 0 6px rgba(0,0,0,.6);
+        z-index: 1;
+      }
+      .legend {
+        position: absolute; top: 10px; left: 12px; z-index: 5;
+        font: 12px/1.5 ui-monospace, monospace; color: #94a3b8;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="stage">
+      <div class="legend">
+        running=gold · idle=slate · failed=crimson · completed=mint · blocked=amber
+      </div>
+    </div>
+    <script type="module" src="/__agent-fx-test.ts"></script>
+  </body>
+</html>

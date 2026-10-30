@@ -1,0 +1,23 @@
+{
+  "id": "imessage",
+  "name": "iMessage",
+  "listing": {
+    "tagline": "Send and receive iMessages from a Mac running InfiniBot.",
+    "category": "channels",
+    "tags": [
+      "mac",
+      "sms"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "channels": [
+    "imessage"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

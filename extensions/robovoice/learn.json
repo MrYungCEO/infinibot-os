@@ -1,0 +1,282 @@
+{
+  "tracks": [
+    {
+      "id": "robovoice",
+      "title": "Robovoice",
+      "summary": "Cloud voice (Robovoice) is an optional, free alternative to local voice: connect your stack or Robovoice cloud, map agents to characters and see usage.",
+      "overview": "**Local voice** is InfiniBot's default and runs on your own computer. **Cloud voice (Robovoice)** is an optional, free choice you can pick instead. It plugs into InfiniBot's voice layer as a **voice provider**. When you pick it, voice sessions come from Robovoice and the mapped Robovoice character answers, using Robovoice's own speech-to-text → model → text-to-speech pipeline. Nothing switches to it unless you choose it, and you can go back to local voice any time.\n\nThis track covers the `/robovoice` page:\n- **Voice provider.** Which provider serves voice (local by default), and what happens before you link.\n- **Connection.** Self-hosted or Robovoice cloud, the URL, the edge device id and the write-only device key or edge token (from `robovoice login`).\n- **Characters and pipelines.** Mapping each InfiniBot agent to a character and reading the effective STT → LLM → TTS chain, including self-host-only safety labels.\n- **Fair use and tools.** How cloud voice stays free and fair, and the MCP endpoint Robovoice characters use to call InfiniBot tools.\n\nThe tours never save settings, link an account or start a call.",
+      "category": "Plugins",
+      "level": "intermediate",
+      "order": 50,
+      "routes": ["/robovoice"],
+      "signals": ["robovoice"],
+      "prerequisites": ["voice"],
+      "badge": { "id": "robovoice", "label": "Robovoice mastery", "icon": "🎙️" },
+      "walkthroughs": [
+        {
+          "id": "tour-robovoice",
+          "title": "Tour the Robovoice page",
+          "summary": "What each card on the Robovoice page does.",
+          "estMinutes": 3,
+          "steps": [
+            {
+              "id": "header",
+              "title": "Robovoice settings",
+              "body": "If you pick Cloud voice, your agents talk through Robovoice characters. This page is where you choose where Robovoice runs, map agents to characters and see usage.",
+              "route": "/robovoice",
+              "target": ["learn:robovoice-header", "robovoice-view"],
+              "placement": "bottom"
+            },
+            {
+              "id": "provider",
+              "title": "Which provider serves voice",
+              "body": "The top card shows which voice provider is active and whether it is ready. The same card appears in Setup › Voice.",
+              "target": "learn:robovoice-provider",
+              "placement": "bottom",
+              "check": { "kind": "rpc", "method": "voice.providers.list", "path": "providers.*.id", "includes": "robovoice" },
+              "checkHint": "Waiting for the Robovoice provider to register…"
+            },
+            {
+              "id": "connection",
+              "title": "Connection",
+              "body": "Where Robovoice runs, its URL and the credentials this gateway uses to reach it. Nothing here takes effect until you press **Save**.",
+              "target": "learn:robovoice-connection",
+              "placement": "right"
+            },
+            {
+              "id": "credits",
+              "title": "Usage",
+              "body": "Cloud voice is free. Usage is measured only to keep it fair for everyone, and if it's busy you can switch to local voice in one click.",
+              "target": "learn:robovoice-credits",
+              "placement": "left"
+            },
+            {
+              "id": "mapping",
+              "title": "Character mapping",
+              "body": "Each InfiniBot agent can speak as its own Robovoice character. Agents without a mapping use the default.",
+              "target": "learn:robovoice-mapping",
+              "placement": "top"
+            },
+            {
+              "id": "pipelines",
+              "title": "Pipelines",
+              "body": "The effective STT → LLM → TTS chain for each mapped character. Pipelines are edited in the Robovoice dashboard; this card is read-only.",
+              "target": "learn:robovoice-pipelines",
+              "placement": "top"
+            },
+            {
+              "id": "mcp",
+              "title": "InfiniBot tools for Robovoice",
+              "body": "Robovoice characters can call a curated set of InfiniBot tools through this MCP endpoint.",
+              "target": "learn:robovoice-mcp",
+              "placement": "top"
+            }
+          ]
+        },
+        {
+          "id": "choose-provider",
+          "title": "Choose the voice provider",
+          "summary": "Auto, built-in or Robovoice, and how fallback works.",
+          "estMinutes": 2,
+          "steps": [
+            {
+              "id": "status",
+              "title": "Provider status",
+              "body": "The dot and title say what serves voice right now. Green means ready; amber means there is a warning, such as a missing URL.",
+              "route": "/robovoice",
+              "target": "learn:robovoice-provider",
+              "placement": "bottom"
+            },
+            {
+              "id": "picker",
+              "title": "Auto, built-in or Robovoice",
+              "body": "**Auto** (the default) uses local voice. Cloud voice (Robovoice) is only used when you pick it by name. Switching takes effect without a restart.",
+              "target": ["[aria-label=\"Voice provider\"]", "learn:robovoice-provider"],
+              "placement": "bottom",
+              "practice": {
+                "mode": "explain",
+                "note": "Not changed in this tour: picking a provider switches voice for everyone on this gateway."
+              }
+            },
+            {
+              "id": "fallback",
+              "title": "Voice never breaks",
+              "body": "Under Auto, voice stays local even with the Robovoice plugin on. Pick Cloud voice (Robovoice) yourself to use it; anything it can't serve falls back to local voice.",
+              "target": "learn:robovoice-provider",
+              "placement": "bottom"
+            }
+          ]
+        },
+        {
+          "id": "link-robovoice",
+          "title": "Link your Robovoice",
+          "summary": "Self-hosted or cloud, URL, device id and the write-only secrets.",
+          "estMinutes": 4,
+          "prerequisites": ["tour-robovoice"],
+          "steps": [
+            {
+              "id": "deployment",
+              "title": "Where Robovoice runs",
+              "body": "Choose **Self-hosted** for your own Robovoice stack or **Robovoice cloud** for robovoice.io. Click **Robovoice cloud** to see its extra field. This only changes the form.",
+              "route": "/robovoice",
+              "target": "#rv-deploy-cloud",
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "url",
+              "title": "The Robovoice URL",
+              "body": "For cloud this is `https://robovoice.io`; self-hosted is usually `http://<host>:3011`. Type it to try the field. It isn't saved until you press **Save**.",
+              "target": "learn:robovoice-url",
+              "action": { "kind": "input", "match": "robovoice", "sample": "https://robovoice.io" }
+            },
+            {
+              "id": "device-id",
+              "title": "Edge device id",
+              "body": "The name this gateway uses as a Robovoice edge device, for example `infinibot-gateway`.",
+              "target": "learn:robovoice-device-id",
+              "placement": "right"
+            },
+            {
+              "id": "edge-token",
+              "title": "Edge token from robovoice login",
+              "body": "On cloud, run `robovoice login` in the Robovoice CLI and paste the `rve_…` edge token here. Self-hosted stacks with a strict device policy use the **Device key** field instead.",
+              "target": ["learn:robovoice-secret-edgeToken", "learn:robovoice-secret-deviceKey"],
+              "placement": "right",
+              "practice": {
+                "mode": "explain",
+                "note": "Never paste a real token during a tour. Secrets are write-only: once saved the page only shows a masked hint, and Remove saved clears them."
+              }
+            },
+            {
+              "id": "location",
+              "title": "Location and expressive tier",
+              "body": "An optional Robovoice location id applies that location's pipeline overrides.",
+              "target": "learn:robovoice-location",
+              "placement": "right"
+            },
+            {
+              "id": "test-save",
+              "title": "Test, then save",
+              "body": "**Test connection** checks Robovoice's health and character list only. **Save** stores the settings and secrets, then reloads characters and pipelines.",
+              "target": ["learn:robovoice-test", "learn:robovoice-save"],
+              "placement": "top",
+              "practice": {
+                "mode": "explain",
+                "note": "Not pressed here. Saving and testing are admin-only (robovoice.settings.set, robovoice.test). Leave the page to discard the draft you typed."
+              }
+            }
+          ]
+        },
+        {
+          "id": "characters-and-pipelines",
+          "title": "Map agents to characters",
+          "summary": "Default character, per-agent mapping and the pipeline safety labels.",
+          "estMinutes": 3,
+          "prerequisites": ["link-robovoice"],
+          "steps": [
+            {
+              "id": "default",
+              "title": "The default character",
+              "body": "Agents without their own mapping speak as this character. **Robovoice decides** uses Robovoice's active character. The list fills in once Robovoice is connected.",
+              "route": "/robovoice",
+              "target": "learn:robovoice-default-character",
+              "placement": "bottom"
+            },
+            {
+              "id": "per-agent",
+              "title": "One row per agent",
+              "body": "Pick a character for any agent, such as `main` or an AI employee. A change is saved as soon as you pick. The Voice column shows the character's TTS provider and language.",
+              "target": ["learn:robovoice-mapping-table", "learn:robovoice-mapping"],
+              "placement": "top"
+            },
+            {
+              "id": "pipeline-stages",
+              "title": "Read a pipeline",
+              "body": "Each mapped character lists its **STT**, **LLM** and **TTS** stage with provider, model and state. With nothing connected yet, the card says so.",
+              "target": "learn:robovoice-pipelines",
+              "placement": "top"
+            },
+            {
+              "id": "safety",
+              "title": "Self-host only labels",
+              "body": "Some models, such as openWakeWord's bundled wake words and Piper Lessac voices, are non-commercial. They're labelled **Self-host only**, and on a cloud deployment the warning turns red so you swap them before offering calls to others.",
+              "target": ["learn:robovoice-wake-word", "learn:robovoice-pipelines"],
+              "placement": "top"
+            }
+          ]
+        },
+        {
+          "id": "credits-and-tools",
+          "title": "Fair use and agent tools",
+          "summary": "How free cloud voice stays fair, and the MCP endpoint for Robovoice characters.",
+          "estMinutes": 2,
+          "steps": [
+            {
+              "id": "wallet",
+              "title": "Free, with fair use",
+              "body": "Cloud voice costs nothing. This card shows this month's minutes so usage stays fair. If cloud voice is busy or you hit the daily fair-use limit, switch to local voice in one click.",
+              "route": "/robovoice",
+              "target": "learn:robovoice-credits",
+              "placement": "left"
+            },
+            {
+              "id": "mcp-endpoint",
+              "title": "The MCP endpoint",
+              "body": "Point a Robovoice MCP server at this address with transport `streamable_http` and your gateway token. Characters can then use the listed InfiniBot tools during a call.",
+              "target": "learn:robovoice-mcp",
+              "placement": "top"
+            },
+            {
+              "id": "tools-scope",
+              "title": "A curated tool set",
+              "body": "By default Robovoice gets a curated set (notes, kanban, research, workflows, sessions_spawn, claude_coder and more), not every tool. Give tool access only to characters you trust.",
+              "target": "learn:robovoice-mcp",
+              "placement": "top"
+            }
+          ]
+        }
+      ],
+      "quiz": [
+        {
+          "id": "auto",
+          "prompt": "Voice is on **Auto** and you turn on the Robovoice plugin but haven't saved a URL. What serves voice?",
+          "options": ["Robovoice cloud", "Nothing until you restart", "Local voice: Auto never switches to Robovoice on its own", "The last character you used"],
+          "answer": 2,
+          "explain": "Local voice is the default. Cloud voice (Robovoice) is only used when you pick it yourself, and it's free."
+        },
+        {
+          "id": "edge-token",
+          "prompt": "Where does the `rve_…` edge token for Robovoice cloud come from?",
+          "options": ["It is generated by this page", "Running `robovoice login`", "Your gateway token", "The FlyPic dashboard"],
+          "answer": 1,
+          "explain": "`robovoice login` issues the org-scoped edge token you paste into the Edge token field."
+        },
+        {
+          "id": "test",
+          "prompt": "What does **Test connection** check?",
+          "options": [
+            "It places a short test call",
+            "Robovoice's health and character list only",
+            "Your payment details",
+            "Every agent's pipeline end to end"
+          ],
+          "answer": 1,
+          "explain": "The test only reads Robovoice's health and character list. It never places a call."
+        },
+        {
+          "id": "self-host-only",
+          "prompt": "Why is a model labelled **Self-host only**?",
+          "options": [
+            "It is too slow for the cloud",
+            "Its licence is non-commercial, so don't charge for calls that use it",
+            "It needs a GPU",
+            "It is deprecated"
+          ],
+          "answer": 1,
+          "explain": "openWakeWord's bundled weights and Piper Lessac voices are non-commercial; on cloud the label becomes an error to swap them."
+        }
+      ]
+    }
+  ],
+  "missions": []
+}

@@ -1,0 +1,158 @@
+{
+  "ok": true,
+  "checks": [
+    {
+      "name": "default provider",
+      "detail": "backend=auto, providers=[local, robovoice], realtime={\"realtime\":\"local\",\"stt\":\"local\",\"tts\":\"local\",\"wakeWord\":\"local\"}"
+    },
+    {
+      "name": "default session is local",
+      "detail": "/api/voice/connection \u2192 provider=local"
+    },
+    {
+      "name": "local TTS\u2192STT round trip",
+      "detail": "23088 B audio \u2192 \"Local voice is the default on this computer.\""
+    },
+    {
+      "name": "linked to the $0 QA org",
+      "detail": "InfiniBot free cloud voice QA (e2e) \u00b7 InfiniBot \u00b7 my-host (2) \u00b7 device infinibot-0db685bae452bf03 \u00b7 main \u2192 null"
+    },
+    {
+      "name": "linking does not switch voice",
+      "detail": "backend=auto, session provider=local"
+    },
+    {
+      "name": "cloud voice session with $0 credits",
+      "detail": "HTTP 200 \u00b7 wss://robovoice-fflfhinw.livekit.cloud \u00b7 room robopark-infinibot-0db685bae452bf03 \u00b7 INFINI"
+    },
+    {
+      "name": "real cloud call",
+      "detail": "53s \u00b7 agent present \u00b7 agent audio true \u00b7 agent-AJ_q3oJoPafhXFq: Sorry, I lost that for a second. Could you say it again? | robopanda_infinibot-0db685bae452bf03_1ac84452:  Hello there, can you hear me? | robopanda_infinibot-0db685bae452bf03_1ac84452:  please tell me one short fun fact about the ocean. | agent-AJ_q3oJoPafhXFq: Sorry, I | agentAudio true | disconnected"
+    },
+    {
+      "name": "metering row written",
+      "detail": "billing_usage_sessions 23eed212-7c91-406b-bdf7-a20365f5a7a7: enforcement=infinibot_free, billable=37.9s, rated=37900\u00b5$, charged=0, provider=11639\u00b5$ (groq/elevenlabs:eleven_flash_v2_5/openrouter); hold ab0267a5-6422-44ac-bfdb-9d3c497b13cc mode=infinibot_free; wallet still 0"
+    }
+  ],
+  "evidence": {
+    "runRoot": "/dev/shm/ib-free-cloud-e2e-8PV88W",
+    "qaOrg": {
+      "orgId": "3d262b62-ecec-4a08-a977-551546b6655b",
+      "userId": "4e8a12dc-00d0-406e-8046-eff9c92850d7",
+      "walletId": "87199f08-4e2b-442b-b689-0919ce2637e6"
+    },
+    "providersDefault": {
+      "backend": "auto",
+      "ids": [
+        "local",
+        "robovoice"
+      ],
+      "active": {
+        "realtime": "local",
+        "stt": "local",
+        "tts": "local",
+        "wakeWord": "local"
+      }
+    },
+    "localRoundTrip": {
+      "sentence": "Local voice is the default on this computer.",
+      "audioBytes": 23088,
+      "transcript": "Local voice is the default on this computer."
+    },
+    "link": {
+      "org": "InfiniBot free cloud voice QA (e2e)",
+      "location": "InfiniBot \u00b7 my-host (2)",
+      "device": "infinibot-0db685bae452bf03",
+      "mainCharacter": null
+    },
+    "cloudSession": {
+      "provider": "robovoice",
+      "url": "wss://robovoice-fflfhinw.livekit.cloud",
+      "room": "robopark-infinibot-0db685bae452bf03",
+      "character": "INFINI"
+    },
+    "call": {
+      "log": [
+        "connected robopark-infinibot-0db685bae452bf03",
+        "already agent-AJ_q3oJoPafhXFq",
+        "mic on",
+        "agent present",
+        "audio from agent-AJ_q3oJoPafhXFq",
+        "robopanda_infinibot-0db685bae452bf03_1ac84452:  Please tell me one short fun fact about the ocean.",
+        "agent-AJ_q3oJoPafhXFq: Sorry, I lost that for a second. Could you say it again?",
+        "robopanda_infinibot-0db685bae452bf03_1ac84452:  Hello there, can you hear me?",
+        "robopanda_infinibot-0db685bae452bf03_1ac84452:  please tell me one short fun fact about the ocean.",
+        "agent-AJ_q3oJoPafhXFq: Sorry, I lost",
+        "agent-AJ_q3oJoPafhXFq: Sorry, I lost that for a second. Could you say it again?",
+        "robopanda_infinibot-0db685bae452bf03_1ac84452:  Hello there, can you hear me?",
+        "robopanda_infinibot-0db685bae452bf03_1ac84452:  please tell me one short fun fact about the ocean.",
+        "agent-AJ_q3oJoPafhXFq: Sorry, I",
+        "agentAudio true",
+        "disconnected"
+      ],
+      "agentAudio": true,
+      "agent": "present",
+      "seconds": 53
+    },
+    "metering": {
+      "row": {
+        "id": "23eed212-7c91-406b-bdf7-a20365f5a7a7",
+        "agent_session_id": "69a61129b59c43bd8550a84de5cae129",
+        "org_id": "3d262b62-ecec-4a08-a977-551546b6655b",
+        "device_id": "infinibot-0db685bae452bf03",
+        "room": "robopark-infinibot-0db685bae452bf03",
+        "billable_seconds": "37.9",
+        "tier": "standard",
+        "enforcement": "infinibot_free",
+        "charge_micros": "37900",
+        "charged_micros": "0",
+        "provider_cost_micros": "11639",
+        "hosting_cost_micros": "2779",
+        "stt_provider": "groq",
+        "tts_provider": "elevenlabs",
+        "tts_model": "eleven_flash_v2_5",
+        "llm_provider": "openrouter",
+        "started_at": "2026-10-16T16:03:45.672Z",
+        "ended_at": "2026-10-16T16:04:24.129Z",
+        "created_at": "2026-10-16T16:04:27.547Z"
+      },
+      "hold": {
+        "id": "ab0267a5-6422-44ac-bfdb-9d3c497b13cc",
+        "mode": "infinibot_free",
+        "amount_micros": "0",
+        "status": "settled"
+      },
+      "walletAfter": {
+        "balance_micros": "0",
+        "held_micros": "0"
+      }
+    },
+    "cleanup": [
+      "voice back to local",
+      "Robovoice device retired + signed out",
+      "side gateway stopped"
+    ]
+  },
+  "gatewayLog": [
+    "2026-10-16T16:03:04.640Z [gateway] [plugins] tool not declared in manifest contributes.tools: robovoice_call (plugin=robovoice, source=/dev/shm/IB-voice-local/extensions/robovoice/index.ts)",
+    "2026-10-16T16:03:04.664Z [gateway] [REPORTS-WORKER] starting render worker: /dev/shm/IB-voice-local/dist/reports/worker/index.js",
+    "2026-10-16T16:03:04.676Z [gateway] [VOICE] mode=docker but voiceNode=master \u2014 using master's voice stack (http://localhost:8882); skipping local container autostart",
+    "2026-10-16T16:03:05.177Z [VoiceConnection] Handling GET /api/voice/connection",
+    "2026-10-16T16:03:10.083Z [ws] \u21c4 res \u2713 robovoice.link.start 3805ms conn=309a178e\u20264997 id=224f7850\u202650df",
+    "2026-10-16T16:03:10.213Z [ws] \u21c4 res \u2713 robovoice.link.status 68ms conn=9270dc35\u20268586 id=5dc24035\u20261083",
+    "2026-10-16T16:03:15.217Z [gateway] [plugins] tool not declared in manifest contributes.tools: robovoice_call (plugin=robovoice, source=/dev/shm/IB-voice-local/extensions/robovoice/index.ts)",
+    "2026-10-16T16:03:15.220Z [gateway] [VOICE] mode=docker but voiceNode=master \u2014 using master's voice stack (http://localhost:8882); skipping local container autostart",
+    "2026-10-16T16:03:16.422Z [ws] \u21c4 res \u2713 robovoice.link.status 64ms conn=f343648a\u2026211c id=a6011972\u2026b048",
+    "2026-10-16T16:03:20.577Z [ws] \u21c4 res \u2713 robovoice.link.status 69ms conn=07f8e07c\u20264f58 id=dc2c3e8d\u202642b3",
+    "2026-10-16T16:03:26.669Z [ws] \u21c4 res \u2713 voice.providers.list 4003ms conn=87eb7da5\u20262330 id=ff20803d\u2026601c",
+    "2026-10-16T16:03:26.674Z [VoiceConnection] Handling GET /api/voice/connection",
+    "2026-10-16T16:03:27.219Z [reload] config change detected; evaluating reload (meta.lastTouchedAt, agents.defaults.compaction, voice)",
+    "2026-10-16T16:03:27.220Z [reload] config change applied (dynamic reads: meta.lastTouchedAt, agents.defaults.compaction, voice)",
+    "2026-10-16T16:03:30.714Z [ws] \u21c4 res \u2713 voice.providers.select 4013ms conn=8fbc4bd8\u202624cf id=d5079a31\u20261bc9",
+    "2026-10-16T16:03:30.760Z [VoiceConnection] Handling GET /api/voice/connection",
+    "2026-10-16T16:04:33.012Z [reload] config change detected; evaluating reload (meta.lastTouchedAt, voice.backend)",
+    "2026-10-16T16:04:33.014Z [reload] config change applied (dynamic reads: meta.lastTouchedAt, voice.backend)",
+    "2026-10-16T16:04:36.508Z [ws] \u21c4 res \u2713 voice.providers.select 4010ms conn=d5879fec\u202693bc id=573f3852\u2026d489",
+    "2026-10-16T16:04:42.336Z [ws] \u21c4 res \u2713 robovoice.logout 5809ms conn=bd99c377\u20267787 id=2061abbd\u20263f58"
+  ]
+}

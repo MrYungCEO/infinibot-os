@@ -1,0 +1,1603 @@
+/* ============================================================
+ * Enhanced Navigation Sidebar - Discord-style with Drag & Drop
+ * ============================================================ */
+
+/* Base Enhanced Nav */
+.nav.enhanced {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  background: var(--g-surface, rgba(10, 10, 14, 0.4));
+  backdrop-filter: var(--g-blur, blur(14px) saturate(160%));
+  -webkit-backdrop-filter: var(--g-blur, blur(14px) saturate(160%));
+  border-right: 1px solid var(--g-border, #333);
+  --nav-bg: var(--g-surface, #0a0a0a);
+  --nav-border: var(--g-border, #333);
+  --category-hover: var(--g-surface-hover, rgba(255, 255, 255, 0.05));
+  --item-hover: var(--g-primary-soft, color-mix(in srgb, var(--g-primary) 10%, transparent));
+  --item-active: var(--g-primary-muted, color-mix(in srgb, var(--g-primary) 20%, transparent));
+  --drag-indicator: var(--g-primary, var(--g-primary));
+  --drop-zone: var(--g-primary-soft, color-mix(in srgb, var(--g-primary) 15%, transparent));
+}
+
+.nav.enhanced .nav-categories {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 8px 0;
+}
+
+.nav.enhanced .nav-footer {
+  padding: 8px;
+  border-top: 1px solid var(--nav-border);
+}
+
+/* ============================================================
+ * Category Header
+ * ============================================================ */
+
+.nav-category-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  cursor: grab;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+
+.nav-category-header:hover {
+  background: var(--category-hover);
+}
+
+.nav-category-header.hidden {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.nav-category-header.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+.nav-category-header.drag-over {
+  background: var(--drop-zone);
+  box-shadow: 0 2px 0 var(--drag-indicator);
+}
+
+.nav-category-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted, #666);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, color 0.15s ease;
+  flex-shrink: 0;
+}
+
+.nav-category-toggle:hover {
+  color: var(--text-primary, #fff);
+}
+
+.nav-category-toggle svg {
+  width: 12px;
+  height: 12px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+.nav-category-label {
+  flex: 1;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #888);
+  cursor: text;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav-category-label:hover {
+  color: var(--text-secondary, #aaa);
+}
+
+.nav-category-count {
+  font-size: 10px;
+  color: var(--text-muted, #555);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 1px 5px;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+
+/* ============================================================
+ * Nav Group
+ * ============================================================ */
+
+.nav.enhanced .nav-group {
+  margin-bottom: 4px;
+  /* The base .nav-group is a grid with an implicit auto column, which grows to
+     the longest label's min-content ("Systems Intelligence") and pushed that
+     group's count badge past the sidebar edge. Pin the column to the rail. */
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.nav.enhanced .nav-group--collapsed .nav-group__items {
+  display: none;
+}
+
+.nav.enhanced .nav-group__items {
+  min-height: 4px;
+  padding: 2px 0;
+  transition: background 0.15s ease;
+}
+
+.nav.enhanced .nav-group__items.drag-over {
+  background: var(--drop-zone);
+  border-radius: 4px;
+  margin: 0 8px;
+}
+
+.nav-category-empty {
+  padding: 8px 16px;
+  text-align: center;
+  color: var(--text-muted, #555);
+  font-size: 11px;
+  font-style: italic;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  margin: 4px 12px;
+}
+
+/* ============================================================
+ * Nav Tab Wrapper & Item
+ * ============================================================ */
+
+.nav-tab-wrapper {
+  position: relative;
+  transition: all 0.15s ease;
+}
+
+.nav-tab-wrapper.dragging {
+  opacity: 0.5;
+}
+
+.nav-tab-wrapper.drag-over::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  top: 0;
+  height: 2px;
+  background: var(--drag-indicator);
+  border-radius: 1px;
+}
+
+.nav.enhanced .nav-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px 8px 8px;
+  margin: 2px 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  text-decoration: none;
+  color: var(--text-secondary, #aaa);
+  position: relative;
+}
+
+.nav.enhanced .nav-item:hover {
+  background: var(--item-hover);
+  color: var(--text-primary, #fff);
+}
+
+.nav.enhanced .nav-item.active {
+  background: var(--item-active);
+  color: var(--gold, var(--g-primary));
+  border-left: 3px solid var(--gold, var(--g-primary));
+  padding-left: 5px;
+}
+
+.nav.enhanced .nav-item__drag-handle {
+  font-size: 10px;
+  color: var(--text-muted, #444);
+  opacity: 0;
+  cursor: grab;
+  transition: opacity 0.15s ease;
+  letter-spacing: -2px;
+  flex-shrink: 0;
+  width: 12px;
+}
+
+.nav.enhanced .nav-item:hover .nav-item__drag-handle {
+  opacity: 0.6;
+}
+
+.nav.enhanced .nav-item__drag-handle:hover {
+  opacity: 1 !important;
+}
+
+.nav.enhanced .nav-item__icon {
+  flex-shrink: 0;
+}
+
+.nav.enhanced .nav-item__icon svg {
+  width: 18px;
+  height: 18px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+.nav.enhanced .nav-item__text {
+  flex: 1;
+  font-size: 14px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ============================================================
+ * Delete Button (appears on hover)
+ * ============================================================ */
+
+.nav.enhanced .nav-item__delete {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--text-muted, #555);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+  opacity: 0;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.nav.enhanced .nav-item:hover .nav-item__delete {
+  opacity: 0.6;
+}
+
+.nav.enhanced .nav-item__delete:hover {
+  opacity: 1 !important;
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.nav.enhanced .nav-item__delete:active {
+  transform: translateY(-50%) scale(0.9);
+}
+
+/* Adjust text to not overlap with delete button */
+.nav.enhanced .nav-item:hover .nav-item__text {
+  padding-right: 20px;
+}
+
+/* ============================================================
+ * Edit Input
+ * ============================================================ */
+
+.nav-edit-input {
+  background: var(--bg-input, #1a1a1a);
+  border: 1px solid var(--gold, var(--g-primary));
+  border-radius: 4px;
+  color: var(--text-primary, #fff);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 6px;
+  flex: 1;
+  min-width: 0;
+  outline: none;
+}
+
+.nav-edit-input:focus {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--g-primary) 30%, transparent);
+}
+
+/* Tab editing mode */
+.nav-item--editing {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 12px 6px 8px;
+  margin: 2px 8px;
+  border-radius: 6px;
+  background: var(--item-hover);
+}
+
+.nav-tab-edit-input {
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: none;
+  letter-spacing: normal;
+  padding: 4px 8px;
+}
+
+/* ============================================================
+ * Add Category Button
+ * ============================================================ */
+
+.nav-add-category {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: 100%;
+  padding: 8px;
+  background: transparent;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: var(--text-muted, #666);
+  cursor: pointer;
+  font-size: 11px;
+  transition: all 0.15s ease;
+  margin-bottom: 8px;
+}
+
+.nav-add-category:hover {
+  border-color: var(--gold, var(--g-primary));
+  color: var(--gold, var(--g-primary));
+  background: color-mix(in srgb, var(--g-primary) 5%, transparent);
+}
+
+.nav-add-category svg {
+  width: 12px;
+  height: 12px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+/* ============================================================
+ * Footer Row & Buttons
+ * ============================================================ */
+
+.nav-footer-row {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+}
+
+.nav-sync-btn,
+.nav-reset-btn {
+  flex: 1;
+  padding: 6px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
+  color: var(--text-muted, #555);
+  cursor: pointer;
+  font-size: 10px;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+
+.nav-sync-btn:hover {
+  color: var(--gold, var(--g-primary));
+  background: color-mix(in srgb, var(--g-primary) 10%, transparent);
+}
+
+.nav-reset-btn:hover {
+  color: var(--text-secondary, #888);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* ============================================================
+ * Footer collapse toggle
+ *
+ * The whole settings/system area (Add Category, Sync/Reset,
+ * Resources links, Backup/Restore, Update widget) collapses behind
+ * one header so the main nav gets more vertical space. Defaults to
+ * collapsed for a fresh user; the manual choice persists in
+ * localStorage (see nav-sidebar-enhanced.ts). Styled to match a
+ * category header so it reads as a section break, not a new control.
+ * ============================================================ */
+
+.nav.enhanced .nav-footer-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  padding: 6px 4px;
+  background: transparent;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  user-select: none;
+  transition: background 0.15s ease;
+}
+
+.nav.enhanced .nav-footer--collapsed .nav-footer-toggle {
+  margin-bottom: 0;
+}
+
+.nav.enhanced .nav-footer-toggle:hover {
+  background: var(--category-hover);
+}
+
+.nav.enhanced .nav-footer-toggle:hover .nav-category-label {
+  color: var(--text-secondary, #aaa);
+}
+
+.nav.enhanced .nav-footer-toggle__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted, #666);
+  flex-shrink: 0;
+  transition: color 0.15s ease;
+}
+
+.nav.enhanced .nav-footer-toggle__icon svg {
+  width: 12px;
+  height: 12px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+.nav.enhanced .nav-footer-body {
+  display: flex;
+  flex-direction: column;
+  margin-top: 6px;
+}
+
+/* In slim icon-rail mode the footer is already reduced to icon links —
+   the collapse toggle would be redundant, so hide it and always show
+   the body. */
+.nav.enhanced.nav--collapsed .nav-footer-toggle {
+  display: none;
+}
+
+/* ============================================================
+ * Backup / Restore widget
+ *
+ * Lives at the bottom of the footer. Reuses the same tokens and shape
+ * as .nav-add-category / the footer action buttons so it shares the
+ * sidebar's visual vocabulary (6px radius, transparent fill, muted
+ * text, gold hover).
+ * ============================================================ */
+
+.nav.enhanced .sbw {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 0;
+}
+
+.nav.enhanced .sbw-row {
+  display: flex;
+  gap: 4px;
+}
+
+.nav.enhanced .sbw-btn {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px;
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: var(--text-muted, #666);
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.nav.enhanced .sbw-btn:hover:not(:disabled) {
+  border-color: var(--gold, var(--g-primary));
+  color: var(--gold, var(--g-primary));
+  background: color-mix(in srgb, var(--g-primary) 5%, transparent);
+}
+
+.nav.enhanced .sbw-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.nav.enhanced .sbw-ico {
+  font-size: 0.95rem;
+  line-height: 1;
+}
+
+.nav.enhanced .sbw-label {
+  white-space: nowrap;
+}
+
+.nav.enhanced .sbw-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: 10px;
+  line-height: 1.35;
+  color: var(--text-muted, #888);
+  padding: 0 2px;
+}
+
+.nav.enhanced .sbw-status--ok {
+  color: var(--ok, #22c55e);
+}
+
+.nav.enhanced .sbw-status--err {
+  color: var(--danger, #ef4444);
+}
+
+.nav.enhanced .sbw-dismiss {
+  margin-left: auto;
+  background: transparent;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+  line-height: 1;
+  font-size: 0.85rem;
+}
+
+/* ============================================================
+ * Hidden Tabs
+ * ============================================================ */
+
+.nav-group--hidden {
+  opacity: 0.7;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px dashed rgba(255, 255, 255, 0.1);
+}
+
+.nav-hidden-tab {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  margin: 2px 8px;
+  border-radius: 4px;
+  color: var(--text-muted, #666);
+  font-size: 13px;
+}
+
+.nav-hidden-tab .nav-item__icon svg {
+  width: 16px;
+  height: 16px;
+  stroke: currentColor;
+  opacity: 0.5;
+}
+
+.nav-hidden-tab .nav-item__text {
+  flex: 1;
+  font-size: 13px;
+}
+
+.nav-unhide-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #555);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transition: all 0.15s ease;
+}
+
+.nav-hidden-tab:hover .nav-unhide-btn {
+  opacity: 1;
+}
+
+.nav-unhide-btn:hover {
+  background: color-mix(in srgb, var(--g-primary) 20%, transparent);
+  color: var(--gold, var(--g-primary));
+}
+
+.nav-unhide-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+/* ============================================================
+ * Context Menu
+ * ============================================================ */
+
+.nav-context-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+}
+
+.nav-context-menu {
+  position: fixed;
+  z-index: 1101;
+  background: var(--bg-elevated, #1a1a1a);
+  border: 1px solid var(--border-color, #333);
+  border-radius: 8px;
+  padding: 6px 0;
+  min-width: 180px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  animation: navContextMenuIn 0.15s ease-out;
+}
+
+@keyframes navContextMenuIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* ============================================================
+ * Collapsed State — slim icon rail
+ *
+ * When .nav--collapsed is on the <aside>, the shell grid track shrinks
+ * to ~64px (see layout.css → --shell-nav-slim-width). Categories drop
+ * their labels and become a thin divider between icon clusters; tabs
+ * become 40x40 icon buttons that glow on hover/active. Hover the icon
+ * to see the full name in a browser-native tooltip (the title attr is
+ * already populated by renderNavTab).
+ * ============================================================ */
+
+.nav.enhanced.nav--collapsed {
+  padding: 8px 0;
+}
+
+.nav.enhanced.nav--collapsed .nav-categories {
+  padding: 4px 0;
+}
+
+/* Category header collapses to a slim accent divider — the gold dot
+   reads as "section break" without taking the vertical real-estate
+   that an uppercase label would. */
+.nav.enhanced.nav--collapsed .nav-category-header {
+  padding: 6px 0 4px;
+  justify-content: center;
+  cursor: default;
+  position: relative;
+}
+
+.nav.enhanced.nav--collapsed .nav-category-header::before {
+  content: "";
+  width: 28px;
+  height: 1px;
+  background: linear-gradient(90deg,
+    transparent,
+    color-mix(in srgb, var(--g-primary) 45%, transparent),
+    transparent);
+}
+
+.nav.enhanced.nav--collapsed .nav-category-label,
+.nav.enhanced.nav--collapsed .nav-category-count,
+.nav.enhanced.nav--collapsed .nav-category-toggle,
+.nav.enhanced.nav--collapsed .nav-item__text,
+.nav.enhanced.nav--collapsed .nav-item__drag-handle,
+.nav.enhanced.nav--collapsed .nav-item__delete,
+.nav.enhanced.nav--collapsed .nav-add-category,
+.nav.enhanced.nav--collapsed .nav-footer-row,
+.nav.enhanced.nav--collapsed .nav-group--hidden,
+.nav.enhanced.nav--collapsed .nav-group--links .nav-category-header,
+.nav.enhanced.nav--collapsed .nav-category-empty {
+  display: none;
+}
+
+/* Drop the first category's spacer so the rail doesn't open with an
+   empty gap. */
+.nav.enhanced.nav--collapsed .nav-group:first-of-type .nav-category-header {
+  padding-top: 0;
+}
+
+/* Icon buttons — 40x40 glass tiles, centred in the column. Use
+   margin:auto + fixed width rather than padding so the active
+   highlight reads as a square chip rather than a stretched bar. */
+.nav.enhanced.nav--collapsed .nav-item {
+  width: 44px;
+  height: 44px;
+  margin: 4px auto;
+  padding: 0;
+  border-radius: 12px;
+  justify-content: center;
+  display: flex;
+  align-items: center;
+  border: 1px solid transparent;
+  background: rgba(255, 255, 255, 0.025);
+  transition:
+    background 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease,
+    transform 0.18s ease;
+}
+
+.nav.enhanced.nav--collapsed .nav-item:hover {
+  background: color-mix(in srgb, var(--g-primary) 14%, rgba(255, 255, 255, 0.02));
+  border-color: color-mix(in srgb, var(--g-primary) 35%, transparent);
+  transform: translateY(-1px);
+  box-shadow:
+    0 6px 16px rgba(0, 0, 0, 0.4),
+    0 0 18px color-mix(in srgb, var(--g-primary) 18%, transparent);
+}
+
+.nav.enhanced.nav--collapsed .nav-item.active {
+  background: linear-gradient(135deg,
+    color-mix(in srgb, var(--g-primary) 28%, transparent) 0%,
+    color-mix(in srgb, var(--g-primary) 14%, transparent) 100%);
+  border-color: color-mix(in srgb, var(--g-primary) 65%, transparent);
+  padding-left: 0; /* override the 5px shift the wide-mode active state adds */
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 0 22px color-mix(in srgb, var(--g-primary) 28%, transparent),
+    0 0 0 1px color-mix(in srgb, var(--g-primary) 30%, transparent);
+}
+
+.nav.enhanced.nav--collapsed .nav-item.active::before,
+.nav.enhanced.nav--collapsed .nav-item.active::after {
+  display: none; /* drop the wide-mode left bar + right pulse dot */
+}
+
+.nav.enhanced.nav--collapsed .nav-item__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* Tab wrappers are inline-block in slim mode so the drag-over
+   indicator (top bar) still reads correctly above the 44px tiles. */
+.nav.enhanced.nav--collapsed .nav-tab-wrapper {
+  display: flex;
+  justify-content: center;
+}
+
+/* Keep the Resources / Docs link in the footer but render it the same
+   way as a regular icon button so the rail stays uniform top-to-bottom. */
+.nav.enhanced.nav--collapsed .nav-footer {
+  padding: 8px 0;
+  border-top: 1px solid color-mix(in srgb, var(--g-primary) 14%, transparent);
+}
+
+.nav.enhanced.nav--collapsed .nav-group--links .nav-item {
+  margin: 4px auto;
+}
+
+/* ============================================================
+ * Scrollbar
+ * ============================================================ */
+
+.nav.enhanced .nav-categories {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold, var(--g-primary)) transparent;
+}
+
+.nav.enhanced .nav-categories::-webkit-scrollbar {
+  width: 4px;
+}
+
+.nav.enhanced .nav-categories::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.nav.enhanced .nav-categories::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--g-primary) 30%, transparent);
+  border-radius: 2px;
+}
+
+.nav.enhanced .nav-categories::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--g-primary) 50%, transparent);
+}
+
+/* ============================================================
+ * Mobile
+ * ============================================================ */
+
+@media (max-width: 768px) {
+  .nav.enhanced .nav-item {
+    padding: 10px 14px 10px 10px;
+  }
+  
+  .nav-category-header {
+    padding: 10px 14px;
+  }
+}
+
+/* ============================================================
+ * ████  INFINIBAR — holographic gold-glass HUD rebuild  ████
+ *
+ * Layered on top of the base .nav.enhanced rules above. Everything here is
+ * scoped to .infinibar so the upgrade is additive and reversible. Uses only
+ * the --g-* glass tokens (no new color hardcodes). Motion is a consistent
+ * 140ms cubic-bezier so the whole rail feels like one instrument.
+ * ============================================================ */
+
+.nav.enhanced.infinibar {
+  --ib-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --ib-dur: 140ms;
+  --ib-gold: var(--g-primary, #d4af37);
+  position: relative;
+  background:
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--ib-gold) 4%, transparent) 0%,
+      transparent 22%
+    ),
+    var(--g-surface, rgba(10, 10, 14, 0.4));
+  border-right: 1px solid color-mix(in srgb, var(--ib-gold) 18%, var(--g-border, #333));
+  box-shadow:
+    inset -1px 0 0 color-mix(in srgb, var(--ib-gold) 8%, transparent),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+/* Top holographic scanline — a faint travelling highlight along the inner
+   right edge that reads as "live HUD" without distracting. */
+.nav.enhanced.infinibar::before {
+  content: "";
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    color-mix(in srgb, var(--ib-gold) 55%, transparent),
+    transparent
+  );
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+/* ── Search box ───────────────────────────────────────────── */
+
+.nav.enhanced.infinibar .nav-search {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 10px 10px 6px;
+  padding: 0 8px;
+  height: 34px;
+  border-radius: 9px;
+  background: color-mix(in srgb, var(--g-bg-deep, #000) 28%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ib-gold) 14%, var(--g-border, #333));
+  transition: border-color var(--ib-dur) var(--ib-ease),
+    box-shadow var(--ib-dur) var(--ib-ease), background var(--ib-dur) var(--ib-ease);
+}
+
+.nav.enhanced.infinibar .nav-search:focus-within {
+  border-color: color-mix(in srgb, var(--ib-gold) 55%, transparent);
+  background: color-mix(in srgb, var(--g-bg-deep, #000) 40%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--ib-gold) 30%, transparent),
+    0 0 18px color-mix(in srgb, var(--ib-gold) 16%, transparent);
+}
+
+.nav.enhanced.infinibar .nav-search.is-filled {
+  border-color: color-mix(in srgb, var(--ib-gold) 38%, transparent);
+}
+
+.nav.enhanced.infinibar .nav-search__icon {
+  display: flex;
+  color: color-mix(in srgb, var(--ib-gold) 70%, var(--g-fg-dim, #888));
+  flex-shrink: 0;
+}
+
+.nav.enhanced.infinibar .nav-search__icon svg {
+  width: 14px;
+  height: 14px;
+}
+
+.nav.enhanced.infinibar .nav-search__input {
+  flex: 1;
+  min-width: 0;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--g-fg, #eee);
+  font-size: 13px;
+  /* gold caret */
+  caret-color: var(--ib-gold);
+}
+
+.nav.enhanced.infinibar .nav-search__input::placeholder {
+  color: var(--g-fg-faint, #666);
+}
+
+.nav.enhanced.infinibar .nav-search__kbd {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-family: var(--g-font-family, inherit);
+  color: var(--g-fg-faint, #777);
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 5px;
+  padding: 1px 5px;
+  line-height: 1.4;
+}
+
+.nav.enhanced.infinibar .nav-search__clear {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: none;
+  color: var(--g-fg-dim, #888);
+  cursor: pointer;
+  padding: 2px;
+  border-radius: 5px;
+  transition: color var(--ib-dur) var(--ib-ease), background var(--ib-dur) var(--ib-ease);
+}
+
+.nav.enhanced.infinibar .nav-search__clear:hover {
+  color: var(--ib-gold);
+  background: color-mix(in srgb, var(--ib-gold) 14%, transparent);
+}
+
+.nav.enhanced.infinibar .nav-search__clear svg {
+  width: 13px;
+  height: 13px;
+}
+
+/* ── Group labels — small gold uppercase ──────────────────── */
+
+.nav.enhanced.infinibar .nav-category-label {
+  color: color-mix(in srgb, var(--ib-gold) 60%, var(--g-fg-dim, #999));
+  font-size: 10px;
+  letter-spacing: 0.11em;
+  font-weight: 700;
+}
+
+.nav.enhanced.infinibar .nav-category-count {
+  background: color-mix(in srgb, var(--ib-gold) 10%, transparent);
+  color: color-mix(in srgb, var(--ib-gold) 70%, var(--g-fg-dim, #999));
+  border: 1px solid color-mix(in srgb, var(--ib-gold) 16%, transparent);
+}
+
+/* ── Tab rows — refined motion + active state ─────────────── */
+
+.nav.enhanced.infinibar .nav-item {
+  transition:
+    background var(--ib-dur) var(--ib-ease),
+    color var(--ib-dur) var(--ib-ease),
+    box-shadow var(--ib-dur) var(--ib-ease),
+    transform var(--ib-dur) var(--ib-ease);
+}
+
+/* Clip the hover sheen to the row — but ONLY in expanded mode. In the collapsed
+   rail the flyout is a <body> singleton (so it isn't clipped here), and the
+   sheen is dropped below so it can't bleed past the rounded 44px tiles. */
+.nav.enhanced.infinibar:not(.nav--collapsed) .nav-item {
+  overflow: hidden;
+}
+
+.nav.enhanced.infinibar.nav--collapsed .nav-item::after {
+  display: none;
+}
+
+/* During search the category count reflects the FULL group, which is
+   misleading once the list is filtered — hide it while filtering. */
+.nav.enhanced.infinibar.is-searching .nav-category-count {
+  display: none;
+}
+
+/* Subtle scan-line sweep on hover — a single diagonal sheen passes across the
+   row, reinforcing the holographic read. */
+.nav.enhanced.infinibar .nav-item::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 30%,
+    color-mix(in srgb, var(--ib-gold) 12%, transparent) 50%,
+    transparent 70%
+  );
+  transform: translateX(-120%);
+  opacity: 0;
+  pointer-events: none;
+  transition: transform 420ms var(--ib-ease), opacity var(--ib-dur) var(--ib-ease);
+}
+
+.nav.enhanced.infinibar .nav-item:hover::after {
+  opacity: 1;
+  transform: translateX(120%);
+}
+
+.nav.enhanced.infinibar .nav-item:hover {
+  background: color-mix(in srgb, var(--ib-gold) 8%, transparent);
+}
+
+/* Active = gold left bar + subtle gold-tint background + soft inner glow.
+   NOT a heavy fill. */
+.nav.enhanced.infinibar .nav-item.active {
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ib-gold) 16%, transparent),
+    color-mix(in srgb, var(--ib-gold) 5%, transparent) 60%,
+    transparent
+  );
+  color: color-mix(in srgb, var(--ib-gold) 92%, #fff);
+  border-left: 3px solid var(--ib-gold);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--ib-gold) 12%, transparent),
+    inset 14px 0 22px -16px color-mix(in srgb, var(--ib-gold) 60%, transparent);
+}
+
+.nav.enhanced.infinibar .nav-item.active .nav-item__icon {
+  color: var(--ib-gold);
+  filter: drop-shadow(0 0 6px color-mix(in srgb, var(--ib-gold) 45%, transparent));
+}
+
+/* ── Live badges ──────────────────────────────────────────── */
+
+.nav.enhanced.infinibar .nav-item__badge {
+  flex-shrink: 0;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #1a1407;
+  background: linear-gradient(
+    135deg,
+    color-mix(in srgb, var(--ib-gold) 95%, #fff),
+    var(--ib-gold)
+  );
+  border-radius: 9px;
+  box-shadow: 0 0 10px color-mix(in srgb, var(--ib-gold) 40%, transparent);
+  transition: opacity var(--ib-dur) var(--ib-ease);
+}
+
+/* The delete button overlaps the right edge on hover; nudge the badge left so
+   the two never collide. */
+.nav.enhanced.infinibar .nav-item:hover .nav-item__badge {
+  margin-right: 18px;
+}
+
+/* Collapsed-rail dot indicator (number → dot when there's no room). */
+.nav.enhanced.infinibar .nav-item__dot {
+  display: none;
+}
+
+.nav.enhanced.infinibar.nav--collapsed .nav-item__badge {
+  display: none;
+}
+
+.nav.enhanced.infinibar.nav--collapsed .nav-item__icon {
+  position: relative;
+}
+
+.nav.enhanced.infinibar.nav--collapsed .nav-item__dot {
+  display: block;
+  position: absolute;
+  top: -3px;
+  right: -3px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--ib-gold);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--ib-gold) 70%, transparent);
+  border: 1.5px solid var(--g-bg-deep, #0a0a0e);
+}
+
+/* ── Collapsed-rail hover flyout (body-level singleton) ─────
+ *
+ * Rendered on <body> by nav-collapsed-flyout.ts so it escapes the sidebar's
+ * scroll-clip + backdrop containing block. Positioned in viewport coords; the
+ * gold accent token (--g-primary) is read off :root so it tracks the palette.
+ */
+
+.nav-flyout-pop {
+  --ib-gold: var(--g-primary, #d4af37);
+  position: fixed;
+  z-index: 4000;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  transform: translateY(-50%) translateX(-8px);
+  min-width: 140px;
+  padding: 9px 13px;
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--g-bg-deep, #0a0a0e) 88%, transparent);
+  backdrop-filter: var(--g-blur-heavy, blur(18px) saturate(180%));
+  -webkit-backdrop-filter: var(--g-blur-heavy, blur(18px) saturate(180%));
+  border: 1px solid color-mix(in srgb, var(--ib-gold) 38%, transparent);
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.55),
+    0 0 24px color-mix(in srgb, var(--ib-gold) 20%, transparent);
+  opacity: 0;
+  pointer-events: none;
+  white-space: nowrap;
+  transition: opacity var(--g-anim-dur, 140ms) cubic-bezier(0.22, 1, 0.36, 1),
+    transform var(--g-anim-dur, 140ms) cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.nav-flyout-pop.is-visible {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0);
+}
+
+/* Gold notch pointing back at the icon tile. */
+.nav-flyout-pop::before {
+  content: "";
+  position: absolute;
+  left: -5px;
+  top: 50%;
+  width: 9px;
+  height: 9px;
+  transform: translateY(-50%) rotate(45deg);
+  background: inherit;
+  border-left: 1px solid color-mix(in srgb, var(--ib-gold) 38%, transparent);
+  border-bottom: 1px solid color-mix(in srgb, var(--ib-gold) 38%, transparent);
+}
+
+.nav-flyout-pop__group {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ib-gold) 72%, var(--g-fg-dim, #999));
+}
+
+.nav-flyout-pop__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.nav-flyout-pop__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--g-fg, #f0f0f0);
+}
+
+.nav-flyout-pop__badge {
+  flex-shrink: 0;
+  font-size: 10px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: #1a1407;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--ib-gold) 95%, #fff), var(--ib-gold));
+  border-radius: 8px;
+  padding: 1px 6px;
+}
+
+/* ── Compressed bottom widget strip ───────────────────────── */
+
+.nav.enhanced.infinibar .nav-strip {
+  border-radius: 10px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--g-bg-deep, #000) 22%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ib-gold) 14%, var(--g-border, #333));
+  margin-top: 8px;
+}
+
+.nav.enhanced.infinibar .nav-strip__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 8px 7px 10px;
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--ib-gold) 9%, transparent),
+    transparent
+  );
+  border-bottom: 1px solid color-mix(in srgb, var(--ib-gold) 12%, transparent);
+}
+
+.nav.enhanced.infinibar .nav-strip__icon {
+  display: flex;
+  color: color-mix(in srgb, var(--ib-gold) 75%, var(--g-fg-dim, #999));
+}
+
+.nav.enhanced.infinibar .nav-strip__icon svg {
+  width: 13px;
+  height: 13px;
+}
+
+.nav.enhanced.infinibar .nav-strip__label {
+  flex: 1;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--ib-gold) 62%, var(--g-fg-dim, #999));
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nav.enhanced.infinibar .nav-strip__dots {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.nav.enhanced.infinibar .nav-strip__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ib-gold) 22%, transparent);
+  transition: background var(--ib-dur) var(--ib-ease);
+}
+
+.nav.enhanced.infinibar .nav-strip__dot.is-active {
+  background: var(--ib-gold);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--ib-gold) 60%, transparent);
+}
+
+.nav.enhanced.infinibar .nav-strip__cycle {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  color: var(--g-fg-dim, #999);
+  cursor: pointer;
+  transition: all var(--ib-dur) var(--ib-ease);
+}
+
+.nav.enhanced.infinibar .nav-strip__cycle:hover {
+  color: var(--ib-gold);
+  border-color: color-mix(in srgb, var(--ib-gold) 35%, transparent);
+  background: color-mix(in srgb, var(--ib-gold) 10%, transparent);
+}
+
+.nav.enhanced.infinibar .nav-strip__cycle svg {
+  width: 14px;
+  height: 14px;
+}
+
+.nav.enhanced.infinibar .nav-strip__body {
+  padding: 6px 8px 8px;
+}
+
+/* In slim rail mode the strip header label/dots would overflow the 56px rail —
+   collapse it down to just the cycle button + icon. */
+.nav.enhanced.infinibar.nav--collapsed .nav-strip__label,
+.nav.enhanced.infinibar.nav--collapsed .nav-strip__dots {
+  display: none;
+}
+
+/* ============================================================
+ * INFINIBAR — top-nav context cluster
+ *
+ * Adds the "back to top tab" home pill + current tab title/subtitle to the
+ * topbar, styled to match the gold-glass HUD. Single-line, ellipsised, and
+ * hidden on narrow viewports so it never crowds the existing quick-actions.
+ * ============================================================ */
+
+.topbar .topbar-tabctx {
+  --ib-gold: var(--g-primary, #d4af37);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding-left: 4px;
+  margin-left: 2px;
+  border-left: 1px solid color-mix(in srgb, var(--ib-gold) 14%, var(--g-border, #333));
+}
+
+.topbar .topbar-tabctx__home {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  flex-shrink: 0;
+  border-radius: 8px;
+  color: color-mix(in srgb, var(--ib-gold) 78%, var(--g-fg-dim, #999));
+  background: color-mix(in srgb, var(--ib-gold) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ib-gold) 20%, transparent);
+  text-decoration: none;
+  transition: all 140ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.topbar .topbar-tabctx__home:hover {
+  color: var(--ib-gold);
+  background: color-mix(in srgb, var(--ib-gold) 16%, transparent);
+  border-color: color-mix(in srgb, var(--ib-gold) 42%, transparent);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--ib-gold) 22%, transparent);
+}
+
+.topbar .topbar-tabctx__home svg {
+  width: 14px;
+  height: 14px;
+}
+
+.topbar .topbar-tabctx__text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  line-height: 1.2;
+}
+
+.topbar .topbar-tabctx__title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--g-fg, #eee);
+  white-space: nowrap;
+}
+
+.topbar .topbar-tabctx__sub {
+  font-size: 10px;
+  color: var(--g-fg-faint, #777);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 360px;
+}
+
+/* Sidebar consolidation lens: "Also here: …" on a host page, "Part of …" on a
+   page that lost its own sidebar entry. Single line; clips instead of wrapping. */
+.topbar .topbar-tabctx__lens {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  flex-shrink: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  padding-left: 9px;
+  border-left: 1px solid color-mix(in srgb, var(--ib-gold) 10%, var(--g-border, #333));
+}
+
+.topbar .topbar-tabctx__lens-label {
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--g-fg-faint, #777);
+  flex-shrink: 0;
+}
+
+.topbar .topbar-tabctx__lens-chip {
+  flex-shrink: 0;
+  font-size: 10.5px;
+  line-height: 1;
+  padding: 4px 7px;
+  border-radius: 999px;
+  color: color-mix(in srgb, var(--ib-gold) 70%, var(--g-fg-dim, #999));
+  background: color-mix(in srgb, var(--ib-gold) 6%, transparent);
+  border: 1px solid color-mix(in srgb, var(--ib-gold) 18%, transparent);
+  text-decoration: none;
+  transition: all 140ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.topbar .topbar-tabctx__lens-chip:hover {
+  color: var(--ib-gold);
+  background: color-mix(in srgb, var(--ib-gold) 14%, transparent);
+  border-color: color-mix(in srgb, var(--ib-gold) 40%, transparent);
+}
+
+/* The topbar is dense — drop the subtitle first, then the whole cluster, as the
+   viewport narrows so it never collides with the quick-action pills. */
+@media (max-width: 1280px) {
+  .topbar .topbar-tabctx__sub {
+    display: none;
+  }
+}
+
+@media (max-width: 1040px) {
+  .topbar .topbar-tabctx {
+    display: none;
+  }
+}
+
+/* ============================================================
+   Launchpad trigger button — opens the full-screen page launcher.
+   Additive; sits at the very top of the sidebar in both the wide and
+   the collapsed icon-rail states. Never touches collapse/expand.
+   ============================================================ */
+.nav-launchpad-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: calc(100% - 16px);
+  margin: 10px 8px 6px;
+  padding: 9px 12px;
+  border-radius: 11px;
+  border: 1px solid color-mix(in srgb, var(--g-primary, #ffd700) 34%, transparent);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--g-primary, #ffd700) 12%, transparent),
+    color-mix(in srgb, var(--g-primary, #ffd700) 3%, transparent)
+  );
+  color: var(--text-strong, #fff);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  transition: transform 140ms ease, border-color 140ms ease,
+    box-shadow 140ms ease, background 140ms ease;
+}
+.nav-launchpad-btn:hover {
+  transform: translateY(-1px);
+  border-color: var(--g-primary, #ffd700);
+  background: linear-gradient(
+    180deg,
+    color-mix(in srgb, var(--g-primary, #ffd700) 20%, transparent),
+    color-mix(in srgb, var(--g-primary, #ffd700) 6%, transparent)
+  );
+  box-shadow: 0 8px 22px -10px color-mix(in srgb, var(--g-primary, #ffd700) 55%, transparent);
+}
+.nav-launchpad-btn__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--g-primary, #ffd700);
+  flex-shrink: 0;
+}
+.nav-launchpad-btn__icon svg {
+  width: 18px;
+  height: 18px;
+}
+.nav-launchpad-btn__text {
+  flex: 1;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nav-launchpad-btn__kbd {
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  color: var(--text-dim, #a1a1aa);
+  border: 1px solid var(--border, #27272a);
+  border-radius: 5px;
+  padding: 1px 6px;
+  background: rgba(0, 0, 0, 0.25);
+  flex-shrink: 0;
+}
+/* Collapsed icon-rail: square, centered icon only. */
+.nav-launchpad-btn--collapsed {
+  width: 40px;
+  height: 40px;
+  margin: 10px auto 8px;
+  padding: 0;
+  justify-content: center;
+}
+.nav-launchpad-btn--collapsed .nav-launchpad-btn__icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+/* ============================================================
+ * Stacked shell (<= 1100px): the sidebar becomes a top bar
+ *
+ * layout.css stacks the shell as topbar / nav / content below 1100px. The
+ * enhanced nav is a tall flex column, so without this block it kept its
+ * full sidebar height as the "nav" row and pushed <main> off the bottom of
+ * the (overflow: hidden) shell — or, on pages that pin <main> tall, got
+ * clipped to a sliver with the content drawn over it. Here it becomes a
+ * single horizontally scrolling row of tabs: category headers drop away,
+ * every tab sits inline (even in collapsed categories), and the Resources
+ * links (switch profile, log out, docs) stay reachable behind the
+ * System chip. The collapsed state keeps icon-only tabs.
+ * ============================================================ */
+@media (max-width: 1100px) {
+  .shell > .nav.enhanced {
+    height: auto;
+    /* A scroll container's automatic minimum height is 0, so a tall
+       <main> could squeeze this row to a sliver. Hold it at its content. */
+    min-height: max-content;
+    width: auto;
+    max-width: none;
+    max-height: none;
+    margin: 8px var(--shell-nav-inset, 12px) 4px;
+    padding: 6px 8px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 6px;
+    overflow-x: auto;
+    overflow-y: hidden;
+    overscroll-behavior-x: contain;
+    scrollbar-width: none;
+    border-radius: var(--g-radius-md, 14px);
+  }
+  .shell > .nav.enhanced::-webkit-scrollbar {
+    display: none;
+  }
+  .shell > .nav.enhanced.nav--collapsed {
+    padding: 4px 6px;
+  }
+
+  .shell > .nav.enhanced .nav-launchpad-btn {
+    flex: none;
+    width: auto;
+    margin: 0;
+  }
+  .shell > .nav.enhanced .nav-launchpad-btn__kbd,
+  .shell > .nav.enhanced .nav-search,
+  .shell > .nav.enhanced .nav-category-header,
+  .shell > .nav.enhanced .nav-category-empty,
+  .shell > .nav.enhanced .nav-group--hidden,
+  .shell > .nav.enhanced .nav-add-category,
+  .shell > .nav.enhanced .nav-footer-row,
+  .shell > .nav.enhanced .nav-strip,
+  .shell > .nav.enhanced .sbw {
+    display: none;
+  }
+
+  .shell > .nav.enhanced .nav-categories {
+    flex: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2px;
+    padding: 0;
+    overflow: visible;
+  }
+  .shell > .nav.enhanced .nav-group,
+  .shell > .nav.enhanced .nav-group__items,
+  .shell > .nav.enhanced .nav-group--collapsed .nav-group__items {
+    display: contents;
+  }
+  .shell > .nav.enhanced .nav-tab-wrapper {
+    flex: none;
+  }
+  .shell > .nav.enhanced .nav-item {
+    flex: none;
+    width: auto;
+    margin: 0;
+    padding: 6px 10px;
+    min-height: 36px;
+    white-space: nowrap;
+  }
+  .shell > .nav.enhanced.nav--collapsed .nav-item {
+    width: 40px;
+    height: 36px;
+    padding: 0;
+    justify-content: center;
+  }
+
+  .shell > .nav.enhanced .nav-footer {
+    flex: none;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 2px;
+    margin: 0;
+    padding: 0 0 0 6px;
+    border: none;
+    border-left: 1px solid var(--g-border, #333);
+  }
+  .shell > .nav.enhanced .nav-footer-toggle {
+    display: flex;
+    width: auto;
+    white-space: nowrap;
+  }
+  .shell > .nav.enhanced .nav-footer-body {
+    display: contents;
+  }
+}

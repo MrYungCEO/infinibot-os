@@ -1,0 +1,20 @@
+{
+  "id": "memory-core",
+  "listing": {
+    "tagline": "Built-in memory search for your agents.",
+    "category": "integrations",
+    "tags": [
+      "memory",
+      "search"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "kind": "memory",
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

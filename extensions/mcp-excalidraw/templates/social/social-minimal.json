@@ -1,0 +1,55 @@
+{
+  "id": "social-minimal",
+  "category": "social",
+  "name": "Social · Minimal",
+  "width": 1080,
+  "height": 1080,
+  "background": "#ffffff",
+  "createdAt": "2026-06-09",
+  "scene": {
+    "elements": [
+      {
+        "id": "social-minimal-bg-accent",
+        "type": "rectangle",
+        "x": 0,
+        "y": 842.4,
+        "width": 1080,
+        "height": 64.8,
+        "backgroundColor": "#4f46e5",
+        "fillStyle": "solid",
+        "strokeColor": "transparent",
+        "strokeWidth": 0,
+        "roughness": 0
+      },
+      {
+        "id": "social-minimal-title",
+        "type": "text",
+        "x": 108,
+        "y": 378,
+        "width": 864,
+        "height": 96,
+        "text": "Social title",
+        "fontSize": 64,
+        "fontFamily": 1,
+        "textAlign": "center",
+        "strokeColor": "#0b0b14"
+      },
+      {
+        "id": "social-minimal-subtitle",
+        "type": "text",
+        "x": 108,
+        "y": 518.4,
+        "width": 864,
+        "height": 48,
+        "text": "Minimal · 1080×1080",
+        "fontSize": 28,
+        "fontFamily": 2,
+        "textAlign": "center",
+        "strokeColor": "#0b0b14",
+        "opacity": 70
+      }
+    ],
+    "appState": {},
+    "files": {}
+  }
+}

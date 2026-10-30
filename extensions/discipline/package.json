@@ -1,0 +1,12 @@
+{
+  "name": "@infinibot/discipline",
+  "version": "2026.11.1",
+  "type": "module",
+  "description": "Discipline: day planner (time blocks, routines, scores, templates) and Focus board",
+  "license": "FSL-1.1-ALv2",
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

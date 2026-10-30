@@ -1,0 +1,57 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API (fixture)",
+  "osm3s": {
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+    {
+      "type": "node",
+      "id": 1001,
+      "lat": 43.615,
+      "lon": -116.2023,
+      "tags": {
+        "amenity": "dentist",
+        "healthcare": "dentist",
+        "name": "Boise Smiles Dental",
+        "website": "https://www.boisesmiles.com/",
+        "phone": "+1 208-555-0101",
+        "addr:housenumber": "123",
+        "addr:street": "Main Street",
+        "addr:city": "Boise",
+        "addr:state": "ID",
+        "addr:postcode": "83702",
+        "opening_hours": "Mo-Fr 08:00-17:00",
+        "contact:facebook": "https://www.facebook.com/boisesmiles"
+      }
+    },
+    {
+      "type": "way",
+      "id": 2002,
+      "center": { "lat": 43.6, "lon": -116.21 },
+      "tags": {
+        "amenity": "dentist",
+        "name": "Treasure Valley Family Dentistry",
+        "contact:website": "tvfamilydental.com",
+        "contact:phone": "(208) 555-0199",
+        "contact:email": "hello@tvfamilydental.com",
+        "addr:city": "Boise"
+      }
+    },
+    {
+      "type": "node",
+      "id": 1003,
+      "lat": 43.61,
+      "lon": -116.2,
+      "tags": { "office": "company", "name": "Dentist Supply Co", "phone": "208 555 0123" }
+    },
+    { "type": "node", "id": 1004, "lat": 43.62, "lon": -116.19, "tags": { "amenity": "dentist" } },
+    {
+      "type": "node",
+      "id": 1001,
+      "lat": 43.615,
+      "lon": -116.2023,
+      "tags": { "amenity": "dentist", "name": "Boise Smiles Dental" }
+    }
+  ]
+}

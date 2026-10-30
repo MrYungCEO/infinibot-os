@@ -1,0 +1,227 @@
+/* Favorites + persisted section hierarchy. Imported by the sidebar view so
+   the feature remains self-contained and never depends on ui/src/styles.css. */
+
+.nav.enhanced .nav-group--favorites {
+  margin-bottom: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid color-mix(in srgb, var(--g-border) 82%, transparent);
+}
+
+.nav.enhanced .nav-favorites-header {
+  width: 100%;
+  border: 0;
+  color: inherit;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+}
+
+.nav.enhanced .nav-favorites-header:focus-visible,
+.nav.enhanced .nav-category-header[aria-haspopup="menu"]:focus-visible,
+.nav.enhanced .nav-item__favorite:focus-visible {
+  outline: 2px solid var(--g-primary);
+  outline-offset: -2px;
+}
+
+.nav-favorites-star {
+  display: inline-flex;
+  color: var(--g-primary);
+}
+
+.nav-favorites-star svg {
+  width: 15px;
+  height: 15px;
+  fill: currentColor;
+}
+
+.nav-favorites-empty {
+  margin: 3px 10px 5px;
+  padding: 9px 10px;
+  border: 1px dashed color-mix(in srgb, var(--g-border) 80%, transparent);
+  border-radius: var(--g-radius-sm);
+  color: var(--g-fg-dim);
+  font-size: 11px;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.nav.enhanced .nav-item__favorite {
+  position: absolute;
+  right: 27px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--g-radius-sm);
+  color: var(--g-fg-dim);
+  background: transparent;
+  opacity: 0;
+  cursor: pointer;
+  transition: opacity var(--ib-dur) var(--ib-ease), color var(--ib-dur) var(--ib-ease), background var(--ib-dur) var(--ib-ease);
+}
+
+.nav.enhanced .nav-item:hover .nav-item__favorite,
+.nav.enhanced .nav-item:focus-within .nav-item__favorite,
+.nav.enhanced .nav-item__favorite.is-favorite {
+  opacity: 1;
+}
+
+.nav.enhanced .nav-item__favorite:hover,
+.nav.enhanced .nav-item__favorite.is-favorite {
+  color: var(--g-primary);
+  background: color-mix(in srgb, var(--g-primary) 12%, transparent);
+}
+
+.nav.enhanced .nav-item__favorite.is-favorite svg {
+  fill: currentColor;
+}
+
+.nav.enhanced .nav-item--favorite .nav-item__delete {
+  display: none;
+}
+
+.nav.enhanced .nav-item--favorite .nav-item__favorite {
+  right: 6px;
+}
+
+.nav.enhanced .nav-item--favorite-plugin {
+  --nav-plugin-accent: var(--nav-plugin-accent-dark, var(--g-primary));
+  box-shadow: inset 2px 0 0 color-mix(in srgb, var(--nav-plugin-accent) 72%, transparent);
+}
+
+:root[data-theme="light"] .nav.enhanced .nav-item--favorite-plugin {
+  --nav-plugin-accent: var(--nav-plugin-accent-light, var(--g-primary));
+}
+
+.nav-favorite-plugin-mark {
+  display: inline-grid;
+  place-items: center;
+  min-width: 19px;
+  height: 16px;
+  padding: 0 3px;
+  border: 1px solid color-mix(in srgb, var(--nav-plugin-accent) 42%, transparent);
+  border-radius: var(--g-radius-sm);
+  color: var(--nav-plugin-accent);
+  background: color-mix(in srgb, var(--nav-plugin-accent) 12%, transparent);
+  font-family: var(--mono);
+  font-size: 8px;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.nav-section-children {
+  margin: 0 0 5px 13px;
+  padding-left: 6px;
+  border-left: 1px solid color-mix(in srgb, var(--g-primary) 28%, var(--g-border));
+}
+
+.nav-group--nested > .nav-category-header {
+  padding-left: 8px;
+}
+
+.nav-context-menu {
+  width: min(292px, calc(100vw - 16px));
+  max-height: min(560px, calc(100vh - 16px));
+  overflow-y: auto;
+  color: var(--g-fg);
+  background: var(--g-surface-strong);
+  border-color: var(--g-border);
+  box-shadow: var(--g-shadow-lg);
+  backdrop-filter: var(--g-blur);
+}
+
+.nav-context-menu .context-menu-item {
+  color: var(--g-fg);
+}
+
+.nav-context-menu .context-menu-item:hover,
+.nav-context-menu .context-menu-item:focus-visible {
+  background: var(--g-surface-hover);
+}
+
+.nav-context-menu .context-menu-item.danger {
+  color: var(--g-danger);
+}
+
+.nav-context-menu .context-menu-label {
+  color: var(--g-fg-dim);
+}
+
+.nav-context-menu .context-menu-separator {
+  background: var(--g-border);
+}
+
+.nav-context-menu [role="menuitem"]:focus-visible {
+  outline: 1px solid var(--g-primary);
+  outline-offset: -1px;
+}
+
+.nav-context-menu [role="menuitem"]:disabled {
+  opacity: 0.38;
+  cursor: default;
+}
+
+.nav.enhanced.nav--collapsed .nav-group--favorites {
+  padding-bottom: 4px;
+  margin-bottom: 4px;
+}
+
+.nav.enhanced.nav--collapsed .nav-favorites-header::before {
+  content: none;
+}
+
+.nav.enhanced.nav--collapsed .nav-favorites-header {
+  width: 44px;
+  min-height: 28px;
+  margin: 0 auto;
+  padding: 4px 0 2px;
+}
+
+.nav.enhanced.nav--collapsed .nav-item__favorite {
+  display: none;
+}
+
+.nav.enhanced.nav--collapsed .nav-favorite-plugin-mark {
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  z-index: 1;
+  display: grid;
+  min-width: 13px;
+  height: 11px;
+  padding: 0 2px;
+  font-size: 6px;
+  pointer-events: none;
+}
+
+.nav.enhanced.nav--collapsed .nav-section-children {
+  margin-left: 0;
+  padding-left: 0;
+  border-left: 0;
+}
+
+@media (max-width: 1100px) {
+  .shell > .nav.enhanced .nav-group--favorites {
+    display: contents;
+  }
+
+  .shell > .nav.enhanced .nav-favorite-items,
+  .shell > .nav.enhanced .nav-section-children {
+    display: contents;
+  }
+
+  .shell > .nav.enhanced .nav-item__favorite,
+  .shell > .nav.enhanced .nav-item__delete,
+  .shell > .nav.enhanced .nav-item__drag-handle {
+    display: none;
+  }
+
+  .shell > .nav.enhanced .nav-item--favorite-plugin {
+    border-left: 2px solid var(--nav-plugin-accent);
+  }
+}

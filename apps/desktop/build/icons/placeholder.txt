@@ -1,0 +1,14 @@
+Icon placeholder — replace these files before publishing:
+
+  icon.ico   — Windows multi-size icon (256x256 recommended, can embed 16/32/48/256)
+  icon.icns  — macOS icon set (at minimum include 512x512 @2x)
+  icon.png   — Linux icon (512x512 PNG)
+  tray.png   — System-tray icon (16x16 or 22x22 PNG, works on all platforms)
+
+Generate from a single 1024x1024 source PNG:
+  electron-icon-maker --input=source-1024.png --output=./
+
+Or use https://www.electron.build/icons to convert online.
+
+For a quick placeholder build on Windows, copy any valid .ico to icon.ico
+(electron-builder will error if the file is missing).

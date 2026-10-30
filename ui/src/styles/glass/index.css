@@ -1,0 +1,5 @@
+/* InfiniBot Glass design system — see docs/ui/GLASS.md */
+@import "./tokens.css";
+@import "./primitives.css";
+@import "./shell.css";
+@import "./chat.css";

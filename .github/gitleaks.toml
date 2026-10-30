@@ -1,0 +1,55 @@
+title = "InfiniBot secret detection rules"
+
+[[rules]]
+id = "telegram-bot-token"
+description = "Telegram bot token"
+regex = '''\b[0-9]{8,12}:[A-Za-z0-9_-]{30,45}\b'''
+keywords = [":"]
+
+[[rules]]
+id = "atlas-cloud-api-key"
+description = "Atlas Cloud API key"
+regex = '''\bapikey-[A-Fa-f0-9]{32,}\b'''
+keywords = ["apikey-"]
+
+[[rules]]
+id = "heygen-api-key"
+description = "HeyGen v2 API key"
+regex = '''\bsk_V2_[A-Za-z0-9_-]{20,}\b'''
+keywords = ["sk_V2_"]
+
+[[rules]]
+id = "meta-access-token"
+description = "Meta/Facebook access token"
+regex = '''\bEAA[A-Za-z0-9]{40,}\b'''
+keywords = ["EAA"]
+
+[[rules]]
+id = "notion-integration-token"
+description = "Notion integration token"
+regex = '''\bntn_[A-Za-z0-9_-]{20,}\b'''
+keywords = ["ntn_"]
+
+[[rules]]
+id = "brave-search-api-key"
+description = "Brave Search API key"
+regex = '''\bBSA[A-Za-z0-9_-]{20,}\b'''
+keywords = ["BSA"]
+
+[[rules]]
+id = "openai-project-api-key"
+description = "OpenAI project API key"
+regex = '''\bsk-proj-[A-Za-z0-9_-]{20,}\b'''
+keywords = ["sk-proj-"]
+
+# Known test fixtures: fake values that only look like secrets.
+[allowlist]
+description = "Fake secrets used as test fixtures"
+regexes = [
+  '''sk-proj-THISISASECRETVALUE123''',
+  # Telegram's documented example token and mock-only bot tokens in setup tests.
+  '''[0-9]{9,10}:AAHdqTcvCH1vGWJxfSeofSAs0K5PAL(Dsaw[0-9])?''',
+  '''7222222222:AAGmock(mock)+B2''',
+  '''7999999999:AAOperator(Operator)+01''',
+  '''123456789:A{35}''',
+]

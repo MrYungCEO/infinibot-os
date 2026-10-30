@@ -1,0 +1,53 @@
+.git
+.worktrees
+.bun-cache
+.bun
+.tmp
+**/.tmp
+.DS_Store
+**/.DS_Store
+*.png
+*.jpg
+*.jpeg
+*.webp
+*.gif
+*.mp4
+*.mov
+*.wav
+*.mp3
+node_modules
+**/node_modules
+.pnpm-store
+**/.pnpm-store
+.turbo
+**/.turbo
+.cache
+**/.cache
+.next
+**/.next
+coverage
+**/coverage
+*.log
+tmp
+**/tmp
+
+# local runtime data (never bake into an image)
+state/
+
+# build artifacts
+dist
+**/dist
+apps/macos/.build
+apps/ios/build
+**/*.trace
+
+# native app trees not needed for the gateway image. apps/desktop stays: it is
+# a pnpm workspace project, so --frozen-lockfile needs its package.json.
+apps/ios/
+apps/android/
+apps/macos/
+Peekaboo/
+Swabble/
+Core/
+Users/
+vendor/

@@ -1,0 +1,55 @@
+{
+  "id": "ebook-mono",
+  "category": "ebook",
+  "name": "Ebook · Mono",
+  "width": 1240,
+  "height": 1754,
+  "background": "#f5f5fa",
+  "createdAt": "2026-06-09",
+  "scene": {
+    "elements": [
+      {
+        "id": "ebook-mono-bg-accent",
+        "type": "rectangle",
+        "x": 0,
+        "y": 1368.1200000000001,
+        "width": 1240,
+        "height": 105.24,
+        "backgroundColor": "#a855f7",
+        "fillStyle": "solid",
+        "strokeColor": "transparent",
+        "strokeWidth": 0,
+        "roughness": 0
+      },
+      {
+        "id": "ebook-mono-title",
+        "type": "text",
+        "x": 124,
+        "y": 613.9,
+        "width": 992,
+        "height": 96,
+        "text": "Ebook title",
+        "fontSize": 64,
+        "fontFamily": 1,
+        "textAlign": "center",
+        "strokeColor": "#1a1a2e"
+      },
+      {
+        "id": "ebook-mono-subtitle",
+        "type": "text",
+        "x": 124,
+        "y": 841.92,
+        "width": 992,
+        "height": 48,
+        "text": "Mono · 1240×1754",
+        "fontSize": 28,
+        "fontFamily": 2,
+        "textAlign": "center",
+        "strokeColor": "#1a1a2e",
+        "opacity": 70
+      }
+    ],
+    "appState": {},
+    "files": {}
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "name": "@infinibot/monsoon-studio",
+  "version": "2026.11.1",
+  "type": "module",
+  "private": true,
+  "description": "Monsoon Digital Product Studio inside InfiniBot: the studio editor page plus 26 agent tools proxied to the local studio server.",
+  "license": "FSL-1.1-ALv2",
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

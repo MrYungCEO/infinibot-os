@@ -1,0 +1,12 @@
+{
+  "name": "@infinibot/robovoice",
+  "version": "2026.11.1",
+  "type": "module",
+  "description": "Robovoice voice provider for InfiniBot",
+  "license": "FSL-1.1-ALv2",
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

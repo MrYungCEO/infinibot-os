@@ -1,0 +1,53 @@
+name: Install Smoke
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  install-smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout CLI
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm (corepack retry)
+        run: |
+          set -euo pipefail
+          corepack enable
+          for attempt in 1 2 3; do
+            if corepack prepare pnpm@10.23.0 --activate; then
+              pnpm -v
+              exit 0
+            fi
+            echo "corepack prepare failed (attempt $attempt/3). Retrying..."
+            sleep $((attempt * 10))
+          done
+          exit 1
+
+      - name: Install pnpm deps (minimal)
+        run: pnpm install --ignore-scripts --frozen-lockfile
+
+      - name: Installer copies are in sync
+        run: node scripts/sync-install-scripts.mjs --check
+
+      # Test the installer from this commit, served the way infinibotos.com
+      # serves it (docs/ is the Netlify publish dir), not whatever is live.
+      - name: Serve docs/ on the docker bridge
+        run: |
+          set -euo pipefail
+          BRIDGE_IP="$(docker network inspect bridge --format '{{(index .IPAM.Config 0).Gateway}}')"
+          (cd docs && nohup python3 -m http.server 18080 --bind "$BRIDGE_IP" >/tmp/install-static.log 2>&1 &)
+          sleep 1
+          curl -fsS "http://$BRIDGE_IP:18080/install.sh" | head -n 3
+          echo "INFINIBOT_INSTALL_URL=http://$BRIDGE_IP:18080/install.sh" >> "$GITHUB_ENV"
+
+      - name: Run installer docker tests
+        env:
+          INFINIBOT_NO_ONBOARD: "1"
+          INFINIBOT_INSTALL_SMOKE_SKIP_CLI: "1"
+          INFINIBOT_INSTALL_SMOKE_SKIP_NONROOT: ${{ github.event_name == 'pull_request' && '1' || '0' }}
+          INFINIBOT_INSTALL_SMOKE_SKIP_PREVIOUS: "1"
+        run: pnpm test:install:smoke

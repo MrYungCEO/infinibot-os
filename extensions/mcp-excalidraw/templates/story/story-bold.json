@@ -1,0 +1,55 @@
+{
+  "id": "story-bold",
+  "category": "story",
+  "name": "Story · Bold",
+  "width": 1080,
+  "height": 1920,
+  "background": "#0b0b14",
+  "createdAt": "2026-06-09",
+  "scene": {
+    "elements": [
+      {
+        "id": "story-bold-bg-accent",
+        "type": "rectangle",
+        "x": 0,
+        "y": 1497.6000000000001,
+        "width": 1080,
+        "height": 115.19999999999999,
+        "backgroundColor": "#22d3ee",
+        "fillStyle": "solid",
+        "strokeColor": "transparent",
+        "strokeWidth": 0,
+        "roughness": 0
+      },
+      {
+        "id": "story-bold-title",
+        "type": "text",
+        "x": 108,
+        "y": 672,
+        "width": 864,
+        "height": 96,
+        "text": "Story title",
+        "fontSize": 64,
+        "fontFamily": 1,
+        "textAlign": "center",
+        "strokeColor": "#ffffff"
+      },
+      {
+        "id": "story-bold-subtitle",
+        "type": "text",
+        "x": 108,
+        "y": 921.5999999999999,
+        "width": 864,
+        "height": 48,
+        "text": "Bold · 1080×1920",
+        "fontSize": 28,
+        "fontFamily": 2,
+        "textAlign": "center",
+        "strokeColor": "#ffffff",
+        "opacity": 70
+      }
+    ],
+    "appState": {},
+    "files": {}
+  }
+}

@@ -1,0 +1,55 @@
+{
+ "steps": [
+  {
+   "name": "another device starts a run in a different chat → that row shows a live \"replying\" marker",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "the run finished on the gateway",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "the finished chat is marked unread on mobile (it was not the open chat)",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "header menu button carries an unread badge",
+   "ok": true,
+   "detail": "children=2"
+  },
+  {
+   "name": "opening the chat clears its unread mark",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "tool calls render as tool cards",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "show_panel result renders as a native panel card",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "throwaway session deleted",
+   "ok": true,
+   "detail": ""
+  }
+ ],
+ "shots": [
+  "/tmp/mobile-ui/shots-unread/01-drawer-streaming.png",
+  "/tmp/mobile-ui/shots-unread/02-drawer-unread.png",
+  "/tmp/mobile-ui/shots-unread/03-header-unread-badge.png",
+  "/tmp/mobile-ui/shots-unread/04-transcript-tool-and-panel.png",
+  "/tmp/mobile-ui/shots-unread/05-tool-card-expanded.png"
+ ],
+ "panelText": "\nPush notifications are off — tap to enable in Settings\n\n\nmobile-sync-test-2: automated check. Call the show_panel…\nINFINI\n\n\n\nmobile-sync-test-2: automated check. Call the show_panel tool once to show the agent mesh, then reply with exactly PANEL-DONE.\nINFINI\nollama-cloud/gpt-oss:120b\n\nAgent Mesh\n1 sub-agent running · 28 roster agents · Mobile UI + chat sync with web\n\nOpen full map\n\nPANEL-DONE\n\n\n\n\n󱒇\n\n\n\n\n\n",
+ "sessionKey": "agent:main:webchat-mup4w8bu",
+ "failedRpc": [],
+ "pageErrors": []
+}

@@ -1,0 +1,23 @@
+{
+  "id": "google-gemini-cli-auth",
+  "name": "Gemini CLI sign-in",
+  "listing": {
+    "tagline": "Reuse your Gemini CLI OAuth login as a model provider.",
+    "category": "integrations",
+    "tags": [
+      "models",
+      "oauth"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "providers": [
+    "google-gemini-cli"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

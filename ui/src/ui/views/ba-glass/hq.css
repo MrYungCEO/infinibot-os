@@ -1,0 +1,632 @@
+/* ============================================================
+ * Business HQ (/business-hq, /dashboard) + Executive (/ceo) and
+ * Operations (/ops) command centers — glass skin.
+ *
+ * These pages render on the shared KIS primitives (kis-shared.ts /
+ * command-center-shared.ts), which are also used by the decision / risk /
+ * person / commitment pages, so nothing here touches those files: every rule
+ * is scoped under `.ba-glass.kis` (the page roots are `kis bhq ba-glass` and
+ * `kis cc ba-glass`) and out-ranks the inline <style> blocks by specificity.
+ *
+ * The KIS colour tokens (--gold, --fg, --surface, --rule …) are re-pointed at
+ * the --bag-* layer, so light theme, reduced transparency and perf mode follow
+ * the global glass tokens automatically.
+ * ============================================================ */
+
+/* ── Root + token bridge ──────────────────────────────────────── */
+.ba-glass.ba-glass.kis {
+  --gold: var(--bag-gold);
+  --danger: var(--bag-bad);
+  --warn: var(--bag-warn);
+  --ok: var(--bag-ok);
+  --info: var(--bag-info);
+  --fg: var(--bag-text);
+  --fg-dim: var(--bag-text-2);
+  --fg-muted: var(--bag-text-3);
+  --surface: color-mix(in srgb, var(--bag-text) 3%, transparent);
+  --surface-2: color-mix(in srgb, var(--bag-text) 5%, transparent);
+  --surface-3: color-mix(in srgb, var(--bag-text) 8%, transparent);
+  --rule: var(--bag-line);
+  --rule-strong: var(--bag-line-strong);
+  --radius: var(--bag-radius);
+  --radius-sm: 11px;
+
+  gap: 18px;
+  padding: 26px clamp(16px, 2.6vw, 34px) 72px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--bag-text);
+}
+/* Centre the column like the hub (max 1480px). The aurora stays full-bleed. */
+.ba-glass.kis > :not(.ba-aurora, style) {
+  width: 100%;
+  max-width: 1480px;
+  margin-inline: auto;
+}
+
+/* ── Hero ─────────────────────────────────────────────────────── */
+.ba-glass.kis :is(.bhq-header, .cc-header) {
+  align-items: flex-end;
+  padding: 4px 0 6px;
+  border-bottom: 0;
+  gap: 16px;
+}
+.ba-glass.kis :is(.bhq-eyebrow, .cc-eyebrow) {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  color: var(--bag-gold);
+  opacity: 1;
+  margin-bottom: 6px;
+}
+.ba-glass.kis :is(.bhq-h1, .cc-h1) {
+  font-family: var(--bag-font-display);
+  font-size: clamp(26px, 2.7vw, 36px);
+  font-weight: 650;
+  letter-spacing: -0.025em;
+  line-height: 1.1;
+  background: none;
+  color: var(--bag-text);
+  -webkit-text-fill-color: currentColor;
+}
+.ba-glass.kis :is(.bhq-h1, .cc-h1) .bag-gold-text {
+  -webkit-text-fill-color: transparent;
+}
+.ba-glass.kis :is(.bhq-lede, .cc-lede) {
+  margin-top: 8px;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--bag-text-2);
+  max-width: 720px;
+}
+.ba-glass.kis :is(.bhq-header-side, .cc-header-side) { gap: 10px; }
+.ba-glass.kis :is(.bhq-updated, .cc-updated) { font-size: 12px; color: var(--bag-text-3); }
+.ba-glass.kis .bhq-updated.is-refreshing { color: var(--bag-gold); }
+
+/* ── Buttons (KIS buttons → hub .btn) ─────────────────────────── */
+.ba-glass.kis .kis-btn {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 11px;
+  font: 560 13px/1 var(--bag-font);
+  letter-spacing: 0;
+  transition: transform 0.15s var(--bag-ease), background 0.2s, border-color 0.2s, box-shadow 0.2s, filter 0.2s;
+}
+.ba-glass.kis .kis-btn--ghost {
+  background: color-mix(in srgb, var(--bag-card) 80%, transparent);
+  border-color: var(--bag-line-strong);
+  color: var(--bag-text);
+}
+.ba-glass.kis .kis-btn--ghost:hover:not(:disabled) { border-color: var(--bag-gold); background: var(--bag-hover); color: var(--bag-text); }
+.ba-glass.kis .kis-btn:active:not(:disabled) { transform: translateY(1px) scale(0.99); }
+.ba-glass.kis .kis-btn:focus-visible { outline: none; box-shadow: var(--bag-focus); }
+.ba-glass.kis .kis-btn--primary {
+  color: var(--bag-ink);
+  background: var(--bag-gold-fill);
+  font-weight: 600;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.45) inset, 0 10px 24px -12px color-mix(in srgb, var(--bag-gold) 80%, transparent);
+}
+.ba-glass.kis .kis-btn .kis-icon { width: 14px; height: 14px; }
+
+/* ── Banners ──────────────────────────────────────────────────── */
+.ba-glass.kis :is(.kis-loadbanner, .bhq-banner, .cc-banner, .kis-errbanner) {
+  padding: 11px 14px;
+  border-radius: 14px;
+  font-size: 13px;
+  border: 1px solid var(--bag-line);
+  background: var(--bag-card);
+  color: var(--bag-text-2);
+}
+.ba-glass.kis :is(.bhq-banner--err, .cc-banner--err, .kis-errbanner) {
+  color: var(--bag-bad);
+  border-color: color-mix(in srgb, var(--bag-bad) 40%, transparent);
+  background: color-mix(in srgb, var(--bag-bad) 8%, var(--bag-card));
+}
+.ba-glass.kis .kis-loadbanner--slow {
+  color: var(--bag-warn);
+  border-color: color-mix(in srgb, var(--bag-warn) 36%, transparent);
+  background: color-mix(in srgb, var(--bag-warn) 7%, var(--bag-card));
+}
+
+/* ── Band labels (Operating Picture / TODAY / THIS WEEK …) ───── */
+.ba-glass.kis :is(.bhq-band, .cc-band-label) {
+  gap: 12px;
+  /* auto inline margins keep bands on the centred 1480px column */
+  margin: 12px auto 0;
+  align-items: baseline;
+}
+.ba-glass.kis :is(.bhq-band-name, .cc-band-name) {
+  font-size: 17px;
+  font-weight: 640;
+  letter-spacing: -0.015em;
+  text-transform: none;
+  color: var(--bag-text);
+}
+.ba-glass.kis .cc-band-label :is(.cc-band-name)::before {
+  content: "";
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  margin: 0 9px 2px 0;
+  border-radius: 50%;
+  vertical-align: middle;
+  background: var(--bag-gold);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--bag-gold) 16%, transparent);
+}
+.ba-glass.kis .cc-band-label--danger .cc-band-name::before { background: var(--bag-bad); box-shadow: 0 0 0 3px color-mix(in srgb, var(--bag-bad) 16%, transparent); }
+.ba-glass.kis .cc-band-label--info .cc-band-name::before { background: var(--bag-info); box-shadow: 0 0 0 3px color-mix(in srgb, var(--bag-info) 16%, transparent); }
+.ba-glass.kis :is(.bhq-band-note, .cc-band-note) { font-size: 13px; color: var(--bag-text-3); white-space: normal; }
+.ba-glass.kis :is(.bhq-band-rule, .cc-band-rule) {
+  align-self: center;
+  background: linear-gradient(90deg, var(--bag-line-strong), transparent);
+}
+
+/* ── Glass panels (section cards) ─────────────────────────────── */
+.ba-glass.kis :is(.bhq-card, .cc-panel, .bhq-progress) {
+  position: relative;
+  overflow: visible;
+  border: 0;
+  border-radius: var(--bag-radius);
+  background: var(--glass-sheen, none), var(--bag-panel);
+  backdrop-filter: var(--bag-blur);
+  -webkit-backdrop-filter: var(--bag-blur);
+  box-shadow: var(--bag-shadow);
+}
+.ba-glass.kis :is(.bhq-card, .cc-panel, .bhq-progress)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: var(--bag-hairline);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.ba-glass.kis :is(.bhq-card--accent, .cc-panel--accent) {
+  box-shadow: var(--bag-shadow), 0 0 0 1px color-mix(in srgb, var(--bag-gold) 22%, transparent), 0 24px 60px -30px color-mix(in srgb, var(--bag-gold) 45%, transparent);
+}
+.ba-glass.kis :is(.bhq-card-head, .cc-panel-head) {
+  padding: 16px 18px 8px;
+  border-bottom: 0;
+  background: none;
+  gap: 12px;
+}
+.ba-glass.kis :is(.bhq-card-headmain, .cc-panel-headmain) { gap: 12px; }
+.ba-glass.kis :is(.bhq-card-icon, .cc-panel-icon) {
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  opacity: 1;
+  color: var(--bag-gold);
+  background: color-mix(in srgb, var(--bag-gold) 11%, transparent);
+  box-shadow: inset 0 0 0 1px var(--bag-line-strong);
+}
+.ba-glass.kis :is(.bhq-card-icon, .cc-panel-icon) .kis-icon { width: 15px; height: 15px; }
+.ba-glass.kis :is(.bhq-card-title, .cc-panel-title) {
+  font-size: 15px;
+  font-weight: 620;
+  letter-spacing: -0.01em;
+  text-transform: none;
+  color: var(--bag-text);
+}
+.ba-glass.kis :is(.bhq-card--accent .bhq-card-title, .cc-panel--accent .cc-panel-title) { color: var(--bag-text); }
+.ba-glass.kis :is(.bhq-card-sub, .cc-panel-sub) {
+  margin-top: 2px;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--bag-text-3);
+}
+.ba-glass.kis :is(.bhq-card-body, .cc-panel-body) {
+  padding: 8px 18px 18px;
+  gap: 14px;
+}
+/* Count pill → hub chip */
+.ba-glass.kis :is(.bhq-count, .cc-panel-count) {
+  min-width: 28px;
+  padding: 3px 9px;
+  font-size: 12px;
+  font-weight: 620;
+  border-radius: 999px;
+  color: var(--bag-text-2);
+  background: color-mix(in srgb, var(--bag-gold) 5%, transparent);
+  box-shadow: inset 0 0 0 1px var(--bag-line);
+}
+.ba-glass.kis :is(.bhq-count--gold, .cc-panel-count--gold) { color: var(--bag-gold); box-shadow: inset 0 0 0 1px var(--bag-line-strong); }
+.ba-glass.kis :is(.bhq-count--danger, .cc-panel-count--danger) { color: var(--bag-bad); background: color-mix(in srgb, var(--bag-bad) 9%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bag-bad) 35%, transparent); }
+.ba-glass.kis :is(.bhq-count--warn, .cc-panel-count--warn) { color: var(--bag-warn); background: color-mix(in srgb, var(--bag-warn) 9%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bag-warn) 35%, transparent); }
+.ba-glass.kis :is(.bhq-count--ok, .cc-panel-count--ok) { color: var(--bag-ok); background: color-mix(in srgb, var(--bag-ok) 8%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bag-ok) 32%, transparent); }
+
+/* Grids */
+.ba-glass.kis :is(.bhq-grid, .cc-grid) { column-gap: 16px; }
+.ba-glass.kis :is(.bhq-grid, .cc-grid) > * { margin-bottom: 16px; }
+.ba-glass.kis :is(.bhq-grid, .cc-grid) > *:last-child { margin-bottom: 0; }
+.ba-glass.kis .cc-grid-2 { gap: 16px; }
+
+/* ── KPI tiles (hub .kpi) — no neon stripe; a status dot instead ── */
+.ba-glass.kis :is(.bhq-kpis, .cc-metrics) {
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 14px;
+}
+@media (min-width: 1100px) {
+  .ba-glass.kis :is(.bhq-kpis, .cc-metrics) { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+}
+.ba-glass.kis .kis-stat {
+  position: relative;
+  min-height: 112px;
+  gap: 6px;
+  padding: 16px 18px 14px;
+  border: 0;
+  border-radius: var(--bag-radius);
+  overflow: hidden;
+  font-family: var(--bag-font);
+  color: var(--bag-text);
+  background: var(--glass-sheen, none), var(--bag-panel);
+  backdrop-filter: var(--bag-blur);
+  -webkit-backdrop-filter: var(--bag-blur);
+  box-shadow: var(--bag-shadow);
+  transition: transform 0.35s var(--bag-ease), box-shadow 0.35s var(--bag-ease);
+}
+.ba-glass.kis .kis-stat::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  width: auto;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: var(--bag-hairline);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+/* status dot (top-right) */
+.ba-glass.kis .kis-stat::after {
+  content: "";
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  --dot: var(--bag-gold);
+  background: var(--dot);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--dot) 16%, transparent);
+}
+.ba-glass.kis .kis-stat--danger::after { --dot: var(--bag-bad); }
+.ba-glass.kis .kis-stat--warn::after { --dot: var(--bag-warn); }
+.ba-glass.kis .kis-stat--ok::after { --dot: var(--bag-ok); }
+.ba-glass.kis .kis-stat--info::after { --dot: var(--bag-info); }
+.ba-glass.kis .kis-stat--muted::after { --dot: var(--bag-text-4); box-shadow: none; }
+.ba-glass.kis .kis-stat-top { gap: 7px; padding-right: 16px; }
+.ba-glass.kis .kis-stat-icon { color: var(--bag-gold); opacity: 0.9; }
+.ba-glass.kis .kis-stat-icon .kis-icon { width: 14px; height: 14px; }
+.ba-glass.kis .kis-stat-label {
+  font-size: 12.5px;
+  font-weight: 560;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--bag-text-2);
+}
+.ba-glass.kis .kis-stat-value {
+  font-family: var(--bag-font-display);
+  font-size: clamp(24px, 2.1vw, 30px);
+  font-weight: 660;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+  color: var(--bag-text);
+}
+.ba-glass.kis .kis-stat--danger .kis-stat-value { color: var(--bag-bad); }
+.ba-glass.kis .kis-stat--warn .kis-stat-value { color: var(--bag-warn); }
+.ba-glass.kis :is(.kis-stat--ok, .kis-stat--gold, .kis-stat--muted, .kis-stat--info) .kis-stat-value { color: var(--bag-text); }
+.ba-glass.kis .kis-stat-sub { margin-top: auto; font-size: 12px; line-height: 1.35; color: var(--bag-text-3); }
+.ba-glass.kis .kis-stat--btn { cursor: pointer; text-align: left; }
+.ba-glass.kis .kis-stat--btn:hover { transform: translateY(-2px); box-shadow: var(--bag-shadow-lift); background: var(--glass-sheen, none), var(--bag-panel); }
+.ba-glass.kis .kis-stat--btn:active { transform: translateY(0) scale(0.99); }
+.ba-glass.kis .kis-stat--btn:focus-visible { outline: none; box-shadow: var(--bag-shadow), var(--bag-focus); }
+
+/* ── Chips (hub .chip) ────────────────────────────────────────── */
+.ba-glass .kis-chip {
+  gap: 5px;
+  padding: 3px 9px;
+  font-size: 11.5px;
+  font-weight: 560;
+  line-height: 1.35;
+  letter-spacing: 0;
+  border-radius: 999px;
+  color: var(--bag-text-2);
+  border-color: var(--bag-line);
+  background: color-mix(in srgb, var(--bag-gold) 5%, transparent);
+}
+.ba-glass .kis-chip--prio { font-weight: 620; letter-spacing: 0.02em; }
+.ba-glass .kis-chip--gold { color: var(--bag-gold); border-color: var(--bag-line-strong); background: color-mix(in srgb, var(--bag-gold) 9%, transparent); }
+.ba-glass .kis-chip--danger { color: var(--bag-bad); border-color: color-mix(in srgb, var(--bag-bad) 35%, transparent); background: color-mix(in srgb, var(--bag-bad) 8%, transparent); }
+.ba-glass .kis-chip--warn { color: var(--bag-warn); border-color: color-mix(in srgb, var(--bag-warn) 35%, transparent); background: color-mix(in srgb, var(--bag-warn) 8%, transparent); }
+.ba-glass .kis-chip--ok { color: var(--bag-ok); border-color: color-mix(in srgb, var(--bag-ok) 35%, transparent); background: color-mix(in srgb, var(--bag-ok) 8%, transparent); }
+.ba-glass .kis-chip--info { color: var(--bag-info); border-color: color-mix(in srgb, var(--bag-info) 35%, transparent); background: color-mix(in srgb, var(--bag-info) 8%, transparent); }
+.ba-glass .kis-chip--muted { color: var(--bag-text-2); border-color: var(--bag-line); background: color-mix(in srgb, var(--bag-text) 4%, transparent); }
+
+/* ── Glass list rows ──────────────────────────────────────────── */
+.ba-glass.kis :is(.bhq-row, .cc-row) {
+  gap: 10px;
+  padding: 9px 10px;
+  border-radius: 12px;
+  transition: background 0.15s, transform 0.15s var(--bag-ease);
+}
+.ba-glass.kis .bhq-row--btn { min-height: 46px; }
+.ba-glass.kis :is(.bhq-row, .cc-row):hover { background: var(--bag-hover); }
+.ba-glass.kis .bhq-row--btn:active { transform: scale(0.995); }
+.ba-glass.kis :is(.bhq-row--btn + .bhq-row--btn, .cc-row-wrap + .cc-row-wrap) {
+  box-shadow: 0 -1px 0 color-mix(in srgb, var(--bag-line) 70%, transparent);
+}
+.ba-glass.kis :is(.bhq-row-dot, .cc-row-dot) { width: 7px; height: 7px; box-shadow: none; background: var(--bag-text-4); }
+.ba-glass.kis :is(.bhq-row-dot--in_progress, .cc-row-dot--gold) { background: var(--bag-gold); box-shadow: 0 0 0 3px color-mix(in srgb, var(--bag-gold) 15%, transparent); }
+.ba-glass.kis :is(.bhq-row-dot--todo, .cc-row-dot--info) { background: var(--bag-info); }
+.ba-glass.kis .bhq-row-dot--review { background: #b48cf0; }
+.ba-glass.kis :is(.bhq-row-dot--done, .cc-row-dot--ok) { background: var(--bag-ok); }
+.ba-glass.kis .cc-row-dot--danger { background: var(--bag-bad); }
+.ba-glass.kis .cc-row-dot--warn { background: var(--bag-warn); }
+.ba-glass.kis :is(.bhq-row-title, .cc-row-title) { font-size: 13.5px; font-weight: 560; color: var(--bag-text); letter-spacing: -0.005em; }
+.ba-glass.kis :is(.bhq-row-sub, .cc-row-sub) { font-size: 12px; color: var(--bag-text-3); margin-top: 1px; }
+.ba-glass.kis :is(.bhq-row-flags, .cc-row-flags) { gap: 6px; }
+.ba-glass.kis .bhq-row-go { font-size: 16px; color: var(--bag-text-3); }
+.ba-glass.kis .bhq-row--btn:hover .bhq-row-go { color: var(--bag-gold); }
+.ba-glass.kis .bhq-row--btn:focus-visible { outline: none; box-shadow: var(--bag-focus); }
+
+/* Sub-groups / blocks inside a panel */
+.ba-glass.kis :is(.bhq-group, .cc-block, .bhq-gov-col) { gap: 6px; }
+.ba-glass.kis :is(.bhq-group-label, .cc-block-head, .bhq-gov-h) { gap: 8px; min-height: 30px; }
+.ba-glass.kis :is(.bhq-group-n, .cc-block-n) { font-size: 12.5px; font-weight: 620; color: var(--bag-text-3); }
+.ba-glass.kis .cc-block-n--danger { color: var(--bag-bad); }
+.ba-glass.kis .cc-block-n--warn { color: var(--bag-warn); }
+.ba-glass.kis .cc-block-n--gold { color: var(--bag-gold); }
+.ba-glass.kis .cc-block-n--ok { color: var(--bag-ok); }
+.ba-glass.kis .cc-more { font-size: 12px; color: var(--bag-text-3); padding: 4px 10px; }
+/* A cleared block: one calm recessed line */
+.ba-glass.kis .cc-block--clear {
+  opacity: 1;
+  padding: 10px 12px;
+  border-radius: 12px;
+  background: var(--bag-well);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bag-line) 70%, transparent);
+}
+.ba-glass.kis .cc-block--clear .cc-block-head { min-height: 0; flex-wrap: wrap; row-gap: 2px; }
+.ba-glass.kis .cc-block-label {
+  font-size: 13px;
+  font-weight: 560;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--bag-text-2);
+}
+.ba-glass.kis .cc-block-clearmsg { font-size: 12px; color: var(--bag-ok); opacity: 1; white-space: normal; gap: 6px; }
+.ba-glass.kis .cc-hubbtn { align-self: flex-start; min-height: 32px; font-size: 12.5px; }
+
+/* ── View-all / more / delegate controls (hub .btn.sm) ────────── */
+.ba-glass.kis .bhq-viewall {
+  min-height: 30px;
+  padding: 0 11px;
+  border-radius: 9px;
+  font: 560 12px/1 var(--bag-font);
+  letter-spacing: 0;
+  color: var(--bag-text);
+  border: 1px solid var(--bag-line-strong);
+  background: color-mix(in srgb, var(--bag-card) 80%, transparent);
+  transition: border-color 0.2s, background 0.2s, transform 0.15s var(--bag-ease);
+}
+.ba-glass.kis .bhq-viewall:hover { border-color: var(--bag-gold); background: var(--bag-hover); }
+.ba-glass.kis .bhq-viewall:active { transform: scale(0.98); }
+.ba-glass.kis .bhq-viewall--sm { min-height: 28px; border-color: transparent; background: transparent; color: var(--bag-gold); }
+.ba-glass.kis .bhq-viewall--sm:hover { background: var(--bag-hover); border-color: transparent; }
+.ba-glass.kis button.bhq-more { font-size: 12.5px; font-weight: 560; color: var(--bag-gold); padding: 4px 10px; min-height: 32px; border-radius: 9px; }
+.ba-glass.kis button.bhq-more:hover { background: var(--bag-hover); }
+.ba-glass.kis :is(.bhq-viewall, .bhq-more, .bhq-delegate, .bhq-nba-main, .bhq-nba-go, .bhq-focus, .bhq-prog-today):focus-visible { outline: none; box-shadow: var(--bag-focus); }
+.ba-glass.kis .bhq-muted { font-size: 12.5px; color: var(--bag-text-3); }
+
+/* ── Empty states (guiding: glyph + title + next step + CTA) ──── */
+.ba-glass.kis .kis-empty {
+  gap: 6px;
+  padding: 26px 18px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--bag-well);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bag-line) 70%, transparent);
+}
+.ba-glass.kis .kis-empty--compact { padding: 22px 16px; }
+.ba-glass.kis .kis-empty-icon {
+  width: 46px;
+  height: 46px;
+  margin-bottom: 4px;
+  border-radius: 15px;
+  display: grid;
+  place-items: center;
+  opacity: 1;
+  color: var(--bag-gold);
+  background: radial-gradient(circle at 30% 25%, color-mix(in srgb, var(--bag-gold) 28%, transparent), transparent 70%), color-mix(in srgb, var(--bag-gold) 8%, transparent);
+  box-shadow: inset 0 0 0 1px var(--bag-line-strong);
+}
+.ba-glass.kis .kis-empty-icon .kis-icon { width: 20px; height: 20px; }
+.ba-glass.kis :is(.kis-empty-title, .kis-empty--compact .kis-empty-title) {
+  font-size: 14.5px;
+  font-weight: 620;
+  letter-spacing: -0.01em;
+  color: var(--bag-text);
+}
+.ba-glass.kis .kis-empty-hint { font-size: 12.5px; line-height: 1.5; color: var(--bag-text-2); max-width: 44ch; }
+.ba-glass.kis .kis-empty-action {
+  margin-top: 8px;
+  color: var(--bag-ink);
+  border-color: transparent;
+  background: var(--bag-gold-fill);
+  font-weight: 600;
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.45) inset, 0 10px 24px -12px color-mix(in srgb, var(--bag-gold) 80%, transparent);
+}
+.ba-glass.kis .kis-empty-action:hover:not(:disabled) { color: var(--bag-ink); border-color: transparent; background: var(--bag-gold-fill); filter: brightness(1.06); }
+/* Command-center empties carry no CTA: keep them quiet */
+.ba-glass.kis.cc .kis-empty--compact { padding: 16px; }
+.ba-glass.kis.cc .kis-empty--compact .kis-empty-title { font-size: 13px; font-weight: 520; color: var(--bag-text-2); }
+
+/* ── Today's focus (HQ) ───────────────────────────────────────── */
+.ba-glass.kis .bhq-nba { gap: 8px; }
+.ba-glass.kis .bhq-nba-item {
+  gap: 12px;
+  padding: 8px 8px 8px 12px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--bag-card);
+  box-shadow: inset 0 0 0 1px var(--bag-line);
+  transition: box-shadow 0.2s, transform 0.2s var(--bag-ease);
+}
+.ba-glass.kis .bhq-nba-item:first-child {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--bag-gold) 10%, transparent), transparent 70%), var(--bag-card);
+  box-shadow: inset 0 0 0 1px var(--bag-line-strong);
+}
+.ba-glass.kis .bhq-nba-item:hover { box-shadow: inset 0 0 0 1px var(--bag-gold); }
+.ba-glass.kis .bhq-nba-rank {
+  width: 28px;
+  height: 28px;
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--bag-gold);
+  border: 0;
+  background: color-mix(in srgb, var(--bag-gold) 11%, transparent);
+  box-shadow: inset 0 0 0 1px var(--bag-line-strong);
+}
+.ba-glass.kis .bhq-nba-title { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+.ba-glass.kis .bhq-nba-why { font-size: 12.5px; color: var(--bag-text-2); }
+.ba-glass.kis .bhq-nba-kind { font-size: 10.5px; font-weight: 620; letter-spacing: 0.1em; color: var(--bag-gold); }
+.ba-glass.kis .bhq-nba-go {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 11px;
+  border: 0;
+  font: 600 13px/1 var(--bag-font);
+  color: var(--bag-ink);
+  background: var(--bag-gold-fill);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.45) inset, 0 10px 24px -12px color-mix(in srgb, var(--bag-gold) 80%, transparent);
+  transition: transform 0.15s var(--bag-ease), filter 0.2s;
+}
+.ba-glass.kis .bhq-nba-go:hover:not([disabled]) { background: var(--bag-gold-fill); filter: brightness(1.06); }
+.ba-glass.kis .bhq-nba-go:active:not([disabled]) { transform: translateY(1px) scale(0.98); }
+.ba-glass.kis .bhq-today-foot { gap: 12px; padding-top: 12px; border-top: 1px solid var(--bag-line); }
+.ba-glass.kis .bhq-delegate {
+  min-height: 36px;
+  padding: 0 14px;
+  border-radius: 11px;
+  font: 560 13px/1 var(--bag-font);
+  color: var(--bag-text);
+  border: 1px solid var(--bag-line-strong);
+  background: color-mix(in srgb, var(--bag-card) 80%, transparent);
+  transition: border-color 0.2s, background 0.2s;
+}
+.ba-glass.kis .bhq-delegate:hover { border-color: var(--bag-gold); background: var(--bag-hover); }
+.ba-glass.kis .bhq-delegate-n { color: var(--bag-gold); font-weight: 650; }
+.ba-glass.kis .bhq-clear { gap: 14px; font-size: 13.5px; color: var(--bag-text-2); padding: 6px 0 4px; }
+.ba-glass.kis .bhq-clear strong { color: var(--bag-text); font-weight: 620; }
+.ba-glass.kis .bhq-clear-mark {
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  border: 0;
+  color: var(--bag-ok);
+  background: color-mix(in srgb, var(--bag-ok) 11%, transparent);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--bag-ok) 35%, transparent);
+}
+
+/* Focus cards (Needs you) */
+.ba-glass.kis .bhq-focus-list { gap: 12px; }
+.ba-glass.kis .bhq-focus {
+  gap: 8px;
+  padding: 14px 16px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--bag-card);
+  box-shadow: inset 0 0 0 1px var(--bag-line);
+  transition: transform 0.25s var(--bag-ease), box-shadow 0.25s;
+}
+.ba-glass.kis .bhq-focus:hover { transform: translateY(-2px); background: var(--bag-card); box-shadow: inset 0 0 0 1px var(--bag-line-strong), var(--glass-elev-1); }
+.ba-glass.kis .bhq-focus-title { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; color: var(--bag-text); }
+.ba-glass.kis .bhq-focus-meta { gap: 6px; }
+.ba-glass.kis .bhq-focus-proj { font-size: 12px; color: var(--bag-text-3); }
+
+/* Governance stacked groups */
+.ba-glass.kis .bhq-gov { gap: 18px; }
+
+/* ── Progress strip (HQ) ──────────────────────────────────────── */
+.ba-glass.kis .bhq-progress { padding: 14px 18px; gap: 20px; }
+.ba-glass.kis .bhq-progress--off { color: var(--bag-text-2); font-size: 13px; }
+.ba-glass.kis .bhq-progress--off code { color: var(--bag-gold); font-size: 12px; }
+.ba-glass.kis .bhq-prog-today { gap: 14px; border-radius: 12px; padding: 4px 8px 4px 4px; transition: background 0.2s; }
+.ba-glass.kis .bhq-prog-today:hover { background: var(--bag-hover); }
+.ba-glass.kis .bhq-prog-text strong { font-size: 14.5px; font-weight: 620; letter-spacing: -0.01em; }
+.ba-glass.kis .bhq-ring-track { stroke: color-mix(in srgb, var(--bag-text) 9%, transparent); }
+.ba-glass.kis .bhq-ring-fill { stroke: var(--bag-gold); }
+.ba-glass.kis .bhq-ring-num { font-size: 14px; font-weight: 650; }
+.ba-glass.kis .bhq-ring-num small { font-size: 10px; font-weight: 560; color: var(--bag-text-3); }
+.ba-glass.kis .bhq-prog-val { font-family: var(--bag-font-display); font-size: 22px; font-weight: 660; letter-spacing: -0.02em; }
+.ba-glass.kis .bhq-prog-val.is-gold { color: var(--bag-gold); }
+.ba-glass.kis .bhq-prog-lbl { font-size: 12px; color: var(--bag-text-3); }
+.ba-glass.kis .bhq-delta { font-size: 12px; font-weight: 600; padding: 3px 9px; }
+.ba-glass.kis .bhq-delta--good { color: var(--bag-ok); border-color: color-mix(in srgb, var(--bag-ok) 35%, transparent); background: color-mix(in srgb, var(--bag-ok) 9%, transparent); }
+.ba-glass.kis .bhq-delta--bad { color: var(--bag-bad); border-color: color-mix(in srgb, var(--bag-bad) 35%, transparent); background: color-mix(in srgb, var(--bag-bad) 8%, transparent); }
+.ba-glass.kis .bhq-prog-actions { gap: 8px; }
+.ba-glass.kis .bhq-live-dot { background: var(--bag-gold); }
+
+/* ── §17 CEO request cards ────────────────────────────────────── */
+.ba-glass.kis .cc-req-list > * { margin-bottom: 14px; }
+.ba-glass.kis .cc-req {
+  gap: 12px;
+  padding: 18px;
+  border: 0;
+  border-radius: 16px;
+  background: var(--bag-card);
+  box-shadow: inset 0 0 0 1px var(--bag-line-strong);
+}
+.ba-glass.kis .cc-req-title { font-size: 15.5px; font-weight: 620; letter-spacing: -0.01em; }
+.ba-glass.kis .cc-req-grid { gap: 12px 20px; }
+.ba-glass.kis .cc-req-k { font-size: 11px; font-weight: 560; letter-spacing: 0.08em; color: var(--bag-gold); opacity: 1; }
+.ba-glass.kis .cc-req-v { font-size: 13px; line-height: 1.5; color: var(--bag-text-2); }
+.ba-glass.kis .cc-req-v--muted { color: var(--bag-text-3); }
+.ba-glass.kis .cc-req-foot { gap: 8px; padding-top: 12px; border-top: 1px solid var(--bag-line); }
+
+/* Footer */
+.ba-glass.kis :is(.bhq-footer, .cc-footer) { font-size: 12px; color: var(--bag-text-3); opacity: 1; padding-top: 8px; }
+
+/* ── Phones ───────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .ba-glass.ba-glass.kis { padding: 18px 14px 80px; gap: 14px; }
+  .ba-glass.kis :is(.bhq-h1, .cc-h1) { font-size: 27px; }
+  .ba-glass.kis :is(.bhq-lede, .cc-lede) { font-size: 13.5px; }
+  .ba-glass.kis :is(.bhq-header, .cc-header) { align-items: flex-start; }
+  .ba-glass.kis :is(.bhq-header-side, .cc-header-side) { width: 100%; justify-content: space-between; }
+  .ba-glass.kis :is(.bhq-kpis, .cc-metrics) { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+  .ba-glass.kis .kis-stat { min-height: 100px; padding: 13px 14px 12px; }
+  .ba-glass.kis .kis-stat::after { top: 15px; right: 14px; }
+  .ba-glass.kis .kis-stat-value { font-size: 24px; }
+  .ba-glass.kis :is(.bhq-card-head, .cc-panel-head) { padding: 14px 14px 6px; }
+  .ba-glass.kis :is(.bhq-card-body, .cc-panel-body) { padding: 6px 14px 14px; }
+  .ba-glass.kis :is(.bhq-band, .cc-band-label) { flex-wrap: wrap; row-gap: 2px; }
+  .ba-glass.kis :is(.bhq-band-rule, .cc-band-rule) { display: none; }
+  .ba-glass.kis .bhq-progress { padding: 14px; gap: 14px; }
+  .ba-glass.kis .bhq-prog-actions .bhq-viewall { min-height: 38px; }
+  .ba-glass.kis .bhq-nba-go { margin-left: 40px; }
+  .ba-glass.kis .cc-row-flags { flex-wrap: wrap; justify-content: flex-end; max-width: 45%; }
+}
+
+/* ── Degraded modes ───────────────────────────────────────────── */
+@media (prefers-reduced-transparency: reduce) {
+  .ba-glass.kis :is(.bhq-card, .cc-panel, .bhq-progress, .kis-stat) { backdrop-filter: none; -webkit-backdrop-filter: none; background: var(--bag-card); }
+}
+:root.low-power .ba-glass.kis :is(.bhq-card, .cc-panel, .bhq-progress, .kis-stat),
+:root.perf-mode .ba-glass.kis :is(.bhq-card, .cc-panel, .bhq-progress, .kis-stat),
+:root.glass-reduced .ba-glass.kis :is(.bhq-card, .cc-panel, .bhq-progress, .kis-stat) {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .ba-glass.kis :is(.kis-stat, .bhq-focus, .bhq-nba-item, .bhq-row, .cc-row) { transition: none; }
+  .ba-glass.kis :is(.kis-stat--btn, .bhq-focus):hover { transform: none; }
+}
+:root.low-power .ba-glass.kis :is(.kis-stat--btn, .bhq-focus):hover { transform: none; }

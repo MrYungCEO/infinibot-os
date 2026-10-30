@@ -1,0 +1,52 @@
+# InfiniBot
+
+> InfiniBot is an AI operating system: a team of AI agents that answer customers, write and post content, research, organise notes and tasks, and work with the apps you already use. It runs on your own computer (desktop app for Windows and Linux, or the npm package on macOS, Linux and Windows) or in the browser with InfiniBot Cloud. You don't need an API key: on the desktop app, sign in with the Claude, ChatGPT, Google or Grok plan you already have (through the provider's official CLI), use a free local model (Ollama) or a provider's free tier (Google Gemini, Groq), or bring your own key. InfiniBot never marks up AI usage. Source-available under the Functional Source License (FSL-1.1-ALv2): self-hosting is free, including internal company use; each release becomes Apache-2.0 two years after it ships.
+
+## Start here
+
+- [Getting started](https://infinibotos.com/docs/start/getting-started/): Beginner guide. Download, install (including the Windows SmartScreen "Windows protected your PC" screen: click More info, then Run anyway), the 8-step setup, your first message
+- [Download](https://infinibotos.com/download): Desktop app v2026.10.18 for Windows 10/11 (InfiniBot-Setup-x64.exe) and Linux (AppImage, .deb), SHA-256 checksums and a Get-FileHash how-to. macOS: coming soon (use Cloud or npm)
+- [FAQ](https://infinibotos.com/docs/faq/): Is it safe, do I need an API key, what it costs, privacy, Mac
+- [InfiniBot Cloud](https://cloud.infinibotos.com/app/): the fastest way to start. Runs in your browser; Free plan (30 active min/day, no card), paid plans from $19/mo
+
+## Features available today (desktop v2026.10.18; Cloud runs 2026.10.16)
+
+- Use-case onboarding in 8 steps: your goals, AI brain, channels (this app, Telegram, WhatsApp, Discord), voice, phone (pair the mobile app), privacy (Secure Mode), your plan (recommended plugins and courses), finish
+- Secure Mode (desktop and self-host): a key-based secure lane with local models only, a tool allowlist, an encrypted vault in the OS keyring, sealed secure files, collections and tags, and a local research tool with sanitised queries and an approval card
+- Local OCR and video analysis (self-host): files are read on your machine and feed file context and the knowledge graph
+- Local runtime manager: switches the GPU between vLLM and Ollama (self-host)
+- Plugins page: free plugins included (Business & Agency, Canvas Library, Content Studio, Discipline, Whiteboard, Robovoice); paid plugins are a one-time purchase that unlocks on the Plugins page: Infinitrade $49, Solatrix $49, OmniClinic $49, Droid Swarm $49, InfiniCode $29, Products $29, FlyPic $19
+- Voice: local voice is the default; on the desktop app, "Set up voice for me" installs the built-in voice engine in one click (no Docker). Robovoice is the optional cloud voice, free
+- Multi-user workspaces: optional, off by default, deny-by-default permissions
+- Projects can attach a git repo; group chat; files with a rich viewer; a global knowledge graph; a browser agent with browser profiles
+
+## New on the desktop app 2026.10.18 (coming to Cloud)
+
+- Use your existing Claude, ChatGPT, Google (Gemini) or Grok plan through the provider's official CLI (Claude Code, Codex CLI, Gemini CLI, Grok Build; also OpenCode), no API key
+- Built-in local voice engine, one click, no Docker (Docker GPU engine under Advanced)
+- A personal learning path after onboarding
+- Repos & deploy: attach repos, deploy branch, branch health, safe cleanup with restore
+- A knowledge graph for each project
+- Windows: installs on 2026.10.17 or earlier must run the new installer once (data is kept); from 2026.10.18 on, updates install automatically
+
+## Pricing
+
+- Self-host: $0. Cloud Free: $0 (30 active minutes a day, no Telegram/Slack). Starter $19/mo (wakes on use, about 150 active hours a month). Pro $49/mo (always on). Business $99/mo. Scale $199/mo. AI is bring-your-own-key or a local model, at flat prices
+- [Plans and pricing](https://infinibotos.com/#pricing)
+- [Commercial licenses](https://cloud.infinibotos.com/licenses/): only needed for a Competing Use under FSL-1.1-ALv2 (selling a hosted, resale, white-label or OEM product built on InfiniBot). Indie Commercial $299/yr, Team / Business $1,499/yr, Agency / Reseller $2,499 per 6 months, Enterprise / OEM $2,499 per 60 days; perpetual Enterprise rights from $49,999 by written quote
+
+## Docs
+
+- [Docs home](https://infinibotos.com/docs/)
+- [Install](https://infinibotos.com/docs/install/): Desktop app, Cloud or npm
+- [Windows](https://infinibotos.com/docs/windows/): Installer, SmartScreen walkthrough, checksum, CLI and WSL2
+- [CLI quickstart](https://infinibotos.com/docs/cli/quickstart/) and [CLI reference](https://infinibotos.com/docs/cli/)
+- [Gateway configuration](https://infinibotos.com/docs/gateway/configuration/)
+- [Security](https://infinibotos.com/docs/gateway/security/)
+- [Plugins](https://infinibotos.com/docs/plugin/)
+- [Troubleshooting](https://infinibotos.com/docs/troubleshooting/)
+
+## Optional
+
+- [Why InfiniBot](https://infinibotos.com/why-we-win)
+- [Desktop releases](https://github.com/MrYungCEO/infinibot-desktop-releases/releases): Public release downloads and SHA256SUMS

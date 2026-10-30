@@ -1,0 +1,232 @@
+/* CRM-specific glass layer. The records, Notion sync, CRUD, kanban and detail
+ * panels remain untouched; only their presentation is remapped. */
+.ba-glass.ba-glass.crm-page {
+  min-height: 100%;
+  height: auto;
+  padding: 24px clamp(14px, 2.2vw, 30px) 64px;
+  overflow: visible;
+  background: transparent;
+  color: var(--bag-text);
+}
+
+.ba-glass.crm-page > :not(.ba-aurora, style) {
+  width: 100%;
+  max-width: 1480px;
+  margin-inline: auto;
+}
+
+.ba-glass.crm-page :is(.crm-stat-card, .crm-card, .crm-kanban-col, .crm-table-wrap, .crm-page-card, .crm-detail-panel, .crm-dialog, .crm-nc-dialog, .crm-context-menu, .crm-rev-chart-wrap) {
+  position: relative;
+  border: 0;
+  border-radius: var(--bag-radius);
+  background: var(--glass-sheen, none), var(--bag-panel);
+  box-shadow: var(--bag-shadow);
+  color: var(--bag-text);
+}
+
+.ba-glass.crm-page :is(.crm-stat-card, .crm-card, .crm-kanban-col, .crm-table-wrap, .crm-page-card, .crm-detail-panel, .crm-dialog, .crm-nc-dialog, .crm-context-menu)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: var(--bag-hairline);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.ba-glass.crm-page :is(.crm-card, .crm-kanban-card, .crm-page-card) {
+  border-radius: var(--bag-radius-sm);
+  border-color: var(--bag-line);
+  background: var(--bag-card);
+  transition: transform var(--glass-dur-fast, 160ms) var(--bag-spring), border-color 160ms, box-shadow 200ms;
+}
+.ba-glass.crm-page :is(.crm-card, .crm-kanban-card, .crm-page-card):hover {
+  transform: translateY(-1px);
+  border-color: var(--bag-line-strong);
+  box-shadow: var(--glass-elev-2);
+}
+
+.ba-glass.crm-page :is(.crm-btn, .crm-pg-btn, .crm-page-action, .crm-page-tab-btn, input, select, textarea) {
+  border-color: var(--bag-line-strong);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bag-card) 84%, transparent);
+  color: var(--bag-text);
+  font-family: var(--bag-font);
+  letter-spacing: 0;
+}
+.ba-glass.crm-page :is(.crm-btn, .crm-pg-btn, .crm-page-action, .crm-page-tab-btn, input, select, textarea):hover {
+  border-color: var(--bag-gold);
+}
+.ba-glass.crm-page :is(.crm-btn.primary, .crm-page-tab-btn.active) {
+  border-color: transparent;
+  background: var(--bag-gold-fill);
+  color: var(--bag-ink);
+  font-weight: 620;
+}
+
+.ba-glass.crm-page .crm-page-tabs-bar {
+  gap: 5px;
+  padding: 5px;
+  margin-bottom: 16px;
+  border: 1px solid var(--bag-line);
+  border-radius: 14px;
+  background: var(--bag-well);
+}
+.ba-glass.crm-page .crm-hub-links {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.ba-glass.crm-page .crm-hub-links .bag-hublink { margin: 0; }
+.ba-glass.crm-page .crm-page-tab-btn {
+  min-height: 36px;
+  padding: 0 14px;
+  color: var(--bag-text-2);
+  font-size: 12.5px;
+  text-transform: none;
+}
+.ba-glass.crm-page .crm-page-tab-btn.active {
+  border-color: var(--bag-line-strong);
+  background: color-mix(in srgb, var(--bag-gold) 12%, transparent);
+  color: var(--bag-gold);
+}
+
+.ba-glass.crm-page .crm-stat-value {
+  color: var(--bag-text);
+  font-family: var(--bag-font-display);
+  font-size: clamp(24px, 2vw, 32px);
+  font-weight: 650;
+  letter-spacing: -0.035em;
+}
+.ba-glass.crm-page :is(.crm-stat-label, .crm-detail-label, .crm-form-label, .crm-page-prop-label) {
+  color: var(--bag-text-2);
+  font-size: 11.5px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.ba-glass.crm-page :is(.crm-detail-value, .crm-rev-td, .crm-page-prop-value) { color: var(--bag-text); }
+
+.ba-glass.crm-page :is(.crm-ag-head, .crm-ag-card, .crm-ag-project, .crm-ag-invoice) {
+  border-color: var(--bag-line);
+  border-radius: var(--bag-radius-sm);
+  background: var(--bag-card);
+  color: var(--bag-text);
+}
+.ba-glass.crm-page :is(.crm-ag-btn, .crm-ag-link) {
+  border-color: var(--bag-line-strong);
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--bag-card) 84%, transparent);
+  color: var(--bag-text);
+  font-family: var(--bag-font);
+}
+.ba-glass.crm-page .crm-ag-btn.is-primary { border-color: transparent; background: var(--bag-gold-fill); color: var(--bag-ink); }
+.ba-glass.crm-page :is(.crm-ag-eyebrow, .crm-ag-chip) { color: var(--bag-gold); }
+
+.ba-glass.crm-page :is(.crm-loading, .crm-empty) {
+  min-height: 48vh;
+  border: 1px solid var(--bag-line);
+  border-radius: var(--bag-radius-lg);
+  background: var(--glass-sheen, none), var(--bag-panel);
+  color: var(--bag-text-2);
+  font-family: var(--bag-font);
+  letter-spacing: 0;
+  text-transform: none;
+}
+.ba-glass.crm-page .crm-loading-dot { color: var(--bag-gold); }
+.ba-glass.crm-page .crm-dialog-overlay { background: color-mix(in srgb, #050403 58%, transparent); backdrop-filter: none; }
+
+@media (max-width: 640px) {
+  .ba-glass.ba-glass.crm-page { padding: 14px 10px 52px; }
+  .ba-glass.crm-page .crm-page-tabs-bar { overflow-x: auto; flex-wrap: nowrap; }
+  .ba-glass.crm-page .crm-page-tab-btn { flex: 0 0 auto; }
+  .ba-glass.crm-page .crm-hub-links { grid-template-columns: minmax(0, 1fr); }
+  .ba-glass.crm-page :is(.crm-stat-band, .crm-grid) { grid-template-columns: minmax(0, 1fr); }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .ba-glass.crm-page :is(.crm-stat-card, .crm-kanban-col, .crm-table-wrap, .crm-detail-panel, .crm-dialog) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--glass-solid, var(--bag-float));
+  }
+}
+
+/* Toolbar, Notion bar and card text: the page's inline sheet hard-codes
+   dark-only fills and white text, so remap them to theme tokens. */
+.ba-glass.crm-page .crm-topbar {
+  border: 0;
+  border-radius: var(--bag-radius);
+  background: var(--glass-sheen, none), var(--bag-panel);
+  box-shadow: var(--bag-shadow);
+  backdrop-filter: var(--bag-blur);
+  -webkit-backdrop-filter: var(--bag-blur);
+}
+.ba-glass.crm-page .crm-view-toggle {
+  background: var(--bag-well);
+  border: 1px solid var(--bag-line);
+  box-shadow: none;
+}
+.ba-glass.crm-page .crm-view-btn { color: var(--bag-text-3); }
+.ba-glass.crm-page .crm-view-btn:hover { color: var(--bag-text); }
+.ba-glass.crm-page .crm-view-btn.active {
+  color: var(--bag-ink);
+  background: var(--bag-gold-fill);
+  box-shadow: 0 4px 14px -6px color-mix(in srgb, var(--bag-gold) 70%, transparent);
+}
+.ba-glass.crm-page .crm-count { color: var(--bag-text-3); }
+.ba-glass.crm-page .crm-search,
+.ba-glass.crm-page .crm-select {
+  background: var(--bag-well);
+  border: 1px solid var(--bag-line);
+  color: var(--bag-text);
+}
+.ba-glass.crm-page .crm-search::placeholder { color: var(--bag-text-4); }
+.ba-glass.crm-page .crm-search:focus,
+.ba-glass.crm-page .crm-select:focus { border-color: var(--bag-gold); box-shadow: var(--bag-focus); outline: none; }
+.ba-glass.crm-page .crm-notion-bar {
+  margin-top: 10px;
+  padding: 9px 16px;
+  border: 1px solid var(--bag-line);
+  border-radius: var(--bag-radius-sm);
+  background: var(--bag-well);
+  color: var(--bag-text-3);
+  font-size: 10.5px;
+}
+.ba-glass.crm-page .crm-notion-bar select {
+  background: var(--bag-card);
+  color: var(--bag-text);
+  border: 1px solid var(--bag-line);
+  border-radius: 8px;
+}
+.ba-glass.crm-page .crm-card-name { color: var(--bag-text); font-family: var(--bag-font); }
+.ba-glass.crm-page :is(.crm-card-company, .crm-card-time) { color: var(--bag-text-3); }
+.ba-glass.crm-page .crm-card-detail-value { color: var(--bag-text-2); }
+.ba-glass.crm-page .crm-card-detail-icon { color: var(--bag-gold); }
+.ba-glass.crm-page .crm-card-footer { border-top-color: var(--bag-line); }
+
+/* Light theme on porcelain: the shared cover placeholder (object-cover.ts) is
+   a dark weave; on this page swap it for a soft gold wash and lift the
+   monogram, without touching the shared component other pages use. */
+:root[data-theme="light"] .ba-glass.crm-page .crm-card > div:first-of-type > div > div:first-child:not(img) {
+  background:
+    radial-gradient(120% 140% at 0% 0%, color-mix(in srgb, var(--bag-gold) 26%, transparent), transparent 60%),
+    linear-gradient(135deg, color-mix(in srgb, var(--bag-gold) 14%, #fff), color-mix(in srgb, var(--bag-gold) 5%, #fff)) !important;
+}
+:root[data-theme="light"] .ba-glass.crm-page .crm-card > div:first-of-type > div > div:first-child:not(img) > * {
+  color: color-mix(in srgb, var(--bag-gold) 70%, transparent) !important;
+}
+:root[data-theme="light"] .ba-glass.crm-page .crm-card > div:first-of-type > div > div:last-child:not(:first-child) {
+  background: linear-gradient(180deg, transparent 50%, rgba(80, 55, 10, 0.08)) !important;
+}
+/* Card hover actions and the dashed "New client" tile. */
+.ba-glass.crm-page .crm-card-action { color: var(--bag-text-3); }
+.ba-glass.crm-page .crm-card-action:hover { color: var(--bag-gold); }
+.ba-glass.crm-page .crm-card-action.danger:hover { color: var(--bag-bad); }
+.ba-glass.crm-page .crm-grid > .crm-card:first-child { opacity: 0.85 !important; border-color: var(--bag-line-strong) !important; }
+.ba-glass.crm-page .crm-grid > .crm-card:first-child:hover { opacity: 1 !important; }
+.ba-glass.crm-page .crm-grid > .crm-card:first-child > div { color: var(--bag-gold) !important; font-weight: 650; }
+.ba-glass.crm-page .crm-notion-bar :is(select, option) { color: var(--bag-text) !important; background: var(--bag-card) !important; }

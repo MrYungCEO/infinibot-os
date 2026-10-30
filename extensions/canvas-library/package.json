@@ -1,0 +1,12 @@
+{
+  "name": "@infinibot/canvas-library",
+  "version": "2026.11.1",
+  "type": "module",
+  "description": "HoloCanvas library: browse, share and build infinite-canvas walkthroughs",
+  "license": "FSL-1.1-ALv2",
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

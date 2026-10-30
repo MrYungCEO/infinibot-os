@@ -1,0 +1,153 @@
+/* Slim page banner for "needs setup" (components/setup-banner.ts). */
+
+.setup-banners {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0 0 12px;
+}
+
+.setup-banner {
+  --sb-accent: var(--g-primary, #d4af37);
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 40px;
+  padding: 7px 10px 7px 14px;
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--sb-accent) 30%, transparent);
+  background:
+    linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--sb-accent) 11%, transparent),
+      color-mix(in srgb, var(--sb-accent) 3%, transparent) 55%,
+      transparent
+    ),
+    color-mix(in srgb, var(--g-bg-deep, #0a0a0e) 55%, transparent);
+  box-shadow: inset 3px 0 0 color-mix(in srgb, var(--sb-accent) 80%, transparent);
+  color: var(--g-fg, #eee);
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.setup-banner--error {
+  --sb-accent: #e8704f;
+}
+
+.setup-banner--optional {
+  border-style: dashed;
+  box-shadow: none;
+}
+
+.setup-banner__dot {
+  flex-shrink: 0;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--sb-accent);
+  box-shadow: 0 0 8px color-mix(in srgb, var(--sb-accent) 70%, transparent);
+}
+
+.setup-banner--optional .setup-banner__dot {
+  background: transparent;
+  border: 1px solid var(--sb-accent);
+  box-shadow: none;
+}
+
+.setup-banner__text {
+  flex: 1 1 auto;
+  min-width: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  column-gap: 8px;
+  row-gap: 2px;
+}
+
+.setup-banner__lead {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: color-mix(in srgb, var(--sb-accent) 85%, #fff);
+}
+
+.setup-banner__title {
+  font-weight: 600;
+}
+
+.setup-banner__reason {
+  color: color-mix(in srgb, var(--g-fg, #eee) 68%, transparent);
+}
+
+.setup-banner__actions {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.setup-banner__btn {
+  display: inline-flex;
+  align-items: center;
+  height: 28px;
+  padding: 0 12px;
+  border-radius: 7px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+  color: #1a1407;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--sb-accent) 92%, #fff), var(--sb-accent));
+  box-shadow: 0 0 14px color-mix(in srgb, var(--sb-accent) 28%, transparent);
+  transition: filter 140ms ease, box-shadow 140ms ease;
+}
+
+.setup-banner__btn:hover {
+  filter: brightness(1.08);
+  box-shadow: 0 0 20px color-mix(in srgb, var(--sb-accent) 40%, transparent);
+}
+
+.setup-banner__btn:focus-visible,
+.setup-banner__ghost:focus-visible,
+.setup-banner__close:focus-visible {
+  outline: 2px solid var(--sb-accent);
+  outline-offset: 2px;
+}
+
+.setup-banner__ghost,
+.setup-banner__close {
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 7px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: color-mix(in srgb, var(--g-fg, #eee) 60%, transparent);
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.setup-banner__close {
+  width: 28px;
+  padding: 0;
+  font-size: 16px;
+  line-height: 1;
+}
+
+.setup-banner__ghost:hover,
+.setup-banner__close:hover {
+  color: var(--g-fg, #eee);
+  border-color: color-mix(in srgb, var(--sb-accent) 30%, transparent);
+}
+
+@media (max-width: 640px) {
+  .setup-banner {
+    flex-wrap: wrap;
+  }
+  .setup-banner__actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

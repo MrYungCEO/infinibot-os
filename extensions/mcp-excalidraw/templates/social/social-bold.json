@@ -1,0 +1,55 @@
+{
+  "id": "social-bold",
+  "category": "social",
+  "name": "Social · Bold",
+  "width": 1080,
+  "height": 1080,
+  "background": "#0b0b14",
+  "createdAt": "2026-06-09",
+  "scene": {
+    "elements": [
+      {
+        "id": "social-bold-bg-accent",
+        "type": "rectangle",
+        "x": 0,
+        "y": 842.4,
+        "width": 1080,
+        "height": 64.8,
+        "backgroundColor": "#22d3ee",
+        "fillStyle": "solid",
+        "strokeColor": "transparent",
+        "strokeWidth": 0,
+        "roughness": 0
+      },
+      {
+        "id": "social-bold-title",
+        "type": "text",
+        "x": 108,
+        "y": 378,
+        "width": 864,
+        "height": 96,
+        "text": "Social title",
+        "fontSize": 64,
+        "fontFamily": 1,
+        "textAlign": "center",
+        "strokeColor": "#ffffff"
+      },
+      {
+        "id": "social-bold-subtitle",
+        "type": "text",
+        "x": 108,
+        "y": 518.4,
+        "width": 864,
+        "height": 48,
+        "text": "Bold · 1080×1080",
+        "fontSize": 28,
+        "fontFamily": 2,
+        "textAlign": "center",
+        "strokeColor": "#ffffff",
+        "opacity": 70
+      }
+    ],
+    "appState": {},
+    "files": {}
+  }
+}

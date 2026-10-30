@@ -1,0 +1,23 @@
+{
+  "id": "matrix",
+  "name": "Matrix",
+  "listing": {
+    "tagline": "Open, decentralized chat over the Matrix protocol.",
+    "category": "channels",
+    "tags": [
+      "open-protocol",
+      "self-hosted"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "channels": [
+    "matrix"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

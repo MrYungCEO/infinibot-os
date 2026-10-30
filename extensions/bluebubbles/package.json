@@ -1,0 +1,34 @@
+{
+  "name": "@infinibot/bluebubbles",
+  "version": "2026.11.1",
+  "type": "module",
+  "description": "InfiniBot BlueBubbles channel plugin",
+  "license": "FSL-1.1-ALv2",
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ],
+    "channel": {
+      "id": "bluebubbles",
+      "label": "BlueBubbles",
+      "selectionLabel": "BlueBubbles (macOS app)",
+      "detailLabel": "BlueBubbles",
+      "docsPath": "/channels/bluebubbles",
+      "docsLabel": "bluebubbles",
+      "blurb": "iMessage via the BlueBubbles mac app + REST API.",
+      "aliases": [
+        "bb"
+      ],
+      "preferOver": [
+        "imessage"
+      ],
+      "systemImage": "bubble.left.and.text.bubble.right",
+      "order": 75
+    },
+    "install": {
+      "npmSpec": "@infinibot/bluebubbles",
+      "localPath": "extensions/bluebubbles",
+      "defaultChoice": "npm"
+    }
+  }
+}

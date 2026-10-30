@@ -1,0 +1,23 @@
+{
+  "id": "bluebubbles",
+  "name": "BlueBubbles",
+  "listing": {
+    "tagline": "iMessage through the BlueBubbles Mac app and its REST API.",
+    "category": "channels",
+    "tags": [
+      "imessage",
+      "mac"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "channels": [
+    "bluebubbles"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

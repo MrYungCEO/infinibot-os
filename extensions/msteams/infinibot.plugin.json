@@ -1,0 +1,23 @@
+{
+  "id": "msteams",
+  "name": "Microsoft Teams",
+  "listing": {
+    "tagline": "A Teams bot through the Bot Framework, for work chats.",
+    "category": "channels",
+    "tags": [
+      "enterprise",
+      "team-chat"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "channels": [
+    "msteams"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

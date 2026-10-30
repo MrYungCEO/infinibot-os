@@ -1,0 +1,137 @@
+{
+  "description": "Curated design references for premium UI/UX inspiration",
+  
+  "saas_excellence": {
+    "description": "Best-in-class SaaS product design",
+    "sites": [
+      { "name": "Linear", "url": "https://linear.app", "why": "Command center perfection, keyboard-first design" },
+      { "name": "Vercel", "url": "https://vercel.com", "why": "Developer elegance, immersive product pages" },
+      { "name": "Stripe", "url": "https://stripe.com", "why": "Documentation as design, gradient mastery" },
+      { "name": "Raycast", "url": "https://raycast.com", "why": "Native meets web, command palette UI" },
+      { "name": "Arc", "url": "https://arc.net", "why": "Browser UI innovation, spatial design" },
+      { "name": "Notion", "url": "https://notion.so", "why": "Flexible content blocks, clean minimalism" },
+      { "name": "Figma", "url": "https://figma.com", "why": "Collaborative canvas, tool UI excellence" },
+      { "name": "Framer", "url": "https://framer.com", "why": "Motion design, no-code builder aesthetic" },
+      { "name": "Superhuman", "url": "https://superhuman.com", "why": "Speed-focused UI, keyboard shortcuts" },
+      { "name": "Clerk", "url": "https://clerk.com", "why": "Auth UI components, developer experience" }
+    ]
+  },
+  
+  "editorial_content": {
+    "description": "Editorial and content-focused design",
+    "sites": [
+      { "name": "Read.cv", "url": "https://read.cv", "why": "Portfolio sophistication, typography" },
+      { "name": "Layers.to", "url": "https://layers.to", "why": "Design inspiration curation" },
+      { "name": "Senja", "url": "https://senja.io", "why": "Testimonial display patterns" },
+      { "name": "Cal.com", "url": "https://cal.com", "why": "Open source product design" }
+    ]
+  },
+  
+  "ecommerce_premium": {
+    "description": "Premium e-commerce and product showcase",
+    "sites": [
+      { "name": "Apple", "url": "https://apple.com", "why": "Product storytelling, scroll animations" },
+      { "name": "Teenage Engineering", "url": "https://teenage.engineering", "why": "Industrial design aesthetic" },
+      { "name": "Nothing", "url": "https://nothing.tech", "why": "Bold minimalism, dark mode mastery" },
+      { "name": "Bang & Olufsen", "url": "https://bang-olufsen.com", "why": "Luxury product display" }
+    ]
+  },
+  
+  "agency_creative": {
+    "description": "Creative agencies and studios",
+    "sites": [
+      { "name": "Basement Studio", "url": "https://basement.studio", "why": "3D web mastery" },
+      { "name": "Active Theory", "url": "https://activetheory.net", "why": "Immersive experiences" },
+      { "name": "Resn", "url": "https://resn.co.nz", "why": "Creative coding excellence" },
+      { "name": "Basic Agency", "url": "https://basic.agency", "why": "Brand experience design" }
+    ]
+  },
+  
+  "component_libraries": {
+    "description": "High-quality component references",
+    "sites": [
+      { "name": "shadcn/ui", "url": "https://ui.shadcn.com", "why": "Copy-paste components, Tailwind" },
+      { "name": "Radix UI", "url": "https://radix-ui.com", "why": "Accessible primitives" },
+      { "name": "Headless UI", "url": "https://headlessui.com", "why": "Tailwind integration" },
+      { "name": "Park UI", "url": "https://park-ui.com", "why": "Ark UI components styled" },
+      { "name": "Magic UI", "url": "https://magicui.design", "why": "Animated components" },
+      { "name": "Aceternity UI", "url": "https://ui.aceternity.com", "why": "Fancy animated components" }
+    ]
+  },
+  
+  "design_systems": {
+    "description": "Design system documentation references",
+    "sites": [
+      { "name": "Vercel Geist", "url": "https://vercel.com/geist", "why": "Design system excellence" },
+      { "name": "Radix Colors", "url": "https://radix-ui.com/colors", "why": "Color system for dark mode" },
+      { "name": "Tailwind UI", "url": "https://tailwindui.com", "why": "Production-ready components" },
+      { "name": "Primer", "url": "https://primer.style", "why": "GitHub's design system" }
+    ]
+  },
+  
+  "inspiration_galleries": {
+    "description": "Design inspiration collections",
+    "sites": [
+      { "name": "Awwwards", "url": "https://awwwards.com", "why": "Award-winning web design" },
+      { "name": "Dribbble", "url": "https://dribbble.com", "why": "UI shots and concepts" },
+      { "name": "Mobbin", "url": "https://mobbin.com", "why": "Mobile app patterns" },
+      { "name": "Godly", "url": "https://godly.website", "why": "Curated landing pages" },
+      { "name": "Land-book", "url": "https://land-book.com", "why": "Landing page gallery" },
+      { "name": "SaaS Landing Page", "url": "https://saaslandingpage.com", "why": "SaaS-specific patterns" },
+      { "name": "Dark Mode Design", "url": "https://www.darkmodedesign.com", "why": "Dark UI inspiration" }
+    ]
+  },
+  
+  "typography_fonts": {
+    "description": "Premium font resources",
+    "fonts": {
+      "display": ["Inter", "Satoshi", "General Sans", "Plus Jakarta Sans", "Geist", "Cabinet Grotesk", "Clash Display"],
+      "mono": ["JetBrains Mono", "SF Mono", "Geist Mono", "Berkeley Mono", "Fira Code", "IBM Plex Mono"],
+      "serif_accent": ["Playfair Display", "Fraunces", "Newsreader", "Instrument Serif", "Lora"]
+    },
+    "sources": [
+      { "name": "Google Fonts", "url": "https://fonts.google.com", "why": "Free, widely available" },
+      { "name": "Fontshare", "url": "https://fontshare.com", "why": "Free premium fonts" },
+      { "name": "Font Source", "url": "https://fontsource.org", "why": "Self-hosted fonts" }
+    ]
+  },
+  
+  "color_tools": {
+    "description": "Color palette and theming tools",
+    "tools": [
+      { "name": "Realtime Colors", "url": "https://realtimecolors.com", "why": "Live color previews" },
+      { "name": "Coolors", "url": "https://coolors.co", "why": "Palette generation" },
+      { "name": "Radix Colors", "url": "https://radix-ui.com/colors", "why": "Dark mode compatible scales" },
+      { "name": "Tailwind Color Shades", "url": "https://uicolors.app", "why": "Tailwind palette generator" }
+    ]
+  },
+  
+  "motion_animation": {
+    "description": "Animation and motion design resources",
+    "libraries": [
+      { "name": "Framer Motion", "url": "https://framer.com/motion", "why": "React animation library" },
+      { "name": "GSAP", "url": "https://gsap.com", "why": "Professional-grade animations" },
+      { "name": "Lenis", "url": "https://lenis.studiofreight.com", "why": "Smooth scroll library" },
+      { "name": "Motion One", "url": "https://motion.dev", "why": "Lightweight animations" }
+    ],
+    "learning": [
+      { "name": "Cubic Bezier", "url": "https://cubic-bezier.com", "why": "Easing curve visualizer" },
+      { "name": "Easings.net", "url": "https://easings.net", "why": "Easing function reference" }
+    ]
+  },
+  
+  "icon_assets": {
+    "description": "Icon libraries and assets",
+    "icons": [
+      { "name": "Lucide", "url": "https://lucide.dev", "why": "Clean, consistent icons" },
+      { "name": "Phosphor", "url": "https://phosphoricons.com", "why": "Flexible icon family" },
+      { "name": "Heroicons", "url": "https://heroicons.com", "why": "Tailwind compatible" },
+      { "name": "Tabler Icons", "url": "https://tabler-icons.io", "why": "4000+ stroke icons" },
+      { "name": "Remix Icon", "url": "https://remixicon.com", "why": "Open source, dual style" }
+    ],
+    "3d_illustrations": [
+      { "name": "Spline", "url": "https://spline.design", "why": "3D design tool" },
+      { "name": "Lottie", "url": "https://lottiefiles.com", "why": "Animated illustrations" }
+    ]
+  }
+}

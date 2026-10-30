@@ -1,0 +1,80 @@
+/*
+ * Global viewport scale for laptop and tablet screens.
+ *
+ * The operating surfaces (Agency Operations, Topology, Daily Operations,
+ * Dashboard) are information-dense and were designed against wide desktop
+ * viewports. On a laptop or tablet they crowd: columns collide, legends clip,
+ * and panels start scrolling horizontally. Scaling the whole document down is
+ * the same thing an operator would do by pressing Ctrl+Minus, but applied
+ * automatically and only in the band where it helps.
+ *
+ * Deliberately scoped:
+ *   <= 1100px    phones and portrait tablets keep their own responsive layout
+ *                (layout.css stacks the shell below 1100px, layout.mobile.css
+ *                below 760px). Zooming there fights those rules: `zoom` grows
+ *                the element's CSS pixels but media queries still resolve
+ *                against the unzoomed viewport, so the stacked layout gets
+ *                applied to a much wider canvas and leaves the content column
+ *                marooned in empty space. Verified at 1024x768 — the topology
+ *                surface rendered its graph off-screen below the sidebar.
+ *   1101–1680px  landscape tablets and laptops scale down. The desktop shell
+ *                layout is already active here, so it simply gets roomier.
+ *   > 1680px     large desktops have the room already; leave them alone.
+ *
+ * `zoom` is used rather than `transform: scale()` because zoom participates in
+ * layout — it genuinely gives the page more CSS pixels to lay out in, so grids
+ * reflow into the extra room. A transform would only shrink the painted result
+ * and leave the layout (and its overflow) exactly as cramped as before.
+ *
+ * Applied to `body`, never to `:root`. Zooming the root element changes the
+ * viewport that media queries resolve against, which can oscillate across a
+ * breakpoint; zooming `body` keeps the queries above stable.
+ *
+ * Override per-install by setting `--ui-viewport-zoom` on `:root` (1 disables).
+ */
+
+@media (min-width: 1101px) and (max-width: 1680px) {
+  body {
+    zoom: var(--ui-viewport-zoom, 0.7);
+  }
+
+  /*
+   * Viewport units are NOT affected by zoom — 100vh always resolves to the
+   * full viewport height in unzoomed CSS pixels, which then gets painted at
+   * the zoom factor. So a `height: 100vh` shell renders at only 70% of the
+   * window and leaves a dead band below it. Divide the viewport units back
+   * out so the shell still fills the window after scaling.
+   *
+   * Any rule that sizes a full-height container in vh/dvh must be listed
+   * here. Currently: .shell and .shell--chat (layout.css) and the
+   * infinibot-app host (base.css).
+   */
+  infinibot-app {
+    min-height: calc(100vh / var(--ui-viewport-zoom, 0.7));
+  }
+
+  .shell,
+  .shell--chat {
+    height: calc(100vh / var(--ui-viewport-zoom, 0.7));
+    min-height: calc(100vh / var(--ui-viewport-zoom, 0.7));
+  }
+}
+
+@supports (height: 100dvh) {
+  @media (min-width: 1101px) and (max-width: 1680px) {
+    infinibot-app {
+      min-height: calc(100dvh / var(--ui-viewport-zoom, 0.7));
+    }
+
+    .shell,
+    .shell--chat {
+      height: calc(100dvh / var(--ui-viewport-zoom, 0.7));
+      min-height: calc(100dvh / var(--ui-viewport-zoom, 0.7));
+    }
+  }
+}
+
+/* Honour an explicit opt-out regardless of viewport. */
+:root[data-viewport-scale="off"] body {
+  zoom: 1;
+}

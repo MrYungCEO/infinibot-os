@@ -1,0 +1,70 @@
+# Gitleaks config for the public tree. Default rules plus the repo's own rules,
+# with an allowlist of reviewed false positives. Each path below was checked by
+# hand on 2026-10-30; none holds a real credential.
+title = "InfiniBot public secret scan"
+
+[extend]
+useDefault = true
+
+[[rules]]
+id = "telegram-bot-token"
+description = "Telegram bot token"
+regex = '''\b[0-9]{8,12}:[A-Za-z0-9_-]{30,45}\b'''
+keywords = [":"]
+
+[[rules]]
+id = "atlas-cloud-api-key"
+description = "Atlas Cloud API key"
+regex = '''\bapikey-[A-Fa-f0-9]{32,}\b'''
+keywords = ["apikey-"]
+
+[[rules]]
+id = "heygen-api-key"
+description = "HeyGen v2 API key"
+regex = '''\bsk_V2_[A-Za-z0-9_-]{20,}\b'''
+keywords = ["sk_V2_"]
+
+[[rules]]
+id = "meta-access-token"
+description = "Meta/Facebook access token"
+regex = '''\bEAA[A-Za-z0-9]{40,}\b'''
+keywords = ["EAA"]
+
+[[rules]]
+id = "notion-integration-token"
+description = "Notion integration token"
+regex = '''\bntn_[A-Za-z0-9_-]{20,}\b'''
+keywords = ["ntn_"]
+
+[[rules]]
+id = "brave-search-api-key"
+description = "Brave Search API key"
+regex = '''\bBSA[A-Za-z0-9_-]{20,}\b'''
+keywords = ["BSA"]
+
+[[rules]]
+id = "openai-project-api-key"
+description = "OpenAI project API key"
+regex = '''\bsk-proj-[A-Za-z0-9_-]{20,}\b'''
+keywords = ["sk-proj-"]
+
+# Known test fixtures: fake values that only look like secrets.
+
+[allowlist]
+description = "Reviewed false positives"
+paths = [
+  # Tests: fake keys and tokens ("sk-test", "0123…", "bogus") and throwaway key fixtures.
+  '''.*\.test\.(ts|tsx|mjs|js)$''',
+  '''.*\.e2e\.test\.ts$''',
+  # Docs: `Authorization: Bearer YOUR_TOKEN` curl examples and sample Discord ids.
+  '''docs/gateway/(openai-http-api|openresponses-http-api|tools-invoke-http-api|configuration)\.md$''',
+  '''docs/concepts/session\.md$''',
+  '''docs/providers/deepgram\.md$''',
+  # Minified xterm.js bundle.
+  '''mobile/src/assets/xterm-bundle\.generated\.js$''',
+  # Qwen Portal public OAuth client id (device flow, published by the vendor; not a secret).
+  '''extensions/qwen-portal-auth/oauth\.ts$''',
+  '''src/providers/qwen-portal-oauth\.ts$''',
+  # CSS/localStorage key name that looks like a token.
+  '''ui/src/ui/views/kanban\.ts$''',
+]

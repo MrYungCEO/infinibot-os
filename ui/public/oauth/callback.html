@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Connecting Calendar...</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #0a0a0a;
+      color: #fff;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .container {
+      text-align: center;
+      padding: 40px;
+      max-width: 400px;
+    }
+    .spinner {
+      width: 48px;
+      height: 48px;
+      border: 4px solid rgba(255, 215, 0, 0.2);
+      border-top-color: #FFD700;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 24px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    h1 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    p {
+      color: #888;
+      font-size: 14px;
+    }
+    .success {
+      color: #22c55e;
+    }
+    .error {
+      color: #ef4444;
+    }
+    .error-details {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 16px;
+      font-size: 12px;
+      text-align: left;
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="spinner" id="spinner"></div>
+    <h1 id="title">Connecting Calendar...</h1>
+    <p id="message">Please wait while we complete the connection.</p>
+    <div class="error-details" id="errorDetails" style="display: none;"></div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const code = params.get('code');
+    const error = params.get('error');
+    const errorDescription = params.get('error_description');
+
+    const spinner = document.getElementById('spinner');
+    const title = document.getElementById('title');
+    const message = document.getElementById('message');
+    const errorDetails = document.getElementById('errorDetails');
+
+    if (error) {
+      spinner.style.display = 'none';
+      title.textContent = 'Connection Failed';
+      title.className = 'error';
+      message.textContent = errorDescription || error;
+      message.className = 'error';
+      
+      // Still try to notify parent
+      if (window.opener) {
+        window.opener.postMessage({ type: 'oauth_callback', error, errorDescription }, '*');
+      }
+    } else if (code) {
+      // Send code to parent window
+      if (window.opener) {
+        window.opener.postMessage({ type: 'oauth_callback', code }, '*');
+        
+        spinner.style.display = 'none';
+        title.textContent = '✓ Connected!';
+        title.className = 'success';
+        message.textContent = 'You can close this window now.';
+        message.className = 'success';
+        
+        // Auto-close after a short delay
+        setTimeout(() => window.close(), 1500);
+      } else {
+        spinner.style.display = 'none';
+        title.textContent = 'Connection Issue';
+        title.className = 'error';
+        message.textContent = 'Could not communicate with the main window. Please close this window and try again.';
+        errorDetails.textContent = `Authorization code received: ${code.substring(0, 20)}...`;
+        errorDetails.style.display = 'block';
+      }
+    } else {
+      spinner.style.display = 'none';
+      title.textContent = 'Missing Authorization';
+      title.className = 'error';
+      message.textContent = 'No authorization code received from Google.';
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,81 @@
+{
+ "steps": [
+  {
+   "name": "mobile creates a session with the web chat key grammar",
+   "ok": true,
+   "detail": "agent:main:webchat-mup4yrp5"
+  },
+  {
+   "name": "mobile receives the reply to its own message",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "gateway session store lists the mobile-created session",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "rename on mobile is stored on the gateway (sessions.patch label)",
+   "ok": true,
+   "detail": "label=mobile-sync-test"
+  },
+  {
+   "name": "web chat shows the conversation that was started on mobile",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "web sidebar shows the title set on mobile",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "message sent on the web appears on mobile with no refresh",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "mobile shows the reply to the web message",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "message sent on mobile appears on the web with no refresh",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "gateway transcript holds all three user turns",
+   "ok": true,
+   "detail": "user turns=3"
+  },
+  {
+   "name": "delete on mobile removes the session from the gateway",
+   "ok": true,
+   "detail": ""
+  },
+  {
+   "name": "web sidebar no longer lists the deleted session",
+   "ok": true,
+   "detail": ""
+  }
+ ],
+ "shots": [
+  "/tmp/mobile-ui/shots-sync/01-mobile-sent-streaming.png",
+  "/tmp/mobile-ui/shots-sync/02-mobile-reply.png",
+  "/tmp/mobile-ui/shots-sync/03-mobile-sessions-renamed.png",
+  "/tmp/mobile-ui/shots-sync/04-web-shows-mobile-session.png",
+  "/tmp/mobile-ui/shots-sync/05-mobile-shows-web-message-live.png",
+  "/tmp/mobile-ui/shots-sync/06-mobile-after-web-turn.png",
+  "/tmp/mobile-ui/shots-sync/07-web-after-web-turn.png",
+  "/tmp/mobile-ui/shots-sync/08-web-shows-mobile-message-live.png",
+  "/tmp/mobile-ui/shots-sync/09-mobile-after-mobile-turn.png",
+  "/tmp/mobile-ui/shots-sync/10-mobile-delete-confirm.png",
+  "/tmp/mobile-ui/shots-sync/11-mobile-sessions-after-delete.png",
+  "/tmp/mobile-ui/shots-sync/12-web-after-delete.png"
+ ],
+ "sessionKey": "agent:main:webchat-mup4yrp5",
+ "mobileErrors": [],
+ "mobileFailedRpc": []
+}

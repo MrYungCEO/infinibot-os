@@ -1,0 +1,12 @@
+{
+  "name": "@infinibot/part-scan",
+  "version": "2026.11.1",
+  "type": "module",
+  "description": "Camera-to-metric textured 3D part scanning for InfiniBot",
+  "license": "FSL-1.1-ALv2",
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

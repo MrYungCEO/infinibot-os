@@ -1,0 +1,65 @@
+{
+ "license": "LibriSpeech ASR corpus (openslr.org/12), CC BY 4.0 \u2014 Panayotov et al. 2015. test-clean, one utterance per speaker.",
+ "clips": [
+  {
+   "id": "6930-75918-0006",
+   "file": "6930-75918-0006.flac",
+   "text": "THIS HAS INDEED BEEN A HARASSING DAY CONTINUED THE YOUNG MAN HIS EYES FIXED UPON HIS FRIEND",
+   "source": "librispeech test-clean speaker 6930"
+  },
+  {
+   "id": "1320-122617-0000",
+   "file": "1320-122617-0000.flac",
+   "text": "NOTWITHSTANDING THE HIGH RESOLUTION OF HAWKEYE HE FULLY COMPREHENDED ALL THE DIFFICULTIES AND DANGER HE WAS ABOUT TO INCUR",
+   "source": "librispeech test-clean speaker 1320"
+  },
+  {
+   "id": "5639-40744-0002",
+   "file": "5639-40744-0002.flac",
+   "text": "RODOLFO AND HIS COMPANIONS WITH THEIR FACES MUFFLED IN THEIR CLOAKS STARED RUDELY AND INSOLENTLY AT THE MOTHER THE DAUGHTER AND THE SERVANT MAID",
+   "source": "librispeech test-clean speaker 5639"
+  },
+  {
+   "id": "260-123440-0008",
+   "file": "260-123440-0008.flac",
+   "text": "I'LL TRY IF I KNOW ALL THE THINGS I USED TO KNOW",
+   "source": "librispeech test-clean speaker 260"
+  },
+  {
+   "id": "7729-102255-0002",
+   "file": "7729-102255-0002.flac",
+   "text": "THAT SUMMER'S EMIGRATION HOWEVER BEING MAINLY FROM THE FREE STATES GREATLY CHANGED THE RELATIVE STRENGTH OF THE TWO PARTIES",
+   "source": "librispeech test-clean speaker 7729"
+  },
+  {
+   "id": "2094-142345-0001",
+   "file": "2094-142345-0001.flac",
+   "text": "BUT THE WINDOWS ARE PATCHED WITH WOODEN PANES AND THE DOOR I THINK IS LIKE THE GATE IT IS NEVER OPENED",
+   "source": "librispeech test-clean speaker 2094"
+  },
+  {
+   "id": "3575-170457-0000",
+   "file": "3575-170457-0000.flac",
+   "text": "AND OFTEN HAS MY MOTHER SAID WHILE ON HER LAP I LAID MY HEAD SHE FEARED FOR TIME I WAS NOT MADE BUT FOR ETERNITY",
+   "source": "librispeech test-clean speaker 3575"
+  },
+  {
+   "id": "7127-75947-0001",
+   "file": "7127-75947-0001.flac",
+   "text": "UPON THIS MADAME DEIGNED TO TURN HER EYES LANGUISHINGLY TOWARDS THE COMTE OBSERVING",
+   "source": "librispeech test-clean speaker 7127"
+  },
+  {
+   "id": "2961-960-0001",
+   "file": "2961-960-0001.flac",
+   "text": "THE INFLUENCE WITH THE TIMAEUS HAS EXERCISED UPON POSTERITY IS DUE PARTLY TO A MISUNDERSTANDING",
+   "source": "librispeech test-clean speaker 2961"
+  },
+  {
+   "id": "8463-287645-0000",
+   "file": "8463-287645-0000.flac",
+   "text": "THIS WAS WHAT DID THE MISCHIEF SO FAR AS THE RUNNING AWAY WAS CONCERNED",
+   "source": "librispeech test-clean speaker 8463"
+  }
+ ]
+}

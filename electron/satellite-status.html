@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'">
+  <title>Satellite status</title>
+  <style>
+    :root { --bg:#0a0a0c; --card:rgba(24,24,27,.72); --line:rgba(246,200,115,.18); --gold:#f6c873; --text:#e4e4e7; --muted:#a1a1aa; --ok:#22c55e; --warn:#f59e0b; --bad:#ef4444; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { background:radial-gradient(1200px 600px at 20% -10%, rgba(246,200,115,.08), transparent 60%), var(--bg); color:var(--text);
+      font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; padding:22px 22px 28px; }
+    h1 { font-size:18px; font-weight:650; color:var(--gold); letter-spacing:.01em; display:flex; align-items:center; gap:10px; }
+    .sub { color:var(--muted); font-size:12.5px; margin:4px 0 16px; }
+    .pill { display:inline-flex; align-items:center; gap:7px; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:600; border:1px solid var(--line); }
+    .pill .dot { width:8px; height:8px; border-radius:50%; background:var(--muted); }
+    .pill[data-state=connected] { color:var(--ok); } .pill[data-state=connected] .dot { background:var(--ok); box-shadow:0 0 8px rgba(34,197,94,.7); }
+    .pill[data-state=reconnecting], .pill[data-state=connecting], .pill[data-state=registering] { color:var(--warn); }
+    .pill[data-state=reconnecting] .dot, .pill[data-state=connecting] .dot, .pill[data-state=registering] .dot { background:var(--warn); }
+    .pill[data-state=disconnected], .pill[data-state=stopped] { color:var(--bad); } .pill[data-state=disconnected] .dot, .pill[data-state=stopped] .dot { background:var(--bad); }
+    .card { background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px 16px; margin-bottom:12px; backdrop-filter:blur(12px); }
+    .card h2 { font-size:11.5px; text-transform:uppercase; letter-spacing:.09em; color:var(--muted); font-weight:600; margin-bottom:10px; }
+    dl { display:grid; grid-template-columns:132px 1fr; gap:6px 12px; font-size:13px; }
+    dt { color:var(--muted); } dd { overflow-wrap:anywhere; }
+    .problem { display:none; border-color:rgba(239,68,68,.45); background:rgba(239,68,68,.08); color:#fecaca; }
+    .problem.show { display:block; }
+    .caps { display:flex; flex-wrap:wrap; gap:6px; }
+    .cap { font-size:12px; padding:3px 9px; border-radius:8px; border:1px solid var(--line); color:var(--text); }
+    .cap.off { color:#71717a; border-color:rgba(113,113,122,.3); text-decoration:line-through; }
+    .actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:6px; }
+    button { font:600 13px/1 inherit; font-family:inherit; padding:10px 14px; border-radius:10px; border:1px solid var(--line); background:rgba(39,39,42,.8); color:var(--text); cursor:pointer; }
+    button:hover { border-color:rgba(246,200,115,.55); }
+    button.primary { background:linear-gradient(180deg,#f6c873,#d9a441); color:#151515; border-color:transparent; }
+    button.danger { color:#fca5a5; border-color:rgba(239,68,68,.4); }
+    button:disabled { opacity:.5; cursor:default; }
+    .note { color:var(--muted); font-size:12px; margin-top:10px; }
+  </style>
+</head>
+<body>
+  <h1>Satellite status <span class="pill" id="state-pill" data-state="connecting"><span class="dot"></span><span id="state-text">…</span></span></h1>
+  <div class="sub" id="headline">This device: …</div>
+
+  <div class="card problem" id="problem"></div>
+
+  <div class="card">
+    <h2>Connection</h2>
+    <dl>
+      <dt>Master</dt><dd id="f-master">—</dd>
+      <dt>Latency</dt><dd id="f-latency">—</dd>
+      <dt>Connected since</dt><dd id="f-since">—</dd>
+      <dt>Last heartbeat</dt><dd id="f-heartbeat">—</dd>
+      <dt>Pairing</dt><dd id="f-pairing">—</dd>
+      <dt>Node id</dt><dd id="f-node">—</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <h2>This device</h2>
+    <dl>
+      <dt>Name</dt><dd id="d-name">—</dd>
+      <dt>System</dt><dd id="d-os">—</dd>
+      <dt>CPU</dt><dd id="d-cpu">—</dd>
+      <dt>Memory</dt><dd id="d-mem">—</dd>
+      <dt>GPU</dt><dd id="d-gpu">—</dd>
+    </dl>
+  </div>
+
+  <div class="card">
+    <h2>What the master can do here</h2>
+    <div class="caps" id="caps"></div>
+    <div class="note" id="clis"></div>
+  </div>
+
+  <div class="actions">
+    <button class="primary" id="b-open">Open master's screen</button>
+    <button id="b-reconnect">Reconnect</button>
+    <button id="b-toggle">Disconnect</button>
+    <button class="danger" id="b-leave">Leave federation…</button>
+  </div>
+  <div class="note" id="msg"></div>
+  <script src="satellite-status.js"></script>
+</body>
+</html>

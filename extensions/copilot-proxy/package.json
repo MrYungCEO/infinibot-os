@@ -1,0 +1,12 @@
+{
+  "name": "@infinibot/copilot-proxy",
+  "version": "2026.11.1",
+  "type": "module",
+  "description": "InfiniBot Copilot Proxy provider plugin",
+  "license": "FSL-1.1-ALv2",
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

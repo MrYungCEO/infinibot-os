@@ -1,0 +1,384 @@
+{
+  "products": [
+    {
+      "data": [
+        {
+          "id": "prod_1",
+          "title": "Pro Plan",
+          "visibility": "visible",
+          "created_at": "2026-01-01T00:00:00.000Z",
+          "updated_at": "2026-01-01T00:00:00.000Z"
+        },
+        {
+          "id": "prod_2",
+          "title": "Course",
+          "visibility": "visible",
+          "created_at": "2026-01-01T00:00:00.000Z",
+          "updated_at": "2026-01-01T00:00:00.000Z"
+        }
+      ],
+      "page_info": {
+        "end_cursor": "prd1",
+        "start_cursor": "prd0",
+        "has_next_page": false,
+        "has_previous_page": false
+      }
+    }
+  ],
+  "plans": [
+    {
+      "data": [
+        {
+          "id": "plan_m",
+          "title": "Monthly",
+          "plan_type": "renewal",
+          "billing_period": 30,
+          "renewal_price": 29.99,
+          "initial_price": 29.99,
+          "currency": "usd",
+          "product": { "id": "prod_1", "title": "Pro Plan" },
+          "created_at": "2026-01-01T00:00:00.000Z"
+        },
+        {
+          "id": "plan_y",
+          "title": "Yearly",
+          "plan_type": "renewal",
+          "billing_period": 365,
+          "renewal_price": 240,
+          "initial_price": 240,
+          "currency": "usd",
+          "product": { "id": "prod_1", "title": "Pro Plan" },
+          "created_at": "2026-01-01T00:00:00.000Z"
+        },
+        {
+          "id": "plan_o",
+          "title": "One-off",
+          "plan_type": "one_time",
+          "billing_period": null,
+          "renewal_price": 0,
+          "initial_price": 15,
+          "currency": "usd",
+          "product": { "id": "prod_2", "title": "Course" },
+          "created_at": "2026-01-01T00:00:00.000Z"
+        }
+      ],
+      "page_info": {
+        "end_cursor": "pl1",
+        "start_cursor": "pl0",
+        "has_next_page": false,
+        "has_previous_page": false
+      }
+    }
+  ],
+  "memberships": [
+    {
+      "data": [
+        {
+          "id": "mem_1",
+          "status": "active",
+          "created_at": "2026-01-05T00:00:00.000Z",
+          "joined_at": "2026-01-05T00:00:00.000Z",
+          "updated_at": "2026-02-05T00:00:00.000Z",
+          "plan": { "id": "plan_m" },
+          "product": { "id": "prod_1", "title": "Pro Plan" },
+          "user": {
+            "id": "user_a",
+            "email": "a@example.com",
+            "name": "Alice Example",
+            "username": "alice"
+          },
+          "currency": "usd",
+          "cancel_at_period_end": false,
+          "canceled_at": null,
+          "renewal_period_end": "2026-03-05T00:00:00.000Z",
+          "initial_price_paid": "29.99"
+        },
+        {
+          "id": "mem_2",
+          "status": "canceled",
+          "created_at": "2026-01-10T00:00:00.000Z",
+          "joined_at": "2026-01-10T00:00:00.000Z",
+          "updated_at": "2026-02-15T00:00:00.000Z",
+          "plan": { "id": "plan_m" },
+          "product": { "id": "prod_1", "title": "Pro Plan" },
+          "user": {
+            "id": "user_b",
+            "email": "b@example.com",
+            "name": "Bob Example",
+            "username": "bob"
+          },
+          "currency": "usd",
+          "cancel_at_period_end": false,
+          "canceled_at": "2026-02-15T00:00:00.000Z",
+          "renewal_period_end": "2026-02-10T00:00:00.000Z",
+          "initial_price_paid": "29.99"
+        },
+        {
+          "id": "mem_3",
+          "status": "active",
+          "created_at": "2026-01-20T00:00:00.000Z",
+          "joined_at": "2026-01-20T00:00:00.000Z",
+          "updated_at": "2026-01-20T00:00:00.000Z",
+          "plan": { "id": "plan_y" },
+          "product": { "id": "prod_1", "title": "Pro Plan" },
+          "user": {
+            "id": "user_e",
+            "email": "e@example.com",
+            "name": "Eve Example",
+            "username": "eve"
+          },
+          "currency": "usd",
+          "cancel_at_period_end": false,
+          "canceled_at": null,
+          "renewal_period_end": "2027-01-20T00:00:00.000Z",
+          "initial_price_paid": "240.00"
+        }
+      ],
+      "page_info": {
+        "end_cursor": "ms1",
+        "start_cursor": "ms0",
+        "has_next_page": false,
+        "has_previous_page": false
+      },
+      "total_count": 3
+    }
+  ],
+  "payments": [
+    {
+      "data": [
+        {
+          "id": "pay_1",
+          "status": "paid",
+          "substatus": "succeeded",
+          "created_at": "2026-01-05T00:00:00.000Z",
+          "updated_at": "2026-01-05T00:00:00.000Z",
+          "paid_at": "2026-01-05T00:00:00.000Z",
+          "refunded_at": null,
+          "plan": { "id": "plan_m" },
+          "product": null,
+          "user": {
+            "id": "user_a",
+            "name": "Alice Example",
+            "username": "alice",
+            "email": "a@example.com"
+          },
+          "membership": { "id": "mem_1" },
+          "currency": "usd",
+          "total": 29.99,
+          "subtotal": 29.99,
+          "usd_total": 29.99,
+          "refunded_amount": 0,
+          "amount_after_fees": 28.5,
+          "billing_reason": "subscription_create",
+          "failure_message": null
+        },
+        {
+          "id": "pay_2",
+          "status": "paid",
+          "substatus": "succeeded",
+          "created_at": "2026-01-10T00:00:00.000Z",
+          "updated_at": "2026-01-10T00:00:00.000Z",
+          "paid_at": "2026-01-10T00:00:00.000Z",
+          "refunded_at": null,
+          "plan": { "id": "plan_m" },
+          "product": null,
+          "user": {
+            "id": "user_b",
+            "name": "Bob Example",
+            "username": "bob",
+            "email": "b@example.com"
+          },
+          "membership": { "id": "mem_2" },
+          "currency": "usd",
+          "total": 29.99,
+          "subtotal": 29.99,
+          "usd_total": 29.99,
+          "refunded_amount": 0,
+          "amount_after_fees": 28.5,
+          "billing_reason": "subscription_create",
+          "failure_message": null
+        }
+      ],
+      "page_info": {
+        "end_cursor": "c1",
+        "start_cursor": "c0",
+        "has_next_page": true,
+        "has_previous_page": false
+      }
+    },
+    {
+      "data": [
+        {
+          "id": "pay_3",
+          "status": "paid",
+          "substatus": "refunded",
+          "created_at": "2026-01-15T00:00:00.000Z",
+          "updated_at": "2026-01-18T00:00:00.000Z",
+          "paid_at": "2026-01-15T00:00:00.000Z",
+          "refunded_at": "2026-01-18T00:00:00.000Z",
+          "plan": { "id": "plan_o" },
+          "product": { "id": "prod_2", "title": "Course" },
+          "user": {
+            "id": "user_c",
+            "name": "Carol Example",
+            "username": "carol",
+            "email": "c@example.com"
+          },
+          "membership": null,
+          "currency": "usd",
+          "total": 15,
+          "subtotal": 15,
+          "usd_total": 15,
+          "refunded_amount": 15,
+          "amount_after_fees": 14.25,
+          "billing_reason": "one_time",
+          "failure_message": null
+        },
+        {
+          "id": "pay_4",
+          "status": "open",
+          "substatus": "failed",
+          "created_at": "2026-01-16T00:00:00.000Z",
+          "updated_at": "2026-01-16T00:00:00.000Z",
+          "paid_at": null,
+          "refunded_at": null,
+          "plan": { "id": "plan_m" },
+          "product": null,
+          "user": {
+            "id": "user_d",
+            "name": "Dan Example",
+            "username": "dan",
+            "email": "d@example.com"
+          },
+          "membership": { "id": "mem_4" },
+          "currency": "usd",
+          "total": 29.99,
+          "subtotal": 29.99,
+          "usd_total": 29.99,
+          "refunded_amount": 0,
+          "amount_after_fees": 0,
+          "billing_reason": "subscription_create",
+          "failure_message": "card_declined"
+        }
+      ],
+      "page_info": {
+        "end_cursor": "c2",
+        "start_cursor": "c1",
+        "has_next_page": true,
+        "has_previous_page": true
+      }
+    },
+    {
+      "data": [
+        {
+          "id": "pay_5",
+          "status": "paid",
+          "substatus": "succeeded",
+          "created_at": "2026-02-05T00:00:00.000Z",
+          "updated_at": "2026-02-05T00:00:00.000Z",
+          "paid_at": "2026-02-05T00:00:00.000Z",
+          "refunded_at": null,
+          "plan": { "id": "plan_m" },
+          "product": null,
+          "user": {
+            "id": "user_a",
+            "name": "Alice Example",
+            "username": "alice",
+            "email": "a@example.com"
+          },
+          "membership": { "id": "mem_1" },
+          "currency": "usd",
+          "total": 29.99,
+          "subtotal": 29.99,
+          "usd_total": 29.99,
+          "refunded_amount": 0,
+          "amount_after_fees": 28.5,
+          "billing_reason": "subscription_cycle",
+          "failure_message": null
+        },
+        {
+          "id": "pay_6",
+          "status": "paid",
+          "substatus": "succeeded",
+          "created_at": "2026-01-20T00:00:00.000Z",
+          "updated_at": "2026-01-25T00:00:00.000Z",
+          "paid_at": "2026-01-20T00:00:00.000Z",
+          "refunded_at": null,
+          "plan": { "id": "plan_y" },
+          "product": null,
+          "user": {
+            "id": "user_e",
+            "name": "Eve Example",
+            "username": "eve",
+            "email": "e@example.com"
+          },
+          "membership": { "id": "mem_3" },
+          "currency": "usd",
+          "total": 240,
+          "subtotal": 240,
+          "usd_total": 240,
+          "refunded_amount": 40,
+          "amount_after_fees": 228,
+          "billing_reason": "subscription_create",
+          "failure_message": null
+        }
+      ],
+      "page_info": {
+        "end_cursor": "c3",
+        "start_cursor": "c2",
+        "has_next_page": false,
+        "has_previous_page": true
+      }
+    }
+  ],
+  "refunds": [
+    {
+      "data": [
+        {
+          "id": "rf_1",
+          "amount": 15,
+          "currency": "usd",
+          "status": "succeeded",
+          "created_at": "2026-01-18T00:00:00.000Z",
+          "provider": "stripe",
+          "reference_status": "available",
+          "reference_type": "acquirer_reference_number",
+          "reference_value": "0000",
+          "payment": { "id": "pay_3" }
+        }
+      ],
+      "page_info": {
+        "end_cursor": "r1",
+        "start_cursor": "r0",
+        "has_next_page": false,
+        "has_previous_page": false
+      }
+    }
+  ],
+  "disputes": [
+    {
+      "data": [
+        {
+          "id": "dp_1",
+          "amount": 29.99,
+          "currency": "usd",
+          "status": "lost",
+          "editable": false,
+          "created_at": "2026-02-10T00:00:00.000Z",
+          "reason": "fraudulent",
+          "reason_code": "10",
+          "plan": { "id": "plan_m" },
+          "product": { "id": "prod_1", "title": "Pro Plan" },
+          "company": { "id": "biz_test", "title": "Test Co" },
+          "payment": { "id": "pay_2" }
+        }
+      ],
+      "page_info": {
+        "end_cursor": "d1",
+        "start_cursor": "d0",
+        "has_next_page": false,
+        "has_previous_page": false
+      }
+    }
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "name": "@infinibot/twitch",
+  "version": "2026.11.1",
+  "description": "InfiniBot Twitch channel plugin",
+  "license": "FSL-1.1-ALv2",
+  "type": "module",
+  "dependencies": {
+    "@twurple/api": "^8.0.3",
+    "@twurple/auth": "^8.0.3",
+    "@twurple/chat": "^8.0.3",
+    "zod": "^4.3.5"
+  },
+  "devDependencies": {
+    "infinibot": "workspace:*"
+  },
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

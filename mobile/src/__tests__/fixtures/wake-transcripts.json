@@ -1,0 +1,222 @@
+{
+  "source": "Live gateway 2026-10-14: /api/voice/tts (Kokoro) -> ffmpeg to the phone's upload formats (16 kHz mono AAC .m4a, Opus .webm, PCM .wav, 0.4 s lead-in) -> POST /api/voice/stt with Bearer auth (local Whisper). 'wake' = the app matcher's verdict at Normal sensitivity.",
+  "samples": [
+    {
+      "id": "positive.m4a",
+      "spoken": "Hey Infini, what's on my board?",
+      "voice": "af_heart",
+      "format": "m4a",
+      "transcript": "Hey Infini, what's on my board?",
+      "wake": true
+    },
+    {
+      "id": "positive.webm",
+      "spoken": "Hey Infini, what's on my board?",
+      "voice": "af_heart",
+      "format": "webm",
+      "transcript": "Hey Infini, what's on my board?",
+      "wake": true
+    },
+    {
+      "id": "positive.wav",
+      "spoken": "Hey Infini, what's on my board?",
+      "voice": "af_heart",
+      "format": "wav",
+      "transcript": "Hey Infini, what's on my board?",
+      "wake": true
+    },
+    {
+      "id": "negative.m4a",
+      "spoken": "I watched Infinity War.",
+      "voice": "af_heart",
+      "format": "m4a",
+      "transcript": "I watched Infinity War.",
+      "wake": false
+    },
+    {
+      "id": "negative.webm",
+      "spoken": "I watched Infinity War.",
+      "voice": "af_heart",
+      "format": "webm",
+      "transcript": "I watched Infinity War.",
+      "wake": false
+    },
+    {
+      "id": "negative.wav",
+      "spoken": "I watched Infinity War.",
+      "voice": "af_heart",
+      "format": "wav",
+      "transcript": "I watched Infinity War.",
+      "wake": false
+    },
+    {
+      "id": "positive-bare-adam.m4a",
+      "spoken": "Hey Infini.",
+      "voice": "am_adam",
+      "format": "m4a",
+      "transcript": "Hey and Finney.",
+      "wake": true
+    },
+    {
+      "id": "positive-bare-adam.webm",
+      "spoken": "Hey Infini.",
+      "voice": "am_adam",
+      "format": "webm",
+      "transcript": "Hey and Finney",
+      "wake": true
+    },
+    {
+      "id": "positive-bare-adam.wav",
+      "spoken": "Hey Infini.",
+      "voice": "am_adam",
+      "format": "wav",
+      "transcript": "Hey and Finney.",
+      "wake": true
+    },
+    {
+      "id": "positive-bare-emma.m4a",
+      "spoken": "Hey Infini.",
+      "voice": "bf_emma",
+      "format": "m4a",
+      "transcript": "Hey, Infinity.",
+      "wake": true
+    },
+    {
+      "id": "positive-bare-emma.webm",
+      "spoken": "Hey Infini.",
+      "voice": "bf_emma",
+      "format": "webm",
+      "transcript": "Hey Infini",
+      "wake": true
+    },
+    {
+      "id": "positive-bare-emma.wav",
+      "spoken": "Hey Infini.",
+      "voice": "bf_emma",
+      "format": "wav",
+      "transcript": "Hey and Finny",
+      "wake": true
+    },
+    {
+      "id": "positive-task-george.m4a",
+      "spoken": "Hey Infini, add a task to call mom.",
+      "voice": "bm_george",
+      "format": "m4a",
+      "transcript": "He and Finney add a task to call mom.",
+      "wake": true
+    },
+    {
+      "id": "positive-task-george.webm",
+      "spoken": "Hey Infini, add a task to call mom.",
+      "voice": "bm_george",
+      "format": "webm",
+      "transcript": "Hey and Finney, add a task to call mom.",
+      "wake": true
+    },
+    {
+      "id": "positive-task-george.wav",
+      "spoken": "Hey Infini, add a task to call mom.",
+      "voice": "bm_george",
+      "format": "wav",
+      "transcript": "He and Finney add a task to call mom.",
+      "wake": true
+    },
+    {
+      "id": "negative-war-adam.m4a",
+      "spoken": "Hey, Infinity War was a great movie.",
+      "voice": "am_adam",
+      "format": "m4a",
+      "transcript": "Hey, Infinity War was a great movie.",
+      "wake": false
+    },
+    {
+      "id": "negative-war-adam.webm",
+      "spoken": "Hey, Infinity War was a great movie.",
+      "voice": "am_adam",
+      "format": "webm",
+      "transcript": "Hey, Infinity War was a great movie.",
+      "wake": false
+    },
+    {
+      "id": "negative-war-adam.wav",
+      "spoken": "Hey, Infinity War was a great movie.",
+      "voice": "am_adam",
+      "format": "wav",
+      "transcript": "Hey, Infinity War was a great movie.",
+      "wake": false
+    },
+    {
+      "id": "variant-af_heart-bare.m4a",
+      "spoken": "Hey Infini.",
+      "voice": "af_heart",
+      "format": "m4a",
+      "transcript": "Hey and Finny.",
+      "wake": true
+    },
+    {
+      "id": "variant-af_heart-task.m4a",
+      "spoken": "Hey Infini, add a task to call mom.",
+      "voice": "af_heart",
+      "format": "m4a",
+      "transcript": "He and Finney, add a task to call mom.",
+      "wake": true
+    },
+    {
+      "id": "variant-am_michael-bare.m4a",
+      "spoken": "Hey Infini.",
+      "voice": "am_michael",
+      "format": "m4a",
+      "transcript": "Hey, Infimio.",
+      "wake": true
+    },
+    {
+      "id": "variant-bm_george-bare.m4a",
+      "spoken": "Hey Infini.",
+      "voice": "bm_george",
+      "format": "m4a",
+      "transcript": "Harry Infini",
+      "wake": true
+    },
+    {
+      "id": "variant-af_bella-bare.m4a",
+      "spoken": "Hey Infini.",
+      "voice": "af_bella",
+      "format": "m4a",
+      "transcript": "Tay and Finney.",
+      "wake": true,
+      "note": "fires at Normal/High only"
+    },
+    {
+      "id": "cut-1.9s.m4a",
+      "spoken": "Hey Infini, what's on my board? (clip cut at 1.9 s)",
+      "voice": "af_heart",
+      "format": "m4a",
+      "transcript": "Hey and Finny, what's on?",
+      "wake": true
+    },
+    {
+      "id": "negative-long.m4a",
+      "spoken": "I watched Infinity War last night.",
+      "voice": "af_heart",
+      "format": "m4a",
+      "transcript": "I watched Infinity War last night.",
+      "wake": false
+    },
+    {
+      "id": "web-e2e-positive.webm",
+      "spoken": "Hey Infini.",
+      "voice": "am_adam",
+      "format": "webm (browser MediaRecorder via the app's wake engine, fake mic)",
+      "transcript": "Hayden Finney",
+      "wake": true
+    },
+    {
+      "id": "web-e2e-negative.webm",
+      "spoken": "I watched Infinity War.",
+      "voice": "af_heart",
+      "format": "webm (browser MediaRecorder via the app's wake engine, fake mic)",
+      "transcript": "I watched Infinity War.",
+      "wake": false
+    }
+  ]
+}

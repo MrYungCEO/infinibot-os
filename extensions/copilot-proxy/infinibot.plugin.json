@@ -1,0 +1,23 @@
+{
+  "id": "copilot-proxy",
+  "name": "Copilot Proxy",
+  "listing": {
+    "tagline": "Use the Copilot Proxy VS Code extension as a model provider.",
+    "category": "integrations",
+    "tags": [
+      "models",
+      "provider"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "providers": [
+    "copilot-proxy"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>InfiniBot — Master Terminal</title>
+    <meta name="color-scheme" content="dark light" />
+    <link rel="icon" href="/favicon.ico" sizes="any" />
+    <!-- D3.js v7 for Systems Intelligence Graph -->
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+  </head>
+  <body style="background: transparent;">
+    <terminal-background
+      scale="1.8"
+      digitSize="1.0"
+      timeScale="0.25"
+      scanlineIntensity="0.25"
+      glitchAmount="0.6"
+      flickerAmount="0.3"
+      noiseAmp="0.6"
+      curvature="0.03"
+      tint="#FFD700"
+      brightness="0.35"
+      mouseReact="true"
+      mouseStrength="0.25"
+      pageLoadAnimation="true"
+    ></terminal-background>
+    <infinibot-app></infinibot-app>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

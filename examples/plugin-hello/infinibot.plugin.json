@@ -1,0 +1,57 @@
+{
+  "manifestVersion": 2,
+  "id": "hello",
+  "name": "Hello",
+  "version": "0.1.0",
+  "publisher": "infinibot-examples",
+  "license": "MIT",
+  "description": "Hello — the example plugin the InfiniBot plugin docs walk through.",
+  "minHostVersion": "2026.6.30",
+  "engines": {
+    "infinibot-plugin-api": "^2.0.0"
+  },
+  "listing": {
+    "tagline": "Say hello from Hello.",
+    "description": "**Hello** is a starter plugin. It adds one gateway method, one agent tool, one setting and a small panel.\n\nReplace this text with what your plugin does and who it is for.",
+    "category": "developer",
+    "tags": [
+      "example"
+    ],
+    "icon": "assets/icon.svg"
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "greeting": {
+        "type": "string",
+        "default": "Hello"
+      }
+    }
+  },
+  "uiHints": {
+    "greeting": {
+      "label": "Greeting",
+      "placeholder": "Hello"
+    }
+  },
+  "ui": {
+    "navLabel": "Hello",
+    "entry": "/plugins/hello/ui.js"
+  },
+  "contributes": {
+    "rpc": [
+      {
+        "method": "hello.greet",
+        "scope": "read"
+      }
+    ],
+    "http": [
+      "/plugins/hello/ui.js"
+    ],
+    "tools": [
+      "hello_greet"
+    ]
+  },
+  "permissions": {}
+}

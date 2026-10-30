@@ -1,0 +1,27 @@
+{
+  "name": "@infinibot/desktop",
+  "version": "2026.6.8",
+  "description": "InfiniBot Desktop — Electron sidecar wrapper for the InfiniBot gateway",
+  "license": "FSL-1.1-ALv2",
+  "private": true,
+  "main": "dist-electron/main.js",
+  "scripts": {
+    "compile": "tsc -p tsconfig.json",
+    "dev": "npm run compile && electron .",
+    "build": "npm run compile && electron-builder",
+    "build:win": "npm run compile && electron-builder --win",
+    "build:mac": "npm run compile && electron-builder --mac",
+    "build:linux": "npm run compile && electron-builder --linux"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^3.6.0",
+    "@types/node": "^20.14.0",
+    "electron": "^33.2.0",
+    "electron-builder": "^25.1.8",
+    "typescript": "^5.5.0"
+  },
+  "dependencies": {
+    "electron-store": "^8.2.0",
+    "electron-updater": "^6.3.9"
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "id": "chat",
+  "title": "Chat & Sessions",
+  "description": "Single chat, the multi-session grid, voice mode, sub-agents, and how the agent uses your context.",
+  "audience": "all",
+  "order": 10,
+  "category": "Chat",
+  "steps": [
+    {
+      "id": "single-chat",
+      "title": "The single-chat tab",
+      "estMinutes": 1,
+      "body": "Chat tab → top center is the message bar, history scrolls above. Each session is a separate conversation with its own memory window. The agent can:\n\n- Read & write files in your home directory\n- Search the web\n- Run code, query databases\n- Look at your projects, business, calendar\n\nKeyboard shortcuts: ⌘/Ctrl+Enter sends, ↑ recalls last prompt, Esc cancels a streaming reply.",
+      "cta": { "label": "Open Chat", "tab": "webchat" }
+    },
+    {
+      "id": "sessions",
+      "title": "Sessions = parallel conversations",
+      "estMinutes": 2,
+      "body": "Each session has a distinct context. Use sessions when you want the agent to *not* mix two threads — e.g. one for `client-A research`, one for `code refactor`. Switch via the threads sidebar.\n\nA session remembers everything inside it (messages + tool outputs) and forgets everything outside.\n\n**Tip:** name sessions descriptively. The agent uses the name when picking which session to deliver an inbound message to."
+    },
+    {
+      "id": "grid",
+      "title": "For power users: the multi-session grid",
+      "estMinutes": 2,
+      "body": "Everyday chatting happens on the **Chat** page. When you want several conversations side by side, open **Grid** from the sidebar. You'll see 4–9 chat panels at once — each with its own session, model, and federation device.\n\nUse cases:\n- Run the same prompt across 3 different models and compare\n- One session writing code, another reviewing, another running tests\n- Talk to the same agent across multiple federated devices simultaneously\n\nEach grid panel has its own model dropdown, federation device picker, and skill picker.",
+      "cta": { "label": "Open Grid", "tab": "grid" }
+    },
+    {
+      "id": "voice",
+      "title": "Voice mode",
+      "estMinutes": 2,
+      "body": "Voice tab. Press **Connect** — wake-word + push-to-talk both supported. The agent speaks back through the configured TTS (default: Onyx voice).\n\nIf no Claude terminal is selected when you connect, voice mode auto-spawns one so the conversation has somewhere to land.\n\nSettings → Appearance → Voice section lets you change voices, language, and speech speed."
+    },
+    {
+      "id": "skills",
+      "title": "Skills + sub-agents",
+      "estMinutes": 2,
+      "body": "Skills are pre-packaged prompts/tools the agent can invoke mid-conversation. Open the agent-chat sidebar (right edge of any chat), click the lightning bolt → search.\n\nGood examples:\n- `/skill ultrareview` — multi-agent code review of your branch\n- `/skill watch` — analyze a video file\n\nSub-agents are isolated agent runs the main agent can spawn for parallel work. The agent decides when to use them; you'll see them in the agent-chat sidebar as separate threads."
+    },
+    {
+      "id": "context",
+      "title": "How the agent uses your context",
+      "estMinutes": 2,
+      "body": "Every session prepends:\n\n1. The system prompt (sets the agent's behavior)\n2. **Your user-profile context** (Settings → Users → Background context)\n3. **Your active business** (if you have one set as active)\n4. The conversation so far\n\nThis is why the user-profile context field is high-leverage: anything you put there flavors *every* session. Update it whenever your focus changes — switching businesses, starting a new project."
+    }
+  ]
+}

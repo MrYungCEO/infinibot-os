@@ -1,0 +1,115 @@
+InfiniBot — the AI OS
+Copyright 2026 Kingly Intelligence Systems, LLC
+
+InfiniBot's own code is licensed under the Functional Source License,
+Version 1.1, ALv2 Future License (FSL-1.1-ALv2). See LICENSE and LICENSING.md.
+Each release converts to the Apache License, Version 2.0 on the second
+anniversary of the date it is made available.
+
+Exception: the hosted-cloud fleet control plane (src/fleet/** and
+deploy/fly/orchestrator/**) is proprietary and NOT covered by the FSL; see
+src/fleet/LICENSE. It is not needed to self-host InfiniBot.
+
+"InfiniBot" and "InfiniBot — the AI OS" are trademarks of the Licensor.
+See TRADEMARKS.md. The FSL does not grant trademark rights.
+
+Claude and Anthropic, OpenAI and Codex, Gemini and Google, OpenCode, and other
+third-party names and logos are trademarks of their respective owners. They
+are used only to identify compatibility with those tools, are not covered by
+InfiniBot's license, and their use does not imply any endorsement,
+sponsorship or affiliation. The FSL grants no rights in third-party marks.
+The marks shipped in this repository are listed in TRADEMARKS.md and
+docs/licensing/BRAND-USAGE.md.
+
+The third-party notices below are NOT relicensed by the FSL. Code that came
+from an MIT-licensed project stays available under the MIT License, and its
+copyright and permission notice must be kept in all copies.
+
+================================================================================
+UPSTREAM PROJECT: Clawdbot / Moltbot
+================================================================================
+
+This product includes software from Clawdbot (later renamed Moltbot), created
+by Peter Steinberger and contributors, licensed under the MIT License.
+InfiniBot started from the Moltbot source tree (first imported in commit
+b5c51299). The upstream history and contributor credits are preserved in
+docs/history/CHANGELOG-upstream.md. A standalone copy of the notice below is in
+docs/licensing/UPSTREAM-MOLTBOT-MIT.txt.
+
+MIT License
+
+Copyright (c) 2025 Peter Steinberger
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================================================================================
+Excalidraw
+================================================================================
+
+The Control UI canvas embeds Excalidraw (@excalidraw/excalidraw, an npm
+dependency), licensed under the MIT License. A standalone copy is in
+docs/licensing/EXCALIDRAW-MIT.txt.
+
+MIT License
+
+Copyright (c) 2020 Excalidraw
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+================================================================================
+Other vendored components (license kept next to the files)
+================================================================================
+
+- extensions/open-prose/skills/prose/        MIT, Copyright (c) 2025 OpenProse
+                                             (see LICENSE in that directory)
+- skills/skill-creator/                      Apache-2.0 (see license.txt)
+- src/agents/skills/cumulative/              design inspired by
+                                             NousResearch/hermes-agent (MIT);
+                                             see LICENSE-NOTICE.md
+- apps/macos/Sources/Clawdbot/Resources/DeviceModels/
+                                             MIT, Copyright (c) 2021 Kyle
+                                             Seongwoo Jun (apple-device-
+                                             identifiers); see NOTICE.md
+- scripts/vendor/globe.gl.min.js             globe.gl by Vasco Asturiano (MIT)
+- ui/public/vad/                             onnxruntime-web (MIT, Microsoft)
+                                             and Silero VAD (MIT, Silero Team)
+
+================================================================================
+Dependencies
+================================================================================
+
+Packages installed through npm/pnpm, pip, Gradle, CocoaPods, Swift Package
+Manager and similar tools keep their own licenses. They are listed in
+THIRD_PARTY_LICENSES.md.

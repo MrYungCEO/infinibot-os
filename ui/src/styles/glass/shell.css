@@ -1,0 +1,467 @@
+/* ============================================================
+ * InfiniBot Glass — app shell (ambient, top bar, sidebar, frame)
+ *
+ * Loaded after every legacy shell sheet, so it refines rather than
+ * replaces: layout/grid tracks, collapse behaviour, drag-and-drop and
+ * the needs-setup ring logic are untouched. Selectors are prefixed with
+ * :root to win specificity without !important.
+ *
+ * Blur budget (performance): ambient (0 blur, pre-blurred gradients) →
+ * top bar (1 layer) → sidebar (1 layer) → menus (1 layer). Rows and
+ * buttons inside never add their own backdrop-filter.
+ * ============================================================ */
+
+/* ── 1. Ambient background ───────────────────────────────────── */
+/* Page BASE colour lives on html. With an animated background selected,
+   theme-glass makes html transparent (and index.html makes body
+   transparent), so the white browser canvas showed through the effect's
+   vignette — light mode read as dirty grey. The root background paints
+   beneath every fixed layer, so WebGL/grid effects still draw on top. */
+:root[data-background] { background-color: var(--glass-base) !important; }
+:root[data-theme="light"][data-background] {
+  background:
+    radial-gradient(120% 80% at 50% -10%, #fffdf8 0%, transparent 60%),
+    linear-gradient(180deg, #f6f3ed 0%, #ece7de 100%) fixed !important;
+}
+
+/* Gold orbs + grain + vignette, above the effect layer (-3) and below the
+   app. Pre-blurred radial gradients — no backdrop-filter cost. */
+.glass-ambient {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  overflow: hidden;
+  opacity: var(--glass-ambient-opacity);
+  contain: strict;
+}
+.glass-ambient__orb {
+  position: absolute;
+  border-radius: 50%;
+  will-change: transform;
+}
+.glass-ambient__orb--1 {
+  width: 70vmax; height: 70vmax;
+  right: -14vmax; top: -38vmax;
+  background: radial-gradient(closest-side, var(--glass-orb-1), transparent 72%);
+  animation: glass-orb-drift-1 46s ease-in-out infinite alternate;
+}
+.glass-ambient__orb--2 {
+  width: 60vmax; height: 60vmax;
+  left: -16vmax; bottom: -34vmax;
+  background: radial-gradient(closest-side, var(--glass-orb-2), transparent 70%);
+  animation: glass-orb-drift-2 58s ease-in-out infinite alternate;
+}
+.glass-ambient__orb--3 {
+  width: 44vmax; height: 44vmax;
+  left: 34%; top: 28%;
+  background: radial-gradient(closest-side, var(--glass-orb-3), transparent 70%);
+  animation: glass-orb-drift-3 64s ease-in-out infinite alternate;
+}
+/* Film grain + vignette keep the blacks from banding and add tactility. */
+.glass-ambient::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--glass-noise);
+  opacity: var(--glass-noise-opacity);
+  mix-blend-mode: overlay;
+}
+.glass-ambient::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(140% 100% at 50% 0%, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+}
+:root[data-theme="light"] .glass-ambient::after {
+  background: radial-gradient(140% 100% at 50% 0%, transparent 60%, rgba(120, 95, 50, 0.08) 100%);
+}
+@keyframes glass-orb-drift-1 { to { transform: translate3d(9vmax, 6vmax, 0) scale(1.08); } }
+@keyframes glass-orb-drift-2 { to { transform: translate3d(-8vmax, -5vmax, 0) scale(1.1); } }
+@keyframes glass-orb-drift-3 { to { transform: translate3d(-12vmax, 7vmax, 0) scale(0.92); } }
+
+/* Animated WebGL backgrounds own the canvas — the ambient steps aside so the
+   two never fight (and the GPU only pays for one). Grain stays for texture. */
+:root[data-background]:not([data-background="ambient-grid"]):not([data-background="gradient"]):not([data-background="none"]) .glass-ambient__orb {
+  display: none;
+}
+:root.perf-mode .glass-ambient__orb { animation: none; }
+
+/* ── 2. Shared shell typography ──────────────────────────────── */
+:root .shell .topbar,
+:root .shell .nav.enhanced {
+  font-family: var(--glass-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv11", "ss01", "ss03";
+}
+
+/* ── 3. Top bar — one frosted pane with a gold hairline ──────── */
+:root .shell > .topbar {
+  background: var(--glass-sheen), var(--glass-2);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-bottom: 0;
+  box-shadow: var(--glass-specular), 0 10px 30px -18px rgba(0, 0, 0, 0.6);
+}
+:root .shell > .topbar::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 1px;
+  pointer-events: none;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    var(--glass-stroke-strong) 12%,
+    color-mix(in srgb, var(--glass-gold) 55%, transparent) 50%,
+    var(--glass-stroke-strong) 88%,
+    transparent 100%);
+}
+:root[data-theme="light"] .shell > .topbar {
+  box-shadow: var(--glass-specular), 0 8px 24px -18px rgba(60, 45, 20, 0.35);
+}
+:root .shell > .topbar .brand-title {
+  letter-spacing: 0.06em;
+}
+:root .shell > .topbar .brand-sub {
+  letter-spacing: 0.18em;
+  opacity: 0.8;
+}
+:root .shell > .topbar .brand-logo img {
+  filter: drop-shadow(0 2px 8px var(--glass-gold-a24));
+}
+:root .shell > .topbar .topbar-tabctx__title {
+  font: 600 13px/1.15 var(--font-ui-display);
+  letter-spacing: var(--glass-tracking-tight);
+  color: var(--glass-fg);
+}
+:root .shell > .topbar .topbar-tabctx__sub {
+  font: 400 11px/1.25 var(--glass-font);
+  color: var(--glass-fg-3);
+}
+:root .shell > .topbar .topbar-tabctx__home {
+  border-radius: var(--glass-radius-xs);
+  background: var(--glass-hover);
+  border: 1px solid var(--glass-stroke);
+  box-shadow: var(--glass-specular);
+  transition: transform var(--glass-dur-fast) var(--glass-spring), border-color var(--glass-dur-fast) var(--glass-ease);
+}
+:root .shell > .topbar .topbar-tabctx__home:hover {
+  transform: var(--glass-lift);
+  border-color: var(--glass-stroke-gold);
+  color: var(--glass-gold);
+}
+
+/* Top-bar controls: quiet glass capsules that lift and catch gold on hover. */
+:root .shell > .topbar .pill,
+:root .shell > .topbar .topbar-glass-btn,
+:root .shell > .topbar .nav-collapse-toggle {
+  background: var(--glass-sheen), var(--glass-hover);
+  border: 1px solid var(--glass-stroke);
+  color: var(--glass-fg-2);
+  box-shadow: var(--glass-specular), 0 1px 2px rgba(0, 0, 0, 0.2);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  font-family: var(--glass-font);
+  letter-spacing: 0.01em;
+  transition:
+    transform var(--glass-dur-fast) var(--glass-spring),
+    border-color var(--glass-dur-fast) var(--glass-ease),
+    color var(--glass-dur-fast) var(--glass-ease),
+    box-shadow var(--glass-dur) var(--glass-ease),
+    background-color var(--glass-dur-fast) var(--glass-ease);
+}
+:root .shell > .topbar .topbar-glass-btn { text-transform: none; font-weight: 500; font-size: 11.5px; }
+:root .shell > .topbar .pill:hover,
+:root .shell > .topbar .topbar-glass-btn:hover,
+:root .shell > .topbar .nav-collapse-toggle:hover {
+  transform: var(--glass-lift);
+  color: var(--glass-fg);
+  border-color: var(--glass-stroke-gold);
+  box-shadow: var(--glass-specular), 0 6px 18px -8px var(--glass-gold-a40);
+}
+:root .shell > .topbar .pill:active,
+:root .shell > .topbar .topbar-glass-btn:active,
+:root .shell > .topbar .nav-collapse-toggle:active { transform: scale(0.96); }
+:root .shell > .topbar .pill:focus-visible,
+:root .shell > .topbar .topbar-glass-btn:focus-visible,
+:root .shell > .topbar .nav-collapse-toggle:focus-visible,
+:root .shell > .topbar .brand--button:focus-visible {
+  outline: none;
+  box-shadow: var(--glass-focus-ring);
+}
+:root .shell > .topbar .pill.active {
+  background: var(--glass-gold-fill) !important;
+  color: var(--glass-ink) !important;
+  border-color: color-mix(in srgb, var(--glass-gold) 70%, transparent);
+}
+/* Top-bar icons follow the theme ink (some carried hard-coded white). */
+:root .shell > .topbar .notif-bell__icon { color: inherit; stroke: currentColor; }
+:root .shell > .topbar .statusDot.ok {
+  box-shadow: 0 0 0 3px rgba(52, 211, 153, 0.14), 0 0 10px rgba(52, 211, 153, 0.6);
+}
+:root .shell > .topbar .mono { font-variant-numeric: tabular-nums; }
+
+/* ── 4. Sidebar — floating glass rail ────────────────────────── */
+:root .shell .nav.enhanced.infinibar {
+  background: var(--glass-sheen), var(--glass-tint), var(--glass-1);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-right: 0;
+  border-radius: var(--glass-radius-lg);
+  box-shadow: var(--glass-elev-2);
+}
+/* Gradient hairline edge: gold at the top-left, fading to glass. */
+:root .shell .nav.enhanced.infinibar::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  height: auto;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--glass-edge);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: 0.9;
+  animation: none;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Scroll fade where rows meet the rail's top/bottom. */
+:root .shell .nav.enhanced .nav-categories {
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 12px, #000 calc(100% - 16px), transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0, #000 12px, #000 calc(100% - 16px), transparent 100%);
+  scrollbar-color: var(--glass-gold-a24) transparent;
+}
+:root .shell .nav.enhanced .nav-categories::-webkit-scrollbar-thumb {
+  background: var(--glass-gold-a24);
+  border-radius: 4px;
+}
+
+/* Launchpad — the rail's one solid call to action. */
+:root .shell .nav.enhanced.infinibar .nav-launchpad-btn {
+  border: 1px solid color-mix(in srgb, var(--glass-gold) 38%, transparent);
+  border-radius: var(--glass-radius-sm);
+  background: var(--glass-sheen), var(--glass-gold-tint);
+  color: var(--glass-fg);
+  box-shadow: var(--glass-specular), 0 8px 22px -14px var(--glass-gold-a40);
+  font-family: var(--glass-font);
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  transition: transform var(--glass-dur-fast) var(--glass-spring), box-shadow var(--glass-dur) var(--glass-ease), border-color var(--glass-dur-fast) var(--glass-ease);
+}
+:root .shell .nav.enhanced.infinibar .nav-launchpad-btn:hover {
+  transform: var(--glass-lift);
+  border-color: color-mix(in srgb, var(--glass-gold) 65%, transparent);
+  box-shadow: var(--glass-specular), 0 12px 30px -12px color-mix(in srgb, var(--glass-gold) 55%, transparent);
+}
+:root .shell .nav.enhanced.infinibar .nav-launchpad-btn:active { transform: scale(0.98); }
+:root .shell .nav.enhanced.infinibar .nav-launchpad-btn__icon { color: var(--glass-gold); }
+
+/* Search — recessed well with a gold focus halo. */
+:root .shell .nav.enhanced.infinibar .nav-search {
+  border-radius: var(--glass-radius-sm);
+  background: color-mix(in srgb, var(--glass-base) 45%, transparent);
+  border: 1px solid var(--glass-stroke);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+}
+:root[data-theme="light"] .shell .nav.enhanced.infinibar .nav-search {
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: inset 0 1px 2px rgba(60, 45, 20, 0.08);
+}
+:root .shell .nav.enhanced.infinibar .nav-search:focus-within {
+  border-color: color-mix(in srgb, var(--glass-gold) 60%, transparent);
+  box-shadow: var(--glass-focus-ring);
+}
+:root .shell .nav.enhanced.infinibar .nav-search__input { font-family: var(--glass-font); }
+:root .shell .nav.enhanced.infinibar .nav-search__kbd {
+  font-family: var(--glass-font-mono);
+  border-bottom-width: 2px;
+}
+
+/* Section groups: quiet caps eyebrow + count. */
+:root .shell .nav.enhanced.infinibar .nav-category-header {
+  padding-top: 12px;
+  padding-bottom: 6px;
+}
+:root .shell .nav.enhanced.infinibar .nav-category-label {
+  font: 600 10px/1 var(--glass-font);
+  letter-spacing: var(--glass-tracking-caps);
+  color: var(--glass-fg-4);
+}
+:root .shell .nav.enhanced.infinibar .nav-category-header:hover .nav-category-label {
+  color: var(--glass-fg-2);
+}
+:root .shell .nav.enhanced.infinibar .nav-favorites-header .nav-category-label {
+  color: color-mix(in srgb, var(--glass-gold) 75%, var(--glass-fg-3));
+}
+:root .shell .nav.enhanced.infinibar .nav-category-count {
+  font: 600 9.5px/1 var(--glass-font);
+  font-variant-numeric: tabular-nums;
+  background: var(--glass-hover);
+  color: var(--glass-fg-4);
+  border: 1px solid var(--glass-stroke);
+  border-radius: var(--glass-radius-pill);
+}
+
+/* Rows */
+:root .shell .nav.enhanced.infinibar .nav-item {
+  font: 500 13px/1.2 var(--glass-font);
+  letter-spacing: -0.006em;
+  color: var(--glass-fg-2);
+  border-radius: var(--glass-radius-sm);
+  border-left: 0;
+  padding: 7px 10px;
+  margin: 1px 8px;
+  transition:
+    background-color var(--glass-dur-fast) var(--glass-ease),
+    color var(--glass-dur-fast) var(--glass-ease),
+    box-shadow var(--glass-dur) var(--glass-ease),
+    transform var(--glass-dur-fast) var(--glass-spring);
+}
+:root .shell .nav.enhanced.infinibar .nav-item__text { font: inherit; }
+:root .shell .nav.enhanced.infinibar .nav-item__icon {
+  color: var(--glass-fg-3);
+  transition: color var(--glass-dur-fast) var(--glass-ease), transform var(--glass-dur) var(--glass-spring);
+}
+:root .shell .nav.enhanced.infinibar .nav-item__icon svg { stroke-width: 1.7; }
+:root .shell .nav.enhanced.infinibar .nav-item:hover {
+  background: var(--glass-hover);
+  color: var(--glass-fg);
+  box-shadow: inset 0 0 0 1px var(--glass-stroke);
+}
+:root .shell .nav.enhanced.infinibar .nav-item:hover .nav-item__icon {
+  color: var(--glass-gold);
+  transform: scale(1.06);
+}
+:root .shell .nav.enhanced.infinibar .nav-item:active { transform: scale(0.985); }
+:root .shell .nav.enhanced.infinibar .nav-item:focus-visible {
+  outline: none;
+  box-shadow: var(--glass-focus-ring);
+}
+
+/* Active row: glass "lozenge" + glowing indicator bar that springs in. */
+:root .shell .nav.enhanced.infinibar .nav-item.active {
+  color: var(--glass-fg);
+  border-left: 0;
+  padding-left: 10px;
+  background:
+    linear-gradient(90deg, var(--glass-gold-a16), var(--glass-gold-a06) 55%, transparent),
+    var(--glass-hover);
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--glass-gold) 22%, transparent),
+    var(--glass-specular),
+    0 6px 18px -10px var(--glass-gold-a40);
+}
+:root[data-theme="light"] .shell .nav.enhanced.infinibar .nav-item.active {
+  background: linear-gradient(90deg, var(--glass-gold-a24), var(--glass-gold-a06) 60%, rgba(255, 255, 255, 0.6));
+}
+:root .shell .nav.enhanced.infinibar:not(.nav--collapsed) .nav-item.active::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 22%;
+  bottom: 22%;
+  width: 3px;
+  border-radius: 0 3px 3px 0;
+  background: var(--glass-gold-fill);
+  box-shadow: 0 0 10px var(--glass-gold-a40), 0 0 2px var(--glass-gold);
+  transform-origin: center;
+  animation: glass-nav-indicator var(--glass-dur-slow) var(--glass-spring) both;
+  opacity: 1;
+}
+:root .shell .nav.enhanced.infinibar .nav-item.active .nav-item__icon {
+  color: var(--glass-gold);
+  filter: drop-shadow(0 0 6px var(--glass-gold-a40));
+}
+@keyframes glass-nav-indicator {
+  from { transform: scaleY(0.2); opacity: 0; }
+  to { transform: scaleY(1); opacity: 1; }
+}
+
+/* Needs-setup ring: softer — a hairline + faint inner glow, not a box. */
+:root .shell .nav.enhanced .nav-item__setup-ring {
+  border-color: color-mix(in srgb, var(--nav-setup-gold) 18%, transparent);
+  box-shadow: inset 0 0 14px -6px color-mix(in srgb, var(--nav-setup-gold) 36%, transparent);
+  background: linear-gradient(90deg, color-mix(in srgb, var(--nav-setup-gold) 6%, transparent), transparent 60%);
+}
+:root .shell .nav.enhanced .nav-item--setup-optional .nav-item__setup-ring {
+  border-color: color-mix(in srgb, var(--nav-setup-gold) 16%, transparent);
+  box-shadow: none;
+  background: none;
+}
+
+/* Favourites */
+:root .shell .nav.enhanced.infinibar .nav-favorites-empty {
+  border-radius: var(--glass-radius-sm);
+  border-color: var(--glass-stroke);
+  color: var(--glass-fg-4);
+  font-family: var(--glass-font);
+}
+:root .shell .nav.enhanced.infinibar .nav-favorites-star { filter: drop-shadow(0 0 6px var(--glass-gold-a40)); }
+
+/* Footer (System group) */
+:root .shell .nav.enhanced.infinibar .nav-footer {
+  border-top: 1px solid var(--glass-stroke);
+}
+
+/* Collapsed rail: icon tiles with the same glass language. */
+:root .shell .nav.enhanced.infinibar.nav--collapsed .nav-item {
+  border-radius: var(--glass-radius-sm);
+  padding: 0;
+}
+:root .shell .nav.enhanced.infinibar.nav--collapsed .nav-item.active {
+  background: radial-gradient(circle at 50% 30%, var(--glass-gold-a24), transparent 75%), var(--glass-hover);
+}
+
+/* The favourites hint is prose — it can't fit a 60px rail. */
+:root .shell .nav.enhanced.infinibar.nav--collapsed .nav-favorites-empty { display: none; }
+
+/* Context menu + flyouts read as floating glass. */
+.nav-context-menu {
+  background: var(--glass-sheen), var(--glass-4) !important;
+  backdrop-filter: var(--glass-blur-lg) !important;
+  -webkit-backdrop-filter: var(--glass-blur-lg) !important;
+  border: 1px solid var(--glass-stroke-strong) !important;
+  border-radius: var(--glass-radius) !important;
+  box-shadow: var(--glass-elev-4) !important;
+  font-family: var(--glass-font);
+}
+
+/* ── 5. Page frame ───────────────────────────────────────────── */
+/* Content header row (errors, chat controls) and per-page host sub-tabs. */
+:root .shell .content > .content-header {
+  font-family: var(--glass-font);
+}
+
+/* ── 6. Mobile (≤ 768px): the rail becomes a drawer; tighten chrome ── */
+@media (max-width: 768px) {
+  :root .shell > .topbar {
+    backdrop-filter: var(--glass-blur-sm);
+    -webkit-backdrop-filter: var(--glass-blur-sm);
+  }
+  :root .shell .nav.enhanced.infinibar .nav-item {
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+  .glass-ambient__orb--3 { display: none; }
+}
+
+/* ── 7. Motion + transparency fallbacks ──────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .glass-ambient__orb { animation: none !important; }
+  :root .shell .nav.enhanced.infinibar .nav-item.active::before { animation: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .glass-ambient__orb { display: none; }
+}
+
+/* Ambient Grid effect (components/backgrounds/ambient-grid.ts) bakes a
+   near-black vignette; in light mode that read as dirty grey corners. */
+:root[data-theme="light"] .infinibot-bg-layer [class$="__vignette"] {
+  opacity: 0.06;
+}

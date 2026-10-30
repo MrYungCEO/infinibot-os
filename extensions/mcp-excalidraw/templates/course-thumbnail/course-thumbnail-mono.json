@@ -1,0 +1,55 @@
+{
+  "id": "course-thumbnail-mono",
+  "category": "course-thumbnail",
+  "name": "Course thumbnail · Mono",
+  "width": 1280,
+  "height": 720,
+  "background": "#f5f5fa",
+  "createdAt": "2026-06-09",
+  "scene": {
+    "elements": [
+      {
+        "id": "course-thumbnail-mono-bg-accent",
+        "type": "rectangle",
+        "x": 0,
+        "y": 561.6,
+        "width": 1280,
+        "height": 43.199999999999996,
+        "backgroundColor": "#a855f7",
+        "fillStyle": "solid",
+        "strokeColor": "transparent",
+        "strokeWidth": 0,
+        "roughness": 0
+      },
+      {
+        "id": "course-thumbnail-mono-title",
+        "type": "text",
+        "x": 128,
+        "y": 251.99999999999997,
+        "width": 1024,
+        "height": 96,
+        "text": "Course thumbnail title",
+        "fontSize": 64,
+        "fontFamily": 1,
+        "textAlign": "center",
+        "strokeColor": "#1a1a2e"
+      },
+      {
+        "id": "course-thumbnail-mono-subtitle",
+        "type": "text",
+        "x": 128,
+        "y": 345.59999999999997,
+        "width": 1024,
+        "height": 48,
+        "text": "Mono · 1280×720",
+        "fontSize": 28,
+        "fontFamily": 2,
+        "textAlign": "center",
+        "strokeColor": "#1a1a2e",
+        "opacity": 70
+      }
+    ],
+    "appState": {},
+    "files": {}
+  }
+}

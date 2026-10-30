@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Site Title</title>
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/scroll.css">
+</head>
+<body>
+  <!-- Scroll Progress Bar -->
+  <div class="scroll-progress" id="scrollProgress"></div>
+
+  <!-- Navigation -->
+  <nav class="nav" id="nav">
+    <div class="nav-inner container">
+      <a href="#" class="nav-logo">Logo</a>
+      <button class="nav-toggle" id="navToggle" aria-label="Menu">
+        <span></span><span></span><span></span>
+      </button>
+      <ul class="nav-links" id="navLinks">
+        <li><a href="#hero">Home</a></li>
+        <li><a href="#features">Features</a></li>
+        <li><a href="#about">About</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- Hero Section -->
+  <section id="hero" class="section hero">
+    <div class="hero-bg" data-parallax="0.4"></div>
+    <div class="container hero-content scroll-reveal">
+      <h1 class="hero-title">Build Something<br><span class="accent">Beautiful</span></h1>
+      <p class="hero-subtitle">Responsive design with smooth scroll effects, built for the modern web.</p>
+      <div class="hero-actions">
+        <a href="#features" class="btn btn-primary">Explore</a>
+        <a href="#contact" class="btn btn-outline">Get in Touch</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="section">
+    <div class="container">
+      <h2 class="section-title scroll-reveal">Features</h2>
+      <p class="section-subtitle scroll-reveal">Everything you need, nothing you don't.</p>
+      <div class="grid-3">
+        <div class="card scroll-reveal">
+          <div class="card-icon">⚡</div>
+          <h3>Fast</h3>
+          <p>Lightweight code, zero dependencies, blazing performance.</p>
+        </div>
+        <div class="card scroll-reveal">
+          <div class="card-icon">📱</div>
+          <h3>Responsive</h3>
+          <p>Mobile-first design that works on every screen size.</p>
+        </div>
+        <div class="card scroll-reveal">
+          <div class="card-icon">✨</div>
+          <h3>Animated</h3>
+          <p>Smooth scroll effects and transitions that feel natural.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Stats Section -->
+  <section class="section section-dark">
+    <div class="container">
+      <div class="grid-4">
+        <div class="stat scroll-reveal">
+          <span class="scroll-counter" data-target="500">0</span>+
+          <small>Projects</small>
+        </div>
+        <div class="stat scroll-reveal">
+          <span class="scroll-counter" data-target="98">0</span>%
+          <small>Satisfaction</small>
+        </div>
+        <div class="stat scroll-reveal">
+          <span class="scroll-counter" data-target="24">0</span>/7
+          <small>Support</small>
+        </div>
+        <div class="stat scroll-reveal">
+          <span class="scroll-counter" data-target="10">0</span>K+
+          <small>Users</small>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Section with Parallax -->
+  <section id="about" class="section">
+    <div class="container grid-2 align-center">
+      <div class="scroll-reveal">
+        <h2 class="section-title">About Us</h2>
+        <p>We build digital experiences that move people. Our approach combines clean code with thoughtful design to create websites that feel alive.</p>
+        <p>Every scroll, every transition, every interaction is intentional.</p>
+      </div>
+      <div class="scroll-reveal image-placeholder">
+        <!-- Replace with actual image -->
+        <div class="placeholder-box">Image</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Section -->
+  <section id="contact" class="section section-dark">
+    <div class="container" style="max-width: 600px;">
+      <h2 class="section-title scroll-reveal">Get in Touch</h2>
+      <form class="form scroll-reveal">
+        <div class="form-group">
+          <label for="name">Name</label>
+          <input type="text" id="name" name="name" placeholder="Your name" required>
+        </div>
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" name="email" placeholder="you@example.com" required>
+        </div>
+        <div class="form-group">
+          <label for="message">Message</label>
+          <textarea id="message" name="message" rows="5" placeholder="Tell us about your project..." required></textarea>
+        </div>
+        <button type="submit" class="btn btn-primary btn-full">Send Message</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <p>&copy; 2025 Your Brand. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <script src="js/smooth.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

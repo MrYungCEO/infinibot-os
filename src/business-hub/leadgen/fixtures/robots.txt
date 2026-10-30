@@ -1,0 +1,8 @@
+# fixture robots.txt
+User-agent: *
+Disallow: /staff-directory
+Disallow: /wp-admin/
+Allow: /wp-admin/admin-ajax.php
+
+User-agent: BadBot
+Disallow: /

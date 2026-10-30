@@ -1,0 +1,46 @@
+{
+  "id": "welcome",
+  "title": "Welcome to InfiniBot",
+  "description": "Five minutes to understand what InfiniBot is, how to navigate it, and where to go next. Auto-assigned to every new user.",
+  "audience": "all",
+  "defaultForNewUsers": true,
+  "order": 1,
+  "category": "Getting started",
+  "badge": "first-steps",
+  "steps": [
+    {
+      "id": "intro",
+      "title": "What InfiniBot does for you",
+      "estMinutes": 1,
+      "body": "InfiniBot is a personal AI control room. Think of it as one place where every tool you use — chat, projects, your calendar, your business pipeline, your video editor — talks to the same AI agent that knows your context.\n\n**You'll come away from this walkthrough knowing:**\n- How the navigation works\n- How to open a chat and ask the agent to do something\n- Where to find your user profile and language preferences\n- What other walkthroughs exist for the deeper features\n\nEverything is reversible. You can't break anything by clicking around."
+    },
+    {
+      "id": "nav",
+      "title": "The navigation sidebar",
+      "estMinutes": 1,
+      "body": "On the left edge of the screen is your navigation sidebar. Tabs are grouped by purpose:\n\n- **Chat** — single chat, multi-session grid, voice mode\n- **Media** — video studio, storyboard\n- **Business** — projects, business center, clients, leads\n- **Agent** — the agent's tools, schedule, autonomy, skills\n- **Settings** — your profile, appearance, integrations, this Learn page\n\nClick around. The active tab highlights in your accent color. Press the tab again to refresh.",
+      "cta": { "label": "Open the Chat page", "tab": "webchat" }
+    },
+    {
+      "id": "chat",
+      "title": "Send your first message",
+      "estMinutes": 2,
+      "body": "Open the Chat tab and type something — anything. The agent has access to:\n\n- Your filesystem (under your home directory)\n- Web search and web fetch\n- Your other tabs' data (it can read your projects, your business, your calendar)\n- Tools like running a shell command, reading a file, generating an image\n\nGood first prompts:\n- *\"What can you see in my projects?\"*\n- *\"Summarize my calendar this week\"*\n- *\"Help me write a one-pager for X\"*\n\nThe agent will tell you when it's about to do something risky and ask for permission.",
+      "verify": { "kind": "tab_visited", "tab": "webchat" }
+    },
+    {
+      "id": "profile",
+      "title": "Your profile + language",
+      "estMinutes": 1,
+      "body": "Settings → Users → click your row. Here you set:\n\n- **Language** — the agent will respond in this by default. Set it to `Spanish — formal` or `Thai` or whatever you need.\n- **Background context** — a short paragraph the agent reads at the start of every session. Put your role, your current focus, your preferences here. The agent will treat this as load-bearing context.\n- **Password** — change your login password.\n\nThe context field is the highest-leverage setting on this page. Treat it like a system prompt for *yourself*.",
+      "cta": { "label": "Open Users", "tab": "users" }
+    },
+    {
+      "id": "next",
+      "title": "Where to go next",
+      "estMinutes": 1,
+      "body": "You've seen the basics. Pick a walkthrough for the area that matters most to you:\n\n- **Chat & Sessions** — multi-session grid, voice mode, sub-agents\n- **Projects & Kanban** — kanban-style projects with auto-run tasks\n- **Business Center** — revenue tracking, clients CRM, Whop/Stripe sync\n- **Video Studio** — composition editor, AI asset analysis, ComfyUI rendering\n- **Mobile** — get the iOS/Android companion app via Expo Go or a personal IPA\n- **Multi-User Admin** *(admin only)* — adding users, page gating, agent directory locking\n\nEach is 5–15 minutes. Mark this one complete and pick the next one from the Library tab.",
+      "cta": { "label": "Open Library", "tab": "users" }
+    }
+  ]
+}

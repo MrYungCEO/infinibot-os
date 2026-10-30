@@ -1,0 +1,111 @@
+# ─── InfiniBot Desktop — electron-builder config ───────────────────────────
+#
+# Code-signing env vars (set in CI or locally):
+#   CSC_LINK          — path to .p12 / .pfx certificate (or base64 in CI)
+#   CSC_KEY_PASSWORD  — password for that certificate
+#
+# Auto-update env vars:
+#   GH_TOKEN          — GitHub PAT for private repos (publish step)
+#   EP_PRE_RELEASE    — set to "true" to publish as pre-release
+# ────────────────────────────────────────────────────────────────────────────
+
+appId: com.infinibot.desktop
+productName: InfiniBot
+copyright: "Copyright © 2026 InfiniBot"
+
+directories:
+  buildResources: build
+  output: dist
+
+# ── Files packed into the asar ──────────────────────────────────────────────
+files:
+  - dist-electron/**/*
+  - launcher.js
+  - src/renderer/**/*
+  - src/first-run.html
+  - "!**/*.map"
+  - "!**/*.test.js"
+
+# ── Native gateway bundle (parent repo) ─────────────────────────────────────
+extraResources:
+  - from: "../../dist"
+    to: "app/dist"
+    filter:
+      - "**/*"
+      - "!**/*.map"
+      - "!**/*.test.js"
+      - "!**/__tests__/**"
+      - "!**/__fixtures__/**"
+  - from: "../../package.json"
+    to: "app/package.json"
+  - from: "../../docs/reference/templates"
+    to: "app/docs/reference/templates"
+  - from: "../../node_modules"
+    to: "app/node_modules"
+    filter:
+      - "**/*"
+      - "!**/*.{md,markdown,ts,tsx,map}"
+      - "!**/{test,tests,__tests__,example,examples,docs,doc,benchmark,benchmarks}/**"
+      - "!**/.bin/**"
+      - "!**/.cache/**"
+      - "!**/CHANGELOG*"
+      - "!**/HISTORY*"
+      - "!**/AUTHORS*"
+
+# ── Don't unpack these from the asar (native addons + launcher) ─────────────
+asarUnpack:
+  - "**/node_modules/better-sqlite3/**"
+  - "**/node_modules/@lydell/node-pty/**"
+  - "**/node_modules/sharp/**"
+  - "launcher.js"
+
+# ── Windows ──────────────────────────────────────────────────────────────────
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+    - target: portable
+      arch: [x64]
+  icon: build/icons/icon.ico
+  # requestedExecutionLevel is set on the installer, not the app executable.
+  # The NSIS installer itself runs as admin (UAC prompt) which is sufficient
+  # for writing the firewall rule and registry key.
+
+nsis:
+  oneClick: true
+  allowToChangeInstallationDirectory: false
+  runAfterFinish: true
+  installerIcon: build/icons/icon.ico
+  uninstallerIcon: build/icons/icon.ico
+  # Custom script: firewall rule + LongPathsEnabled
+  include: build/nsis/installer.nsh
+
+# ── macOS ─────────────────────────────────────────────────────────────────────
+mac:
+  target:
+    - target: dmg
+      arch: [x64, arm64]
+    - target: zip
+      arch: [x64, arm64]
+  icon: build/icons/icon.icns
+  category: public.app-category.developer-tools
+
+# ── Linux ─────────────────────────────────────────────────────────────────────
+linux:
+  target:
+    - target: AppImage
+      arch: [x64]
+    - target: deb
+      arch: [x64]
+  icon: build/icons/icon.png
+  category: Development
+  maintainer: InfiniBot <MrYungCEO@users.noreply.github.com>
+  vendor: InfiniBot
+
+# ── Auto-update (GitHub Releases) ────────────────────────────────────────────
+# Set GH_TOKEN env var when publishing. releaseType can be "release" or "prerelease".
+publish:
+  provider: github
+  owner: MrYungCEO
+  repo: InfiniBot
+  releaseType: release

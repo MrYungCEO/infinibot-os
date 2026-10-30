@@ -1,0 +1,23 @@
+{
+  "id": "telegram",
+  "name": "Telegram",
+  "listing": {
+    "tagline": "Chat with your agents through a Telegram bot.",
+    "category": "channels",
+    "tags": [
+      "chat",
+      "mobile"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "channels": [
+    "telegram"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

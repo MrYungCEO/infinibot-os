@@ -1,0 +1,258 @@
+/* ============================================================
+ * InfiniBot Glass — design tokens (--glass-*)
+ *
+ * The global glass system every page can build on. Documented in
+ * docs/ui/GLASS.md. Rules of the road:
+ *   - These tokens are ADDITIVE. Every older token (--g-*, --bg, --text,
+ *     --gold, --accent …) keeps its name and still works.
+ *   - Colours derive from --g-primary, so palette swaps (Appearance page)
+ *     re-tint the glass automatically.
+ *   - Light theme, reduced transparency and reduced motion are handled
+ *     here, by re-pointing tokens, so components never need their own
+ *     fallbacks.
+ * ============================================================ */
+
+:root {
+  /* ── Typography ─────────────────────────────────────────── */
+  --font-ui: "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI Variable", "Segoe UI", system-ui, sans-serif;
+  --font-ui-display: "Inter", "SF Pro Display", -apple-system, BlinkMacSystemFont, "Segoe UI Variable", system-ui, sans-serif;
+  --glass-font: var(--font-ui);
+  --glass-font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  --glass-tracking-tight: -0.011em;
+  --glass-tracking-caps: 0.14em;
+  --glass-text-xs: 11px;
+  --glass-text-sm: 12.5px;
+  --glass-text-md: 14px;
+  --glass-text-lg: 16px;
+  --glass-text-xl: 20px;
+
+  /* ── Spacing rhythm (4pt grid) ──────────────────────────── */
+  --glass-space-1: 4px;
+  --glass-space-2: 8px;
+  --glass-space-3: 12px;
+  --glass-space-4: 16px;
+  --glass-space-5: 20px;
+  --glass-space-6: 24px;
+  --glass-space-8: 32px;
+
+  /* ── Radii ──────────────────────────────────────────────── */
+  --glass-radius-xs: 7px;
+  --glass-radius-sm: 10px;
+  --glass-radius: 14px;
+  --glass-radius-lg: 20px;
+  --glass-radius-xl: 26px;
+  --glass-radius-pill: 999px;
+
+  /* ── Brand ──────────────────────────────────────────────── */
+  --glass-gold: var(--g-primary, #fbbf24);
+  --glass-gold-deep: color-mix(in srgb, var(--glass-gold) 70%, #7a4a00);
+  --glass-gold-hi: color-mix(in srgb, var(--glass-gold) 55%, #fff6dc);
+  --glass-gold-a06: color-mix(in srgb, var(--glass-gold) 6%, transparent);
+  --glass-gold-a10: color-mix(in srgb, var(--glass-gold) 10%, transparent);
+  --glass-gold-a16: color-mix(in srgb, var(--glass-gold) 16%, transparent);
+  --glass-gold-a24: color-mix(in srgb, var(--glass-gold) 24%, transparent);
+  --glass-gold-a40: color-mix(in srgb, var(--glass-gold) 40%, transparent);
+  --glass-ink: #0b0906; /* text on solid gold */
+
+  /* ── Text ───────────────────────────────────────────────── */
+  --glass-fg: #f4f1ea;
+  --glass-fg-2: rgba(244, 241, 234, 0.72);
+  --glass-fg-3: rgba(244, 241, 234, 0.5);
+  --glass-fg-4: rgba(244, 241, 234, 0.32);
+
+  /* ── Surfaces: four frosted tiers, thin → thick ─────────── */
+  --glass-base: #07070a;
+  --glass-1: rgba(22, 20, 17, 0.42);  /* rails, page frame */
+  --glass-2: rgba(24, 22, 19, 0.56);  /* panels, top bar */
+  --glass-3: rgba(30, 27, 23, 0.66);  /* cards, bubbles */
+  --glass-4: rgba(18, 17, 15, 0.86);  /* menus, popovers, modals */
+  --glass-solid: #121110;             /* reduced-transparency fallback */
+  --glass-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.055) 0%, rgba(255, 255, 255, 0.012) 38%, rgba(255, 255, 255, 0) 60%);
+  --glass-tint: linear-gradient(135deg, var(--glass-gold-a06) 0%, transparent 46%);
+  --glass-hover: rgba(255, 255, 255, 0.045);
+  --glass-press: rgba(255, 255, 255, 0.07);
+
+  /* ── Borders: hairlines + gold→transparent gradient edge ─ */
+  --glass-stroke: rgba(255, 255, 255, 0.075);
+  --glass-stroke-strong: rgba(255, 255, 255, 0.13);
+  --glass-stroke-gold: color-mix(in srgb, var(--glass-gold) 28%, transparent);
+  --glass-edge: linear-gradient(160deg,
+      color-mix(in srgb, var(--glass-gold) 55%, transparent) 0%,
+      color-mix(in srgb, var(--glass-gold) 14%, transparent) 26%,
+      rgba(255, 255, 255, 0.05) 55%,
+      color-mix(in srgb, var(--glass-gold) 18%, transparent) 100%);
+  --glass-edge-soft: linear-gradient(160deg,
+      rgba(255, 255, 255, 0.16) 0%,
+      rgba(255, 255, 255, 0.04) 40%,
+      color-mix(in srgb, var(--glass-gold) 10%, transparent) 100%);
+
+  /* ── Blur (performance-safe: at most ~3 stacked layers) ─── */
+  --glass-blur-sm: blur(10px) saturate(150%);
+  --glass-blur: blur(20px) saturate(170%);
+  --glass-blur-lg: blur(32px) saturate(185%);
+
+  /* ── Depth: specular top edge + inner shade + soft drop ─── */
+  --glass-specular: inset 0 1px 0 rgba(255, 255, 255, 0.075);
+  --glass-inner-shade: inset 0 -1px 0 rgba(0, 0, 0, 0.35);
+  --glass-elev-1: var(--glass-specular), 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.55);
+  --glass-elev-2: var(--glass-specular), var(--glass-inner-shade), 0 2px 6px rgba(0, 0, 0, 0.28), 0 18px 44px -18px rgba(0, 0, 0, 0.7);
+  --glass-elev-3: var(--glass-specular), var(--glass-inner-shade), 0 4px 10px rgba(0, 0, 0, 0.3), 0 28px 60px -22px rgba(0, 0, 0, 0.78);
+  --glass-elev-4: var(--glass-specular), var(--glass-inner-shade), 0 10px 24px rgba(0, 0, 0, 0.38), 0 44px 96px -28px rgba(0, 0, 0, 0.85);
+  --glass-glow: 0 0 0 1px var(--glass-gold-a24), 0 8px 28px -8px var(--glass-gold-a40);
+  --glass-glow-soft: 0 0 22px -6px var(--glass-gold-a40);
+  --glass-focus-ring: 0 0 0 1px color-mix(in srgb, var(--glass-gold) 70%, transparent), 0 0 0 4px var(--glass-gold-a16);
+
+  /* ── Gold fills ─────────────────────────────────────────── */
+  --glass-gold-fill: linear-gradient(180deg, var(--glass-gold-hi) 0%, var(--glass-gold) 48%, var(--glass-gold-deep) 100%);
+  --glass-gold-tint: linear-gradient(180deg, color-mix(in srgb, var(--glass-gold) 24%, rgba(30, 24, 12, 0.85)) 0%, color-mix(in srgb, var(--glass-gold) 15%, rgba(22, 18, 10, 0.88)) 100%);
+
+  /* ── Motion ─────────────────────────────────────────────── */
+  --glass-spring: cubic-bezier(0.34, 1.36, 0.64, 1);
+  --glass-ease: cubic-bezier(0.22, 1, 0.36, 1);
+  --glass-dur-fast: 140ms;
+  --glass-dur: 240ms;
+  --glass-dur-slow: 420ms;
+  --glass-lift: translateY(-1px);
+
+  /* ── Noise grain (tiny inline SVG, tiled) ───────────────── */
+  --glass-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.55 0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  --glass-noise-opacity: 0.035;
+
+  /* ── Ambient orbs ───────────────────────────────────────── */
+  --glass-orb-1: color-mix(in srgb, var(--glass-gold) 24%, transparent);
+  --glass-orb-2: color-mix(in srgb, #c98a1e 18%, transparent);
+  --glass-orb-3: color-mix(in srgb, var(--g-accent, #a855f7) 7%, transparent);
+  --glass-ambient-opacity: 1;
+}
+
+/* ── Light theme: porcelain glass, warm-gold accents ───────── */
+:root[data-theme="light"] {
+  --glass-fg: #17140f;
+  --glass-fg-2: rgba(23, 20, 15, 0.72);
+  --glass-fg-3: rgba(23, 20, 15, 0.52);
+  --glass-fg-4: rgba(23, 20, 15, 0.34);
+  --glass-gold: color-mix(in srgb, var(--g-primary, #fbbf24) 78%, #8a5a00);
+  --glass-gold-hi: color-mix(in srgb, var(--g-primary, #fbbf24) 70%, #fff7e0);
+  --glass-gold-deep: color-mix(in srgb, var(--g-primary, #fbbf24) 62%, #6b4400);
+  --glass-ink: #1a1306;
+  --glass-base: #f3f0ea;
+  --glass-1: rgba(255, 255, 255, 0.5);
+  --glass-2: rgba(255, 255, 255, 0.62);
+  --glass-3: rgba(255, 255, 255, 0.74);
+  --glass-4: rgba(255, 253, 250, 0.9);
+  --glass-solid: #fbfaf7;
+  --glass-sheen: linear-gradient(180deg, rgba(255, 255, 255, 0.75) 0%, rgba(255, 255, 255, 0.2) 40%, rgba(255, 255, 255, 0) 62%);
+  --glass-hover: rgba(23, 20, 15, 0.045);
+  --glass-press: rgba(23, 20, 15, 0.075);
+  --glass-stroke: rgba(23, 20, 15, 0.08);
+  --glass-stroke-strong: rgba(23, 20, 15, 0.14);
+  --glass-edge: linear-gradient(160deg,
+      color-mix(in srgb, var(--glass-gold) 50%, transparent) 0%,
+      rgba(255, 255, 255, 0.9) 30%,
+      rgba(23, 20, 15, 0.06) 70%,
+      color-mix(in srgb, var(--glass-gold) 22%, transparent) 100%);
+  --glass-edge-soft: linear-gradient(160deg, rgba(255, 255, 255, 0.95) 0%, rgba(23, 20, 15, 0.07) 60%, rgba(23, 20, 15, 0.1) 100%);
+  --glass-specular: inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  --glass-inner-shade: inset 0 -1px 0 rgba(23, 20, 15, 0.04);
+  --glass-elev-1: var(--glass-specular), 0 1px 2px rgba(60, 45, 20, 0.06), 0 8px 24px -14px rgba(60, 45, 20, 0.18);
+  --glass-elev-2: var(--glass-specular), var(--glass-inner-shade), 0 2px 6px rgba(60, 45, 20, 0.06), 0 18px 40px -20px rgba(60, 45, 20, 0.25);
+  --glass-elev-3: var(--glass-specular), var(--glass-inner-shade), 0 4px 12px rgba(60, 45, 20, 0.07), 0 26px 56px -24px rgba(60, 45, 20, 0.3);
+  --glass-elev-4: var(--glass-specular), var(--glass-inner-shade), 0 10px 24px rgba(60, 45, 20, 0.1), 0 40px 90px -30px rgba(60, 45, 20, 0.38);
+  --glass-gold-tint: linear-gradient(180deg, color-mix(in srgb, var(--g-primary, #fbbf24) 30%, #fffaf0) 0%, color-mix(in srgb, var(--g-primary, #fbbf24) 20%, #fff7e8) 100%);
+  --glass-noise-opacity: 0.025;
+  --glass-orb-1: color-mix(in srgb, var(--g-primary, #fbbf24) 26%, transparent);
+  --glass-orb-2: color-mix(in srgb, #f3c97a 30%, transparent);
+  --glass-orb-3: color-mix(in srgb, #e9d8ff 40%, transparent);
+}
+
+/* ── HUD theme keeps its violet energy; glass follows it ───── */
+:root[data-theme="hud"] {
+  --glass-1: rgba(18, 12, 38, 0.45);
+  --glass-2: rgba(20, 14, 42, 0.58);
+  --glass-3: rgba(26, 18, 52, 0.68);
+  --glass-4: rgba(14, 10, 30, 0.88);
+  --glass-orb-3: color-mix(in srgb, var(--g-accent, #a855f7) 18%, transparent);
+}
+
+/* ── Accessibility fallbacks ───────────────────────────────── */
+@media (prefers-reduced-transparency: reduce) {
+  :root {
+    --glass-1: var(--glass-solid);
+    --glass-2: var(--glass-solid);
+    --glass-3: var(--glass-solid);
+    --glass-4: var(--glass-solid);
+    --glass-blur-sm: none;
+    --glass-blur: none;
+    --glass-blur-lg: none;
+    --glass-noise-opacity: 0;
+    --glass-ambient-opacity: 0.35;
+  }
+}
+/* App-level switch (Appearance → glass off) mirrors the OS preference. */
+:root.glass-reduced {
+  --glass-1: var(--glass-solid);
+  --glass-2: var(--glass-solid);
+  --glass-3: var(--glass-solid);
+  --glass-4: var(--glass-solid);
+  --glass-blur-sm: none;
+  --glass-blur: none;
+  --glass-blur-lg: none;
+  --glass-noise-opacity: 0;
+}
+/* Low-end devices: keep the look, halve the blur cost. */
+:root.perf-mode {
+  --glass-blur-sm: blur(6px) saturate(140%);
+  --glass-blur: blur(10px) saturate(155%);
+  --glass-blur-lg: blur(16px) saturate(165%);
+}
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --glass-dur-fast: 0ms;
+    --glass-dur: 0ms;
+    --glass-dur-slow: 0ms;
+    --glass-lift: none;
+    --glass-spring: linear;
+  }
+}
+
+/* ── Light mode × dark-native palette rescue ─────────────────
+   Dark palettes (InfiniBot Gold, Noir, Aurora, Ember, Forest) write their
+   bg/fg/surface tokens INLINE on :root (theme-glass applyThemeOverrides),
+   which beats every [data-theme="light"] rule. Light mode then rendered
+   near-white text on a light page. Re-point only the neutral tokens here;
+   the palette's primary/accent (the brand colour) still comes through.
+   Light-native palettes (Porcelain, custom light) are left untouched. */
+:root[data-theme="light"]:is([data-palette="infinibot-gold"], [data-palette="noir"], [data-palette="aurora"], [data-palette="ember"], [data-palette="forest"], [data-palette=""]) {
+  --g-bg: #f3f0ea !important;
+  --g-bg-deep: #e7e1d6 !important;
+  --g-fg: #17140f !important;
+  --g-fg-dim: rgba(23, 20, 15, 0.68) !important;
+  --g-fg-faint: rgba(23, 20, 15, 0.42) !important;
+  --g-surface: rgba(255, 255, 255, 0.62) !important;
+  --g-surface-strong: rgba(255, 255, 255, 0.82) !important;
+  --g-surface-hover: rgba(255, 255, 255, 0.74) !important;
+  --g-gradient-surface: linear-gradient(135deg, rgba(255, 255, 255, 0.82) 0%, rgba(255, 255, 255, 0.55) 50%, rgba(255, 255, 255, 0.7) 100%) !important;
+  --g-gradient-bg: radial-gradient(ellipse 80% 60% at 50% 0%, rgba(251, 191, 36, 0.08), transparent 60%), linear-gradient(180deg, #f6f3ed, #ece7de) !important;
+  --g-shadow-sm: 0 4px 14px rgba(60, 45, 20, 0.08) !important;
+  --g-shadow: 0 12px 40px rgba(60, 45, 20, 0.12) !important;
+  --g-shadow-lg: 0 24px 60px rgba(60, 45, 20, 0.16) !important;
+  --c-fg: #17140f !important;
+  --text: #2c2820 !important;
+  --text-strong: #17140f !important;
+  --fg: #17140f !important;
+  --foreground: #17140f !important;
+  --bg: #f6f3ed !important;
+  --background: #f6f3ed !important;
+}
+/* Bright gold (#fbbf24) fails contrast on porcelain; light mode uses a
+   deeper antique gold for text/strokes. Fills still read as gold. */
+:root[data-theme="light"][data-palette="infinibot-gold"] {
+  --g-primary: #b7820f !important;
+  --gold: #b7820f !important;
+  --accent: #b7820f !important;
+  --c-accent: #b7820f !important;
+  --primary: #b7820f !important;
+  --ring: #b7820f !important;
+  --g-border: rgba(150, 105, 15, 0.16) !important;
+  --g-border-strong: rgba(150, 105, 15, 0.32) !important;
+}

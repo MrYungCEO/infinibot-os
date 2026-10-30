@@ -1,0 +1,48 @@
+{
+  "id": "business",
+  "title": "Business Center",
+  "description": "Multiple businesses, revenue tracking with provider syncs, the clients CRM, and Notion sync.",
+  "audience": "all",
+  "order": 30,
+  "category": "Business",
+  "steps": [
+    {
+      "id": "first-business",
+      "title": "Create your first business",
+      "estMinutes": 1,
+      "body": "Settings → Business → **+ New Business**. Fill in name, industry, plan, context (a paragraph the agent uses when picking up business-related tasks).\n\nYou can have many businesses. The active one is the lens the agent uses by default — switch via the dropdown at the top of the page.",
+      "cta": { "label": "Open Business", "tab": "business" }
+    },
+    {
+      "id": "context",
+      "title": "Why the context field matters",
+      "estMinutes": 1,
+      "body": "The business context is the agent's brief: who you serve, your pricing, your competitive position, the projects in flight. When you ask *\"draft an email to a prospect\"*, the agent reads this context to write in your voice and price your services correctly.\n\nKeep it under 500 words. Update it monthly as positioning shifts."
+    },
+    {
+      "id": "income",
+      "title": "Connect Whop / Stripe / Square",
+      "estMinutes": 3,
+      "body": "Business → Income panel → ⚙ Configure. Paste your provider keys per business (each business has its own keys — you might have a personal Stripe and a client's Stripe). Click **Sync** for each.\n\nThe panel shows real revenue: today, week, month, year, all-time. The chart graphs monthly trend. Recent transactions render below. Manual entries (cash, transfers) go in via the **Log income** dialog.\n\nNothing is sent to the cloud — keys are stored in your local state directory."
+    },
+    {
+      "id": "clients",
+      "title": "Clients CRM",
+      "estMinutes": 2,
+      "body": "Settings → Clients (or the Business → Clients sub-tab). Add clients with name, email, status (`prospect`, `active`, `lapsed`), MRR, owner, notes. Each client can have a Notion page synced for richer notes.\n\nWhen the agent answers *\"what's our pipeline look like?\"*, it walks the clients table grouped by status.",
+      "cta": { "label": "Open Clients", "tab": "clients" }
+    },
+    {
+      "id": "notion-sync",
+      "title": "Two-way Notion sync",
+      "estMinutes": 2,
+      "body": "Each business and each clients database can sync with Notion. Configure in the **Notion** sub-tab of Business.\n\nFlow:\n1. Create or paste an integration token\n2. Pick a Notion database for clients (or let it create one)\n3. Sync — pulls existing rows, pushes local changes\n\nFrom that point, edits in either Notion or the dashboard reconcile both ways. Useful if your team lives in Notion but you want the agent to query a fast local copy."
+    },
+    {
+      "id": "command-center",
+      "title": "The command center view",
+      "estMinutes": 2,
+      "body": "Business tab → top of the page. The command center shows:\n\n- Revenue tile (this month + delta vs. last)\n- Active clients count\n- Open projects scoped to this business\n- Recent activity feed (income, completed tasks, new clients, project updates)\n- Quick actions\n\nThe layout is glassmorphism over your global theme. Switch businesses with the dropdown — every tile re-scopes."
+    }
+  ]
+}

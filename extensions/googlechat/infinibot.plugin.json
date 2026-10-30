@@ -1,0 +1,23 @@
+{
+  "id": "googlechat",
+  "name": "Google Chat",
+  "listing": {
+    "tagline": "A Google Workspace Chat app, connected over HTTP webhooks.",
+    "category": "channels",
+    "tags": [
+      "workspace",
+      "chat"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "channels": [
+    "googlechat"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

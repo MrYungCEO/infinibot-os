@@ -1,0 +1,126 @@
+{
+  "manifestVersion": 2,
+  "id": "canvas-library",
+  "name": "HoloCanvas",
+  "version": "2026.9.28",
+  "minHostVersion": "2026.6.30",
+  "publisher": "infinibot",
+  "license": "FSL-1.1-ALv2",
+  "description": "HoloCanvas library: browse, preview, share and narrate saved infinite-canvas walkthroughs, and build new ones from reports or markdown. The canvas runtime (overlays, share links, work-review canvases) stays in core and works without this plugin.",
+  "engines": {
+    "infinibot-plugin-api": "^2.0.0"
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  },
+  "contributes": {
+    "learn": "learn.json",
+    "nav": [
+      {
+        "tab": "canvas",
+        "label": "HoloCanvas",
+        "icon": "layout",
+        "group": "Work"
+      }
+    ],
+    "pages": [
+      {
+        "tab": "canvas",
+        "route": "/canvas",
+        "builtin": "canvas-library",
+        "title": "HoloCanvas"
+      }
+    ],
+    "rpc": [
+      {
+        "method": "canvas-library.list",
+        "scope": "read"
+      },
+      {
+        "method": "canvas-library.get",
+        "scope": "read"
+      },
+      {
+        "method": "canvas-library.tags",
+        "scope": "read"
+      },
+      {
+        "method": "canvas-library.save",
+        "scope": "write"
+      },
+      {
+        "method": "canvas-library.delete",
+        "scope": "write"
+      },
+      {
+        "method": "canvas-library.bake",
+        "scope": "write"
+      },
+      {
+        "method": "canvas-library.fromSource",
+        "scope": "write"
+      },
+      {
+        "method": "canvas-library.examples.load",
+        "scope": "write"
+      }
+    ],
+    "tools": [
+      "canvas_library"
+    ],
+    "mapRoom": {
+      "title": "HoloCanvas Gallery",
+      "theme": "holo-gallery",
+      "size": "M",
+      "placement": "north"
+    }
+  },
+  "permissions": {
+    "network": [],
+    "fs": [
+      "<stateDir>/canvas-library.db (core saved-canvas store, through the canvasRuntime seam)"
+    ],
+    "exec": false,
+    "secrets": [],
+    "channels": [],
+    "credits": false
+  },
+  "appearance": {
+    "accent": "token:primary",
+    "tint": "none",
+    "tintStrength": 0.06,
+    "density": "comfortable",
+    "fontScale": 1,
+    "icon": "layout",
+    "monogram": "HC"
+  },
+  "listing": {
+    "tagline": "Your library of spatial walkthroughs — browse, replay, narrate and share them.",
+    "description": "**HoloCanvas** keeps every infinite-canvas walkthrough in one place.\n\n- **Browse** — a gallery of saved canvases with tag filters, scene and card counts.\n- **Preview and replay** — open any canvas inline, or show it again as an on-screen overlay.\n- **Build from a report** — turn a report (or pasted markdown) into a walkthrough in one click.\n- **Narrate** — bake per-scene narration audio.\n- **Share** — copy a share link or download a single-file HTML export.\n\nThe canvas runtime is part of InfiniBot core: agents can still show walkthroughs, and work-review canvases and share links keep working when this plugin is off. Turning it off hides the library; your saved canvases are kept.",
+    "category": "apps",
+    "tags": [
+      "canvas",
+      "walkthroughs",
+      "presentations",
+      "reports",
+      "sharing"
+    ],
+    "cover": "assets/cover.svg",
+    "icon": "assets/icon.svg",
+    "screenshots": [
+      {
+        "src": "assets/shot-library.webp",
+        "caption": "Library — saved canvases with an inline preview"
+      },
+      {
+        "src": "assets/shot-from-report.webp",
+        "caption": "Build a walkthrough from a report"
+      }
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  }
+}

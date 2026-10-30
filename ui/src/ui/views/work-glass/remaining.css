@@ -1,0 +1,257 @@
+/* ============================================================
+ * Glass G1 compatibility layer for mature work surfaces whose markup and
+ * behaviour already ship independently. These rules deliberately sit above
+ * their legacy dark-only palettes, remapping the visible surfaces to the
+ * live --glass-* system without changing handlers, selectors or data flow.
+ * ============================================================ */
+
+/* Focus ------------------------------------------------------ */
+html .focus-root.focus-root {
+  position: relative;
+  isolation: isolate;
+  background: transparent;
+  color: var(--glass-fg);
+  font-family: var(--glass-font);
+}
+html .focus-root.focus-root::before {
+  content: "";
+  position: absolute;
+  inset: -18% 42% 54% -14%;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(circle, var(--glass-orb-1), transparent 66%);
+  filter: blur(44px);
+  opacity: .7;
+}
+html .focus-root .focus-col,
+html .focus-root .src-panel,
+html .focus-root .focus-modal {
+  border-color: var(--glass-stroke-gold);
+  background: var(--glass-sheen), var(--glass-tint), var(--glass-2);
+  color: var(--glass-fg);
+  box-shadow: var(--glass-elev-2);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+html .focus-root .focus-col-h1,
+html .focus-root .fi-title,
+html .focus-root .src-item-title,
+html .focus-root .focus-modal-title { color: var(--glass-fg); }
+html .focus-root .focus-col-icon,
+html .focus-root .focus-col-badge,
+html .focus-root .src-badge,
+html .focus-root .src-section-head { color: var(--glass-gold); }
+html .focus-root .focus-col-badge,
+html .focus-root .src-badge,
+html .focus-root .src-filter-btn.active,
+html .focus-root .src-view-btn.active {
+  background: var(--glass-gold-a10);
+  border-color: var(--glass-stroke-gold);
+}
+html .focus-root .fi,
+html .focus-root .src-item,
+html .focus-root .src-kb-col,
+html .focus-root .src-kb-card,
+html .focus-root .focus-slot {
+  background: var(--glass-sheen), var(--glass-3);
+  border-color: var(--glass-stroke);
+  color: var(--glass-fg);
+  box-shadow: var(--glass-elev-1);
+}
+html .focus-root .fi:hover,
+html .focus-root .src-item:hover:not(.src-item--off),
+html .focus-root .src-kb-card:hover:not(.src-kb-card--off) {
+  border-color: var(--glass-stroke-gold);
+  box-shadow: var(--glass-elev-3), var(--glass-glow-soft);
+}
+html .focus-root .src-search-input,
+html .focus-root .src-project-select,
+html .focus-root .focus-modal-input {
+  background: color-mix(in srgb, var(--glass-base) 55%, transparent);
+  border-color: var(--glass-stroke-strong);
+  color: var(--glass-fg);
+}
+html .focus-root :is(button, input, select):focus-visible { outline: none; box-shadow: var(--glass-focus-ring); }
+
+/* Workspace -------------------------------------------------- */
+html .ws-shell.ws-shell {
+  color: var(--glass-fg);
+  background: transparent;
+  font-family: var(--glass-font);
+}
+html .ws-shell .ws-studio-header,
+html .ws-shell .ws-topbar,
+html .ws-shell .ws-editor-toolbar {
+  background: var(--glass-sheen), var(--glass-2);
+  border-color: var(--glass-stroke);
+  color: var(--glass-fg);
+  box-shadow: var(--glass-specular);
+}
+html .ws-shell :is(.ws-pane, .ws-pane-cell, .ws-sidebar, .ws-coder, .ws-preview-stage, .ws-log-drawer) {
+  background: var(--glass-sheen), var(--glass-1);
+  border-color: var(--glass-stroke);
+  color: var(--glass-fg);
+}
+html .ws-shell :is(.ws-tree-row, .ws-msg, .ws-quick-action, .ws-workspace-option):hover {
+  background: var(--glass-gold-a06);
+}
+html .ws-shell :is(.ws-tree-row--active, .ws-view-tab--active, .ws-status-pill--ready, .ws-device-toggle button.on) {
+  color: var(--glass-gold);
+  background: var(--glass-gold-a10);
+  border-color: var(--glass-stroke-gold);
+}
+html .ws-shell :is(.ws-btn, .ws-iconbtn, .ws-header-icon, .ws-header-route, .ws-coder-textarea, .ws-workflow-search) {
+  border-color: var(--glass-stroke-strong);
+  background: var(--glass-hover);
+  color: var(--glass-fg);
+}
+html .ws-shell :is(.ws-btn--primary, .ws-send) {
+  background: var(--glass-gold-fill);
+  color: var(--glass-ink);
+  border-color: var(--glass-stroke-gold);
+}
+html .ws-shell :is(button, input, textarea, select):focus-visible { outline: none; box-shadow: var(--glass-focus-ring); }
+html .ws-shell :is(.ws-overflow-menu, .ws-wf-dropdown, .ws-command-palette, .ws-dialog) {
+  background: var(--glass-sheen), var(--glass-4);
+  border-color: var(--glass-stroke-gold);
+  box-shadow: var(--glass-elev-4);
+  backdrop-filter: var(--glass-blur-lg);
+  -webkit-backdrop-filter: var(--glass-blur-lg);
+}
+
+/* Databases -------------------------------------------------- */
+html .dbx-shell.dbx-shell {
+  background: transparent;
+  color: var(--glass-fg);
+  font-family: var(--glass-font);
+}
+html .dbx-shell .dbx-sidebar,
+html .dbx-shell .dbx-header,
+html .dbx-shell .dbx-toolbar {
+  background: var(--glass-sheen), var(--glass-2);
+  border-color: var(--glass-stroke);
+  color: var(--glass-fg);
+  box-shadow: var(--glass-specular);
+}
+html .dbx-shell :is(.dbx-table-wrap, .dbx-board-col, .dbx-gallery-card, .dbx-calendar, .dbx-card, .dbx-empty-inner) {
+  background: var(--glass-sheen), var(--glass-3);
+  border-color: var(--glass-stroke);
+  color: var(--glass-fg);
+  box-shadow: var(--glass-elev-1);
+}
+html .dbx-shell :is(.dbx-sidebar-item.active, .dbx-view-tab.active, .dbx-row.selected) {
+  background: var(--glass-gold-a10);
+  border-color: var(--glass-stroke-gold);
+  color: var(--glass-gold);
+}
+html .dbx-shell :is(.dbx-btn, .dbx-icon-btn, input, select, textarea) {
+  background: var(--glass-hover);
+  border-color: var(--glass-stroke-strong);
+  color: var(--glass-fg);
+}
+html .dbx-shell :is(.dbx-btn-primary, .dbx-btn.primary) {
+  background: var(--glass-gold-fill);
+  border-color: var(--glass-stroke-gold);
+  color: var(--glass-ink);
+}
+html .dbx-shell :is(button, input, textarea, select):focus-visible { outline: none; box-shadow: var(--glass-focus-ring); }
+html :is(.dbx-drawer, .dbx-modal, .dbx-dialog) {
+  background: var(--glass-sheen), var(--glass-4);
+  border-color: var(--glass-stroke-gold);
+  color: var(--glass-fg);
+  box-shadow: var(--glass-elev-4);
+  backdrop-filter: var(--glass-blur-lg);
+  -webkit-backdrop-filter: var(--glass-blur-lg);
+}
+
+/* Rich editor ------------------------------------------------ */
+html .rd-host.rd-host { color: var(--glass-fg); font-family: var(--glass-font); background: transparent; }
+html .rd-host .rd-toolbar {
+  background: var(--glass-sheen), var(--glass-2);
+  border-color: var(--glass-stroke-gold);
+  box-shadow: var(--glass-elev-2);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+}
+html .rd-host .rd-page { background: var(--glass-tint), var(--glass-1); }
+html .rd-host .rd-doc { color: var(--glass-fg); caret-color: var(--glass-gold); }
+html .rd-host .rd-doc :is(h1, h2, h3) { color: var(--glass-fg); }
+html .rd-host :is(.rd-tb-btn, .rd-tb-select, .rd-tb-color) { color: var(--glass-fg-2); border-color: var(--glass-stroke); }
+html .rd-host :is(.rd-tb-btn:hover, .rd-tb-btn.rd-on, .rd-tb-color:hover) { color: var(--glass-gold); background: var(--glass-gold-a10); border-color: var(--glass-stroke-gold); }
+html .rd-host .rd-slash { background: var(--glass-sheen), var(--glass-4); border-color: var(--glass-stroke-gold); box-shadow: var(--glass-elev-4); }
+
+/* Template editor + Markdown output ------------------------- */
+html .template-editor-page.template-editor-page { color: var(--glass-fg); background: transparent; font-family: var(--glass-font); }
+html .template-editor-page :is(.template-list, .template-editor-pane, .template-editor-form, .template-editor-placeholder) {
+  background: var(--glass-sheen), var(--glass-2);
+  border-color: var(--glass-stroke);
+  color: var(--glass-fg);
+  box-shadow: var(--glass-elev-2);
+}
+html .template-editor-page .template-list-item { background: var(--glass-3); border-color: var(--glass-stroke); }
+html .template-editor-page .template-list-item:hover,
+html .template-editor-page .template-list-item--selected { background: var(--glass-gold-a10); border-color: var(--glass-stroke-gold); }
+html .template-editor-page :is(.lp-input, .lp-textarea) { background: color-mix(in srgb, var(--glass-base) 55%, transparent); border-color: var(--glass-stroke-strong); color: var(--glass-fg); }
+html .template-editor-page .lp-btn-primary { background: var(--glass-gold-fill); color: var(--glass-ink); }
+
+html .mds-glass.mds-glass {
+  background: var(--glass-sheen), var(--glass-4);
+  border-color: var(--glass-stroke-gold);
+  color: var(--glass-fg);
+  box-shadow: var(--glass-elev-4);
+  backdrop-filter: var(--glass-blur-lg);
+  -webkit-backdrop-filter: var(--glass-blur-lg);
+}
+html .mds-glass .sidebar-header { border-color: var(--glass-stroke); background: var(--glass-gold-a06); }
+
+/* Task sidecar ---------------------------------------------- */
+html .tsb.tsb,
+html .tsb-toggle.tsb-toggle,
+html .tsb-modal.tsb-modal,
+html .tsb-floating-alert.tsb-floating-alert {
+  background: var(--glass-sheen), var(--glass-4);
+  border-color: var(--glass-stroke-gold);
+  color: var(--glass-fg);
+  box-shadow: var(--glass-elev-4);
+  backdrop-filter: var(--glass-blur-lg);
+  -webkit-backdrop-filter: var(--glass-blur-lg);
+}
+html .tsb :is(.tsb-header, .tsb-progress, .tsb-footer, .tsb-modal__header, .tsb-modal__footer) {
+  background: var(--glass-gold-a06);
+  border-color: var(--glass-stroke);
+}
+html .tsb :is(.tsb-task, .tsb-alert, .tsb-modal__task-info) { background: var(--glass-3); border-color: var(--glass-stroke); color: var(--glass-fg); }
+html .tsb :is(.tsb-header__btn, .tsb-task__btn, .tsb-modal__btn, .tsb-modal__textarea) { background: var(--glass-hover); border-color: var(--glass-stroke-strong); color: var(--glass-fg); }
+html .tsb .tsb-modal__btn--send { background: var(--glass-gold-fill); color: var(--glass-ink); }
+
+/* Shared accessibility + phone contract -------------------- */
+@media (max-width: 520px) {
+  html .focus-root .focus-col { padding-inline: 12px; }
+  html .focus-root .focus-col-head,
+  html .focus-root .src-controls { flex-wrap: wrap; padding-inline: 12px; }
+  html .dbx-shell.dbx-shell { grid-template-columns: minmax(0, 1fr); }
+  html .dbx-shell .dbx-sidebar { position: static; width: 100%; max-height: 34vh; }
+  html .template-editor-page .template-editor-layout { grid-template-columns: minmax(0, 1fr); }
+  html .template-editor-page .template-list { max-height: 34vh; }
+  html .rd-host .rd-toolbar { overflow-x: auto; flex-wrap: nowrap; }
+  html .tsb.tsb { width: calc(100vw - 16px); right: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html .focus-root *, html .ws-shell *, html .dbx-shell *, html .rd-host *,
+  html .template-editor-page *, html .mds-glass *, html .tsb * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  html .focus-root :is(.focus-col, .src-panel, .focus-modal),
+  html .ws-shell :is(.ws-studio-header, .ws-overflow-menu, .ws-wf-dropdown, .ws-command-palette, .ws-dialog),
+  html .dbx-shell :is(.dbx-sidebar, .dbx-header), html :is(.dbx-drawer, .dbx-modal, .dbx-dialog),
+  html .rd-host .rd-toolbar, html .mds-glass.mds-glass, html .tsb.tsb, html .tsb-modal.tsb-modal {
+    background: var(--glass-solid);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}

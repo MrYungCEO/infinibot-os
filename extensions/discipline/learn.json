@@ -1,0 +1,384 @@
+{
+  "tracks": [
+    {
+      "id": "discipline",
+      "title": "Discipline",
+      "summary": "Plan your day in time blocks, log what you did, keep your score and streak, and pin your top five on the Focus board.",
+      "overview": "**Discipline** is a day planner built for people who drift. You lay the day out in **time blocks**, the page follows the clock, and your agents' work checks the boxes for you.\n\n- **Day** (`/discipline`). The hero shows the block you are in (or the next one), today's **compliance**, focus minutes and your **day streak**. A quick-log bar records what just happened. With **auto-log** on, agent runs and finished kanban tasks are logged against the active block, the day starts itself on your first activity and a block completes when work lands inside it.\n- **Blocks and routines.** Each block has a category, an intent, days it repeats, hard-lock / non-negotiable flags and an optional daily routine checklist (your habits for that block).\n- **Templates.** Save a layout (\"Workday\", \"Weekend\") and load or append it later. Built-in presets get you started.\n- **Score and Settings.** Day and week scores, trends and analytics; Telegram block messages, the AI assistant, the day window, quiet hours and Notion sync.\n- **Focus board** (`/focus`). Up to five tasks or projects you are committing to.\n- **Alerts.** Block start / missed alerts, a 09:30 check-in and a 21:00 evening wrap slide in under the topbar clock (and on Telegram if you switch it on).\n\nAgents can drive all of it through the `discipline` and `focus` tools. The tours type into drafts and open dialogs but never save a block, a log or a template.",
+      "category": "Plugins",
+      "level": "beginner",
+      "order": 60,
+      "routes": ["/discipline", "/focus"],
+      "signals": ["discipline", "focus"],
+      "badge": { "id": "discipline", "label": "Discipline mastery", "icon": "🎯" },
+      "walkthroughs": [
+        {
+          "id": "tour-the-day",
+          "title": "Read your day at a glance",
+          "summary": "The hero, today's score, the quick-log bar and the auto-logged lane.",
+          "estMinutes": 3,
+          "steps": [
+            {
+              "id": "hero",
+              "title": "What's on now",
+              "body": "The hero shows the block you're in and the time left, or the next block and when it starts. With nothing planned it says **Ready when you are**.",
+              "route": "/discipline",
+              "target": "learn:discipline-hero",
+              "placement": "bottom"
+            },
+            {
+              "id": "compliance",
+              "title": "Today's score",
+              "body": "**Compliance** is how much of today's planned block time you kept. Next to it are focus minutes today and your **day streak**.",
+              "target": "learn:discipline-compliance",
+              "placement": "bottom"
+            },
+            {
+              "id": "actions",
+              "title": "Act on the current block",
+              "body": "During a block you get **Check in** and **Abort**. Otherwise **+ New block** starts a new one.",
+              "target": "learn:discipline-hero-actions",
+              "placement": "bottom",
+              "skipIf": { "kind": "viewport", "maxWidth": 600 }
+            },
+            {
+              "id": "start-now",
+              "title": "Running late? Start from now",
+              "body": "**Start from now** shifts every remaining block so the day starts right now, keeping each block's length.",
+              "target": "learn:discipline-start-now",
+              "placement": "bottom",
+              "skipIf": { "kind": "viewport", "maxWidth": 600 },
+              "practice": { "mode": "explain", "note": "The tour doesn't press it: it reschedules your real blocks for today." }
+            },
+            {
+              "id": "quick-log",
+              "title": "Log what just happened",
+              "body": "Type a line here. **Enter** logs it against the active block, and **L** jumps here from anywhere on the page.",
+              "target": "learn:discipline-quick-log-input",
+              "action": { "kind": "input", "sample": "Reviewed the weekly plan" }
+            },
+            {
+              "id": "quick-log-category",
+              "title": "Pick a category",
+              "body": "The category defaults to the active block's. Change it when the entry belongs somewhere else. The tour leaves the entry unsaved.",
+              "target": "learn:discipline-quick-log-category",
+              "placement": "bottom"
+            },
+            {
+              "id": "timeline",
+              "title": "Open the Timeline",
+              "body": "Click **Timeline**. It lays today's blocks and logs on the clock.",
+              "target": "learn:discipline-tab-timeline",
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "autolog",
+              "title": "Work that logs itself",
+              "body": "With auto-log on, agent runs and finished kanban tasks land here and count against the active block. Your first activity also starts the day.",
+              "target": "learn:discipline-autolog",
+              "placement": "top"
+            }
+          ]
+        },
+        {
+          "id": "plan-blocks",
+          "title": "Plan blocks and routines",
+          "summary": "Open the block editor, set a label, days, flags and a routine checklist.",
+          "estMinutes": 4,
+          "steps": [
+            {
+              "id": "blocks-tab",
+              "title": "Open Blocks",
+              "body": "Click **Blocks**. It lists every block you have, or starter presets when you have none.",
+              "route": "/discipline",
+              "target": "learn:discipline-tab-blocks",
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "presets",
+              "title": "Start from a preset",
+              "body": "With no blocks yet, a preset fills the day with sensible blocks you can edit afterwards. Once you have blocks, this area shows them as a board or a list.",
+              "target": ["learn:discipline-presets", "learn:discipline-blocks-view"],
+              "placement": "bottom"
+            },
+            {
+              "id": "new-block",
+              "title": "Create a block",
+              "body": "Click the button to open the block editor.",
+              "target": "learn:discipline-create-block",
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "label",
+              "title": "Name it",
+              "body": "Give the block a short label you'll recognise on the timeline.",
+              "target": "learn:discipline-block-label",
+              "action": { "kind": "input", "sample": "Morning deep work" }
+            },
+            {
+              "id": "days",
+              "title": "Choose the days",
+              "body": "Pick the days the block repeats, or use **Weekdays**, **Weekends** or **Every day**.",
+              "target": "learn:discipline-block-days",
+              "placement": "top"
+            },
+            {
+              "id": "flags",
+              "title": "How strict is it?",
+              "body": "**Hard lock** blocks notifications during the block. **Non-negotiable** means missing it breaks your streak. Untick **Enabled** to pause a block without deleting it.",
+              "target": "learn:discipline-block-flags",
+              "placement": "top"
+            },
+            {
+              "id": "routine-add",
+              "title": "Add a routine item",
+              "body": "Routines are the habits you run inside a block every day it runs. Click **+ Add routine item**.",
+              "target": "learn:discipline-routine-add",
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "routine-type",
+              "title": "Write the habit",
+              "body": "Type a checklist item. Enter adds another one. You tick these off inside the block each day.",
+              "target": "learn:discipline-routine-input",
+              "action": { "kind": "input", "sample": "Phone in the drawer" }
+            },
+            {
+              "id": "save",
+              "title": "Saving a block",
+              "body": "**Create block** saves it to your schedule. You can also link the block to a project or task. This tour cancels instead.",
+              "target": "learn:discipline-block-save",
+              "placement": "top"
+            },
+            {
+              "id": "cancel",
+              "title": "Cancel the draft",
+              "body": "Click **Cancel** to close the editor without saving.",
+              "target": "learn:discipline-block-cancel",
+              "action": { "kind": "click" }
+            }
+          ]
+        },
+        {
+          "id": "templates-and-score",
+          "title": "Templates and your score",
+          "summary": "Save and load schedule templates, then read your day and week scores.",
+          "estMinutes": 3,
+          "steps": [
+            {
+              "id": "strip",
+              "title": "The active template",
+              "body": "This strip shows which template your day came from, and **Modified** once you change it. It appears on Timeline and Blocks.",
+              "route": "/discipline",
+              "target": "learn:discipline-templates",
+              "placement": "bottom"
+            },
+            {
+              "id": "save-as",
+              "title": "Save a layout",
+              "body": "**Save as template** snapshots all your current blocks under a name, like \"Workday\" or \"Build sprint Mondays\".",
+              "target": "learn:discipline-template-save",
+              "placement": "bottom"
+            },
+            {
+              "id": "load",
+              "title": "Load a template",
+              "body": "Click **Load…** to browse your templates and the built-in presets.",
+              "target": "learn:discipline-template-load",
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "modal",
+              "title": "Replace or append",
+              "body": "Each template can **replace** your current layout or **append** its blocks alongside what you have. **Manage** lets you rename and delete your own templates.",
+              "target": "learn:discipline-template-modal",
+              "placement": "center",
+              "practice": { "mode": "explain", "note": "The tour doesn't apply a template: that rewrites your real schedule." }
+            },
+            {
+              "id": "close",
+              "title": "Close it",
+              "body": "Click **Close**.",
+              "target": "learn:discipline-template-modal-close",
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "score-tab",
+              "title": "Open Score",
+              "body": "Click **Score**.",
+              "target": "learn:discipline-tab-score",
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "score",
+              "title": "Day and week scores",
+              "body": "Today's compliance, the week and your streak sit on top. Below are trends, time logged per category and which blocks you keep or slip.",
+              "target": "learn:discipline-score-view",
+              "placement": "bottom",
+              "check": { "kind": "rpc", "method": "discipline.state" },
+              "checkHint": "Loading this week's scores…"
+            }
+          ]
+        },
+        {
+          "id": "settings-and-alerts",
+          "title": "Alerts, Telegram and quiet hours",
+          "summary": "Where block alerts appear and how to tune Telegram, the AI assistant and your day window.",
+          "estMinutes": 3,
+          "steps": [
+            {
+              "id": "settings-tab",
+              "title": "Open Settings",
+              "body": "Click **Settings**. The keyboard shortcut is **4**.",
+              "route": "/discipline",
+              "target": "learn:discipline-tab-settings",
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "telegram",
+              "title": "Telegram block messages",
+              "body": "Push block starts, slips and daily reviews to Telegram through your gateway's bot. Set a chat ID here to send them somewhere other than the default chat.",
+              "target": "learn:discipline-settings-telegram",
+              "placement": "bottom",
+              "practice": { "mode": "explain", "note": "The tour doesn't switch Telegram on or send a test message." }
+            },
+            {
+              "id": "ai",
+              "title": "The AI assistant",
+              "body": "When it's on, the assistant can plan tomorrow and write a daily review, with your blocks and kanban as context.",
+              "target": "learn:discipline-settings-ai",
+              "placement": "bottom"
+            },
+            {
+              "id": "cadence",
+              "title": "Day window and quiet hours",
+              "body": "Set when your day starts and ends, how often probes nudge you, and quiet hours that mute Telegram and audio nudges.",
+              "target": "learn:discipline-settings-cadence",
+              "placement": "top"
+            },
+            {
+              "id": "alerts",
+              "title": "Where alerts appear",
+              "body": "Block alerts slide down under the topbar clock: a 5-minute warning, block start and end, a missed block and the day summary. The owner can switch alerts and auto-log off in Plugins › Discipline.",
+              "target": ["button.ibc-pill", ".topbar"],
+              "placement": "bottom"
+            }
+          ]
+        },
+        {
+          "id": "focus-board",
+          "title": "Pin your top five",
+          "summary": "Use the Focus board to commit to at most five tasks or projects.",
+          "estMinutes": 3,
+          "steps": [
+            {
+              "id": "open-focus",
+              "title": "Open the Focus board",
+              "body": "Discipline has two views: **Day** and **Focus board**. Click **Focus board**.",
+              "route": "/discipline",
+              "target": "a.host-subtabs__tab[data-host-view=\"focus\"]",
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "head",
+              "title": "Five slots, no more",
+              "body": "The counter shows how many of your five slots are filled. The hard limit keeps you honest about what you're actually working on.",
+              "check": { "kind": "element", "target": "learn:focus-slots" },
+              "checkHint": "Waiting for the Focus board to open…",
+              "target": "learn:focus-head",
+              "placement": "bottom"
+            },
+            {
+              "id": "slots",
+              "title": "Rank them",
+              "body": "Drag an item into a numbered slot, drag to reorder, and use × to take it off the board.",
+              "target": "learn:focus-slots",
+              "placement": "bottom"
+            },
+            {
+              "id": "source",
+              "title": "Available items",
+              "body": "Your kanban projects and tasks. Search, filter by type, or switch to a kanban view.",
+              "target": "learn:focus-source",
+              "placement": "top"
+            },
+            {
+              "id": "filter",
+              "title": "Show only projects",
+              "body": "Click **Projects** to narrow the list.",
+              "target": "learn:focus-filter-projects",
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "add",
+              "title": "Quick add",
+              "body": "The **+** button opens a search box to add any task or project to Focus.",
+              "target": "learn:focus-add",
+              "action": { "kind": "click" }
+            },
+            {
+              "id": "search",
+              "title": "Search for something",
+              "body": "Type at least two characters. Clicking a result adds it to your board; this tour stops before that.",
+              "target": "learn:focus-add-input",
+              "action": { "kind": "input", "sample": "main" }
+            }
+          ]
+        }
+      ],
+      "quiz": [
+        {
+          "id": "start-now",
+          "prompt": "What does **Start from now** do?",
+          "options": [
+            "Deletes today's blocks",
+            "Shifts the remaining blocks so they start now, keeping their lengths",
+            "Starts a focus timer for 25 minutes",
+            "Marks every block complete"
+          ],
+          "answer": 1,
+          "explain": "It reschedules what's left of the day from the current time and preserves each block's duration."
+        },
+        {
+          "id": "focus-limit",
+          "prompt": "How many items can the Focus board hold?",
+          "options": ["Three", "Five", "Ten", "Unlimited"],
+          "answer": 1,
+          "explain": "Focus has five slots. Remove one to add another."
+        },
+        {
+          "id": "non-negotiable",
+          "prompt": "Which block flag breaks your streak if you miss the block?",
+          "options": ["Hard lock", "Enabled", "Non-negotiable", "Weekdays"],
+          "answer": 2,
+          "explain": "Hard lock blocks notifications; non-negotiable blocks count against your streak when missed."
+        },
+        {
+          "id": "auto-log",
+          "prompt": "With auto-log on, what gets logged against the active block without you typing anything?",
+          "options": [
+            "Browser history",
+            "Agent runs and finished kanban tasks",
+            "Incoming emails",
+            "Nothing, logging is always manual"
+          ],
+          "answer": 1,
+          "explain": "Auto-log records agent activity and task completions, starts the day on first activity and can complete a block when work lands in it."
+        },
+        {
+          "id": "routines",
+          "prompt": "Where do you add a daily habit checklist such as \"phone in the drawer\"?",
+          "options": [
+            "In the block editor, under Daily routine",
+            "In Settings › Telegram",
+            "On the Focus board",
+            "In the quick-log bar"
+          ],
+          "answer": 0,
+          "explain": "Routine items belong to a block and show up inside it each day it runs."
+        }
+      ]
+    }
+  ],
+  "missions": []
+}

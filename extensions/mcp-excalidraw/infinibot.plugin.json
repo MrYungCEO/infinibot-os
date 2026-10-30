@@ -1,0 +1,137 @@
+{
+  "manifestVersion": 2,
+  "id": "whiteboard",
+  "name": "Whiteboard",
+  "version": "2026.9.28",
+  "minHostVersion": "2026.6.30",
+  "publisher": "infinibot",
+  "license": "FSL-1.1-ALv2",
+  "description": "A local Excalidraw whiteboard that people and agents can edit together, with saved boards, templates and a complete canvas toolset.",
+  "listing": {
+    "tagline": "Sketch, diagram and let your agents draw on the same live canvas.",
+    "description": "**Whiteboard** is a local-first visual workspace for ideas, flows and architecture.\n\n- **Live Excalidraw canvas** — draw by hand with the familiar infinite-canvas controls.\n- **Agent-drivable** — the bundled MCP engine contributes `excalidraw_*` tools for shapes, connectors, layout, grouping and camera control.\n- **Saved boards and templates** — scenes live in the plugin data directory and survive disable/re-enable cycles.\n- **No background service while off** — the page, shortcut, RPCs and agent tools exist only when this plugin is enabled.",
+    "category": "apps",
+    "tags": ["canvas", "diagrams", "excalidraw", "agents"],
+    "cover": "assets/cover.svg",
+    "icon": "assets/icon.svg",
+    "screenshots": [
+      {
+        "src": "assets/shot-desktop.webp",
+        "caption": "Agent-ready whiteboard on desktop"
+      },
+      {
+        "src": "assets/shot-mobile.webp",
+        "caption": "The same canvas at phone width"
+      }
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "engines": {
+    "infinibot-plugin-api": "^2.0.0"
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  },
+  "contributes": {
+    "learn": "learn.json",
+    "nav": [
+      {
+        "tab": "whiteboard",
+        "label": "Whiteboard",
+        "icon": "penTool",
+        "group": "Work"
+      }
+    ],
+    "pages": [
+      {
+        "tab": "whiteboard",
+        "route": "/whiteboard",
+        "builtin": "whiteboard",
+        "title": "Whiteboard"
+      }
+    ],
+    "overlays": [
+      {
+        "id": "canvas-floater",
+        "label": "Canvas topbar shortcut",
+        "trigger": "topbar"
+      }
+    ],
+    "rpc": [
+      { "method": "whiteboard.boards.list", "scope": "read" },
+      { "method": "whiteboard.boards.get", "scope": "read" },
+      { "method": "whiteboard.boards.save", "scope": "write" },
+      { "method": "whiteboard.boards.delete", "scope": "write" },
+      { "method": "whiteboard.boards.rename", "scope": "write" },
+      { "method": "whiteboard.templates.list", "scope": "read" },
+      { "method": "whiteboard.templates.get", "scope": "read" },
+      { "method": "whiteboard.templates.save", "scope": "write" },
+      { "method": "whiteboard.canvas.update", "scope": "write" },
+      { "method": "whiteboard.canvas.view", "scope": "write" },
+      { "method": "whiteboard.canvas.clear", "scope": "write" }
+    ],
+    "tools": [
+      { "name": "excalidraw_get_scene", "trust": "read" },
+      { "name": "excalidraw_get_element", "trust": "read" },
+      { "name": "excalidraw_query_elements", "trust": "read" },
+      { "name": "excalidraw_create_element", "trust": "write" },
+      { "name": "excalidraw_create_batch", "trust": "write" },
+      { "name": "excalidraw_create_diagram", "trust": "write" },
+      { "name": "excalidraw_connect_elements", "trust": "write" },
+      { "name": "excalidraw_update_element", "trust": "write" },
+      { "name": "excalidraw_update_batch", "trust": "write" },
+      { "name": "excalidraw_delete_elements", "trust": "write" },
+      { "name": "excalidraw_clear_canvas", "trust": "write" },
+      { "name": "excalidraw_bring_to_front", "trust": "write" },
+      { "name": "excalidraw_send_to_back", "trust": "write" },
+      { "name": "excalidraw_bring_forward", "trust": "write" },
+      { "name": "excalidraw_send_backward", "trust": "write" },
+      { "name": "excalidraw_group_elements", "trust": "write" },
+      { "name": "excalidraw_ungroup_elements", "trust": "write" },
+      { "name": "excalidraw_fit_to_content", "trust": "write" },
+      { "name": "excalidraw_scroll_to", "trust": "write" },
+      { "name": "excalidraw_set_zoom", "trust": "write" },
+      { "name": "excalidraw_export_scene", "trust": "read" },
+      { "name": "excalidraw_import_scene", "trust": "write" }
+    ],
+    "mcpServers": [
+      {
+        "id": "excalidraw",
+        "label": "Excalidraw canvas tools",
+        "command": "node",
+        "args": ["dist/index.js"]
+      }
+    ],
+    "http": [],
+    "services": [],
+    "agents": [],
+    "panels": [],
+    "mapRoom": {
+      "title": "Whiteboard Studio",
+      "theme": "drawing-studio",
+      "size": "S",
+      "placement": "north"
+    }
+  },
+  "permissions": {
+    "network": [],
+    "fs": ["<stateDir>/plugin-data/whiteboard"],
+    "exec": false,
+    "secrets": [],
+    "channels": [],
+    "credits": false
+  },
+  "appearance": {
+    "accent": "token:primary",
+    "tint": "token:primary",
+    "tintStrength": 0.04,
+    "density": "comfortable",
+    "fontScale": 1,
+    "icon": "penTool",
+    "monogram": "WB"
+  }
+}

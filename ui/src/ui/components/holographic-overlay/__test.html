@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>holographic-overlay test</title>
+<style>
+  html, body { margin: 0; background: #05070d; height: 100%; font-family: system-ui, sans-serif; }
+  .stage {
+    position: relative;
+    width: 900px;
+    height: 480px;
+    margin: 24px auto;
+    border-radius: 14px;
+    overflow: hidden;
+    /* Fake "world map" background: deep space gradient + grid + glow nodes. */
+    background:
+      radial-gradient(60% 80% at 20% 30%, rgba(60, 90, 160, 0.45), transparent 60%),
+      radial-gradient(50% 70% at 80% 70%, rgba(120, 70, 160, 0.40), transparent 60%),
+      repeating-linear-gradient(0deg, rgba(120, 160, 220, 0.06) 0 1px, transparent 1px 40px),
+      repeating-linear-gradient(90deg, rgba(120, 160, 220, 0.06) 0 1px, transparent 1px 40px),
+      linear-gradient(160deg, #0a1024, #0f0a1e 60%, #060812);
+  }
+  /* Fake agents / sprites. */
+  .sprite {
+    position: absolute; width: 26px; height: 26px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #ffe9a8, #d4af37 55%, #6b4f12);
+    box-shadow: 0 0 14px rgba(255, 210, 120, 0.7);
+  }
+  .sprite.b { background: radial-gradient(circle at 35% 30%, #bfe6ff, #4aa8e0 55%, #134466);
+              box-shadow: 0 0 14px rgba(120, 200, 255, 0.7); }
+  .label { position: absolute; color: #cfe2ff; font-size: 12px; opacity: 0.8; text-shadow: 0 1px 2px #000; }
+  .stage-title { position: absolute; top: 14px; left: 18px; color: #e9d9a0; font-size: 13px; letter-spacing: 2px; opacity: 0.85; }
+  h2 { color: #8aa0c0; text-align: center; font-weight: 500; margin: 8px 0; }
+</style>
+</head>
+<body>
+  <h2 id="cap">holographic-overlay</h2>
+  <div class="stage" id="stage">
+    <div class="stage-title">AGENCY · WORLD MAP</div>
+    <div class="sprite" style="left:120px; top:140px"></div>
+    <div class="sprite b" style="left:300px; top:90px"></div>
+    <div class="sprite" style="left:520px; top:230px"></div>
+    <div class="sprite b" style="left:680px; top:160px"></div>
+    <div class="sprite" style="left:420px; top:340px"></div>
+    <div class="label" style="left:118px; top:172px">scout-01</div>
+    <div class="label" style="left:296px; top:122px">builder-03</div>
+    <div class="label" style="left:516px; top:262px">research-02</div>
+    <!-- overlay injected by script so we can drive intensity via ?i= -->
+  </div>
+
+  <script type="module">
+    import "../holographic-overlay.ts";
+    const params = new URLSearchParams(location.search);
+    const i = params.has("i") ? Number(params.get("i")) : 0.5;
+    const tint = params.get("tint") || "gold";
+    const holo = document.createElement("holographic-overlay");
+    holo.setAttribute("tint", tint);
+    document.getElementById("stage").appendChild(holo);
+    customElements.whenDefined("holographic-overlay").then(() => holo.setIntensity(i));
+    document.getElementById("cap").textContent = `holographic-overlay · intensity ${i} · ${tint}`;
+    window.__holoReady = true;
+  </script>
+</body>
+</html>

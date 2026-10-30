@@ -1,0 +1,852 @@
+/* Business page glass shell. The interrupted run had already removed the old
+ * 5k-line terminal stylesheet, so this is intentionally complete enough to
+ * own layout as well as colour: no dependency on the deleted HUD CSS. */
+.ba-glass.ba-glass.cmd-center {
+  height: calc(100vh - 56px);
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: transparent;
+  color: var(--bag-text);
+}
+/* body is zoomed 0.7 at 1101–1680px (styles/viewport-scale.css) and vh
+   units ignore that zoom, so divide it back out or the page stops at 70%. */
+@media (min-width: 1101px) and (max-width: 1680px) {
+  .ba-glass.ba-glass.cmd-center { height: calc(100vh / var(--ui-viewport-zoom, 0.7) - 56px); }
+}
+.ba-glass.cmd-center--fixed { position: relative; }
+.ba-glass.cmd-center > :not(.ba-aurora, style, .bz-modal-backdrop, .bz-cs-overlay) {
+  position: relative;
+  z-index: 1;
+}
+
+.ba-glass.cmd-center .hud-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 12px 16px;
+  margin: 14px clamp(12px, 2vw, 28px) 10px;
+  border-radius: var(--bag-radius);
+  background: var(--glass-sheen, none), var(--bag-panel);
+  box-shadow: var(--bag-shadow);
+  backdrop-filter: var(--bag-blur);
+  -webkit-backdrop-filter: var(--bag-blur);
+}
+.ba-glass.cmd-center .hud-header::before,
+.ba-glass.cmd-center :is(.bz-hero, .bz-kpi, .bz-tile, .bz-priorities, .bz-tboard, .bz-activity, .ai-context-panel, .bz-empty-card, .bz-settings-hero, .bz-modal)::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: var(--bag-hairline);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.ba-glass.cmd-center .hud-left,
+.ba-glass.cmd-center .hud-center,
+.ba-glass.cmd-center .hud-right,
+.ba-glass.cmd-center .hud-brand,
+.ba-glass.cmd-center .hud-actions,
+.ba-glass.cmd-center .actions-group,
+.ba-glass.cmd-center .bz-seg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.ba-glass.cmd-center .hud-center { flex: 1 1 auto; justify-content: center; min-width: 0; }
+.ba-glass.cmd-center .hud-right { margin-left: auto; }
+.ba-glass.cmd-center .hud-logo {
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  border-radius: 11px;
+  color: var(--bag-gold);
+  background: color-mix(in srgb, var(--bag-gold) 12%, transparent);
+  box-shadow: inset 0 0 0 1px var(--bag-line-strong);
+}
+.ba-glass.cmd-center .hud-title { color: var(--bag-text); font-weight: 650; letter-spacing: -0.015em; }
+.ba-glass.cmd-center .hud-subtitle,
+.ba-glass.cmd-center .actions-group-label { color: var(--bag-text-3); font-size: 11px; }
+
+.ba-glass.cmd-center :is(.action-btn, .ai-action-btn, .bz-btn, .btn, .bz-link-btn, .bz-seg-btn, .bz-settings-nav-item, input, select, textarea) {
+  min-height: 36px;
+  border: 1px solid var(--bag-line-strong);
+  border-radius: 11px;
+  background: color-mix(in srgb, var(--bag-card) 82%, transparent);
+  color: var(--bag-text);
+  font-family: var(--bag-font);
+  font-size: 13px;
+  letter-spacing: 0;
+  text-transform: none;
+  transition: transform var(--glass-dur-fast, 160ms) var(--bag-spring), border-color 160ms, background 160ms;
+}
+.ba-glass.cmd-center :is(.action-btn, .ai-action-btn, .bz-btn, .btn, .bz-link-btn, .bz-seg-btn, .bz-settings-nav-item):hover {
+  border-color: var(--bag-gold);
+  background: var(--bag-hover);
+  transform: translateY(-1px);
+}
+.ba-glass.cmd-center :is(.ai-action-btn--primary, .bz-btn--primary, .btn--primary) {
+  border-color: transparent;
+  background: var(--bag-gold-fill);
+  color: var(--bag-ink);
+  font-weight: 620;
+  box-shadow: 0 1px 0 rgba(255,255,255,.45) inset, 0 12px 28px -12px color-mix(in srgb, var(--bag-gold) 72%, transparent);
+}
+.ba-glass.cmd-center :is(.action-btn, .ai-action-btn, .bz-btn, .btn):active { transform: translateY(1px) scale(.99); }
+.ba-glass.cmd-center :is(.action-btn, .ai-action-btn, .bz-btn, .btn):disabled { opacity: .48; cursor: not-allowed; transform: none; }
+.ba-glass.cmd-center :is(.btn-icon, .ai-action-icon, .bz-btn-icon, .action-btn .icon) { width: 16px; height: 16px; display: inline-grid; place-items: center; }
+.ba-glass.cmd-center :is(.btn-icon, .ai-action-icon, .bz-btn-icon, .action-btn .icon) svg { width: 100%; height: 100%; fill: none; stroke: currentColor; }
+
+.ba-glass.cmd-center .bz-section-body {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 10px clamp(14px, 2.4vw, 32px) 64px;
+}
+.ba-glass.cmd-center .bz-section-body--clients { padding: 0; }
+.ba-glass.cmd-center .bz-home,
+.ba-glass.cmd-center .bz-settings-shell {
+  width: min(1480px, 100%);
+  margin: 0 auto;
+  display: grid;
+  gap: 16px;
+  padding: 10px clamp(14px, 2.4vw, 32px) 64px;
+  overflow: auto;
+}
+
+.ba-glass.cmd-center :is(.bz-hero, .bz-priorities, .bz-tboard, .bz-activity, .ai-context-panel, .bz-empty-card, .bz-settings-hero) {
+  position: relative;
+  border: 0;
+  border-radius: var(--bag-radius);
+  background: var(--glass-sheen, none), var(--bag-panel);
+  box-shadow: var(--bag-shadow);
+}
+.ba-glass.cmd-center .bz-hero {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 24px;
+  background: var(--glass-tint, none), var(--glass-sheen, none), var(--bag-panel);
+}
+.ba-glass.cmd-center .bz-eyebrow,
+.ba-glass.cmd-center :is(.bz-pri-title, .bz-tboard-title, .bz-activity-title, .ai-context-title-text, .bz-settings-subtitle) {
+  color: var(--bag-gold);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+}
+.ba-glass.cmd-center .bz-hero-title,
+.ba-glass.cmd-center .bz-settings-title {
+  margin: 5px 0 7px;
+  color: var(--bag-text);
+  font-family: var(--bag-font-display);
+  font-size: clamp(27px, 3vw, 40px);
+  font-weight: 650;
+  letter-spacing: -.035em;
+  line-height: 1.08;
+}
+.ba-glass.cmd-center .bz-hero-sub,
+.ba-glass.cmd-center .bz-settings-head-text { color: var(--bag-text-2); font-size: 14px; line-height: 1.55; }
+.ba-glass.cmd-center .bz-hero-actions,
+.ba-glass.cmd-center .bz-hero-nav,
+.ba-glass.cmd-center .bz-settings-head-actions { display: flex; flex-wrap: wrap; gap: 8px; }
+.ba-glass.cmd-center .bz-hero-nav {
+  min-width: 0;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  padding: 0 clamp(12px, 2vw, 28px) 7px;
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, var(--bag-gold) 38%, transparent) transparent;
+}
+.ba-glass.cmd-center .bz-hero-nav > .bz-seg { flex: 0 0 auto; }
+
+.ba-glass.cmd-center .bz-kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+}
+.ba-glass.cmd-center .bz-kpi {
+  position: relative;
+  min-height: 112px;
+  padding: 16px 17px;
+  border: 0;
+  border-radius: var(--bag-radius);
+  background: var(--glass-sheen, none), var(--bag-card);
+  box-shadow: var(--glass-elev-1);
+}
+.ba-glass.cmd-center .bz-kpi-label { color: var(--bag-text-2); font-size: 12px; }
+.ba-glass.cmd-center .bz-kpi-value {
+  margin-top: 8px;
+  color: var(--bag-text);
+  font-family: var(--bag-font-display);
+  font-size: clamp(26px, 2.5vw, 36px);
+  font-weight: 650;
+  letter-spacing: -.04em;
+}
+.ba-glass.cmd-center .bz-kpi-sub { margin-top: auto; color: var(--bag-text-3); font-size: 11.5px; }
+
+.ba-glass.cmd-center .bz-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
+  gap: 12px;
+}
+.ba-glass.cmd-center .bz-tile {
+  position: relative;
+  min-height: 150px;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 0;
+  border-radius: var(--bag-radius);
+  background: var(--glass-sheen, none), var(--bag-card);
+  box-shadow: var(--glass-elev-1);
+  color: var(--bag-text);
+  cursor: pointer;
+  transition: transform 180ms var(--bag-spring), box-shadow 200ms;
+}
+.ba-glass.cmd-center .bz-tile:hover { transform: translateY(-2px); box-shadow: var(--bag-shadow-lift); }
+.ba-glass.cmd-center .bz-tile-icon { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 11px; color: var(--bag-gold); background: color-mix(in srgb, var(--bag-gold) 11%, transparent); }
+.ba-glass.cmd-center .bz-tile-label { font-size: 15px; font-weight: 620; }
+.ba-glass.cmd-center .bz-tile-desc { color: var(--bag-text-2); font-size: 12.5px; line-height: 1.5; }
+.ba-glass.cmd-center .bz-tile-count { margin-top: auto; color: var(--bag-text-3); font-size: 12px; }
+
+.ba-glass.cmd-center :is(.bz-priorities, .bz-tboard, .bz-activity, .ai-context-panel) { padding: 18px; }
+.ba-glass.cmd-center :is(.bz-pri-head, .bz-tboard-head, .bz-activity-head, .ai-context-header, .bz-settings-head) {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.ba-glass.cmd-center :is(.bz-pri-list, .bz-activity-list, .ai-work-items) { display: grid; gap: 8px; }
+.ba-glass.cmd-center :is(.bz-pri-card, .bz-act-card, .ai-work-item, .bz-tcard) {
+  border: 1px solid var(--bag-line);
+  border-radius: var(--bag-radius-sm);
+  background: var(--bag-card);
+  color: var(--bag-text);
+}
+.ba-glass.cmd-center :is(.bz-pri-card, .bz-act-card, .ai-work-item) { padding: 12px 13px; }
+.ba-glass.cmd-center :is(.bz-pri-card, .bz-act-card, .ai-work-item):hover { border-color: var(--bag-line-strong); background: var(--bag-hover); }
+
+.ba-glass.cmd-center .bz-tboard-scroll { overflow-x: auto; }
+.ba-glass.cmd-center .bz-tboard-cols { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(250px, 1fr); gap: 12px; min-width: max-content; }
+.ba-glass.cmd-center .bz-tcol { width: 280px; padding: 10px; border: 1px solid var(--bag-line); border-radius: var(--bag-radius-sm); background: var(--bag-well); }
+.ba-glass.cmd-center .bz-tcol-head { display: flex; align-items: center; justify-content: space-between; padding: 3px 4px 10px; color: var(--bag-text-2); }
+.ba-glass.cmd-center .bz-tcol-list { display: grid; gap: 8px; }
+.ba-glass.cmd-center .bz-tcard { padding: 11px 12px; }
+.ba-glass.cmd-center .bz-tcard-title { font-weight: 600; }
+.ba-glass.cmd-center .bz-tcard-meta { margin-top: 7px; color: var(--bag-text-3); font-size: 11px; }
+
+.ba-glass.cmd-center .bz-settings-nav {
+  display: flex;
+  gap: 5px;
+  padding: 5px;
+  border: 1px solid var(--bag-line);
+  border-radius: 14px;
+  background: var(--bag-well);
+  overflow-x: auto;
+}
+.ba-glass.cmd-center .bz-settings-nav-item { flex: 0 0 auto; }
+.ba-glass.cmd-center .bz-settings-nav-item.active,
+.ba-glass.cmd-center .bz-seg-btn.active,
+.ba-glass.cmd-center .bz-seg-btn.is-active {
+  color: var(--bag-gold);
+  border-color: color-mix(in srgb, var(--bag-gold) 58%, transparent);
+  background: color-mix(in srgb, var(--bag-gold) 12%, transparent);
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 45%, transparent);
+}
+.ba-glass.cmd-center .bz-settings-chips { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(260px, 100%), 1fr)); gap: 10px; }
+.ba-glass.cmd-center .bz-settings-chip { padding: 14px; border: 1px solid var(--bag-line); border-radius: var(--bag-radius-sm); background: var(--bag-card); }
+
+.ba-glass.cmd-center :is(.bz-modal-backdrop, .bz-cs-overlay) {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 7vh 16px 24px;
+  overflow: auto;
+  background: color-mix(in srgb, #050403 58%, transparent);
+}
+.ba-glass.cmd-center .bz-modal {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: 86vh;
+  overflow: auto;
+  border-radius: var(--bag-radius-lg);
+  background: var(--glass-sheen, none), var(--bag-float);
+  box-shadow: var(--glass-elev-4);
+}
+.ba-glass.cmd-center :is(.bz-modal-head, .bz-modal-body, .bz-modal-foot) { padding: 18px 22px; }
+.ba-glass.cmd-center .bz-modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; border-bottom: 1px solid var(--bag-line); }
+.ba-glass.cmd-center .bz-modal-title { color: var(--bag-text); font-size: 20px; font-weight: 650; letter-spacing: -.02em; }
+.ba-glass.cmd-center .bz-modal-foot { display: flex; justify-content: flex-end; gap: 8px; border-top: 1px solid var(--bag-line); }
+
+/* ── First-run business wizard ──────────────────────────────────
+ * The wizard used to inherit its structural rules from the legacy terminal
+ * stylesheet. Keep the layout here with the rest of the extracted glass skin
+ * so the dialog remains a bounded, usable surface at every viewport. */
+.ba-glass.cmd-center .bz-wizard {
+  --bz-wiz-accent: var(--bag-gold);
+  position: relative;
+  width: min(680px, 100%);
+  max-height: min(88vh, 760px);
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--bag-line-strong);
+  border-radius: 22px;
+  color: var(--bag-text);
+  background:
+    radial-gradient(110% 75% at 0 0, color-mix(in srgb, var(--bag-gold) 12%, transparent), transparent 58%),
+    var(--glass-sheen, none),
+    color-mix(in srgb, var(--bag-float) 96%, transparent);
+  box-shadow: var(--glass-elev-4), inset 0 1px 0 rgba(255, 255, 255, .1);
+  backdrop-filter: var(--bag-blur);
+  -webkit-backdrop-filter: var(--bag-blur);
+  animation: ba-wizard-rise 240ms var(--bag-ease) both;
+}
+.ba-glass.cmd-center .bz-wizard::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: var(--bag-hairline);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+@keyframes ba-wizard-rise {
+  from { opacity: 0; transform: translateY(10px) scale(.985); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.ba-glass.cmd-center .bz-wizard-head {
+  position: relative;
+  flex: 0 0 auto;
+  display: grid;
+  gap: 7px;
+  padding: 22px 58px 15px 26px;
+  border-bottom: 1px solid var(--bag-line);
+}
+.ba-glass.cmd-center .bz-wizard-eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--bag-gold);
+  font: 650 10px/1 var(--bag-mono);
+  letter-spacing: .18em;
+  text-transform: uppercase;
+}
+.ba-glass.cmd-center .bz-wizard-eyebrow-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--bag-gold);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--bag-gold) 72%, transparent);
+}
+.ba-glass.cmd-center .bz-wizard-title,
+.ba-glass.cmd-center .bz-wiz-hero-title {
+  margin: 0;
+  color: var(--bag-text);
+  font-family: var(--bag-font-display);
+  font-weight: 650;
+  letter-spacing: -.025em;
+  line-height: 1.16;
+}
+.ba-glass.cmd-center .bz-wizard-title { font-size: clamp(22px, 3vw, 28px); }
+.ba-glass.cmd-center .bz-wizard-sub,
+.ba-glass.cmd-center .bz-wiz-hero-sub {
+  margin: 0;
+  color: var(--bag-text-2);
+  font-size: 13px;
+  line-height: 1.55;
+}
+.ba-glass.cmd-center .bz-wizard-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  width: 34px;
+  height: 34px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid var(--bag-line-strong);
+  border-radius: 11px;
+  background: var(--bag-card);
+  color: var(--bag-text-2);
+  cursor: pointer;
+}
+.ba-glass.cmd-center .bz-wizard-close:hover { color: var(--bag-text); border-color: var(--bag-gold); }
+.ba-glass.cmd-center .bz-wizard-close svg { width: 15px; height: 15px; fill: none; stroke: currentColor; }
+.ba-glass.cmd-center .bz-wizard-dots {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 12px 26px 6px;
+}
+.ba-glass.cmd-center .bz-wizard-dot {
+  position: relative;
+  flex: 1 1 0;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bag-text) 9%, transparent);
+}
+.ba-glass.cmd-center .bz-wizard-dot.is-done { background: color-mix(in srgb, var(--bag-gold) 58%, transparent); }
+.ba-glass.cmd-center .bz-wizard-dot.is-active::after {
+  content: "";
+  position: absolute;
+  inset: 0 45% 0 0;
+  border-radius: inherit;
+  background: var(--bag-gold-fill);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--bag-gold) 68%, transparent);
+}
+.ba-glass.cmd-center .bz-wizard-step-counter {
+  flex: 0 0 auto;
+  color: var(--bag-text-3);
+  font: 650 9px/1 var(--bag-mono);
+  letter-spacing: .14em;
+}
+.ba-glass.cmd-center .bz-wizard-progress {
+  position: relative;
+  flex: 0 0 auto;
+  height: 3px;
+  margin: 0 26px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--bag-text) 6%, transparent);
+}
+.ba-glass.cmd-center .bz-wizard-progress-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: var(--bag-gold-fill);
+  box-shadow: 0 0 14px color-mix(in srgb, var(--bag-gold) 56%, transparent);
+  transition: width 360ms var(--bag-ease);
+}
+.ba-glass.cmd-center .bz-wizard-body {
+  position: relative;
+  z-index: 1;
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: auto;
+  padding: 24px 26px 22px;
+  overscroll-behavior: contain;
+}
+.ba-glass.cmd-center .bz-wizard-step { min-width: 0; animation: ba-wizard-step 260ms var(--bag-ease) both; }
+@keyframes ba-wizard-step {
+  from { opacity: 0; transform: translateY(7px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.ba-glass.cmd-center .bz-wiz-hero {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 8px 8px 4px;
+  text-align: center;
+}
+.ba-glass.cmd-center .bz-wiz-hero-ring {
+  width: 88px;
+  height: 88px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--bag-gold) 42%, transparent);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 35% 28%, color-mix(in srgb, var(--bag-gold-2) 48%, transparent), transparent 42%),
+    color-mix(in srgb, var(--bag-gold) 10%, var(--bag-card));
+  box-shadow: 0 0 42px -12px color-mix(in srgb, var(--bag-gold) 65%, transparent), inset 0 0 24px rgba(0,0,0,.28);
+  color: var(--bag-gold-2);
+  font-size: 34px;
+}
+.ba-glass.cmd-center .bz-wiz-hero-title { max-width: 520px; font-size: clamp(22px, 3.2vw, 29px); }
+.ba-glass.cmd-center .bz-wiz-hero-italic { color: var(--bag-gold); font-style: normal; }
+.ba-glass.cmd-center .bz-wiz-hero-sub { max-width: 50ch; }
+.ba-glass.cmd-center .bz-wiz-checklist {
+  width: 100%;
+  box-sizing: border-box;
+  display: grid;
+  gap: 9px;
+  margin-top: 4px;
+  padding: 15px;
+  border: 1px solid var(--bag-line);
+  border-radius: 14px;
+  background: var(--bag-well);
+  text-align: left;
+}
+.ba-glass.cmd-center .bz-wiz-checklist-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: var(--bag-text-2);
+  font-size: 12.5px;
+  line-height: 1.4;
+}
+.ba-glass.cmd-center .bz-wiz-checklist-icon {
+  width: 23px;
+  height: 23px;
+  flex: 0 0 auto;
+  display: grid;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--bag-gold) 36%, transparent);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--bag-gold) 12%, transparent);
+  color: var(--bag-gold);
+  font: 650 10px/1 var(--bag-mono);
+}
+.ba-glass.cmd-center .bz-wiz-field { display: grid; gap: 8px; margin-bottom: 18px; min-width: 0; }
+.ba-glass.cmd-center .bz-wiz-label { color: var(--bag-gold); font: 650 10.5px/1.3 var(--bag-mono); letter-spacing: .13em; text-transform: uppercase; }
+.ba-glass.cmd-center .bz-wiz-hint { color: var(--bag-text-3); font-size: 11.5px; line-height: 1.5; }
+.ba-glass.cmd-center :is(.bz-wiz-input, .bz-wiz-textarea) {
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  padding: 12px 14px;
+  border: 1px solid var(--bag-line-strong);
+  border-radius: 11px;
+  background: var(--bag-well);
+  color: var(--bag-text);
+  font-size: 14px;
+  line-height: 1.45;
+}
+.ba-glass.cmd-center .bz-wiz-textarea { min-height: 110px; resize: vertical; }
+.ba-glass.cmd-center :is(.bz-wiz-input, .bz-wiz-textarea):focus { border-color: var(--bag-gold); box-shadow: var(--bag-focus); outline: none; }
+.ba-glass.cmd-center .bz-wiz-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+.ba-glass.cmd-center .bz-wiz-chip,
+.ba-glass.cmd-center .bz-wiz-btn {
+  appearance: none;
+  min-height: 36px;
+  padding: 8px 14px;
+  border: 1px solid var(--bag-line-strong);
+  border-radius: 11px;
+  background: var(--bag-card);
+  color: var(--bag-text-2);
+  font: 600 12px/1.2 var(--bag-font);
+  cursor: pointer;
+  transition: transform 150ms var(--bag-spring), border-color 150ms, background 150ms, color 150ms;
+}
+.ba-glass.cmd-center :is(.bz-wiz-chip, .bz-wiz-btn):hover:not(:disabled) { border-color: var(--bag-gold); color: var(--bag-text); transform: translateY(-1px); }
+.ba-glass.cmd-center .bz-wiz-chip.is-selected { border-color: color-mix(in srgb, var(--bag-gold) 62%, transparent); background: color-mix(in srgb, var(--bag-gold) 14%, var(--bag-card)); color: var(--bag-gold); }
+.ba-glass.cmd-center .bz-wiz-btn.is-primary { border-color: transparent; background: var(--bag-gold-fill); color: var(--bag-ink); box-shadow: 0 1px 0 rgba(255,255,255,.42) inset, 0 12px 24px -14px var(--bag-gold); }
+.ba-glass.cmd-center .bz-wiz-btn-text { border-color: transparent; background: transparent; }
+.ba-glass.cmd-center .bz-wiz-btn:disabled { opacity: .42; cursor: not-allowed; transform: none; }
+.ba-glass.cmd-center .bz-wiz-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px 14px;
+  border: 1px solid var(--bag-line);
+  border-radius: 12px;
+  background: var(--bag-well);
+  cursor: pointer;
+}
+.ba-glass.cmd-center .bz-wiz-toggle:hover { border-color: var(--bag-line-strong); }
+.ba-glass.cmd-center .bz-wiz-toggle-text { display: grid; gap: 3px; min-width: 0; }
+.ba-glass.cmd-center .bz-wiz-toggle-title { color: var(--bag-text); font-size: 12.5px; font-weight: 600; }
+.ba-glass.cmd-center .bz-wiz-toggle-sub { color: var(--bag-text-3); font-size: 11px; line-height: 1.4; }
+.ba-glass.cmd-center .bz-wiz-toggle-switch { position: relative; width: 38px; height: 22px; flex: 0 0 auto; border: 1px solid var(--bag-line-strong); border-radius: 999px; background: color-mix(in srgb, var(--bag-text) 8%, transparent); }
+.ba-glass.cmd-center .bz-wiz-toggle-switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--bag-text-2); transition: transform 180ms var(--bag-spring); }
+.ba-glass.cmd-center .bz-wiz-toggle.is-on .bz-wiz-toggle-switch { border-color: color-mix(in srgb, var(--bag-gold) 62%, transparent); background: color-mix(in srgb, var(--bag-gold) 38%, transparent); }
+.ba-glass.cmd-center .bz-wiz-toggle.is-on .bz-wiz-toggle-switch::after { transform: translateX(16px); background: var(--bag-gold-2); }
+.ba-glass.cmd-center .bz-wizard-foot {
+  position: relative;
+  z-index: 1;
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 14px 22px 18px;
+  border-top: 1px solid var(--bag-line);
+  background: color-mix(in srgb, var(--bag-float) 78%, transparent);
+}
+.ba-glass.cmd-center :is(.bz-wizard-foot-left, .bz-wizard-foot-right) { display: flex; align-items: center; gap: 8px; min-width: 0; }
+
+.ba-glass.cmd-center :is(.msg-success, .msg-error, .bz-inline-error) {
+  margin: 8px clamp(14px, 2.4vw, 32px);
+  padding: 11px 14px;
+  border: 1px solid var(--bag-line-strong);
+  border-radius: 12px;
+  background: var(--bag-card);
+  color: var(--bag-text);
+}
+.ba-glass.cmd-center .msg-success { border-color: color-mix(in srgb, var(--bag-ok) 38%, transparent); }
+.ba-glass.cmd-center .msg-error { border-color: color-mix(in srgb, var(--bag-bad) 38%, transparent); }
+
+.ba-glass.cmd-center .bag-skel,
+.ba-glass.cmd-center .bz-skel {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--bag-text) 5%, transparent), color-mix(in srgb, var(--bag-gold) 15%, transparent), color-mix(in srgb, var(--bag-text) 5%, transparent));
+  background-size: 200% 100%;
+  animation: ba-shimmer 1.6s linear infinite;
+  border-radius: 10px;
+}
+
+@media (max-width: 900px) {
+  .ba-glass.cmd-center .hud-header { flex-wrap: wrap; }
+  .ba-glass.cmd-center .hud-center { order: 3; width: 100%; justify-content: flex-start; overflow-x: auto; }
+  .ba-glass.cmd-center .bz-kpi-strip { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 640px) {
+  .ba-glass.ba-glass.cmd-center { height: auto; min-height: calc(100vh - 56px); overflow: visible; }
+  .ba-glass.cmd-center .hud-header { margin: 10px; padding: 10px; }
+  .ba-glass.cmd-center .hud-title-group,
+  .ba-glass.cmd-center .actions-group-label { display: none; }
+  .ba-glass.cmd-center .hud-right { width: 100%; overflow-x: auto; }
+  .ba-glass.cmd-center .bz-home,
+  .ba-glass.cmd-center .bz-settings-shell,
+  .ba-glass.cmd-center .bz-section-body { overflow: visible; padding: 8px 10px 52px; }
+  .ba-glass.cmd-center .bz-hero { align-items: flex-start; flex-direction: column; padding: 18px; }
+  .ba-glass.cmd-center .bz-kpi-strip { grid-template-columns: minmax(0, 1fr); }
+  .ba-glass.cmd-center .bz-tiles { grid-template-columns: minmax(0, 1fr); }
+  .ba-glass.cmd-center .bz-tboard-cols { grid-auto-columns: minmax(82vw, 1fr); }
+  .ba-glass.cmd-center .bz-tcol { width: 82vw; }
+  .ba-glass.cmd-center :is(.bz-modal-backdrop, .bz-cs-overlay) { padding: 10px 8px calc(10px + env(safe-area-inset-bottom)); }
+  .ba-glass.cmd-center .bz-wizard { width: 100%; max-height: calc(100dvh - 20px); border-radius: 17px; }
+  .ba-glass.cmd-center .bz-wizard-head { padding: 18px 50px 13px 18px; }
+  .ba-glass.cmd-center .bz-wizard-dots { padding-inline: 18px; }
+  .ba-glass.cmd-center .bz-wizard-progress { margin-inline: 18px; }
+  .ba-glass.cmd-center .bz-wizard-body { padding: 18px; }
+  .ba-glass.cmd-center .bz-wiz-hero { padding-inline: 0; }
+  .ba-glass.cmd-center .bz-wiz-hero-ring { width: 72px; height: 72px; font-size: 28px; }
+  .ba-glass.cmd-center .bz-wizard-foot { align-items: stretch; padding: 12px 14px 14px; }
+  .ba-glass.cmd-center :is(.bz-wizard-foot-left, .bz-wizard-foot-right) { flex-wrap: wrap; }
+  .ba-glass.cmd-center .bz-wizard-foot-right { justify-content: flex-end; margin-left: auto; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ba-glass.cmd-center :is(.action-btn, .ai-action-btn, .bz-btn, .btn, .bz-tile) { transition: none; }
+  .ba-glass.cmd-center :is(.bag-skel, .bz-skel) { animation: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .ba-glass.cmd-center :is(.hud-header, .bz-hero, .bz-kpi, .bz-tile, .bz-priorities, .bz-tboard, .bz-activity, .ai-context-panel, .bz-modal) {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--glass-solid, var(--bag-float));
+  }
+}
+
+/* ── Parts added by the glass rewrite (not in the base layer) ─────────── */
+.ba-glass.cmd-center .bz-sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+.ba-glass.cmd-center .bz-hero-tag {
+  display: inline-flex; align-items: center; height: 22px; padding: 0 9px; margin-left: 10px;
+  border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 0.02em;
+  color: var(--bag-gold); background: color-mix(in srgb, var(--bag-gold) 10%, transparent);
+  border: 1px solid var(--bag-line); vertical-align: middle;
+}
+.ba-glass.cmd-center .bz-hero-text { min-width: 0; }
+.ba-glass.cmd-center .bz-hero-status { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+.ba-glass.cmd-center .bz-status-chip {
+  display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px;
+  border-radius: 999px; font-size: 11.5px; font-weight: 550; color: var(--bag-text-2);
+  background: var(--bag-well); border: 1px solid var(--bag-line);
+}
+.ba-glass.cmd-center .bz-status-dot,
+.ba-glass.cmd-center .bz-status-chip::before {
+  content: ""; width: 6px; height: 6px; border-radius: 50%; flex: none;
+  background: var(--bag-text-4);
+}
+.ba-glass.cmd-center .bz-status-chip:has(.bz-status-dot)::before { display: none; }
+.ba-glass.cmd-center .bz-status-chip.is-ok::before,
+.ba-glass.cmd-center .bz-status-chip.is-ok .bz-status-dot { background: var(--bag-ok); box-shadow: 0 0 8px color-mix(in srgb, var(--bag-ok) 60%, transparent); }
+.ba-glass.cmd-center .bz-status-chip.is-ok { color: var(--bag-text); }
+
+/* business switcher + section segmented controls */
+.ba-glass.cmd-center .bz-seg--biz,
+.ba-glass.cmd-center .bz-seg--sections { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; max-width: 100%; }
+.ba-glass.cmd-center .bz-seg--biz::-webkit-scrollbar,
+.ba-glass.cmd-center .bz-seg--sections::-webkit-scrollbar { display: none; }
+.ba-glass.cmd-center .bz-seg-btn { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; }
+.ba-glass.cmd-center .bz-seg-btn svg { width: 14px; height: 14px; flex: none; }
+.ba-glass.cmd-center .bz-seg-avatar {
+  display: inline-grid; place-items: center; width: 20px; height: 20px; border-radius: 6px; flex: none;
+  font-size: 9.5px; font-weight: 700; letter-spacing: 0.02em; color: var(--bag-ink);
+  background: var(--bag-gold-fill);
+}
+.ba-glass.cmd-center .bz-seg-label { overflow: hidden; text-overflow: ellipsis; max-width: 18ch; }
+.ba-glass.cmd-center .bz-seg-add { min-width: 32px; justify-content: center; }
+
+/* empty states */
+.ba-glass.cmd-center .bz-empty-card {
+  position: relative; display: flex; flex-direction: column; align-items: center; text-align: center;
+  gap: 8px; padding: 34px 22px; border-radius: var(--bag-radius);
+}
+.ba-glass.cmd-center .bz-empty-glyph {
+  display: grid; place-items: center; width: 48px; height: 48px; border-radius: 15px; margin-bottom: 4px;
+  color: var(--bag-gold); background: color-mix(in srgb, var(--bag-gold) 9%, transparent);
+  border: 1px solid var(--bag-line); box-shadow: 0 0 26px -8px color-mix(in srgb, var(--bag-gold) 45%, transparent);
+}
+.ba-glass.cmd-center .bz-empty-glyph svg { width: 22px; height: 22px; }
+.ba-glass.cmd-center .bz-empty-title { font-size: 15px; font-weight: 650; color: var(--bag-text); }
+.ba-glass.cmd-center .bz-empty-text { max-width: 46ch; font-size: 12.5px; line-height: 1.55; color: var(--bag-text-3); }
+.ba-glass.cmd-center .empty-actions,
+.ba-glass.cmd-center .notion-actions { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-top: 10px; }
+.ba-glass.cmd-center .btn--block { width: 100%; justify-content: center; }
+.ba-glass.cmd-center .db-empty { padding: 18px; text-align: center; font-size: 12.5px; color: var(--bag-text-3); }
+
+/* AI context pages */
+.ba-glass.cmd-center .ai-work-delete {
+  display: grid; place-items: center; width: 30px; height: 30px; flex: none; margin-left: auto;
+  border-radius: 9px; border: 1px solid transparent; background: transparent; color: var(--bag-text-3);
+  cursor: pointer; opacity: 0.6; transition: opacity 0.15s, color 0.15s, background 0.15s, border-color 0.15s;
+}
+.ba-glass.cmd-center .ai-work-delete svg { width: 15px; height: 15px; }
+.ba-glass.cmd-center .ai-work-item:hover .ai-work-delete,
+.ba-glass.cmd-center .ai-work-delete:focus-visible { opacity: 1; }
+.ba-glass.cmd-center .ai-work-delete:hover {
+  color: var(--bag-bad); background: color-mix(in srgb, var(--bag-bad) 10%, transparent);
+  border-color: color-mix(in srgb, var(--bag-bad) 30%, transparent);
+}
+.ba-glass.cmd-center .bz-modal-body--flush { padding: 0; display: flex; flex-direction: column; min-height: 0; }
+.ba-glass.cmd-center .bz-modal--ctx { width: min(920px, 96vw); }
+.ba-glass.cmd-center .bz-ctx-toolbar {
+  display: flex; align-items: center; gap: 8px; padding: 10px 16px;
+  border-bottom: 1px solid var(--bag-line); background: var(--bag-well);
+}
+.ba-glass.cmd-center .bz-ctx-error { font-size: 12px; color: var(--bag-bad); }
+.ba-glass.cmd-center .bz-ctx-title-input {
+  flex: 1; min-width: 0; background: transparent; border: 0; outline: 0;
+  font: 650 17px/1.3 var(--bag-font-display); color: var(--bag-text);
+}
+.ba-glass.cmd-center .bz-ctx-textarea {
+  flex: 1; min-height: 52vh; width: 100%; resize: vertical; padding: 16px 18px; border: 0; border-radius: 0;
+  background: transparent; color: var(--bag-text); font: 13px/1.65 var(--bag-mono); outline: none;
+}
+.ba-glass.cmd-center .bz-ctx-preview { min-height: 52vh; padding: 16px 20px; cursor: text; overflow: auto; }
+.ba-glass.cmd-center .bz-ctx-placeholder { color: var(--bag-text-4); font-style: italic; }
+
+/* messages + links */
+.ba-glass.cmd-center .msg-icon { display: inline-grid; place-items: center; width: 18px; height: 18px; flex: none; }
+.ba-glass.cmd-center .msg-icon svg { width: 16px; height: 16px; }
+.ba-glass.cmd-center .msg-icon--sm,
+.ba-glass.cmd-center .msg-icon--sm svg { width: 13px; height: 13px; }
+.ba-glass.cmd-center .msg-text { min-width: 0; }
+.ba-glass.cmd-center .bz-inline-link {
+  border: 0; padding: 0; background: none; cursor: pointer; font: inherit;
+  color: var(--bag-gold); text-decoration: underline; text-decoration-color: var(--bag-line-strong); text-underline-offset: 3px;
+}
+.ba-glass.cmd-center .bz-inline-link:hover { color: var(--bag-gold-2); }
+
+/* overview tiles that jump to the Business hub */
+.ba-glass.cmd-center .ovr-tile--link { cursor: pointer; text-align: left; font: inherit; color: inherit; transition: transform 0.25s var(--bag-spring), border-color 0.2s; }
+.ba-glass.cmd-center .ovr-tile--link:hover { transform: translateY(-2px); border-color: var(--bag-line-strong); }
+.ba-glass.cmd-center .ovr-tile-go,
+.ba-glass.cmd-center .ovr-list-go {
+  margin-left: auto; font-size: 11px; font-weight: 600; color: var(--bag-gold);
+  background: none; border: 0; cursor: pointer; white-space: nowrap;
+}
+.ba-glass.cmd-center .ovr-num--muted { color: var(--bag-text-3); }
+.ba-glass.cmd-center .ovr-pill--ok { color: var(--bag-ok); border-color: color-mix(in srgb, var(--bag-ok) 35%, transparent); background: color-mix(in srgb, var(--bag-ok) 10%, transparent); }
+.ba-glass.cmd-center .ovr-btn--inline { display: inline-flex; margin-left: 6px; }
+.ba-glass.cmd-center .ovr-sub--fonts { font-family: var(--bag-font-display); }
+
+/* settings */
+.ba-glass.cmd-center .bz-settings-chip--link { cursor: pointer; border: 1px solid var(--bag-line); background: transparent; color: var(--bag-gold); font: inherit; }
+.ba-glass.cmd-center .bz-settings-chip--link:hover { border-color: var(--bag-line-strong); background: var(--bag-hover); }
+.ba-glass.cmd-center .bz-settings-nav-item--hub { color: var(--bag-gold); }
+.ba-glass.cmd-center .bz-settings-nav-item-dot--bad { background: var(--bag-bad); box-shadow: 0 0 8px color-mix(in srgb, var(--bag-bad) 60%, transparent); }
+.ba-glass.cmd-center .bz-section-body--brand { padding-bottom: 40px; }
+
+/* modal tags */
+.ba-glass.cmd-center :is(.bz-modal-tag--gold, .bz-modal-tag--ok, .bz-modal-tag--warn) { border: 1px solid currentColor; background: color-mix(in srgb, currentColor 10%, transparent); }
+.ba-glass.cmd-center .bz-modal-tag--gold { color: var(--bag-gold); }
+.ba-glass.cmd-center .bz-modal-tag--ok { color: var(--bag-ok); }
+.ba-glass.cmd-center .bz-modal-tag--warn { color: var(--bag-warn); }
+
+/* skeletons */
+.ba-glass.cmd-center :is(.bz-tile--skeleton, .bz-tcard--skeleton, .bz-tcol--skeleton, .db-item--skeleton) {
+  pointer-events: none; color: transparent;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--bag-text) 4%, transparent), color-mix(in srgb, var(--bag-gold) 11%, transparent), color-mix(in srgb, var(--bag-text) 4%, transparent));
+  background-size: 200% 100%; animation: ba-shimmer 1.6s linear infinite;
+}
+
+/* dialogs (delete business / connect Notion) */
+.ba-glass.cmd-center .dialog--wide { width: min(640px, 94vw); max-width: none; }
+.ba-glass.cmd-center .dialog--danger { text-align: center; }
+.ba-glass.cmd-center .dialog-danger-glyph {
+  display: grid; place-items: center; width: 46px; height: 46px; margin: 0 auto 10px; border-radius: 14px;
+  color: var(--bag-bad); background: color-mix(in srgb, var(--bag-bad) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--bag-bad) 30%, transparent);
+}
+.ba-glass.cmd-center .dialog-danger-glyph svg { width: 22px; height: 22px; }
+.ba-glass.cmd-center .dialog-sub { margin: 6px 0 16px; font-size: 13px; line-height: 1.55; color: var(--bag-text-2); }
+.ba-glass.cmd-center .dialog-search { width: 100%; margin: 10px 0; }
+@media (prefers-reduced-motion: reduce) {
+  .ba-glass.cmd-center :is(.bz-tile--skeleton, .bz-tcard--skeleton, .bz-tcol--skeleton, .db-item--skeleton) { animation: none; }
+}
+
+/* System status rail: buttons centre text by default; keep label + value
+   left-aligned, and give the "link" state (Revenue → hub) a gold tile. */
+.ba-glass.cmd-center .bz-system-pill { text-align: left; }
+.ba-glass.cmd-center .bz-system-pill-text { align-items: flex-start; }
+.ba-glass.cmd-center .bz-system-pill--link .bz-system-pill-icon {
+  color: var(--bag-gold);
+  background: color-mix(in srgb, var(--bag-gold) 13%, transparent);
+  box-shadow: 0 0 18px -6px color-mix(in srgb, var(--bag-gold) 55%, transparent);
+}
+.ba-glass.cmd-center .bz-system-pill--link .bz-system-pill-status-dot { background: var(--bag-gold); }
+/* Business switcher scrolls sideways on narrow screens: fade the far edge so
+   it reads as scrollable. */
+@media (max-width: 900px) {
+  .ba-glass.cmd-center .bz-seg--biz {
+    -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 64px), transparent 96%);
+    mask-image: linear-gradient(90deg, #000 calc(100% - 64px), transparent 96%);
+    padding-right: 28px;
+  }
+}
+
+/* One centred 1480px column with one gutter for the hero, the switcher row
+   and the home/settings grid, so their edges line up at every width. */
+.ba-glass.cmd-center { --bz-gutter: clamp(10px, 2.4vw, 32px); }
+.ba-glass.cmd-center .bz-hero {
+  box-sizing: border-box;
+  width: calc(100% - 2 * var(--bz-gutter));
+  max-width: calc(1480px - 2 * var(--bz-gutter));
+  margin-inline: auto;
+}
+.ba-glass.cmd-center .bz-hero-nav {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1480px;
+  margin: 6px auto 0;
+  padding-inline: var(--bz-gutter);
+}
+.ba-glass.cmd-center :is(.bz-home, .bz-settings-shell) {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1480px;
+  margin-inline: auto;
+  padding-inline: var(--bz-gutter);
+}
+
+/* Disabled "Add priority" (no projects yet) reads as muted, not invisible. */
+.ba-glass.cmd-center .bz-pri-add:disabled { opacity: 0.6; color: var(--bag-text-3); border-color: var(--bag-line); }
+
+/* Empty home (no businesses yet): rows hug content instead of splitting the
+   page height, and the legacy brown literals give way to readable glass text. */
+.ba-glass.cmd-center .bz-home { align-content: start; }
+.ba-glass.cmd-center .empty-state { padding: 28px 20px 24px; gap: 12px; }
+.ba-glass.cmd-center .empty-icon { display: grid; place-items: center; opacity: 0.7; color: var(--bag-gold, var(--g-primary)); }
+.ba-glass.cmd-center .empty-icon svg { width: 34px; height: 34px; fill: none; stroke: currentColor; }
+.ba-glass.cmd-center .empty-text { font-size: 12px; color: var(--bag-text-2); }
+.ba-glass.cmd-center .empty-hint { font-size: 12.5px; line-height: 1.55; max-width: 46ch; color: var(--bag-text-3); }

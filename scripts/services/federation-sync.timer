@@ -1,0 +1,13 @@
+[Unit]
+Description=InfiniBot Federation Code Sync (5-minute interval)
+Documentation=https://infinibotos.com/docs/federation/code-sync
+After=network-online.target
+Wants=network-online.target
+
+[Timer]
+OnBootSec=2min
+OnUnitActiveSec=5min
+RandomizedDelaySec=30s
+
+[Install]
+WantedBy=timers.target

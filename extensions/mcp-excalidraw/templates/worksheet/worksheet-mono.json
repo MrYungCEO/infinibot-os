@@ -1,0 +1,55 @@
+{
+  "id": "worksheet-mono",
+  "category": "worksheet",
+  "name": "Worksheet · Mono",
+  "width": 1240,
+  "height": 1754,
+  "background": "#f5f5fa",
+  "createdAt": "2026-06-09",
+  "scene": {
+    "elements": [
+      {
+        "id": "worksheet-mono-bg-accent",
+        "type": "rectangle",
+        "x": 0,
+        "y": 1368.1200000000001,
+        "width": 1240,
+        "height": 105.24,
+        "backgroundColor": "#a855f7",
+        "fillStyle": "solid",
+        "strokeColor": "transparent",
+        "strokeWidth": 0,
+        "roughness": 0
+      },
+      {
+        "id": "worksheet-mono-title",
+        "type": "text",
+        "x": 124,
+        "y": 613.9,
+        "width": 992,
+        "height": 96,
+        "text": "Worksheet title",
+        "fontSize": 64,
+        "fontFamily": 1,
+        "textAlign": "center",
+        "strokeColor": "#1a1a2e"
+      },
+      {
+        "id": "worksheet-mono-subtitle",
+        "type": "text",
+        "x": 124,
+        "y": 841.92,
+        "width": 992,
+        "height": 48,
+        "text": "Mono · 1240×1754",
+        "fontSize": 28,
+        "fontFamily": 2,
+        "textAlign": "center",
+        "strokeColor": "#1a1a2e",
+        "opacity": 70
+      }
+    ],
+    "appState": {},
+    "files": {}
+  }
+}

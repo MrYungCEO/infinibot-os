@@ -1,0 +1,283 @@
+/* ============================================================
+ * InfiniBot Glass — reusable primitives (.g-*)
+ *
+ * Drop-in classes any page can adopt. They only read --glass-* tokens,
+ * so they follow theme, palette, reduced-transparency and reduced-motion
+ * automatically. See docs/ui/GLASS.md for usage.
+ *
+ * The gradient hairline edge uses the mask-composite trick on ::before,
+ * so it is a real gradient border (gold → transparent) that keeps the
+ * element's own border-radius and costs no extra layout box.
+ * ============================================================ */
+
+/* ── Shared edge helper ────────────────────────────────────── */
+.g-glass,
+.g-card,
+.g-panel,
+.g-edge {
+  position: relative;
+  isolation: isolate;
+}
+.g-glass::before,
+.g-card::before,
+.g-panel::before,
+.g-edge::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  background: var(--glass-edge-soft);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  pointer-events: none;
+  z-index: 0;
+}
+.g-edge--gold::before,
+.g-panel::before { background: var(--glass-edge); }
+
+/* ── Surfaces ──────────────────────────────────────────────── */
+.g-glass {
+  background: var(--glass-sheen), var(--glass-2);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: var(--glass-radius);
+  box-shadow: var(--glass-elev-1);
+}
+.g-panel {
+  background: var(--glass-sheen), var(--glass-tint), var(--glass-2);
+  backdrop-filter: var(--glass-blur);
+  -webkit-backdrop-filter: var(--glass-blur);
+  border-radius: var(--glass-radius-lg);
+  box-shadow: var(--glass-elev-2);
+  padding: var(--glass-space-5);
+}
+/* Cards sit ON a panel, so they skip their own blur (one blur layer per stack). */
+.g-card {
+  background: var(--glass-sheen), var(--glass-3);
+  border-radius: var(--glass-radius);
+  box-shadow: var(--glass-elev-1);
+  padding: var(--glass-space-4);
+  transition:
+    transform var(--glass-dur) var(--glass-spring),
+    box-shadow var(--glass-dur) var(--glass-ease),
+    background-color var(--glass-dur) var(--glass-ease);
+}
+.g-card--interactive { cursor: pointer; }
+.g-card--interactive:hover {
+  transform: var(--glass-lift);
+  box-shadow: var(--glass-elev-3), var(--glass-glow-soft);
+}
+.g-card--interactive:hover::before { background: var(--glass-edge); }
+.g-card--interactive:active { transform: scale(0.992); }
+.g-float {
+  background: var(--glass-sheen), var(--glass-4);
+  backdrop-filter: var(--glass-blur-lg);
+  -webkit-backdrop-filter: var(--glass-blur-lg);
+  border: 1px solid var(--glass-stroke-strong);
+  border-radius: var(--glass-radius);
+  box-shadow: var(--glass-elev-4);
+}
+/* Film grain overlay for hero surfaces (use once or twice per screen). */
+.g-noise { position: relative; }
+.g-noise::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background-image: var(--glass-noise);
+  opacity: var(--glass-noise-opacity);
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}
+
+/* ── Section header: eyebrow + title + hairline ────────────── */
+.g-section-head {
+  display: flex;
+  align-items: center;
+  gap: var(--glass-space-3);
+  margin: 0 0 var(--glass-space-3);
+  font: 600 var(--glass-text-xs) / 1 var(--glass-font);
+  letter-spacing: var(--glass-tracking-caps);
+  text-transform: uppercase;
+  color: var(--glass-fg-3);
+}
+.g-section-head::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, var(--glass-stroke-gold), transparent 80%);
+}
+.g-section-head > .g-section-head__count {
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0;
+  color: var(--glass-fg-4);
+}
+.g-title {
+  font: 600 var(--glass-text-xl) / 1.2 var(--font-ui-display);
+  letter-spacing: -0.02em;
+  color: var(--glass-fg);
+}
+
+/* ── Buttons ───────────────────────────────────────────────── */
+.g-btn {
+  --_bg: var(--glass-hover);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--glass-stroke-strong);
+  border-radius: var(--glass-radius-sm);
+  background: var(--glass-sheen), var(--_bg);
+  color: var(--glass-fg);
+  font: 500 var(--glass-text-sm) / 1 var(--glass-font);
+  letter-spacing: -0.003em;
+  cursor: pointer;
+  box-shadow: var(--glass-specular), 0 1px 2px rgba(0, 0, 0, 0.18);
+  transition:
+    transform var(--glass-dur-fast) var(--glass-spring),
+    background-color var(--glass-dur-fast) var(--glass-ease),
+    border-color var(--glass-dur-fast) var(--glass-ease),
+    box-shadow var(--glass-dur) var(--glass-ease);
+}
+.g-btn:hover { --_bg: var(--glass-press); border-color: var(--glass-stroke-gold); transform: var(--glass-lift); }
+.g-btn:active { transform: scale(0.97); }
+.g-btn:focus-visible { outline: none; box-shadow: var(--glass-focus-ring); }
+.g-btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
+.g-btn svg { width: 15px; height: 15px; flex: none; }
+.g-btn--primary {
+  border-color: color-mix(in srgb, var(--glass-gold) 60%, transparent);
+  background: var(--glass-gold-fill);
+  color: var(--glass-ink);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.45), 0 6px 20px -8px var(--glass-gold-a40);
+}
+.g-btn--primary:hover {
+  border-color: var(--glass-gold);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 10px 28px -8px color-mix(in srgb, var(--glass-gold) 60%, transparent);
+}
+.g-btn--ghost { --_bg: transparent; border-color: transparent; box-shadow: none; }
+.g-btn--ghost:hover { --_bg: var(--glass-hover); border-color: var(--glass-stroke); }
+.g-btn--danger { color: #ff8a7a; }
+.g-btn--danger:hover { border-color: rgba(255, 110, 90, 0.45); --_bg: rgba(255, 90, 70, 0.1); }
+.g-btn--sm { min-height: 28px; padding: 0 10px; font-size: var(--glass-text-xs); border-radius: var(--glass-radius-xs); }
+.g-btn--icon { width: 34px; padding: 0; }
+.g-btn--sm.g-btn--icon { width: 28px; }
+
+/* ── Inputs ────────────────────────────────────────────────── */
+.g-input {
+  width: 100%;
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--glass-stroke-strong);
+  border-radius: var(--glass-radius-sm);
+  background: color-mix(in srgb, var(--glass-base) 55%, transparent);
+  color: var(--glass-fg);
+  font: 400 var(--glass-text-md) / 1.4 var(--glass-font);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.25);
+  transition: border-color var(--glass-dur-fast) var(--glass-ease), box-shadow var(--glass-dur) var(--glass-ease);
+}
+textarea.g-input { padding: 10px 12px; min-height: 72px; resize: vertical; }
+.g-input::placeholder { color: var(--glass-fg-4); }
+.g-input:hover { border-color: var(--glass-stroke-gold); }
+.g-input:focus,
+.g-input:focus-visible { outline: none; border-color: color-mix(in srgb, var(--glass-gold) 65%, transparent); box-shadow: var(--glass-focus-ring); }
+
+/* ── Chips / badges ────────────────────────────────────────── */
+.g-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 24px;
+  padding: 0 10px;
+  border: 1px solid var(--glass-stroke);
+  border-radius: var(--glass-radius-pill);
+  background: var(--glass-hover);
+  color: var(--glass-fg-2);
+  font: 500 var(--glass-text-xs) / 1 var(--glass-font);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.g-chip--gold { color: var(--glass-gold); border-color: var(--glass-stroke-gold); background: var(--glass-gold-a10); }
+.g-chip--ok { color: #6fe3a4; border-color: rgba(111, 227, 164, 0.3); background: rgba(111, 227, 164, 0.08); }
+.g-chip--warn { color: #ffc46b; border-color: rgba(255, 196, 107, 0.32); background: rgba(255, 196, 107, 0.08); }
+.g-chip--danger { color: #ff8a7a; border-color: rgba(255, 138, 122, 0.32); background: rgba(255, 138, 122, 0.08); }
+.g-chip__dot { width: 6px; height: 6px; border-radius: 50%; background: currentColor; box-shadow: 0 0 8px currentColor; }
+
+/* ── Tables ────────────────────────────────────────────────── */
+.g-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font: 400 var(--glass-text-sm) / 1.45 var(--glass-font);
+  font-variant-numeric: tabular-nums;
+  color: var(--glass-fg-2);
+  border: 1px solid var(--glass-stroke);
+  border-radius: var(--glass-radius);
+  overflow: hidden;
+  background: var(--glass-1);
+}
+.g-table th {
+  text-align: left;
+  padding: 10px 14px;
+  font: 600 var(--glass-text-xs) / 1 var(--glass-font);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--glass-fg-3);
+  background: var(--glass-hover);
+  border-bottom: 1px solid var(--glass-stroke);
+}
+.g-table td { padding: 10px 14px; border-bottom: 1px solid var(--glass-stroke); }
+.g-table tr:last-child td { border-bottom: 0; }
+.g-table tbody tr { transition: background-color var(--glass-dur-fast) var(--glass-ease); }
+.g-table tbody tr:hover { background: var(--glass-gold-a06); }
+.g-table td.g-num, .g-table th.g-num { text-align: right; }
+
+/* ── Small parts ───────────────────────────────────────────── */
+.g-divider { height: 1px; border: 0; margin: var(--glass-space-4) 0; background: linear-gradient(90deg, transparent, var(--glass-stroke-strong) 20%, var(--glass-stroke-strong) 80%, transparent); }
+.g-kbd {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 20px; height: 20px; padding: 0 5px;
+  border: 1px solid var(--glass-stroke-strong);
+  border-bottom-width: 2px;
+  border-radius: 6px;
+  font: 500 10.5px / 1 var(--glass-font-mono);
+  color: var(--glass-fg-3);
+  background: var(--glass-hover);
+}
+.g-num, .g-tabular { font-variant-numeric: tabular-nums; }
+.g-text-gold {
+  background: var(--glass-gold-fill);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Scroll container whose top/bottom edges fade into the glass. */
+.g-scroll-fade {
+  overflow: auto;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 14px, #000 calc(100% - 18px), transparent 100%);
+  mask-image: linear-gradient(180deg, transparent 0, #000 14px, #000 calc(100% - 18px), transparent 100%);
+}
+
+/* Streaming / loading shimmer (text or block). */
+.g-shimmer {
+  background: linear-gradient(100deg, var(--glass-fg-3) 20%, var(--glass-gold-hi) 40%, var(--glass-fg-3) 60%) 0 0 / 220% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  animation: g-shimmer 2.2s linear infinite;
+}
+.g-skeleton {
+  border-radius: var(--glass-radius-xs);
+  background: linear-gradient(100deg, var(--glass-hover) 30%, var(--glass-press) 50%, var(--glass-hover) 70%) 0 0 / 220% 100%;
+  animation: g-shimmer 1.6s linear infinite;
+}
+@keyframes g-shimmer { to { background-position: -220% 0; } }
+
+@media (prefers-reduced-motion: reduce) {
+  .g-shimmer, .g-skeleton { animation: none; }
+  .g-shimmer { color: var(--glass-fg-2); background: none; }
+}

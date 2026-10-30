@@ -1,0 +1,12 @@
+{
+  "name": "@infinibot/content-studio",
+  "version": "2026.11.1",
+  "type": "module",
+  "description": "Content Studio: content pages, Content Intelligence, scripts, trends and the content agents",
+  "license": "FSL-1.1-ALv2",
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

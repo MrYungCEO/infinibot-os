@@ -1,0 +1,365 @@
+/*
+ * Unified modal + card system — shared glassmorphism styles.
+ *
+ * Every rule is namespaced under `.um-overlay` (detail modals) or `.um-card`
+ * (portfolio cards) so global app CSS can't bleed in and these can't bleed
+ * out. Colours prefer the app's runtime theme tokens (--g-primary, --g-bg,
+ * --g-fg, --g-border) with gold/obsidian fallbacks that match
+ * branding-modal.ts so an unthemed context still renders on-brand.
+ *
+ * Imported once from modal-service.ts; Vite injects it globally.
+ */
+
+.um-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10002; /* above branding (10001) so a project→client drill stacks */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  box-sizing: border-box;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.80) 70%
+  );
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
+  backdrop-filter: blur(12px) saturate(140%);
+  isolation: isolate;
+  animation: umFade 0.18s ease-out;
+  font-family: var(--font-body, system-ui, -apple-system, sans-serif);
+}
+.um-overlay * { box-sizing: border-box; }
+
+@keyframes umFade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes umScaleIn {
+  from { transform: translateY(16px) scale(0.97); opacity: 0; }
+  to   { transform: translateY(0)    scale(1);    opacity: 1; }
+}
+@keyframes umGlow { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+
+/* ── Modal shell ──────────────────────────────────────────── */
+.um-overlay .um-modal {
+  position: relative;
+  width: clamp(320px, 92vw, 720px);
+  max-height: min(88vh, 860px);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  color: var(--g-fg, rgba(245, 245, 244, 0.95));
+  background:
+    linear-gradient(155deg, rgba(255, 215, 0, 0.05), rgba(255, 255, 255, 0.014) 50%, rgba(0, 0, 0, 0.45)),
+    var(--g-bg, rgba(14, 14, 18, 0.94));
+  border: 1px solid var(--g-border, rgba(255, 255, 255, 0.14));
+  border-radius: 18px;
+  box-shadow:
+    0 30px 80px rgba(0, 0, 0, 0.60),
+    0 0 0 1px rgba(255, 215, 0, 0.08) inset,
+    0 1px 0 rgba(255, 255, 255, 0.06) inset;
+  animation: umScaleIn 0.22s cubic-bezier(0.2, 0.9, 0.3, 1) both;
+}
+.um-overlay .um-modal--wide { width: clamp(320px, 94vw, 980px); }
+
+.um-overlay .um-glow {
+  position: absolute; top: -120px; right: -120px;
+  width: 320px; height: 320px; pointer-events: none;
+  background: radial-gradient(closest-side, rgba(255, 215, 0, 0.20), transparent 70%);
+  filter: blur(30px);
+  animation: umGlow 5s ease-in-out infinite;
+}
+
+/* ── Header ───────────────────────────────────────────────── */
+.um-overlay .um-header {
+  position: relative; z-index: 2;
+  padding: 22px 26px 16px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+  display: flex; align-items: flex-start; gap: 14px;
+}
+.um-overlay .um-header-main { min-width: 0; flex: 1; }
+.um-overlay .um-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 10.5px; letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--g-muted, rgba(245, 245, 244, 0.55));
+  margin-bottom: 6px;
+  font-family: ui-monospace, 'JetBrains Mono', monospace;
+}
+.um-overlay .um-eyebrow-dot {
+  width: 7px; height: 7px; border-radius: 50%;
+  background: var(--g-primary, #ffd700);
+  box-shadow: 0 0 8px var(--g-primary, #ffd700);
+}
+.um-overlay .um-title {
+  margin: 0; font-size: 22px; font-weight: 700;
+  letter-spacing: -0.01em; line-height: 1.2;
+  color: var(--g-fg, rgba(245, 245, 244, 0.98));
+  overflow: hidden; text-overflow: ellipsis;
+}
+.um-overlay .um-close {
+  flex-shrink: 0;
+  width: 32px; height: 32px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  border-radius: 8px;
+  color: rgba(245, 245, 244, 0.65);
+  font-size: 20px; line-height: 1; cursor: pointer;
+  display: inline-flex; align-items: center; justify-content: center;
+  transition: background 0.12s, color 0.12s, border-color 0.12s, transform 0.12s;
+}
+.um-overlay .um-close:hover {
+  background: rgba(239, 68, 68, 0.18);
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+  transform: rotate(90deg);
+}
+
+/* ── Body ─────────────────────────────────────────────────── */
+.um-overlay .um-body {
+  position: relative; z-index: 2;
+  padding: 18px 26px 6px;
+  overflow-y: auto;
+  display: flex; flex-direction: column; gap: 18px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.12) transparent;
+}
+.um-overlay .um-body::-webkit-scrollbar { width: 6px; }
+.um-overlay .um-body::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.12); border-radius: 3px;
+}
+
+.um-overlay .um-section { display: flex; flex-direction: column; gap: 10px; }
+.um-overlay .um-section-title {
+  font-size: 10px; text-transform: uppercase; letter-spacing: 0.2em;
+  color: var(--g-primary, #ffd700); font-weight: 700;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgba(255, 215, 0, 0.14);
+}
+
+/* Badges + pills */
+.um-overlay .um-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 4px 10px; border-radius: 999px;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+}
+.um-overlay .um-badge-dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.um-overlay .um-chips { display: flex; flex-wrap: wrap; gap: 6px; }
+.um-overlay .um-chip {
+  font-size: 10.5px; padding: 3px 9px; border-radius: 6px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: rgba(245, 245, 244, 0.85);
+}
+
+/* Meta grid (key/value) */
+.um-overlay .um-meta {
+  display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px 18px;
+}
+.um-overlay .um-meta-field { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.um-overlay .um-meta-label {
+  font-size: 9.5px; text-transform: uppercase; letter-spacing: 0.14em;
+  color: rgba(245, 245, 244, 0.45); font-family: ui-monospace, monospace;
+}
+.um-overlay .um-meta-value {
+  font-size: 14px; font-weight: 600; color: rgba(245, 245, 244, 0.94);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+
+/* Progress bar */
+.um-overlay .um-progress {
+  height: 8px; border-radius: 999px; overflow: hidden;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+.um-overlay .um-progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--g-primary, #ffd700), #f0a040);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.4);
+  transition: width 0.4s cubic-bezier(0.2, 0.9, 0.3, 1);
+}
+.um-overlay .um-progress-row { display: flex; align-items: center; gap: 12px; }
+.um-overlay .um-progress-row .um-progress { flex: 1; }
+.um-overlay .um-progress-pct {
+  font-size: 12px; font-weight: 700; color: var(--g-primary, #ffd700);
+  font-family: ui-monospace, monospace; min-width: 40px; text-align: right;
+}
+
+/* Avatars */
+.um-overlay .um-avatar {
+  width: 44px; height: 44px; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 15px; font-weight: 700; color: #fff; flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.14); overflow: hidden;
+}
+.um-overlay .um-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.um-overlay .um-avatar-stack { display: flex; align-items: center; }
+.um-overlay .um-avatar-stack .um-avatar {
+  width: 30px; height: 30px; font-size: 11px; margin-left: -8px;
+  box-shadow: 0 0 0 2px var(--g-bg, #0e0e12);
+}
+.um-overlay .um-avatar-stack .um-avatar:first-child { margin-left: 0; }
+
+/* Task / list rows */
+.um-overlay .um-list { display: flex; flex-direction: column; gap: 6px; }
+.um-overlay .um-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border-radius: 10px;
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  transition: background 0.12s, border-color 0.12s;
+}
+.um-overlay .um-row:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 215, 0, 0.20);
+}
+.um-overlay .um-row-status {
+  width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+}
+.um-overlay .um-row-title {
+  flex: 1; min-width: 0; font-size: 13px; color: rgba(245, 245, 244, 0.92);
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.um-overlay .um-row-title.is-done { text-decoration: line-through; opacity: 0.55; }
+.um-overlay .um-row-meta { font-size: 10.5px; color: rgba(245, 245, 244, 0.45); flex-shrink: 0; }
+.um-overlay .um-checkbox {
+  width: 16px; height: 16px; border-radius: 4px; flex-shrink: 0;
+  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  display: inline-flex; align-items: center; justify-content: center;
+  color: var(--g-primary, #ffd700); font-size: 11px; cursor: pointer;
+}
+.um-overlay .um-checkbox.is-checked {
+  background: rgba(255, 215, 0, 0.16); border-color: var(--g-primary, #ffd700);
+}
+
+.um-overlay .um-desc {
+  font-size: 13px; line-height: 1.55; color: rgba(245, 245, 244, 0.80);
+  white-space: pre-wrap;
+  background: rgba(0, 0, 0, 0.22);
+  padding: 12px 14px; border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* Loading / error / empty */
+.um-overlay .um-state {
+  padding: 34px 20px; text-align: center;
+  font-size: 13px; color: rgba(245, 245, 244, 0.55);
+}
+.um-overlay .um-spinner {
+  width: 26px; height: 26px; margin: 0 auto 12px;
+  border: 2.5px solid rgba(255, 255, 255, 0.14);
+  border-top-color: var(--g-primary, #ffd700);
+  border-radius: 50%;
+  animation: umSpin 0.8s linear infinite;
+}
+@keyframes umSpin { to { transform: rotate(360deg); } }
+.um-overlay .um-state--error { color: #fca5a5; }
+
+/* ── Footer ───────────────────────────────────────────────── */
+.um-overlay .um-footer {
+  position: relative; z-index: 2;
+  display: flex; align-items: center; gap: 10px;
+  padding: 16px 26px 20px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  background: linear-gradient(0deg, rgba(0, 0, 0, 0.18), transparent);
+}
+.um-overlay .um-footer-spacer { flex: 1; }
+.um-overlay .um-btn {
+  padding: 10px 18px; border-radius: 10px;
+  font-size: 13px; font-weight: 600; cursor: pointer;
+  border: 1px solid transparent;
+  transition: transform 0.12s, background 0.15s, box-shadow 0.15s, border-color 0.15s;
+  font-family: inherit;
+  display: inline-flex; align-items: center; gap: 7px;
+}
+.um-overlay .um-btn:disabled { opacity: 0.55; cursor: not-allowed; }
+.um-overlay .um-btn--primary {
+  background: linear-gradient(135deg, var(--g-primary, #ffd700), #f0a040);
+  color: #1a1208; border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 4px 14px rgba(255, 215, 0, 0.30), inset 0 1px 0 rgba(255, 255, 255, 0.30);
+}
+.um-overlay .um-btn--primary:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(255, 215, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.40);
+}
+.um-overlay .um-btn--secondary {
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(245, 245, 244, 0.92);
+  border-color: rgba(255, 255, 255, 0.14);
+}
+.um-overlay .um-btn--secondary:hover {
+  background: rgba(255, 255, 255, 0.10);
+  border-color: rgba(255, 255, 255, 0.22);
+}
+.um-overlay .um-btn--ghost { background: none; color: rgba(245, 245, 244, 0.50); }
+.um-overlay .um-btn--ghost:hover { color: rgba(245, 245, 244, 0.85); background: rgba(255, 255, 255, 0.04); }
+
+/* ── Portfolio grid + cards ───────────────────────────────── */
+.um-overlay .um-filters {
+  display: flex; flex-wrap: wrap; gap: 8px; align-items: center;
+}
+.um-overlay .um-filter-group { display: inline-flex; flex-wrap: wrap; gap: 4px; }
+.um-overlay .um-filter-chip {
+  padding: 5px 12px; border-radius: 999px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.10);
+  color: rgba(245, 245, 244, 0.60);
+  font-size: 11px; font-weight: 600; cursor: pointer;
+  transition: background 0.12s, color 0.12s, border-color 0.12s;
+}
+.um-overlay .um-filter-chip:hover { color: rgba(245, 245, 244, 0.9); }
+.um-overlay .um-filter-chip.is-active {
+  background: linear-gradient(135deg, rgba(255, 215, 0, 0.28), rgba(255, 215, 0, 0.10));
+  color: var(--g-primary, #ffd700);
+  border-color: rgba(255, 215, 0, 0.45);
+}
+
+.um-overlay .um-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+.um-overlay .um-card {
+  display: flex; flex-direction: column; gap: 8px;
+  padding: 14px; border-radius: 14px; cursor: pointer;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(0, 0, 0, 0.22));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: transform 0.14s ease, border-color 0.14s, box-shadow 0.14s;
+}
+.um-overlay .um-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(255, 215, 0, 0.35);
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(255, 215, 0, 0.10) inset;
+}
+.um-overlay .um-card-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 8px; }
+.um-overlay .um-card-name {
+  font-size: 14px; font-weight: 700; color: rgba(245, 245, 244, 0.95);
+  line-height: 1.25; overflow: hidden; text-overflow: ellipsis;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.um-overlay .um-card-desc {
+  font-size: 11px; color: rgba(245, 245, 244, 0.55); line-height: 1.4;
+  overflow: hidden; text-overflow: ellipsis;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+}
+.um-overlay .um-card-foot {
+  display: flex; align-items: center; justify-content: space-between; gap: 8px;
+  margin-top: auto;
+}
+
+/* ── Mobile ───────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .um-overlay { padding: 0; align-items: flex-end; }
+  .um-overlay .um-modal,
+  .um-overlay .um-modal--wide {
+    width: 100%; max-width: 100vw; max-height: 94vh;
+    border-radius: 18px 18px 0 0;
+  }
+  .um-overlay .um-header { padding: 18px 18px 12px; }
+  .um-overlay .um-title { font-size: 19px; }
+  .um-overlay .um-body { padding: 16px 18px 4px; }
+  .um-overlay .um-meta { grid-template-columns: 1fr; }
+  .um-overlay .um-footer { padding: 14px 18px 18px; flex-wrap: wrap; }
+  .um-overlay .um-footer-spacer { flex-basis: 100%; height: 0; }
+  .um-overlay .um-grid { grid-template-columns: 1fr; }
+}

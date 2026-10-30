@@ -1,0 +1,269 @@
+/* ============================================================
+ * "Needs setup" highlights (controllers/nav-setup-status.ts)
+ *
+ * A sidebar entry whose page still needs setup gets a soft gold ring that
+ * breathes slowly; a setup problem (e.g. an invalid credential) uses a warm
+ * red ring instead; optional setup is a faint static ring. The ring is an
+ * absolutely positioned child with an INSET glow only, so it never paints
+ * outside the row (no overflow in the scroll container, no overlap with
+ * neighbours — sidebar-overlap-audit.mjs stays at 0). The pulse animates
+ * opacity only (compositor), and prefers-reduced-motion makes it static.
+ * ============================================================ */
+
+.nav.enhanced {
+  --nav-setup-gold: var(--g-primary, #d4af37);
+  --nav-setup-error: #e8704f;
+}
+
+.nav.enhanced .nav-item__setup-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  pointer-events: none;
+  border: 1px solid color-mix(in srgb, var(--nav-setup-gold) 46%, transparent);
+  box-shadow:
+    inset 0 0 12px -2px color-mix(in srgb, var(--nav-setup-gold) 30%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--nav-setup-gold) 8%, transparent);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--nav-setup-gold) 7%, transparent),
+    transparent 70%
+  );
+  opacity: 0.9;
+  animation: nav-setup-breathe 3.2s ease-in-out infinite;
+}
+
+.nav.enhanced .nav-item--setup-error .nav-item__setup-ring {
+  border-color: color-mix(in srgb, var(--nav-setup-error) 58%, transparent);
+  box-shadow:
+    inset 0 0 12px -2px color-mix(in srgb, var(--nav-setup-error) 36%, transparent),
+    inset 0 0 0 1px color-mix(in srgb, var(--nav-setup-error) 10%, transparent);
+  background: linear-gradient(
+    90deg,
+    color-mix(in srgb, var(--nav-setup-error) 9%, transparent),
+    transparent 70%
+  );
+}
+
+/* Optional setup: a quiet, static hairline — noticeable, never nagging. */
+.nav.enhanced .nav-item--setup-optional .nav-item__setup-ring {
+  animation: none;
+  opacity: 1;
+  border-color: color-mix(in srgb, var(--nav-setup-gold) 24%, transparent);
+  border-style: dashed;
+  box-shadow: none;
+  background: none;
+}
+
+/* The active row already carries a gold bar + tint: keep the ring but calm it. */
+.nav.enhanced .nav-item.active .nav-item__setup-ring {
+  animation: none;
+  opacity: 0.75;
+}
+
+/* Icon picks up a hint of the glow. */
+.nav.enhanced .nav-item--setup-needs-setup .nav-item__icon {
+  color: color-mix(in srgb, var(--nav-setup-gold) 78%, currentColor);
+}
+.nav.enhanced .nav-item--setup-error .nav-item__icon {
+  color: color-mix(in srgb, var(--nav-setup-error) 80%, currentColor);
+}
+
+@keyframes nav-setup-breathe {
+  0%, 100% { opacity: 0.5; }
+  50% { opacity: 1; }
+}
+
+/* ── Collapsed rail: a small dot on the icon (badge dot sits top-right) ── */
+
+.nav.enhanced .nav-item__setup-dot {
+  display: none;
+}
+
+.nav.enhanced.nav--collapsed .nav-item__icon {
+  position: relative;
+}
+
+.nav.enhanced.nav--collapsed .nav-item__setup-dot {
+  display: block;
+  position: absolute;
+  top: -4px;
+  left: -5px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--nav-setup-gold);
+  border: 1.5px solid var(--g-bg-deep, #0a0a0e);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--nav-setup-gold) 65%, transparent);
+}
+
+.nav.enhanced.nav--collapsed .nav-item--setup-error .nav-item__setup-dot {
+  background: var(--nav-setup-error);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--nav-setup-error) 65%, transparent);
+}
+
+.nav.enhanced.nav--collapsed .nav-item--setup-optional .nav-item__setup-dot {
+  background: transparent;
+  border-color: color-mix(in srgb, var(--nav-setup-gold) 70%, transparent);
+  box-shadow: none;
+}
+
+/* ── Group headers: "● 2" chip beside the page count ──────────────── */
+
+.nav.enhanced .nav-setup-count {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 16px;
+  padding: 0 6px 0 5px;
+  margin-left: auto;
+  margin-right: 4px;
+  border-radius: 8px;
+  font-size: 9.5px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1;
+  color: color-mix(in srgb, var(--nav-setup-gold) 88%, #fff);
+  background: color-mix(in srgb, var(--nav-setup-gold) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--nav-setup-gold) 34%, transparent);
+}
+
+.nav.enhanced .nav-setup-count + .nav-category-count {
+  margin-left: 0;
+}
+
+.nav.enhanced .nav-setup-count__dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--nav-setup-gold);
+  box-shadow: 0 0 5px color-mix(in srgb, var(--nav-setup-gold) 80%, transparent);
+}
+
+.nav.enhanced.nav--collapsed .nav-setup-count,
+.nav.enhanced.is-searching .nav-setup-count {
+  display: none;
+}
+
+/* Plugin section header in the rail: dot on the monogram tile. */
+.nav.enhanced .nav-plugin-setup-dot {
+  display: none;
+}
+.nav.enhanced.nav--collapsed .nav-plugin-toggle {
+  position: relative;
+}
+.nav.enhanced.nav--collapsed .nav-plugin-toggle--setup .nav-plugin-setup-dot {
+  display: block;
+  position: absolute;
+  top: 3px;
+  left: 5px;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--nav-setup-gold);
+  border: 1.5px solid var(--g-bg-deep, #0a0a0e);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--nav-setup-gold) 65%, transparent);
+}
+
+/* Screen-reader-only description (aria-describedby target). */
+.nav-sr-only {
+  position: absolute !important;
+  width: 1px !important;
+  height: 1px !important;
+  padding: 0 !important;
+  margin: -1px !important;
+  overflow: hidden !important;
+  clip: rect(0 0 0 0) !important;
+  white-space: nowrap !important;
+  border: 0 !important;
+}
+
+/* ── Hover/focus flyout hint (body-level .nav-flyout-pop) ──────────── */
+
+.nav-flyout-pop.nav-flyout-pop--setup {
+  white-space: normal;
+  max-width: 260px;
+}
+
+.nav-flyout-pop__setup {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+  margin-top: 4px;
+  padding-top: 6px;
+  border-top: 1px solid color-mix(in srgb, var(--ib-gold) 18%, transparent);
+  font-size: 11.5px;
+  line-height: 1.4;
+  color: color-mix(in srgb, var(--g-fg, #f0f0f0) 82%, transparent);
+}
+
+.nav-flyout-pop__setup-dot {
+  flex-shrink: 0;
+  width: 6px;
+  height: 6px;
+  margin-top: 5px;
+  border-radius: 50%;
+  background: var(--ib-gold);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--ib-gold) 70%, transparent);
+}
+
+.nav-flyout-pop__setup--error .nav-flyout-pop__setup-dot {
+  background: #e8704f;
+  box-shadow: 0 0 6px color-mix(in srgb, #e8704f 70%, transparent);
+}
+
+.nav-flyout-pop__setup--optional .nav-flyout-pop__setup-dot {
+  background: transparent;
+  border: 1px solid var(--ib-gold);
+  box-shadow: none;
+}
+
+.nav-flyout-pop__setup-action {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--ib-gold);
+  padding-left: 13px;
+}
+
+/* Stacked top bar: the pop hangs below the chip, notch on top. */
+.nav-flyout-pop.nav-flyout-pop--below {
+  transform: translateY(-6px);
+}
+.nav-flyout-pop.nav-flyout-pop--below.is-visible {
+  transform: translateY(0);
+}
+.nav-flyout-pop.nav-flyout-pop--below::before {
+  left: 18px;
+  top: -5px;
+  transform: rotate(135deg);
+}
+
+/* Plugin rail flyout rows. */
+.nav-plugin-flyout__item--setup {
+  position: relative;
+}
+.nav-plugin-flyout__setup-dot {
+  width: 6px;
+  height: 6px;
+  margin-left: auto;
+  border-radius: 50%;
+  background: var(--g-primary, #d4af37);
+  box-shadow: 0 0 6px color-mix(in srgb, var(--g-primary, #d4af37) 70%, transparent);
+}
+.nav-plugin-flyout__item--setup-error .nav-plugin-flyout__setup-dot {
+  background: #e8704f;
+}
+.nav-plugin-flyout__item--setup-optional .nav-plugin-flyout__setup-dot {
+  background: transparent;
+  border: 1px solid var(--g-primary, #d4af37);
+  box-shadow: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav.enhanced .nav-item__setup-ring {
+    animation: none;
+    opacity: 1;
+  }
+}

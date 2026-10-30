@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <title>Agency World</title>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      background: #050507;
+      overflow: hidden;
+      width: 100%;
+      height: 100%;
+    }
+    #host {
+      position: absolute;
+      inset: 0;
+      width: 100vw;
+      height: 100vh;
+    }
+    #host canvas {
+      display: block;
+      touch-action: none;
+      width: 100%;
+      height: 100%;
+    }
+    /* Boot splash — fades out once the engine posts {type:'ready'}. */
+    #boot {
+      position: fixed;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      background: #050507;
+      color: #d4af37;
+      font-family: ui-monospace, "SF Mono", "JetBrains Mono", monospace;
+      font-size: 11px;
+      letter-spacing: 2px;
+      z-index: 50;
+      transition: opacity 0.5s ease;
+      pointer-events: none;
+    }
+    #boot.hide { opacity: 0; }
+    #boot .spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid rgba(212, 175, 55, 0.2);
+      border-top-color: #d4af37;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div id="host"></div>
+  <div id="boot"><div class="spinner"></div><div>LOADING HQ...</div></div>
+  <script>
+    // Fade the boot splash as soon as the engine posts {type:'ready'} — caught
+    // before the React-Native bridge sees it.
+    var __origPost = function(){};
+    function __dismissBoot() {
+      var b = document.getElementById('boot');
+      if (b) { b.classList.add('hide'); setTimeout(function(){ b.remove(); }, 600); }
+    }
+    var rnBridge = window.ReactNativeWebView;
+    if (rnBridge && typeof rnBridge.postMessage === 'function') {
+      __origPost = rnBridge.postMessage.bind(rnBridge);
+      rnBridge.postMessage = function(msg) {
+        try {
+          var p = JSON.parse(msg);
+          if (p && p.type === 'ready') __dismissBoot();
+        } catch (e) { /* not JSON, ignore */ }
+        __origPost(msg);
+      };
+    }
+    // In a plain browser (no RN bridge) just dismiss after the engine has had
+    // time to lay out the station.
+    setTimeout(__dismissBoot, 1800);
+  </script>
+  <script type="module" src="./agency-world-mobile.ts"></script>
+</body>
+</html>

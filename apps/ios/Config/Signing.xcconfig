@@ -1,0 +1,14 @@
+// Code-signing settings for the iOS app target (wired in project.yml via
+// configFiles). Defaults are neutral: automatic signing, no team.
+//
+// To sign with your own Apple team, copy Local.xcconfig.example to
+// Local.xcconfig (gitignored) in this folder and fill in your values.
+// Anything set there overrides the defaults below.
+
+CODE_SIGN_IDENTITY = Apple Development
+CODE_SIGN_STYLE = Automatic
+DEVELOPMENT_TEAM =
+PROVISIONING_PROFILE_SPECIFIER =
+PRODUCT_BUNDLE_IDENTIFIER = com.clawdbot.ios
+
+#include? "Local.xcconfig"

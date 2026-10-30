@@ -1,0 +1,23 @@
+{
+  "id": "nextcloud-talk",
+  "name": "Nextcloud Talk",
+  "listing": {
+    "tagline": "Self-hosted chat through Nextcloud Talk webhook bots.",
+    "category": "channels",
+    "tags": [
+      "self-hosted",
+      "team-chat"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "channels": [
+    "nextcloud-talk"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

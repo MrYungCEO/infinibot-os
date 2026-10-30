@@ -1,0 +1,50 @@
+# Self-hosted InfiniBot. No Kingly Vault account is needed.
+#
+#   export INFINIBOT_GATEWAY_PASSWORD=change-me     # required
+#   docker compose build && docker compose up -d infinibot-gateway
+#   open http://localhost:18789                     # log in with the password
+#
+# Optional env: INFINIBOT_GATEWAY_PORT (host port, default 18789),
+# INFINIBOT_CONFIG_DIR / INFINIBOT_WORKSPACE_DIR (host dirs to mount),
+# and model provider keys (ANTHROPIC_API_KEY, OPENROUTER_API_KEY, ...).
+services:
+  infinibot-gateway:
+    build: .
+    image: ${INFINIBOT_IMAGE:-infinibot:local}
+    environment:
+      HOME: /home/node
+      TERM: xterm-256color
+      INFINIBOT_GATEWAY_PASSWORD: ${INFINIBOT_GATEWAY_PASSWORD:?set INFINIBOT_GATEWAY_PASSWORD to a strong password}
+      ANTHROPIC_API_KEY: ${ANTHROPIC_API_KEY:-}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:-}
+      GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+    volumes:
+      - ${INFINIBOT_CONFIG_DIR:-infinibot-state}:/home/node/.infinibot
+      - ${INFINIBOT_WORKSPACE_DIR:-infinibot-workspace}:/home/node/infinibot
+    ports:
+      # The gateway always listens on 18789 inside the container.
+      - "${INFINIBOT_GATEWAY_PORT:-18789}:18789"
+    init: true
+    restart: unless-stopped
+
+  # One-off CLI against the same state, e.g.:
+  #   docker compose run --rm infinibot-cli onboard
+  infinibot-cli:
+    image: ${INFINIBOT_IMAGE:-infinibot:local}
+    profiles: ["cli"]
+    environment:
+      HOME: /home/node
+      TERM: xterm-256color
+      BROWSER: echo
+    volumes:
+      - ${INFINIBOT_CONFIG_DIR:-infinibot-state}:/home/node/.infinibot
+      - ${INFINIBOT_WORKSPACE_DIR:-infinibot-workspace}:/home/node/infinibot
+    stdin_open: true
+    tty: true
+    init: true
+    entrypoint: ["node", "dist/index.js"]
+
+volumes:
+  infinibot-state:
+  infinibot-workspace:

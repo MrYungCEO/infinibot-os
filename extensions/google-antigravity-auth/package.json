@@ -1,0 +1,12 @@
+{
+  "name": "@infinibot/google-antigravity-auth",
+  "version": "2026.11.1",
+  "type": "module",
+  "description": "InfiniBot Google Antigravity OAuth provider plugin",
+  "license": "FSL-1.1-ALv2",
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

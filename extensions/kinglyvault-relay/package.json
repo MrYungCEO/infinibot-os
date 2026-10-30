@@ -1,0 +1,12 @@
+{
+  "name": "@infinibot/kinglyvault-relay",
+  "version": "2026.11.1",
+  "type": "module",
+  "description": "KinglyVault Connect: outbound relay link between this InfiniBot and the member's KinglyVault account",
+  "bin": { "infinibot-kv-connect": "./relay-client.mjs" },
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

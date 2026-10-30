@@ -1,0 +1,1246 @@
+{
+  "manifestVersion": 2,
+  "id": "content-studio",
+  "name": "Content Studio",
+  "version": "2026.10.6",
+  "minHostVersion": "2026.6.30",
+  "publisher": "infinibot",
+  "license": "FSL-1.1-ALv2",
+  "description": "Social content workspace: a drag-and-drop production pipeline (customizable stages, WIP limits) where every content item opens a rich markdown page with images, video and audio; free-form Ideas pages you can promote onto the board; content pages per channel with child databases, insights and Instagram/ManyChat connections; a video posting queue per page that posts through your own logged-in Instagram/TikTok accounts on Droid Swarm phones (schedule windows, daily caps, caption templates, approval mode, dry run); Content Intelligence (reel library, viral-format scoring, transcripts, trends); script generation with viral examples; the CMO and content agents.",
+  "engines": {
+    "infinibot-plugin-api": "^2.0.0"
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "instagramSync": {
+        "type": "boolean",
+        "description": "Refresh Instagram stats for connected content pages in the background (only runs once a page has Instagram connected). Default on."
+      },
+      "pipelineDir": {
+        "type": "string",
+        "description": "Directory of your own reel collection/scoring pipeline (its output/ folder holds downloaded reels). Empty = pipeline features off."
+      },
+      "venvPath": {
+        "type": "string",
+        "description": "Python virtualenv for that pipeline. Empty = system python3."
+      }
+    }
+  },
+  "uiHints": {
+    "instagramSync": {
+      "label": "Background Instagram sync"
+    },
+    "pipelineDir": {
+      "label": "Reel pipeline directory",
+      "advanced": true
+    },
+    "venvPath": {
+      "label": "Reel pipeline virtualenv",
+      "advanced": true
+    }
+  },
+  "contributes": {
+    "learn": "learn.json",
+    "nav": [
+      {
+        "tab": "content-pages",
+        "label": "Content Studio",
+        "icon": "fileText",
+        "group": "Content"
+      }
+    ],
+    "pages": [
+      {
+        "tab": "content-pages",
+        "route": "/content-pages",
+        "builtin": "content-pages",
+        "title": "Content Studio"
+      },
+      {
+        "tab": "content-intel",
+        "route": "/content-intel",
+        "builtin": "content-intel",
+        "title": "Content intelligence"
+      }
+    ],
+    "rpc": [
+      {
+        "method": "content-studio.intel.list",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.intel.get",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.intel.totals",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.intel.insights",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.intel.capabilities",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.intel.score",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.intel.scoreBatch",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.intel.scoreBatchCancel",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.intel.transcribeBatch",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.intel.transcribeBatchCancel",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.intel.stt.config",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.intel.stt.setConfig",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.intel.import",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.intel.accounts",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.intel.youtube.channels",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.intel.youtube.list",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.intel.youtube.import",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.intel.youtube.fetch",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.viral.formats.taxonomy",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.viral.formats.detectNiche",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.viral.formats.watch",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.viral.formats.topFormats",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.viral.formats.benchmark",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.viral.formats.score",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.viral.formats.list",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.viral.formats.stats",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.trends.last30days",
+        "scope": "read",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.trends.refresh",
+        "scope": "write",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.trends.checkAlerts",
+        "scope": "write",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.trends.capabilities",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.socials.sync",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.socials.instagram.refreshToken",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.socials.analytics.get",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.socials.analytics.history",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.socials.analytics.posts",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.socials.analytics.daily",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.socials.flows.list",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.socials.flows.create",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.socials.flows.test",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.socials.flows.toggle",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.socials.flows.stats",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.socials.conversations.list",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.socials.leads.list",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.socials.messages.list",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.socials.accounts.list",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.socials.insights.analyze",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.socials.insights.niche",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.socials.insights.competitors",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.socials.insights.recommendations",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.socials.insights.engagement",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.scripts.generate",
+        "scope": "write",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.scripts.generateAgentic",
+        "scope": "write",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.scripts.refine",
+        "scope": "write",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.scripts.parse",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.scripts.list",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.viralExamples.list",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.viralExamples.get",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.viralExamples.upsert",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.viralExamples.delete",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.viralExamples.retrieve",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.viralExamples.search",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.viralExamples.getStructure",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.scripts.get",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.pages.list",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.pages.get",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.pages.create",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.pages.update",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.pages.delete",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.pages.stats",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.pages.stats.refresh",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.pages.stats.subscribe",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.pages.insights",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.pages.connections",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.pages.children.list",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.pages.children.create",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.pages.children.update",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.pages.children.delete",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.pages.features.set",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.pages.integrations.update",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.pages.link",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.pages.intel",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.pages.series.list",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.pages.series.upsert",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.pages.series.delete",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.pages.board",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.pages.stage.advance",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.instagram.setup.status",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.instagram.setup.test",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.instagram.setup.connect",
+        "scope": "write",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.instagram.setup.disconnect",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.instagram.setup.refresh",
+        "scope": "write",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.instagram.profile.get",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.instagram.insights.get",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.manychat.status",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.manychat.connect",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.manychat.disconnect",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.manychat.flows.list",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.manychat.trigger",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.board.get",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.stages.create",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.stages.update",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.stages.reorder",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.stages.delete",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.items.get",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.items.create",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.items.update",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.items.move",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.items.delete",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.docs.getBlocks",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.docs.saveBlocks",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.docs.getMarkdown",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.docs.setMarkdown",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.docs.appendMarkdown",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.ideas.list",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.ideas.create",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.ideas.update",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.ideas.delete",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.ideas.promote",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.media.list",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.media.capabilities",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.media.reference",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.media.importUrl",
+        "scope": "write",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.media.attach",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.media.detach",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.media.delete",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.posting.get",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.posting.configure",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.posting.devices",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.posting.detect",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.posting.candidates",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.posting.enqueue",
+        "scope": "write",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.posting.update",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.posting.reorder",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.posting.action",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.posting.postNow",
+        "scope": "write"
+      },
+      {
+        "method": "content-studio.posting.preview",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.posting.aiCaption",
+        "scope": "write",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "content-studio.posting.history",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.posting.tick",
+        "scope": "admin"
+      },
+      {
+        "method": "content-studio.posting.targets",
+        "scope": "read"
+      },
+      {
+        "method": "content-studio.posting.lookup",
+        "scope": "read"
+      }
+    ],
+    "rpcAliases": [
+      {
+        "method": "content.intel.list",
+        "target": "content-studio.intel.list"
+      },
+      {
+        "method": "content.intel.get",
+        "target": "content-studio.intel.get"
+      },
+      {
+        "method": "content.intel.totals",
+        "target": "content-studio.intel.totals"
+      },
+      {
+        "method": "content.intel.insights",
+        "target": "content-studio.intel.insights"
+      },
+      {
+        "method": "content.intel.capabilities",
+        "target": "content-studio.intel.capabilities"
+      },
+      {
+        "method": "content.intel.score",
+        "target": "content-studio.intel.score"
+      },
+      {
+        "method": "content.intel.scoreBatch",
+        "target": "content-studio.intel.scoreBatch"
+      },
+      {
+        "method": "content.intel.scoreBatchCancel",
+        "target": "content-studio.intel.scoreBatchCancel"
+      },
+      {
+        "method": "content.intel.transcribeBatch",
+        "target": "content-studio.intel.transcribeBatch"
+      },
+      {
+        "method": "content.intel.transcribeBatchCancel",
+        "target": "content-studio.intel.transcribeBatchCancel"
+      },
+      {
+        "method": "content.intel.stt.config",
+        "target": "content-studio.intel.stt.config"
+      },
+      {
+        "method": "content.intel.stt.setConfig",
+        "target": "content-studio.intel.stt.setConfig"
+      },
+      {
+        "method": "content.intel.import",
+        "target": "content-studio.intel.import"
+      },
+      {
+        "method": "content.intel.accounts",
+        "target": "content-studio.intel.accounts"
+      },
+      {
+        "method": "content.intel.youtube.channels",
+        "target": "content-studio.intel.youtube.channels"
+      },
+      {
+        "method": "content.intel.youtube.list",
+        "target": "content-studio.intel.youtube.list"
+      },
+      {
+        "method": "content.intel.youtube.import",
+        "target": "content-studio.intel.youtube.import"
+      },
+      {
+        "method": "content.intel.youtube.fetch",
+        "target": "content-studio.intel.youtube.fetch"
+      },
+      {
+        "method": "viral.formats.taxonomy",
+        "target": "content-studio.viral.formats.taxonomy"
+      },
+      {
+        "method": "viral.formats.detectNiche",
+        "target": "content-studio.viral.formats.detectNiche"
+      },
+      {
+        "method": "viral.formats.watch",
+        "target": "content-studio.viral.formats.watch"
+      },
+      {
+        "method": "viral.formats.topFormats",
+        "target": "content-studio.viral.formats.topFormats"
+      },
+      {
+        "method": "viral.formats.benchmark",
+        "target": "content-studio.viral.formats.benchmark"
+      },
+      {
+        "method": "viral.formats.score",
+        "target": "content-studio.viral.formats.score"
+      },
+      {
+        "method": "viral.formats.list",
+        "target": "content-studio.viral.formats.list"
+      },
+      {
+        "method": "viral.formats.stats",
+        "target": "content-studio.viral.formats.stats"
+      },
+      {
+        "method": "content.trends.last30days",
+        "target": "content-studio.trends.last30days"
+      },
+      {
+        "method": "content.trends.refresh",
+        "target": "content-studio.trends.refresh"
+      },
+      {
+        "method": "content.trends.checkAlerts",
+        "target": "content-studio.trends.checkAlerts"
+      },
+      {
+        "method": "content.trends.capabilities",
+        "target": "content-studio.trends.capabilities"
+      },
+      {
+        "method": "socials.sync",
+        "target": "content-studio.socials.sync"
+      },
+      {
+        "method": "socials.instagram.refreshToken",
+        "target": "content-studio.socials.instagram.refreshToken"
+      },
+      {
+        "method": "socials.analytics.get",
+        "target": "content-studio.socials.analytics.get"
+      },
+      {
+        "method": "socials.analytics.history",
+        "target": "content-studio.socials.analytics.history"
+      },
+      {
+        "method": "socials.analytics.posts",
+        "target": "content-studio.socials.analytics.posts"
+      },
+      {
+        "method": "socials.analytics.daily",
+        "target": "content-studio.socials.analytics.daily"
+      },
+      {
+        "method": "socials.flows.list",
+        "target": "content-studio.socials.flows.list"
+      },
+      {
+        "method": "socials.flows.create",
+        "target": "content-studio.socials.flows.create"
+      },
+      {
+        "method": "socials.flows.test",
+        "target": "content-studio.socials.flows.test"
+      },
+      {
+        "method": "socials.flows.toggle",
+        "target": "content-studio.socials.flows.toggle"
+      },
+      {
+        "method": "socials.flows.stats",
+        "target": "content-studio.socials.flows.stats"
+      },
+      {
+        "method": "socials.conversations.list",
+        "target": "content-studio.socials.conversations.list"
+      },
+      {
+        "method": "socials.leads.list",
+        "target": "content-studio.socials.leads.list"
+      },
+      {
+        "method": "socials.messages.list",
+        "target": "content-studio.socials.messages.list"
+      },
+      {
+        "method": "socials.accounts.list",
+        "target": "content-studio.socials.accounts.list"
+      },
+      {
+        "method": "socials.insights.analyze",
+        "target": "content-studio.socials.insights.analyze"
+      },
+      {
+        "method": "socials.insights.niche",
+        "target": "content-studio.socials.insights.niche"
+      },
+      {
+        "method": "socials.insights.competitors",
+        "target": "content-studio.socials.insights.competitors"
+      },
+      {
+        "method": "socials.insights.recommendations",
+        "target": "content-studio.socials.insights.recommendations"
+      },
+      {
+        "method": "socials.insights.engagement",
+        "target": "content-studio.socials.insights.engagement"
+      },
+      {
+        "method": "scripts.generate",
+        "target": "content-studio.scripts.generate"
+      },
+      {
+        "method": "scripts.generateAgentic",
+        "target": "content-studio.scripts.generateAgentic"
+      },
+      {
+        "method": "scripts.refine",
+        "target": "content-studio.scripts.refine"
+      },
+      {
+        "method": "scripts.parse",
+        "target": "content-studio.scripts.parse"
+      },
+      {
+        "method": "scripts.list",
+        "target": "content-studio.scripts.list"
+      },
+      {
+        "method": "viralExamples.list",
+        "target": "content-studio.viralExamples.list"
+      },
+      {
+        "method": "viralExamples.get",
+        "target": "content-studio.viralExamples.get"
+      },
+      {
+        "method": "viralExamples.upsert",
+        "target": "content-studio.viralExamples.upsert"
+      },
+      {
+        "method": "viralExamples.delete",
+        "target": "content-studio.viralExamples.delete"
+      },
+      {
+        "method": "viralExamples.retrieve",
+        "target": "content-studio.viralExamples.retrieve"
+      },
+      {
+        "method": "viralExamples.search",
+        "target": "content-studio.viralExamples.search"
+      },
+      {
+        "method": "viralExamples.getStructure",
+        "target": "content-studio.viralExamples.getStructure"
+      },
+      {
+        "method": "scripts.get",
+        "target": "content-studio.scripts.get"
+      },
+      {
+        "method": "content.pages.list",
+        "target": "content-studio.pages.list"
+      },
+      {
+        "method": "content.pages.get",
+        "target": "content-studio.pages.get"
+      },
+      {
+        "method": "content.pages.create",
+        "target": "content-studio.pages.create"
+      },
+      {
+        "method": "content.pages.update",
+        "target": "content-studio.pages.update"
+      },
+      {
+        "method": "content.pages.delete",
+        "target": "content-studio.pages.delete"
+      },
+      {
+        "method": "content.pages.stats",
+        "target": "content-studio.pages.stats"
+      },
+      {
+        "method": "content.pages.stats.refresh",
+        "target": "content-studio.pages.stats.refresh"
+      },
+      {
+        "method": "content.pages.stats.subscribe",
+        "target": "content-studio.pages.stats.subscribe"
+      },
+      {
+        "method": "content.pages.insights",
+        "target": "content-studio.pages.insights"
+      },
+      {
+        "method": "content.pages.connections",
+        "target": "content-studio.pages.connections"
+      },
+      {
+        "method": "content.pages.children.list",
+        "target": "content-studio.pages.children.list"
+      },
+      {
+        "method": "content.pages.children.create",
+        "target": "content-studio.pages.children.create"
+      },
+      {
+        "method": "content.pages.children.update",
+        "target": "content-studio.pages.children.update"
+      },
+      {
+        "method": "content.pages.children.delete",
+        "target": "content-studio.pages.children.delete"
+      },
+      {
+        "method": "content.pages.features.set",
+        "target": "content-studio.pages.features.set"
+      },
+      {
+        "method": "content.pages.integrations.update",
+        "target": "content-studio.pages.integrations.update"
+      },
+      {
+        "method": "content.pages.link",
+        "target": "content-studio.pages.link"
+      },
+      {
+        "method": "content.pages.intel",
+        "target": "content-studio.pages.intel"
+      },
+      {
+        "method": "content.pages.series.list",
+        "target": "content-studio.pages.series.list"
+      },
+      {
+        "method": "content.pages.series.upsert",
+        "target": "content-studio.pages.series.upsert"
+      },
+      {
+        "method": "content.pages.series.delete",
+        "target": "content-studio.pages.series.delete"
+      },
+      {
+        "method": "content.pages.board",
+        "target": "content-studio.pages.board"
+      },
+      {
+        "method": "content.pages.stage.advance",
+        "target": "content-studio.pages.stage.advance"
+      },
+      {
+        "method": "instagram.setup.status",
+        "target": "content-studio.instagram.setup.status"
+      },
+      {
+        "method": "instagram.setup.test",
+        "target": "content-studio.instagram.setup.test"
+      },
+      {
+        "method": "instagram.setup.connect",
+        "target": "content-studio.instagram.setup.connect"
+      },
+      {
+        "method": "instagram.setup.disconnect",
+        "target": "content-studio.instagram.setup.disconnect"
+      },
+      {
+        "method": "instagram.setup.refresh",
+        "target": "content-studio.instagram.setup.refresh"
+      },
+      {
+        "method": "instagram.profile.get",
+        "target": "content-studio.instagram.profile.get"
+      },
+      {
+        "method": "instagram.insights.get",
+        "target": "content-studio.instagram.insights.get"
+      },
+      {
+        "method": "manychat.status",
+        "target": "content-studio.manychat.status"
+      },
+      {
+        "method": "manychat.connect",
+        "target": "content-studio.manychat.connect"
+      },
+      {
+        "method": "manychat.disconnect",
+        "target": "content-studio.manychat.disconnect"
+      },
+      {
+        "method": "manychat.flows.list",
+        "target": "content-studio.manychat.flows.list"
+      },
+      {
+        "method": "manychat.trigger",
+        "target": "content-studio.manychat.trigger"
+      }
+    ],
+    "http": [
+      "/plugins/content-studio/video",
+      "/plugins/content-studio/media"
+    ],
+    "services": [
+      "content-studio-instagram-sync",
+      "content-studio-posting"
+    ],
+    "tools": [
+      {
+        "name": "content_intel",
+        "trust": "read"
+      },
+      {
+        "name": "script",
+        "trust": "write"
+      },
+      {
+        "name": "viral_watch",
+        "trust": "read"
+      },
+      {
+        "name": "content_pages",
+        "trust": "write"
+      },
+      {
+        "name": "content_pipeline",
+        "trust": "write"
+      },
+      {
+        "name": "content_posting",
+        "trust": "write"
+      }
+    ],
+    "agents": [
+      "agents/roster.json"
+    ],
+    "mapRoom": {
+      "title": "Content Lab",
+      "theme": "content-lab",
+      "size": "M",
+      "placement": "east"
+    }
+  },
+  "permissions": {
+    "network": [
+      "graph.instagram.com",
+      "graph.facebook.com",
+      "www.instagram.com",
+      "api.manychat.com",
+      "www.googleapis.com (YouTube Data API)",
+      "www.youtube.com",
+      "noembed.com",
+      "openrouter.ai (scoring, insights, scripts — your key)",
+      "news.google.com",
+      "trends.google.com",
+      "www.reddit.com",
+      "hn.algolia.com",
+      "en.wikipedia.org",
+      "openlibrary.org",
+      "duckduckgo.com",
+      "api.search.brave.com (optional key)",
+      "api.newscatcherapi.com, api.currentsapi.services (optional keys)",
+      "any public http(s) URL you import into a content page (media import; private/LAN addresses refused)"
+    ],
+    "fs": [
+      "<stateDir>/plugin-data/content-studio/ (studio.db pipeline/pages/ideas, media/ uploads)",
+      "<stateDir>/content-intel.db, viral-formats.db, content-trends.db, socials/ (existing paths, unchanged)",
+      "<stateDir>/databases.db (content_pages, viral_examples tables)",
+      "<stateDir>/secrets/instagram.json, secrets/manychat.json",
+      "<pipelineDir> (read-only, only when configured)"
+    ],
+    "exec": true,
+    "secrets": [
+      "INSTAGRAM_ACCESS_TOKEN",
+      "OPENROUTER_API_KEY",
+      "YOUTUBE_API_KEY",
+      "GOOGLE_API_KEY",
+      "BRAVE_API_KEY",
+      "NEWSCATCHER_API_KEY",
+      "CURRENTS_API_KEY",
+      "MEDIASTACK_API_KEY"
+    ],
+    "channels": [],
+    "credits": false
+  },
+  "appearance": {
+    "accent": "token:warning",
+    "tint": "none",
+    "tintStrength": 0.06,
+    "density": "comfortable",
+    "fontScale": 1,
+    "icon": "fileText",
+    "monogram": "CS"
+  },
+  "listing": {
+    "tagline": "Run your social content like a studio — pages per channel, reel intelligence, scripts and a CMO agent.",
+    "description": "**Content Studio** turns InfiniBot into a content operations desk.\n\n- **Content pages** — one page per channel (Instagram, TikTok, YouTube, LinkedIn…) with scripts, videos, content and ideas databases, goals, brand voice and live insights.\n- **Connections** — connect Instagram (Graph API token) for live follower and reach stats, and ManyChat for DM automation. A connection only shows as connected once the service accepted your key.\n- **Content Intelligence** — your reel library with metrics, transcripts, viral-format scoring against niche benchmarks, AI insights and a trends radar.\n- **Scripts** — generate and refine scripts grounded in research and your saved viral examples.\n- **Agents** — the CMO, Content Director, Scriptwriter, Brand Designer and Video Editor join your roster while the plugin is on.\n\nTurning the plugin off hides every page and stops the background sync; your data stays where it is.",
+    "category": "apps",
+    "tags": [
+      "content",
+      "social",
+      "instagram",
+      "scripts",
+      "marketing"
+    ],
+    "cover": "assets/cover.svg",
+    "icon": "assets/icon.svg",
+    "screenshots": [
+      {
+        "src": "assets/shot-1.webp",
+        "caption": "Content pages — one workspace per channel"
+      },
+      {
+        "src": "assets/shot-2.webp",
+        "caption": "Content Intelligence — reel library, scoring and trends"
+      }
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  }
+}

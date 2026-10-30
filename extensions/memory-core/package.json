@@ -1,0 +1,15 @@
+{
+  "name": "@infinibot/memory-core",
+  "version": "2026.11.1",
+  "type": "module",
+  "description": "InfiniBot core memory search plugin",
+  "license": "FSL-1.1-ALv2",
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  },
+  "peerDependencies": {
+    "infinibot": "*"
+  }
+}

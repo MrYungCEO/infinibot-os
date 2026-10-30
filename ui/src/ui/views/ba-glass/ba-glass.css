@@ -1,0 +1,296 @@
+/* ============================================================
+ * Business & Agency glass skin — shared by the business / agency /
+ * command pages (business, business-hq, ceo, ops, agency-*, clients,
+ * credits, directories). Matches the Business hub
+ * (views/business-hub/styles.ts): layered frosted glass, hairline gold
+ * gradient borders, a specular top edge, a slow gold aurora and Apple
+ * typography. Built on the global --glass-* tokens (docs/ui/GLASS.md), so
+ * light theme, reduced transparency, reduced motion and perf mode follow
+ * automatically.
+ *
+ * Everything is scoped under `.ba-glass` (put on each page's root element).
+ * Page-specific overrides live next to this file as <page>.css and are
+ * scoped under `.ba-glass.<page-root-class>`, so they out-rank the pages'
+ * own inline <style> blocks without !important.
+ * ============================================================ */
+
+.ba-glass {
+  --bag-gold: var(--glass-gold, #d9b45f);
+  --bag-gold-2: var(--glass-gold-hi, #f1d38a);
+  --bag-bronze: var(--glass-gold-deep, #a8762c);
+  --bag-text: var(--glass-fg, #f4f1ea);
+  --bag-text-2: var(--glass-fg-2, rgba(244, 241, 234, 0.72));
+  --bag-text-3: var(--glass-fg-3, rgba(244, 241, 234, 0.5));
+  --bag-text-4: var(--glass-fg-4, rgba(244, 241, 234, 0.32));
+  --bag-panel: var(--glass-2, rgba(24, 22, 19, 0.56));
+  --bag-card: var(--glass-3, rgba(30, 27, 23, 0.66));
+  --bag-float: var(--glass-4, rgba(18, 17, 15, 0.86));
+  --bag-well: color-mix(in srgb, var(--glass-base, #07070a) 45%, transparent);
+  --bag-hover: color-mix(in srgb, var(--bag-gold) 7%, transparent);
+  --bag-line: color-mix(in srgb, var(--bag-gold) 16%, transparent);
+  --bag-line-strong: color-mix(in srgb, var(--bag-gold) 34%, transparent);
+  --bag-hairline: linear-gradient(135deg,
+      color-mix(in srgb, var(--bag-gold-2) 55%, transparent),
+      color-mix(in srgb, var(--bag-gold) 8%, transparent) 38%,
+      color-mix(in srgb, var(--bag-gold) 4%, transparent) 62%,
+      color-mix(in srgb, var(--bag-gold-2) 32%, transparent));
+  --bag-specular: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0) 42%);
+  --bag-shadow: var(--glass-elev-2, 0 18px 50px -18px rgba(0, 0, 0, 0.7));
+  --bag-shadow-lift: var(--glass-elev-3), 0 0 0 1px color-mix(in srgb, var(--bag-gold) 14%, transparent);
+  --bag-blur: var(--glass-blur, blur(20px) saturate(170%));
+  --bag-radius: 18px;
+  --bag-radius-sm: 12px;
+  --bag-radius-xs: 9px;
+  --bag-ok: #4cc98a;
+  --bag-bad: #e36b6b;
+  --bag-warn: #e7a74b;
+  --bag-info: #7fb2ff;
+  --bag-font: var(--font-ui, "Inter", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif);
+  --bag-font-display: var(--font-ui-display, "Inter", "SF Pro Display", -apple-system, system-ui, sans-serif);
+  --bag-mono: var(--glass-font-mono, "JetBrains Mono", ui-monospace, "SF Mono", Menlo, monospace);
+  --bag-ease: var(--glass-ease, cubic-bezier(0.22, 1, 0.36, 1));
+  --bag-spring: var(--glass-spring, cubic-bezier(0.34, 1.36, 0.64, 1));
+  --bag-gold-fill: linear-gradient(180deg, var(--bag-gold-2), var(--bag-gold) 55%, var(--bag-bronze));
+  --bag-ink: var(--glass-ink, #16110a);
+  --bag-focus: var(--glass-focus-ring, 0 0 0 1px var(--bag-gold), 0 0 0 4px color-mix(in srgb, var(--bag-gold) 18%, transparent));
+
+  position: relative;
+  isolation: isolate;
+  color: var(--bag-text);
+  font-family: var(--bag-font);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "cv11", "ss01", "tnum" 0;
+}
+
+:root[data-theme="light"] .ba-glass {
+  --bag-ok: #1f9a5c;
+  --bag-bad: #c84040;
+  --bag-warn: #b9741b;
+  --bag-info: #2f6fd0;
+  --bag-well: rgba(255, 255, 255, 0.55);
+  --bag-specular: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0) 42%);
+  --bag-ink: #fff;
+}
+
+/* Apple typography everywhere on these pages; code and data that is
+   genuinely monospaced keeps the mono face. */
+/* Doubled class + :not() list = specificity (0,3,0): out-ranks the pages'
+   own single/double-class font rules without !important. */
+.ba-glass.ba-glass,
+.ba-glass.ba-glass *:not(code, pre, kbd, samp, .mono, .g-kbd, [class*="mono"], [class*="code"], [class*="terminal"], [class*="kbd"], [class*="material"], svg, svg *) {
+  font-family: var(--bag-font);
+}
+.ba-glass.ba-glass :is(code, pre, kbd, samp, .mono) {
+  font-family: var(--bag-mono);
+}
+
+.ba-glass :focus-visible {
+  outline: none;
+  box-shadow: var(--bag-focus);
+  border-radius: var(--bag-radius-xs);
+}
+
+.ba-glass ::selection {
+  background: color-mix(in srgb, var(--bag-gold) 30%, transparent);
+}
+
+/* ── Aurora: two slow gold orbs behind the page ───────────────── */
+.ba-glass > .ba-aurora {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: -1;
+  pointer-events: none;
+  contain: strict;
+}
+.ba-aurora::before,
+.ba-aurora::after {
+  content: "";
+  position: absolute;
+  width: 62vmax;
+  height: 62vmax;
+  border-radius: 50%;
+  filter: blur(90px);
+  opacity: 0.3;
+  background: radial-gradient(circle, color-mix(in srgb, var(--glass-gold, #d9b45f) 55%, transparent), transparent 62%);
+  top: -36vmax;
+  left: -14vmax;
+  animation: ba-drift 38s var(--glass-ease, ease-in-out) infinite alternate;
+}
+.ba-aurora::after {
+  background: radial-gradient(circle, color-mix(in srgb, var(--glass-gold-deep, #a8762c) 42%, transparent), transparent 60%);
+  top: auto;
+  bottom: -42vmax;
+  left: auto;
+  right: -18vmax;
+  animation-duration: 46s;
+  opacity: 0.2;
+}
+:root[data-theme="light"] .ba-aurora::before { opacity: 0.2; }
+:root[data-theme="light"] .ba-aurora::after { opacity: 0.13; }
+@keyframes ba-drift {
+  from { transform: translate3d(0, 0, 0) scale(1); }
+  to { transform: translate3d(8vmax, 5vmax, 0) scale(1.12); }
+}
+
+/* ── Reusable glass primitives (opt-in classes) ───────────────── */
+.ba-glass .bag-surface {
+  position: relative;
+  background: var(--glass-sheen, none), var(--bag-panel);
+  border: 0;
+  border-radius: var(--bag-radius);
+  box-shadow: var(--bag-shadow);
+  backdrop-filter: var(--bag-blur);
+  -webkit-backdrop-filter: var(--bag-blur);
+}
+.ba-glass .bag-surface::before,
+.ba-glass .bag-edge::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: var(--bag-hairline);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.ba-glass .bag-eyebrow {
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--bag-gold);
+  font-weight: 600;
+}
+.ba-glass .bag-gold-text {
+  background: linear-gradient(120deg, var(--bag-gold-2), var(--bag-gold) 45%, var(--bag-bronze));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+/* Skeleton shimmer for loading states */
+.ba-glass .bag-skel {
+  display: block;
+  border-radius: 10px;
+  min-height: 14px;
+  background: linear-gradient(90deg,
+      color-mix(in srgb, var(--bag-text) 5%, transparent) 0%,
+      color-mix(in srgb, var(--bag-gold) 12%, transparent) 50%,
+      color-mix(in srgb, var(--bag-text) 5%, transparent) 100%);
+  background-size: 200% 100%;
+  animation: ba-shimmer 1.6s linear infinite;
+}
+@keyframes ba-shimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+/* ── "Lives in the Business hub" link card ────────────────────── */
+.ba-glass .bag-hublink {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  margin: 0 0 14px;
+  border-radius: var(--bag-radius);
+  background: var(--glass-tint, none), var(--bag-card);
+  box-shadow: var(--glass-elev-1);
+  color: var(--bag-text);
+  text-align: left;
+}
+.ba-glass .bag-hublink::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  padding: 1px;
+  pointer-events: none;
+  background: var(--bag-hairline);
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+.ba-glass .bag-hublink__icon {
+  flex: 0 0 auto;
+  width: 38px;
+  height: 38px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  color: var(--bag-gold);
+  background: color-mix(in srgb, var(--bag-gold) 12%, transparent);
+  box-shadow: inset 0 0 0 1px var(--bag-line-strong);
+}
+.ba-glass .bag-hublink__icon svg { width: 18px; height: 18px; }
+.ba-glass .bag-hublink__body { flex: 1 1 auto; min-width: 0; display: grid; gap: 2px; }
+.ba-glass .bag-hublink__title { font-weight: 620; font-size: 14px; letter-spacing: -0.01em; }
+.ba-glass .bag-hublink__text { font-size: 12.5px; color: var(--bag-text-2); line-height: 1.45; }
+.ba-glass .bag-hublink__actions { display: flex; gap: 8px; flex-wrap: wrap; flex: 0 0 auto; }
+
+.ba-glass .bag-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 34px;
+  padding: 0 14px;
+  border-radius: 11px;
+  border: 1px solid var(--bag-line-strong);
+  background: color-mix(in srgb, var(--bag-card) 80%, transparent);
+  color: var(--bag-text);
+  font: 560 13px/1 var(--bag-font);
+  letter-spacing: 0;
+  text-transform: none;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: transform 0.15s var(--bag-ease), background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+.ba-glass .bag-btn:hover { border-color: var(--bag-gold); background: var(--bag-hover); }
+.ba-glass .bag-btn:active { transform: translateY(1px) scale(0.99); }
+.ba-glass .bag-btn--primary {
+  border-color: transparent;
+  color: var(--bag-ink);
+  background: var(--bag-gold-fill);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.45) inset, 0 10px 24px -10px color-mix(in srgb, var(--bag-gold) 80%, transparent);
+}
+.ba-glass .bag-btn--primary:hover { filter: brightness(1.06); background: var(--bag-gold-fill); }
+.ba-glass .bag-btn svg { width: 14px; height: 14px; }
+
+@media (max-width: 640px) {
+  .ba-glass .bag-hublink { flex-wrap: wrap; }
+  .ba-glass .bag-hublink__actions { width: 100%; }
+  .ba-glass .bag-hublink__actions .bag-btn { flex: 1 1 auto; }
+}
+
+/* ── Degraded modes ───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .ba-aurora::before,
+  .ba-aurora::after,
+  .ba-glass .bag-skel { animation: none; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .ba-aurora { display: none; }
+  .ba-glass .bag-surface { backdrop-filter: none; -webkit-backdrop-filter: none; }
+}
+:root.glass-reduced .ba-aurora,
+:root.low-power .ba-aurora,
+:root.perf-mode .ba-aurora { display: none; }
+:root.low-power .ba-glass .bag-skel { animation: none; }
+
+/* Page roots are their own stacking context (isolation above), which traps
+   a fixed modal under the host page's sub-nav. While a modal is open, lift
+   the whole root above the chrome so the modal really is on top. */
+.ba-glass:has([aria-modal="true"]) {
+  z-index: 100000;
+}
+
+/* On phones the host sub-tab nav is overflow:auto, so in the content flex
+   column it shrinks to ~10px whenever a long glass page overflows. Pin it. */
+main.content:has(> .ba-glass) > :is(.host-subtabs, .setup-banners) {
+  flex-shrink: 0;
+}

@@ -1,0 +1,17 @@
+{
+  "name": "@infinibot/voice-call",
+  "version": "2026.11.1",
+  "type": "module",
+  "description": "InfiniBot voice-call plugin",
+  "license": "FSL-1.1-ALv2",
+  "dependencies": {
+    "@sinclair/typebox": "0.34.47",
+    "ws": "^8.19.0",
+    "zod": "^4.3.6"
+  },
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

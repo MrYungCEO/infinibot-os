@@ -1,0 +1,34 @@
+{
+  "name": "@infinibot/zalouser",
+  "version": "2026.11.1",
+  "type": "module",
+  "description": "InfiniBot Zalo Personal Account plugin via zca-cli",
+  "license": "FSL-1.1-ALv2",
+  "dependencies": {
+    "infinibot": "workspace:*",
+    "@sinclair/typebox": "0.34.47"
+  },
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ],
+    "channel": {
+      "id": "zalouser",
+      "label": "Zalo Personal",
+      "selectionLabel": "Zalo (Personal Account)",
+      "docsPath": "/channels/zalouser",
+      "docsLabel": "zalouser",
+      "blurb": "Zalo personal account via QR code login.",
+      "aliases": [
+        "zlu"
+      ],
+      "order": 85,
+      "quickstartAllowFrom": true
+    },
+    "install": {
+      "npmSpec": "@infinibot/zalouser",
+      "localPath": "extensions/zalouser",
+      "defaultChoice": "npm"
+    }
+  }
+}

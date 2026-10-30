@@ -1,0 +1,697 @@
+/* ============================================================
+ * Enhanced Sidebar - Discord-style with Reliable Drag & Drop
+ * Uses pointer events for cross-platform support (mouse + touch)
+ * ============================================================ */
+
+/* Base Enhanced Sidebar */
+.threads-sidebar.enhanced {
+  --sidebar-bg: var(--bg-surface, #0a0a0a);
+  --sidebar-header-bg: var(--bg-elevated, #111);
+  --sidebar-border: var(--gold, var(--g-primary));
+  --category-bg: rgba(255, 255, 255, 0.02);
+  --category-hover: rgba(255, 255, 255, 0.05);
+  --item-hover: color-mix(in srgb, var(--g-primary) 10%, transparent);
+  --item-active: color-mix(in srgb, var(--g-primary) 20%, transparent);
+  --drag-indicator: var(--gold, var(--g-primary));
+  --drop-zone: color-mix(in srgb, var(--g-primary) 15%, transparent);
+  --drop-active: color-mix(in srgb, var(--g-primary) 25%, transparent);
+  
+  /* Prevent text selection during drag */
+  touch-action: pan-y;
+}
+
+/* ============================================================
+ * Categories
+ * ============================================================ */
+
+.sidebar-category {
+  margin-bottom: 4px;
+}
+
+.sidebar-category-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  cursor: grab;
+  user-select: none;
+  border-radius: 4px;
+  transition: background 0.15s ease;
+}
+
+.sidebar-category-header:hover {
+  background: var(--category-hover);
+}
+
+.sidebar-category-header.uncategorized {
+  cursor: default;
+  opacity: 0.8;
+}
+
+.sidebar-category-header.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+.sidebar-category-header.drag-over {
+  background: var(--drop-zone);
+  border: 2px dashed var(--drag-indicator);
+}
+
+.sidebar-category-toggle {
+  background: none;
+  border: none;
+  color: var(--text-muted, #666);
+  cursor: pointer;
+  padding: 2px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease, color 0.15s ease;
+}
+
+.sidebar-category-toggle:hover {
+  color: var(--text-primary, #fff);
+}
+
+.sidebar-category-toggle svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+.sidebar-category-icon {
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.sidebar-category-name {
+  flex: 1;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted, #888);
+  cursor: text;
+}
+
+.sidebar-category-name:hover {
+  color: var(--text-secondary, #aaa);
+}
+
+.sidebar-category-count {
+  font-size: 11px;
+  color: var(--text-muted, #666);
+  background: rgba(255, 255, 255, 0.05);
+  padding: 2px 6px;
+  border-radius: 8px;
+}
+
+.sidebar-category-actions {
+  display: flex;
+  gap: 4px;
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+.sidebar-category-header:hover .sidebar-category-actions {
+  opacity: 1;
+}
+
+.sidebar-action-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #666);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.sidebar-action-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--text-primary, #fff);
+}
+
+.sidebar-action-btn svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+/* Category Items Container */
+.sidebar-category-items {
+  min-height: 8px;
+  padding: 2px 0;
+  transition: background 0.15s ease;
+}
+
+.sidebar-category-items.drag-over {
+  background: var(--drop-zone);
+  border-radius: 4px;
+}
+
+.sidebar-category-empty {
+  padding: 12px 16px;
+  text-align: center;
+  color: var(--text-muted, #666);
+  font-size: 12px;
+  font-style: italic;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 4px;
+  margin: 4px 12px;
+}
+
+/* ============================================================
+ * Sidebar Items
+ * ============================================================ */
+
+.sidebar-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 12px 10px 20px;
+  cursor: pointer;
+  border-radius: 4px;
+  margin: 2px 8px;
+  transition: all 0.15s ease;
+  position: relative;
+}
+
+.sidebar-item:hover {
+  background: var(--item-hover);
+}
+
+.sidebar-item.active {
+  background: var(--item-active);
+  border-left: 3px solid var(--gold, var(--g-primary));
+  padding-left: 17px;
+}
+
+.sidebar-item.dragging {
+  opacity: 0.5;
+  cursor: grabbing;
+}
+
+.sidebar-item.drag-over {
+  background: var(--drop-zone);
+  box-shadow: 0 2px 0 var(--drag-indicator);
+}
+
+.sidebar-item.pinned {
+  background: color-mix(in srgb, var(--g-primary) 5%, transparent);
+}
+
+/* Drag Handle */
+.sidebar-item-drag-handle {
+  position: absolute;
+  left: 4px;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+  cursor: grab;
+  padding: 4px 2px;
+}
+
+.sidebar-item:hover .sidebar-item-drag-handle {
+  opacity: 0.5;
+}
+
+.sidebar-item-drag-handle:hover {
+  opacity: 1 !important;
+}
+
+.drag-indicator {
+  font-size: 10px;
+  color: var(--text-muted, #666);
+  letter-spacing: -2px;
+}
+
+/* Item Icon */
+.sidebar-item-icon {
+  font-size: 18px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* Item Content */
+.sidebar-item-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.sidebar-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 2px;
+}
+
+.sidebar-item-title {
+  font-weight: 600;
+  font-size: 14px;
+  color: var(--text-primary, #fff);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: text;
+}
+
+.sidebar-item.active .sidebar-item-title {
+  color: var(--gold, var(--g-primary));
+}
+
+.sidebar-item-time {
+  font-size: 11px;
+  color: var(--text-muted, #666);
+  flex-shrink: 0;
+}
+
+.sidebar-item-preview {
+  font-size: 12px;
+  color: var(--text-secondary, #888);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.4;
+}
+
+.sidebar-item-preview.empty {
+  font-style: italic;
+  opacity: 0.6;
+}
+
+/* Delete Button */
+.sidebar-item-delete {
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #666);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 4px;
+  opacity: 0;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.sidebar-item:hover .sidebar-item-delete {
+  opacity: 0.7;
+}
+
+.sidebar-item-delete:hover {
+  opacity: 1 !important;
+  background: rgba(255, 100, 100, 0.2);
+  color: #ff6666;
+}
+
+.sidebar-item-delete svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+/* ============================================================
+ * Edit Input
+ * ============================================================ */
+
+.sidebar-edit-input {
+  background: var(--bg-input, #1a1a1a);
+  border: 1px solid var(--gold, var(--g-primary));
+  border-radius: 4px;
+  color: var(--text-primary, #fff);
+  font-size: inherit;
+  font-family: inherit;
+  padding: 4px 8px;
+  width: 100%;
+  outline: none;
+}
+
+.sidebar-edit-input:focus {
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--g-primary) 30%, transparent);
+}
+
+/* ============================================================
+ * Add Category Button
+ * ============================================================ */
+
+.sidebar-add-category {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: calc(100% - 24px);
+  margin: 8px 12px;
+  padding: 10px;
+  background: transparent;
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 6px;
+  color: var(--text-muted, #666);
+  cursor: pointer;
+  font-size: 12px;
+  transition: all 0.15s ease;
+}
+
+.sidebar-add-category:hover {
+  border-color: var(--gold, var(--g-primary));
+  color: var(--gold, var(--g-primary));
+  background: color-mix(in srgb, var(--g-primary) 5%, transparent);
+}
+
+.sidebar-add-category svg {
+  width: 14px;
+  height: 14px;
+  stroke: currentColor;
+  stroke-width: 2;
+  fill: none;
+}
+
+/* ============================================================
+ * Context Menu
+ * ============================================================ */
+
+.sidebar-context-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1100;
+}
+
+.sidebar-context-menu {
+  position: fixed;
+  z-index: 1101;
+  background: var(--bg-elevated, #1a1a1a);
+  border: 1px solid var(--border-color, #333);
+  border-radius: 8px;
+  padding: 6px 0;
+  min-width: 180px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  animation: contextMenuIn 0.15s ease-out;
+}
+
+@keyframes contextMenuIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.context-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 8px 16px;
+  background: none;
+  border: none;
+  color: var(--text-primary, #fff);
+  cursor: pointer;
+  font-size: 13px;
+  text-align: left;
+  transition: background 0.1s ease;
+}
+
+.context-menu-item:hover {
+  background: var(--bg-hover, #252525);
+}
+
+.context-menu-item.danger {
+  color: #ff6666;
+}
+
+.context-menu-item.danger:hover {
+  background: rgba(255, 100, 100, 0.15);
+}
+
+.context-menu-separator {
+  height: 1px;
+  background: var(--border-color, #333);
+  margin: 6px 0;
+}
+
+.context-menu-label {
+  display: block;
+  padding: 4px 16px;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted, #666);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.context-menu-submenu {
+  padding: 4px 0;
+}
+
+.context-menu-submenu .context-menu-item {
+  padding-left: 24px;
+  font-size: 12px;
+}
+
+/* ============================================================
+ * Footer Enhancements
+ * ============================================================ */
+
+.threads-sidebar.enhanced .threads-sidebar__footer {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: center;
+}
+
+.threads-sidebar__hint {
+  font-size: 11px;
+  color: var(--text-muted, #555);
+  font-style: italic;
+}
+
+/* ============================================================
+ * Uncategorized Section
+ * ============================================================ */
+
+.sidebar-uncategorized {
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ============================================================
+ * Drag Preview (Ghost)
+ * ============================================================ */
+
+.sidebar-item.dragging,
+.sidebar-category-header.dragging {
+  cursor: grabbing !important;
+}
+
+/* Drop Zone Indicators */
+.sidebar-category-items.drag-over::before {
+  content: '';
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  height: 2px;
+  background: var(--gold, var(--g-primary));
+  border-radius: 1px;
+  animation: dropIndicatorPulse 0.6s ease-in-out infinite;
+}
+
+@keyframes dropIndicatorPulse {
+  0%, 100% {
+    opacity: 0.5;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* ============================================================
+ * Scrollbar Customization
+ * ============================================================ */
+
+.threads-sidebar.enhanced .threads-sidebar__list {
+  scrollbar-width: thin;
+  scrollbar-color: var(--gold, var(--g-primary)) transparent;
+}
+
+.threads-sidebar.enhanced .threads-sidebar__list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.threads-sidebar.enhanced .threads-sidebar__list::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.threads-sidebar.enhanced .threads-sidebar__list::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--g-primary) 30%, transparent);
+  border-radius: 3px;
+}
+
+.threads-sidebar.enhanced .threads-sidebar__list::-webkit-scrollbar-thumb:hover {
+  background: color-mix(in srgb, var(--g-primary) 50%, transparent);
+}
+
+/* ============================================================
+ * Mobile Responsive
+ * ============================================================ */
+
+@media (max-width: 480px) {
+  .threads-sidebar.enhanced {
+    width: 100%;
+    max-width: none;
+  }
+  
+  .sidebar-item {
+    padding: 12px 16px 12px 24px;
+  }
+  
+  .sidebar-item-drag-handle {
+    left: 8px;
+  }
+  
+  .sidebar-category-header {
+    padding: 10px 16px;
+  }
+}
+
+/* ============================================================
+ * Improved Drag & Drop States (Pointer Events)
+ * ============================================================ */
+
+/* Being dragged state (source element) */
+.being-dragged {
+  opacity: 0.4 !important;
+  background: color-mix(in srgb, var(--g-primary) 10%, transparent) !important;
+  border: 1px dashed var(--gold, var(--g-primary)) !important;
+  transform: scale(0.98);
+  transition: all 0.15s ease;
+}
+
+/* Active drop zone highlight */
+.drop-active {
+  background: var(--drop-active, color-mix(in srgb, var(--g-primary) 25%, transparent)) !important;
+  border-radius: 6px;
+  transition: background 0.1s ease;
+}
+
+/* Category body drop zone */
+.sidebar-category-items.drop-active {
+  background: var(--drop-zone, color-mix(in srgb, var(--g-primary) 15%, transparent)) !important;
+  box-shadow: inset 0 0 0 2px var(--gold, var(--g-primary));
+  border-radius: 6px;
+  min-height: 40px;
+}
+
+/* Session item drop zone */
+.sidebar-item.drop-active {
+  background: var(--drop-active, color-mix(in srgb, var(--g-primary) 25%, transparent)) !important;
+  box-shadow: 0 -2px 0 var(--gold, var(--g-primary));
+}
+
+/* Category header drop zone */
+.sidebar-category-header.drop-active {
+  background: var(--drop-active, color-mix(in srgb, var(--g-primary) 25%, transparent)) !important;
+  box-shadow: 0 -2px 0 var(--gold, var(--g-primary));
+}
+
+/* Drag cursor states */
+.sidebar-category-header {
+  cursor: grab;
+}
+
+.sidebar-category-header:active {
+  cursor: grabbing;
+}
+
+.sidebar-item-drag-handle {
+  cursor: grab;
+  touch-action: none;
+}
+
+.sidebar-item-drag-handle:active {
+  cursor: grabbing;
+}
+
+/* Disable pointer events on children during drag */
+body.sidebar-dragging .sidebar-item *,
+body.sidebar-dragging .sidebar-category-header * {
+  pointer-events: none;
+}
+
+body.sidebar-dragging .sidebar-item,
+body.sidebar-dragging .sidebar-category-header,
+body.sidebar-dragging .sidebar-category-items {
+  pointer-events: auto;
+}
+
+/* Smooth transitions for drop feedback */
+.sidebar-item,
+.sidebar-category-header,
+.sidebar-category-items {
+  transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+}
+
+/* Category empty state during drag */
+.sidebar-category-empty {
+  border: 2px dashed color-mix(in srgb, var(--g-primary) 30%, transparent);
+  background: color-mix(in srgb, var(--g-primary) 5%, transparent);
+  transition: all 0.15s ease;
+}
+
+.sidebar-category-empty.drop-active {
+  border-color: var(--gold, var(--g-primary));
+  background: color-mix(in srgb, var(--g-primary) 15%, transparent);
+  transform: scale(1.02);
+}
+
+/* Touch improvements */
+@media (pointer: coarse) {
+  /* Larger touch targets on mobile */
+  .sidebar-item-drag-handle {
+    padding: 8px 6px;
+    margin: -4px;
+  }
+  
+  .sidebar-item {
+    min-height: 56px;
+  }
+  
+  .sidebar-category-header {
+    min-height: 44px;
+  }
+  
+  /* Always show drag handle on touch devices */
+  .sidebar-item .sidebar-item-drag-handle {
+    opacity: 0.5;
+  }
+}
+
+/* Reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .sidebar-item,
+  .sidebar-category-header,
+  .sidebar-category-items,
+  .being-dragged,
+  .drop-active {
+    transition: none !important;
+    animation: none !important;
+  }
+}

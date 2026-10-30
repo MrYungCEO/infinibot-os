@@ -1,0 +1,63 @@
+/* Merged host pages (sidebar consolidation phase 2): the in-page sub-tab bar
+   rendered above the active sub-view. Pill segmented control, gold active. */
+.host-subtabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin: 0 0 14px;
+  padding: 4px;
+  width: fit-content;
+  max-width: 100%;
+  /* Never let a flex-column .content squeeze it (overflow-x:auto on mobile
+     drops its min-height to 0). */
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: color-mix(in srgb, var(--g-surface, #111) 70%, transparent);
+  border: 1px solid color-mix(in srgb, var(--g-primary, #d4af37) 14%, var(--g-border, #2a2a2a));
+  position: relative;
+  z-index: 2;
+}
+
+.host-subtabs__tab {
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  line-height: 1;
+  padding: 8px 14px;
+  border-radius: 9px;
+  color: var(--g-fg-dim, #9a9a9a);
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: color 140ms ease, background 140ms ease, border-color 140ms ease;
+  white-space: nowrap;
+}
+
+.host-subtabs__tab:hover {
+  color: var(--g-fg, #eee);
+  background: color-mix(in srgb, var(--g-primary, #d4af37) 7%, transparent);
+}
+
+.host-subtabs__tab.is-active {
+  color: var(--g-primary, #d4af37);
+  background: color-mix(in srgb, var(--g-primary, #d4af37) 13%, transparent);
+  border-color: color-mix(in srgb, var(--g-primary, #d4af37) 38%, transparent);
+}
+
+.host-subtabs__tab:hover,
+.host-subtabs__tab:focus,
+.host-subtabs__tab:visited {
+  text-decoration: none;
+}
+
+.host-subtabs__tab:focus-visible {
+  outline: 2px solid color-mix(in srgb, var(--g-primary, #d4af37) 60%, transparent);
+  outline-offset: 1px;
+}
+
+/* Full-bleed hosts (grid-like content with no padding) inset the bar. */
+.content--knowledge-graph > .host-subtabs,
+.content--terminals > .host-subtabs {
+  flex: none;
+  margin: 10px 12px;
+}

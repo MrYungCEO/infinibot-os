@@ -1,0 +1,31 @@
+# LiveKit Configuration for InfiniBot
+# WebSocket API port. The container runs in host network mode (see
+# docker-compose.voice.yaml), so this is also the port browsers/voice-agent
+# connect to on the host. Kept at 7882 to match the UI's hardcoded URL
+# (`ws://localhost:7882`) so reverting host mode doesn't require a UI change.
+port: 7882
+bind_addresses:
+  - "0.0.0.0"
+
+rtc:
+  # Below 49152 so Windows Hyper-V's dynamic port reservations don't grab
+  # any of these. Keep in sync with the UDP port range in
+  # docker-compose.voice.yaml.
+  port_range_start: 30000
+  port_range_end: 30100
+  # Don't auto-discover and announce the public IP. With host networking
+  # LiveKit auto-detects the host's primary interface (LAN IP) + loopback
+  # automatically; turning this on additionally announced the public IP
+  # `101.51.160.x`, which the user's NAT/router refused to hairpin back —
+  # every STUN binding LiveKit sent to that IP got 0 responses and ICE
+  # failed. Local LAN/loopback candidates are what we want for
+  # browser-on-same-host dev.
+  use_external_ip: false
+
+# Keys are injected at runtime via the --keys CLI flag (see
+# docker-compose.voice.yaml) which sources LIVEKIT_API_KEY /
+# LIVEKIT_API_SECRET from the gitignored .env file. Do not put real
+# secrets in this committed file.
+
+logging:
+  level: info

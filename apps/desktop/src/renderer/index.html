@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self' http://127.0.0.1:47913 ws://127.0.0.1:47913;
+             script-src 'self' 'unsafe-inline';
+             style-src 'self' 'unsafe-inline';" />
+  <title>InfiniBot — Starting…</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0a0a;
+      color: #e0e0e0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .logo {
+      font-size: 2.4rem;
+      font-weight: 700;
+      letter-spacing: -1px;
+      background: linear-gradient(135deg, #a78bfa, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+    }
+
+    .tagline {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-bottom: 2.5rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .spinner {
+      width: 36px;
+      height: 36px;
+      border: 3px solid #1e293b;
+      border-top-color: #a78bfa;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 1.2rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .status {
+      font-size: 0.9rem;
+      color: #9ca3af;
+      min-height: 1.4em;
+    }
+
+    .status.error { color: #f87171; }
+    .status.ready { color: #34d399; }
+
+    .log-area {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      max-height: 160px;
+      overflow-y: auto;
+      background: rgba(0,0,0,0.7);
+      padding: 8px 16px;
+      font-size: 0.7rem;
+      font-family: "Cascadia Code", "Fira Code", monospace;
+      color: #4b5563;
+      border-top: 1px solid #1f2937;
+    }
+
+    .log-line { line-height: 1.5; }
+    .log-line.error { color: #f87171; }
+    .log-line.warn  { color: #fbbf24; }
+    .log-line.info  { color: #4b5563; }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      margin-top: 1.5rem;
+    }
+
+    button {
+      background: #1e293b;
+      color: #cbd5e1;
+      border: 1px solid #334155;
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 0.8rem;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    button:hover { background: #334155; }
+  </style>
+</head>
+<body>
+  <div class="logo">InfiniBot</div>
+  <div class="tagline">Personal AI Gateway</div>
+  <div class="spinner" id="spinner"></div>
+  <div class="status" id="status">Gateway starting…</div>
+
+  <div class="actions" id="actions" style="display:none">
+    <button id="btn-retry">Retry</button>
+    <button id="btn-logs">View Logs</button>
+  </div>
+
+  <div class="log-area" id="log"></div>
+
+  <script>
+    const status = document.getElementById('status');
+    const spinner = document.getElementById('spinner');
+    const logArea = document.getElementById('log');
+    const actions = document.getElementById('actions');
+
+    // Port from meta tag (set by main process) or fallback
+    const GATEWAY_URL = 'http://127.0.0.1:47913';
+    let pollTimer = null;
+    let attempts = 0;
+    const MAX_ATTEMPTS = 120; // 60s
+
+    function appendLog(msg, type = 'info') {
+      const line = document.createElement('div');
+      line.className = `log-line ${type}`;
+      line.textContent = msg;
+      logArea.appendChild(line);
+      logArea.scrollTop = logArea.scrollHeight;
+    }
+
+    function setStatus(text, cls = '') {
+      status.textContent = text;
+      status.className = 'status ' + cls;
+    }
+
+    function tryRedirect() {
+      fetch(GATEWAY_URL + '/health', { signal: AbortSignal.timeout(500) })
+        .then(r => {
+          if (r.ok || r.status < 500) {
+            clearInterval(pollTimer);
+            setStatus('Gateway ready — loading dashboard…', 'ready');
+            spinner.style.display = 'none';
+            setTimeout(() => { window.location.href = GATEWAY_URL; }, 300);
+          }
+        })
+        .catch(() => {
+          attempts++;
+          if (attempts >= MAX_ATTEMPTS) {
+            clearInterval(pollTimer);
+            setStatus('Gateway did not start. Check logs.', 'error');
+            spinner.style.display = 'none';
+            actions.style.display = 'flex';
+          }
+        });
+    }
+
+    // Subscribe to main-process gateway logs
+    if (window.gatewayBridge) {
+      window.gatewayBridge.onLog(({ type, message }) => {
+        appendLog(message.trim(), type);
+      });
+
+      window.gatewayBridge.onFatal(({ code, signal }) => {
+        clearInterval(pollTimer);
+        setStatus(`Gateway crashed (${code ?? signal}). Click Retry to try again.`, 'error');
+        spinner.style.display = 'none';
+        actions.style.display = 'flex';
+      });
+    }
+
+    // Button handlers
+    document.getElementById('btn-retry')?.addEventListener('click', () => {
+      actions.style.display = 'none';
+      spinner.style.display = '';
+      setStatus('Restarting gateway…');
+      attempts = 0;
+      window.gatewayBridge?.start();
+      pollTimer = setInterval(tryRedirect, 500);
+    });
+
+    document.getElementById('btn-logs')?.addEventListener('click', () => {
+      window.shellBridge?.openLogs();
+    });
+
+    // Start polling
+    pollTimer = setInterval(tryRedirect, 500);
+  </script>
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": { "type": "Point", "coordinates": [-116.2008, 43.6166] },
+      "properties": {
+        "osm_type": "R",
+        "osm_id": 122595,
+        "osm_key": "place",
+        "osm_value": "city",
+        "extent": [-116.36, 43.69, -116.09, 43.51],
+        "name": "Boise",
+        "state": "Idaho",
+        "country": "United States"
+      }
+    }
+  ]
+}

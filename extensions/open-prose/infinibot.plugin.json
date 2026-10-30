@@ -1,0 +1,22 @@
+{
+  "id": "open-prose",
+  "name": "OpenProse",
+  "description": "OpenProse VM skill pack with a /prose slash command.",
+  "listing": {
+    "tagline": "The OpenProse skill pack and the /prose slash command.",
+    "category": "developer",
+    "tags": [
+      "skills",
+      "writing"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "skills": ["./skills"],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

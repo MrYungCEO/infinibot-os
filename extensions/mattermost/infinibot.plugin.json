@@ -1,0 +1,23 @@
+{
+  "id": "mattermost",
+  "name": "Mattermost",
+  "listing": {
+    "tagline": "Self-hosted, Slack-style team chat.",
+    "category": "channels",
+    "tags": [
+      "team-chat",
+      "self-hosted"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "channels": [
+    "mattermost"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

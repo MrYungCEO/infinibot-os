@@ -1,0 +1,4847 @@
+{
+  "manifestVersion": 2,
+  "id": "business-agency",
+  "name": "Business & Agency",
+  "version": "2026.10.7",
+  "minHostVersion": "2026.6.30",
+  "publisher": "infinibot",
+  "license": "FSL-1.1-ALv2",
+  "description": "Run your business and agency from InfiniBot: Business HQ, the Business Hub (lead generation, sales pipeline, contacts, clients, email campaigns, landing-page tracking, list imports and Whop + Stripe revenue in one connected model), Command (CEO, operations, daily board, agencies, topology), Clients with invoicing and payment links, the business register, funnels and forms, business settings, the agency selector and the business agents.",
+  "engines": {
+    "infinibot-plugin-api": "^2.0.0"
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "whopApiKey": {
+        "type": "string",
+        "writeOnly": true,
+        "description": "Whop API key for income sync and invoice payment links. Write-only; a key saved per business in Settings › Business still wins."
+      },
+      "whopCompanyId": {
+        "type": "string",
+        "description": "Whop company id (biz_…) used with the Whop API key."
+      },
+      "stripeSecretKey": {
+        "type": "string",
+        "writeOnly": true,
+        "description": "Stripe secret key for income sync. Write-only."
+      },
+      "squareAccessToken": {
+        "type": "string",
+        "writeOnly": true,
+        "description": "Square access token for income sync. Write-only."
+      }
+    }
+  },
+  "uiHints": {
+    "whopApiKey": {
+      "label": "Whop API key (optional)",
+      "placeholder": "whop_…",
+      "advanced": true
+    },
+    "whopCompanyId": {
+      "label": "Whop company id (optional)",
+      "placeholder": "biz_…",
+      "advanced": true
+    },
+    "stripeSecretKey": {
+      "label": "Stripe secret key (optional)",
+      "placeholder": "sk_live_…",
+      "advanced": true
+    },
+    "squareAccessToken": {
+      "label": "Square access token (optional)",
+      "placeholder": "EAAA…",
+      "advanced": true
+    }
+  },
+  "contributes": {
+    "learn": "learn.json",
+    "nav": [
+      {
+        "tab": "business-hq",
+        "label": "Business HQ",
+        "icon": "layout",
+        "group": "Business & Agency"
+      },
+      {
+        "tab": "hub",
+        "label": "Business Hub",
+        "icon": "barChart",
+        "group": "Business & Agency"
+      },
+      {
+        "tab": "command-ceo",
+        "label": "Command",
+        "icon": "target",
+        "group": "Business & Agency"
+      },
+      {
+        "tab": "clients",
+        "label": "Clients",
+        "icon": "users",
+        "group": "Business & Agency"
+      },
+      {
+        "tab": "people-network",
+        "label": "My Network",
+        "icon": "network",
+        "group": "Business & Agency"
+      },
+      {
+        "tab": "opportunities",
+        "label": "Register",
+        "icon": "clipboard",
+        "group": "Business & Agency"
+      },
+      {
+        "tab": "funnels",
+        "label": "Funnels & Forms",
+        "icon": "filter",
+        "group": "Business & Agency"
+      },
+      {
+        "tab": "business",
+        "label": "Business settings",
+        "icon": "briefcase",
+        "group": "Business & Agency"
+      }
+    ],
+    "pages": [
+      {
+        "tab": "business-hq",
+        "route": "/business-hq",
+        "builtin": "business-hq",
+        "title": "Business HQ"
+      },
+      {
+        "tab": "hub",
+        "route": "/hub",
+        "builtin": "hub",
+        "title": "Business Hub"
+      },
+      {
+        "tab": "command-ceo",
+        "route": "/ceo",
+        "builtin": "command-ceo",
+        "title": "Command · Executive"
+      },
+      {
+        "tab": "command-ops",
+        "route": "/ops",
+        "builtin": "command-ops",
+        "title": "Command · Operations"
+      },
+      {
+        "tab": "agency-daily",
+        "route": "/agency-daily",
+        "builtin": "agency-daily",
+        "title": "Command · Today"
+      },
+      {
+        "tab": "agency-operations",
+        "route": "/agency-operations",
+        "builtin": "agency-operations",
+        "title": "Command · Agencies"
+      },
+      {
+        "tab": "agency-topology",
+        "route": "/agency-topology",
+        "builtin": "agency-topology",
+        "title": "Command · Topology"
+      },
+      {
+        "tab": "clients",
+        "route": "/clients",
+        "builtin": "clients",
+        "title": "Clients"
+      },
+      {
+        "tab": "people-network",
+        "route": "/people-network",
+        "builtin": "people-network",
+        "title": "My Network"
+      },
+      {
+        "tab": "pipeline",
+        "route": "/pipeline",
+        "builtin": "pipeline",
+        "title": "Sales Pipeline"
+      },
+      {
+        "tab": "opportunities",
+        "route": "/opportunities",
+        "builtin": "opportunities",
+        "title": "Register · Opportunities"
+      },
+      {
+        "tab": "decisions",
+        "route": "/decisions",
+        "builtin": "decisions",
+        "title": "Register · Decisions"
+      },
+      {
+        "tab": "risks",
+        "route": "/risks",
+        "builtin": "risks",
+        "title": "Register · Risks"
+      },
+      {
+        "tab": "commitments",
+        "route": "/commitments",
+        "builtin": "commitments",
+        "title": "Register · Commitments"
+      },
+      {
+        "tab": "people",
+        "route": "/people",
+        "builtin": "people",
+        "title": "Register · People"
+      },
+      {
+        "tab": "leads",
+        "route": "/leads",
+        "builtin": "leads",
+        "title": "Leads & Funnels · Leads"
+      },
+      {
+        "tab": "qualifier",
+        "route": "/qualifier",
+        "builtin": "qualifier",
+        "title": "Leads & Funnels · Qualifier"
+      },
+      {
+        "tab": "funnels",
+        "route": "/funnels",
+        "builtin": "funnels",
+        "title": "Leads & Funnels · Funnels"
+      },
+      {
+        "tab": "campaigns",
+        "route": "/campaigns",
+        "builtin": "campaigns",
+        "title": "Leads & Funnels · Campaigns"
+      },
+      {
+        "tab": "business",
+        "route": "/business",
+        "builtin": "business",
+        "title": "Business settings"
+      }
+    ],
+    "navSection": {
+      "title": "Business & Agency",
+      "order": 10,
+      "items": [
+        {
+          "page": "business-hq",
+          "label": "Business HQ",
+          "icon": "layout"
+        },
+        {
+          "page": "hub",
+          "label": "Business Hub",
+          "icon": "barChart"
+        },
+        {
+          "page": "command-ceo",
+          "label": "Command",
+          "icon": "target"
+        },
+        {
+          "page": "clients",
+          "label": "Clients",
+          "icon": "users"
+        },
+        {
+          "page": "people-network",
+          "label": "My Network",
+          "icon": "network"
+        },
+        {
+          "page": "opportunities",
+          "label": "Register",
+          "icon": "clipboard"
+        },
+        {
+          "page": "funnels",
+          "label": "Funnels & Forms",
+          "icon": "filter"
+        },
+        {
+          "page": "business",
+          "label": "Business settings",
+          "icon": "briefcase"
+        }
+      ]
+    },
+    "topbarSlots": [
+      {
+        "id": "agency-selector",
+        "label": "Agency selector",
+        "description": "Pick the active agency; it scopes projects, clients, workforce and personas.",
+        "builtin": "agency-selector",
+        "order": 10
+      }
+    ],
+    "rpc": [
+      {
+        "method": "business-agency.opportunity.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.opportunity.search",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.opportunity.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.opportunity.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.opportunity.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.opportunity.delete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.opportunity.convert",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.decision.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.decision.search",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.decision.ceoQueue",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.decision.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.decision.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.decision.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.decision.delete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.decision.guideTask",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.risk.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.risk.search",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.risk.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.risk.overdue",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.risk.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.risk.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.risk.delete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.risk.impacts",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.risk.unimpacts",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.risk.links",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.commitment.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.commitment.search",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.commitment.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.commitment.aggregates",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.commitment.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.commitment.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.commitment.delete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.person.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.person.search",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.person.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.person.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.person.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.person.delete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.person.workload",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.person.assignTask",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.person.unassignTask",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.business.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.business.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.save",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.branding.get",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.business.branding.set",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.business.brandPrompt",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.business.delete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.setActive",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.priorities.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.business.priorities.set",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.notion.fetchPage",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.business.notion.databases",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.business.notion.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.notion.connect",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.notion.sync",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.notion.status",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.business.clients.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.business.clients.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.clients.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.business.clients.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.clients.delete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.clients.fromLead",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.business.clients.linkedToLead",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.business.clients.sourceLead",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.business.clients.notion.schema",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.business.clients.notion.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.clients.notion.connect",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.clients.notion.disconnect",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.clients.notion.sync",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.clients.notion.import",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.clients.notion.status",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.business.clients.import",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.income.stats",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.business.income.log",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.income.syncWhop",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.income.resetWhopCursor",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.business.income.syncStripe",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.income.syncSquare",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.income.config.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.business.income.config.set",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.income.upsertStream",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.income.daily",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.business.income.delete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.business.summary",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.business.summary.businesses.light",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.search",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.leads.searchWithSource",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.leads.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.leads.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.leads.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.leads.delete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.leads.saveToCRM",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.leads.bulkSaveToCRM",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.leads.sources",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.leads.stats",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.leads.pipeline",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.setStage",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.setTemperature",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.timeline",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.leads.migrate_to_database",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.bridge_status",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.qualify",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.toggleCadence",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.qualifier.list",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.qualifier.get",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.qualifier.upsert",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.qualifier.delete",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.qualifier.runs",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.qualifier.run",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.qualifier.test",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.qualifier.forms.list",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.qualifier.forms.get",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.qualifier.forms.upsert",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.qualifier.forms.fromTemplate",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.qualifier.forms.templates",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.qualifier.forms.delete",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.qualifier.forms.publish",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.qualifier.forms.preview",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.qualifier.forms.kpi",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.leads.qualifier.forms.submissions",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.netlify.status",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.netlify.connect",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.netlify.setApiBaseUrl",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.netlify.sites",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.netlify.deploy",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.funnels.business.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.business.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.funnels.business.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.funnels.business.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.funnels.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.funnels.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.delete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.duplicate",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.analytics",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.funnels.stage.add",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.stage.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.stage.delete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.stage.connect",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.stage.disconnect",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.funnels.stage.reorder",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.stage.kpis",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.funnels.lead.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.lead.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.funnels.lead.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.lead.search",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.funnels.lead.score",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.lead.qualify",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.funnels.lead.matchOffer",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.funnels.lead.assignFunnel",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.lead.moveStage",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.kpi.log",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.kpi.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.funnels.kpi.compare",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.funnels.task.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.task.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.task.complete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.task.getChecklist",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.funnels.offer.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.offer.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.offer.toggle",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.offer.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.funnels.offer.checkEligibility",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.funnels.canvas.getLayout",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.funnels.canvas.saveLayout",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.flowmap.get",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.funnels.flowmap.list",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.funnels.flowmap.save",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.funnels.flowmap.promote",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.funnels.flowmap.delete",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.funnels.integrations.platforms",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.funnels.integrations.platform",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.funnels.page.config.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.funnels.page.config.set",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.page.publish",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.funnels.page.preview",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.funnels.page.submissions",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.funnels.form.bind",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.funnels.form.unbind",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.funnels.form.list_bindings",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.funnels.page.bind",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.funnels.page.unbind",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.funnels.page.list_bindings",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.funnels.flow.snapshot",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.funnels.lead.source",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.campaigns.list",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.campaigns.get",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.campaigns.create",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.campaigns.update",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.campaigns.delete",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.campaigns.assignLead",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.campaigns.context",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.campaigns.stats",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.campaigns.assignClient",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.campaigns.contextForClient",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.agencies.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.replication.status",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.replication.export",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.replication.merge",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.replication.sync",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.replication.conflicts.list",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.migration.preview",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.migration.run",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.agency.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.agency.share",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.agency.invite.accept",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.collaboration.status",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.collaboration.enable",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.database.health",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.database.schema.status",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.database.backups.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.database.backup.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.database.backup.ensure",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.database.backup.verify",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.database.backups.prune",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.database.restore.prepare",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.database.restore.cancel",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.database.restore.activate",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.dashboard",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.pipeline.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.pipeline.deal.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.engagements.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.engagement.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.approvals.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.approval.resolve",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.employees.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.capacity.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.deactivate",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.finance.summary",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.invoices.parse",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.invoices.ingest",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.invoices.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.invoices.payment.record",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.invoice.paymentLink.create",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.payments.provider.get",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.payments.provider.set",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.invoice.paymentLink.get",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.invoice.paymentLink.detach",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.payments.reconcile",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.payments.unmatched.list",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.payments.unmatched.assign",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.payments.unmatched.ignore",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.invoice.number.next",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.payment-accounts.list",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.payment-accounts.upsert",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.payment-accounts.delete",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.invoice.create",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.invoice.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.invoice.update",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.invoice.lineItem.add",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.invoice.lineItem.update",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.invoice.lineItem.remove",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.invoice.lineItems.reorder",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.invoice.projects.set",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.invoice.issue",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.invoice.void",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.invoice.payments.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.invoice.backlog.record",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.invoice.backlog.import",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.invoice.document.preview",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.invoice.document.render",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.proposal.document.preview",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.proposal.document.render",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.proposal.create",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.proposal.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.proposal.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.proposal.update",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.proposal.status.set",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.proposal.accept",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.revenue.summary",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.members.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.member.role.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.member.remove",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.audit.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.detail",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.assignments.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.assignment.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.assignment.suitability",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.assignment.hybrid-plan",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.inbox.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.work-item.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.work-item.transition",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.work-item.execution.list",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.work-item.execution.status",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.schedules.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.schedule.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.responsibilities.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.responsibility.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.reviews.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.review-cycle.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.review-cycle.complete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.memory.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.memory.upsert",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.loop.tick",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.sops.list",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.sops.seed",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.communication.get",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.communication.update",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.communication.preview",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.escalations.list",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.escalation.get",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.escalation.raise",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.escalation.answer",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.escalation.approve",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.escalation.reject",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.escalation.resolve",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.escalation.retry",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.escalation.cancel",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.escalation.reply.ingest",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.escalations.dispatch",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.escalation.policy.get",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.escalation.policy.update",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.channels.catalog",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.channels.list",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.channel.bind",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.channel.unbind",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.execution.get",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.employee.execution.update",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.sop.get",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.sop.create",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.sop.update",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.sop.delete",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.sop.schedules.list",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.sop.schedule.attach",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.sop.schedule.detach",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.sop.run",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.sop.runs.list",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.funnels.overview",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.funnels.context",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.funnels.map.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.funnels.map.upsert",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.funnels.connection.upsert",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.funnels.connection.check",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.funnels.health.check",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.funnels.kpi.record",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.clients.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.clients.source.status",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.clients.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.clients.update",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.projects.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.projects.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.projects.transition",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.projects.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.client.mrr.set",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.project.mrr.set",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.tasks.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.agency.ops.tasks.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.tasks.transition",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.tasks.assign",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.tasks.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.agency.ops.routing.preview",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.routing.apply",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.routing.decisions.list",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.routing.task.assign",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.routing.task.unassign",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.routing.stage",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.routing.policy.get",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.routing.policy.update",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.provisioning.status",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.provisioning.ensure",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.relations.client",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.relations.project",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.relations.project.client.set",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.relations.integrity",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.notion.databases.list",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.notion.connect",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.notion.disconnect",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.notion.status",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.notion.pull",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.notion.push",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.notion.sync",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.notion.links.list",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.agency.ops.notion.drift.check",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.clients.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.clients.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.clients.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.clients.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.clients.delete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.clients.findByOrigin",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.clients.notion.status",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.clients.notion.schema",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.clients.notion.connect",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.clients.notion.disconnect",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.clients.notion.import",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.clients.notion.sync",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.clients.notion.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.clients.revenue.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.clients.revenue.log",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.clients.activity.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.clients.activity.log",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.clients.contacts.get",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.clients.import",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.network.contacts.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.network.contacts.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.network.contacts.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.network.contacts.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.network.contacts.delete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.network.contacts.promoteClient",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.network.clients.search",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.network.connections.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.network.connections.create",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.network.connections.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.network.connections.delete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.network.opportunities.link",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.network.opportunities.unlink",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.network.graph",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.network.path",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.network.context",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.network.history",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.network.links.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.network.links.add",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.network.links.remove",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.network.links.search",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hq.progress.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hq.progress.snapshot",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hq.settings.set",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hq.snooze",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.autopilot.campaigns.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.autopilot.campaigns.launch",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.autopilot.campaigns.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.autopilot.campaigns.pause",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.autopilot.campaigns.resume",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.autopilot.campaigns.runNow",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.autopilot.campaigns.save",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.autopilot.campaigns.stop",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.autopilot.inbox.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.autopilot.inbox.simulate",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.autopilot.inbox.update",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.autopilot.kpis",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.autopilot.messages.approve",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.autopilot.messages.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.autopilot.settings.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.autopilot.settings.killSwitch",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.hub.autopilot.timeline",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.bookings.availability",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.bookings.book",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.bookings.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.clients.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.clients.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.companies.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.companies.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.companies.merge",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.companies.save",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.contacts.bulk",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.contacts.delete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.contacts.duplicates",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.contacts.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.contacts.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.contacts.merge",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.contacts.note",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.contacts.save",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.contacts.tag",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.deals.delete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.deals.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.deals.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.deals.move",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.deals.save",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.email.campaigns.delete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.email.campaigns.enroll",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.email.campaigns.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.email.campaigns.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.email.campaigns.metrics",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.email.campaigns.pause",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.email.campaigns.resume",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.email.campaigns.runNow",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.email.campaigns.save",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.email.campaigns.start",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.email.campaigns.stop",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.email.campaigns.testSend",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.email.segments.delete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.email.segments.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.email.segments.preview",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.email.segments.save",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.email.sendOne",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.email.senders.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.email.senders.remove",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.hub.email.senders.save",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.hub.email.senders.test",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.email.settings.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.email.settings.save",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.hub.email.suppressions.add",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.email.suppressions.import",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.email.suppressions.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.email.suppressions.remove",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.email.templates.delete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.email.templates.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.email.templates.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.email.templates.preview",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.email.templates.save",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.imports.commit",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.imports.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.imports.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.imports.preview",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.imports.revalidate",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.imports.undo",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.intake.lead",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.leadgen.config.set",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.hub.leadgen.enrich",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.leadgen.import",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.leadgen.job",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.leadgen.jobs",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.leadgen.providers",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.leadgen.search",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.leadgen.verifyEmail",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.migration.run",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.hub.migration.status",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.offers.catalog",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.offers.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.offers.handleObjection",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.offers.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.offers.save",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.offers.testPitch",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.overview",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.pipeline.event",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.pipeline.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.pipeline.metrics",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.pipeline.saveRules",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.pipeline.saveStages",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.pipeline.syncReminders",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.revenue.accounts.connect",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.hub.revenue.accounts.discover",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.revenue.accounts.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.revenue.accounts.remove",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.hub.revenue.accounts.update",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.hub.revenue.arAging",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.revenue.invoices.sync",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.revenue.ledger",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.revenue.projectMappings.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.revenue.projectMappings.set",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.revenue.reconcile",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.revenue.subscriptions",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.revenue.summary",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.revenue.sync",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.revenue.syncStatus",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.settings.get",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.settings.set",
+        "scope": "admin"
+      },
+      {
+        "method": "business-agency.hub.sources.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.tags.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.timeline",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.tracking.events",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.tracking.sites.delete",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.tracking.sites.list",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.tracking.sites.save",
+        "scope": "write"
+      },
+      {
+        "method": "business-agency.hub.tracking.snippet",
+        "scope": "read"
+      },
+      {
+        "method": "business-agency.hub.tracking.stats",
+        "scope": "read"
+      }
+    ],
+    "rpcAliases": [
+      {
+        "method": "opportunity.list",
+        "target": "business-agency.opportunity.list"
+      },
+      {
+        "method": "opportunity.search",
+        "target": "business-agency.opportunity.search"
+      },
+      {
+        "method": "opportunity.get",
+        "target": "business-agency.opportunity.get"
+      },
+      {
+        "method": "opportunity.create",
+        "target": "business-agency.opportunity.create"
+      },
+      {
+        "method": "opportunity.update",
+        "target": "business-agency.opportunity.update"
+      },
+      {
+        "method": "opportunity.delete",
+        "target": "business-agency.opportunity.delete"
+      },
+      {
+        "method": "opportunity.convert",
+        "target": "business-agency.opportunity.convert"
+      },
+      {
+        "method": "decision.list",
+        "target": "business-agency.decision.list"
+      },
+      {
+        "method": "decision.search",
+        "target": "business-agency.decision.search"
+      },
+      {
+        "method": "decision.ceoQueue",
+        "target": "business-agency.decision.ceoQueue"
+      },
+      {
+        "method": "decision.get",
+        "target": "business-agency.decision.get"
+      },
+      {
+        "method": "decision.create",
+        "target": "business-agency.decision.create"
+      },
+      {
+        "method": "decision.update",
+        "target": "business-agency.decision.update"
+      },
+      {
+        "method": "decision.delete",
+        "target": "business-agency.decision.delete"
+      },
+      {
+        "method": "decision.guideTask",
+        "target": "business-agency.decision.guideTask"
+      },
+      {
+        "method": "risk.list",
+        "target": "business-agency.risk.list"
+      },
+      {
+        "method": "risk.search",
+        "target": "business-agency.risk.search"
+      },
+      {
+        "method": "risk.get",
+        "target": "business-agency.risk.get"
+      },
+      {
+        "method": "risk.overdue",
+        "target": "business-agency.risk.overdue"
+      },
+      {
+        "method": "risk.create",
+        "target": "business-agency.risk.create"
+      },
+      {
+        "method": "risk.update",
+        "target": "business-agency.risk.update"
+      },
+      {
+        "method": "risk.delete",
+        "target": "business-agency.risk.delete"
+      },
+      {
+        "method": "risk.impacts",
+        "target": "business-agency.risk.impacts"
+      },
+      {
+        "method": "risk.unimpacts",
+        "target": "business-agency.risk.unimpacts"
+      },
+      {
+        "method": "risk.links",
+        "target": "business-agency.risk.links"
+      },
+      {
+        "method": "commitment.list",
+        "target": "business-agency.commitment.list"
+      },
+      {
+        "method": "commitment.search",
+        "target": "business-agency.commitment.search"
+      },
+      {
+        "method": "commitment.get",
+        "target": "business-agency.commitment.get"
+      },
+      {
+        "method": "commitment.aggregates",
+        "target": "business-agency.commitment.aggregates"
+      },
+      {
+        "method": "commitment.create",
+        "target": "business-agency.commitment.create"
+      },
+      {
+        "method": "commitment.update",
+        "target": "business-agency.commitment.update"
+      },
+      {
+        "method": "commitment.delete",
+        "target": "business-agency.commitment.delete"
+      },
+      {
+        "method": "person.list",
+        "target": "business-agency.person.list"
+      },
+      {
+        "method": "person.search",
+        "target": "business-agency.person.search"
+      },
+      {
+        "method": "person.get",
+        "target": "business-agency.person.get"
+      },
+      {
+        "method": "person.create",
+        "target": "business-agency.person.create"
+      },
+      {
+        "method": "person.update",
+        "target": "business-agency.person.update"
+      },
+      {
+        "method": "person.delete",
+        "target": "business-agency.person.delete"
+      },
+      {
+        "method": "person.workload",
+        "target": "business-agency.person.workload"
+      },
+      {
+        "method": "person.assignTask",
+        "target": "business-agency.person.assignTask"
+      },
+      {
+        "method": "person.unassignTask",
+        "target": "business-agency.person.unassignTask"
+      },
+      {
+        "method": "business.list",
+        "target": "business-agency.business.list"
+      },
+      {
+        "method": "business.get",
+        "target": "business-agency.business.get"
+      },
+      {
+        "method": "business.create",
+        "target": "business-agency.business.create"
+      },
+      {
+        "method": "business.save",
+        "target": "business-agency.business.save"
+      },
+      {
+        "method": "business.branding.get",
+        "target": "business-agency.business.branding.get"
+      },
+      {
+        "method": "business.branding.set",
+        "target": "business-agency.business.branding.set"
+      },
+      {
+        "method": "business.brandPrompt",
+        "target": "business-agency.business.brandPrompt"
+      },
+      {
+        "method": "business.delete",
+        "target": "business-agency.business.delete"
+      },
+      {
+        "method": "business.setActive",
+        "target": "business-agency.business.setActive"
+      },
+      {
+        "method": "business.priorities.get",
+        "target": "business-agency.business.priorities.get"
+      },
+      {
+        "method": "business.priorities.set",
+        "target": "business-agency.business.priorities.set"
+      },
+      {
+        "method": "business.notion.fetchPage",
+        "target": "business-agency.business.notion.fetchPage"
+      },
+      {
+        "method": "business.notion.databases",
+        "target": "business-agency.business.notion.databases"
+      },
+      {
+        "method": "business.notion.create",
+        "target": "business-agency.business.notion.create"
+      },
+      {
+        "method": "business.notion.connect",
+        "target": "business-agency.business.notion.connect"
+      },
+      {
+        "method": "business.notion.sync",
+        "target": "business-agency.business.notion.sync"
+      },
+      {
+        "method": "business.notion.status",
+        "target": "business-agency.business.notion.status"
+      },
+      {
+        "method": "business.clients.list",
+        "target": "business-agency.business.clients.list"
+      },
+      {
+        "method": "business.clients.create",
+        "target": "business-agency.business.clients.create"
+      },
+      {
+        "method": "business.clients.get",
+        "target": "business-agency.business.clients.get"
+      },
+      {
+        "method": "business.clients.update",
+        "target": "business-agency.business.clients.update"
+      },
+      {
+        "method": "business.clients.delete",
+        "target": "business-agency.business.clients.delete"
+      },
+      {
+        "method": "business.clients.fromLead",
+        "target": "business-agency.business.clients.fromLead"
+      },
+      {
+        "method": "business.clients.linkedToLead",
+        "target": "business-agency.business.clients.linkedToLead"
+      },
+      {
+        "method": "business.clients.sourceLead",
+        "target": "business-agency.business.clients.sourceLead"
+      },
+      {
+        "method": "business.clients.notion.schema",
+        "target": "business-agency.business.clients.notion.schema"
+      },
+      {
+        "method": "business.clients.notion.create",
+        "target": "business-agency.business.clients.notion.create"
+      },
+      {
+        "method": "business.clients.notion.connect",
+        "target": "business-agency.business.clients.notion.connect"
+      },
+      {
+        "method": "business.clients.notion.disconnect",
+        "target": "business-agency.business.clients.notion.disconnect"
+      },
+      {
+        "method": "business.clients.notion.sync",
+        "target": "business-agency.business.clients.notion.sync"
+      },
+      {
+        "method": "business.clients.notion.import",
+        "target": "business-agency.business.clients.notion.import"
+      },
+      {
+        "method": "business.clients.notion.status",
+        "target": "business-agency.business.clients.notion.status"
+      },
+      {
+        "method": "business.clients.import",
+        "target": "business-agency.business.clients.import"
+      },
+      {
+        "method": "business.income.stats",
+        "target": "business-agency.business.income.stats"
+      },
+      {
+        "method": "business.income.log",
+        "target": "business-agency.business.income.log"
+      },
+      {
+        "method": "business.income.syncWhop",
+        "target": "business-agency.business.income.syncWhop"
+      },
+      {
+        "method": "business.income.resetWhopCursor",
+        "target": "business-agency.business.income.resetWhopCursor"
+      },
+      {
+        "method": "business.income.syncStripe",
+        "target": "business-agency.business.income.syncStripe"
+      },
+      {
+        "method": "business.income.syncSquare",
+        "target": "business-agency.business.income.syncSquare"
+      },
+      {
+        "method": "business.income.config.get",
+        "target": "business-agency.business.income.config.get"
+      },
+      {
+        "method": "business.income.config.set",
+        "target": "business-agency.business.income.config.set"
+      },
+      {
+        "method": "business.income.upsertStream",
+        "target": "business-agency.business.income.upsertStream"
+      },
+      {
+        "method": "business.income.daily",
+        "target": "business-agency.business.income.daily"
+      },
+      {
+        "method": "business.income.delete",
+        "target": "business-agency.business.income.delete"
+      },
+      {
+        "method": "business.summary",
+        "target": "business-agency.business.summary"
+      },
+      {
+        "method": "business.summary.businesses.light",
+        "target": "business-agency.business.summary.businesses.light"
+      },
+      {
+        "method": "leads.search",
+        "target": "business-agency.leads.search"
+      },
+      {
+        "method": "leads.searchWithSource",
+        "target": "business-agency.leads.searchWithSource"
+      },
+      {
+        "method": "leads.get",
+        "target": "business-agency.leads.get"
+      },
+      {
+        "method": "leads.list",
+        "target": "business-agency.leads.list"
+      },
+      {
+        "method": "leads.update",
+        "target": "business-agency.leads.update"
+      },
+      {
+        "method": "leads.delete",
+        "target": "business-agency.leads.delete"
+      },
+      {
+        "method": "leads.saveToCRM",
+        "target": "business-agency.leads.saveToCRM"
+      },
+      {
+        "method": "leads.bulkSaveToCRM",
+        "target": "business-agency.leads.bulkSaveToCRM"
+      },
+      {
+        "method": "leads.sources",
+        "target": "business-agency.leads.sources"
+      },
+      {
+        "method": "leads.stats",
+        "target": "business-agency.leads.stats"
+      },
+      {
+        "method": "leads.pipeline",
+        "target": "business-agency.leads.pipeline"
+      },
+      {
+        "method": "leads.setStage",
+        "target": "business-agency.leads.setStage"
+      },
+      {
+        "method": "leads.setTemperature",
+        "target": "business-agency.leads.setTemperature"
+      },
+      {
+        "method": "leads.timeline",
+        "target": "business-agency.leads.timeline"
+      },
+      {
+        "method": "leads.migrate_to_database",
+        "target": "business-agency.leads.migrate_to_database"
+      },
+      {
+        "method": "leads.bridge_status",
+        "target": "business-agency.leads.bridge_status"
+      },
+      {
+        "method": "leads.qualify",
+        "target": "business-agency.leads.qualify"
+      },
+      {
+        "method": "leads.toggleCadence",
+        "target": "business-agency.leads.toggleCadence"
+      },
+      {
+        "method": "leads.qualifier.list",
+        "target": "business-agency.leads.qualifier.list"
+      },
+      {
+        "method": "leads.qualifier.get",
+        "target": "business-agency.leads.qualifier.get"
+      },
+      {
+        "method": "leads.qualifier.upsert",
+        "target": "business-agency.leads.qualifier.upsert"
+      },
+      {
+        "method": "leads.qualifier.delete",
+        "target": "business-agency.leads.qualifier.delete"
+      },
+      {
+        "method": "leads.qualifier.runs",
+        "target": "business-agency.leads.qualifier.runs"
+      },
+      {
+        "method": "leads.qualifier.run",
+        "target": "business-agency.leads.qualifier.run"
+      },
+      {
+        "method": "leads.qualifier.test",
+        "target": "business-agency.leads.qualifier.test"
+      },
+      {
+        "method": "leads.qualifier.forms.list",
+        "target": "business-agency.leads.qualifier.forms.list"
+      },
+      {
+        "method": "leads.qualifier.forms.get",
+        "target": "business-agency.leads.qualifier.forms.get"
+      },
+      {
+        "method": "leads.qualifier.forms.upsert",
+        "target": "business-agency.leads.qualifier.forms.upsert"
+      },
+      {
+        "method": "leads.qualifier.forms.fromTemplate",
+        "target": "business-agency.leads.qualifier.forms.fromTemplate"
+      },
+      {
+        "method": "leads.qualifier.forms.templates",
+        "target": "business-agency.leads.qualifier.forms.templates"
+      },
+      {
+        "method": "leads.qualifier.forms.delete",
+        "target": "business-agency.leads.qualifier.forms.delete"
+      },
+      {
+        "method": "leads.qualifier.forms.publish",
+        "target": "business-agency.leads.qualifier.forms.publish"
+      },
+      {
+        "method": "leads.qualifier.forms.preview",
+        "target": "business-agency.leads.qualifier.forms.preview"
+      },
+      {
+        "method": "leads.qualifier.forms.kpi",
+        "target": "business-agency.leads.qualifier.forms.kpi"
+      },
+      {
+        "method": "leads.qualifier.forms.submissions",
+        "target": "business-agency.leads.qualifier.forms.submissions"
+      },
+      {
+        "method": "netlify.status",
+        "target": "business-agency.netlify.status"
+      },
+      {
+        "method": "netlify.connect",
+        "target": "business-agency.netlify.connect"
+      },
+      {
+        "method": "netlify.setApiBaseUrl",
+        "target": "business-agency.netlify.setApiBaseUrl"
+      },
+      {
+        "method": "netlify.sites",
+        "target": "business-agency.netlify.sites"
+      },
+      {
+        "method": "netlify.deploy",
+        "target": "business-agency.netlify.deploy"
+      },
+      {
+        "method": "funnels.business.create",
+        "target": "business-agency.funnels.business.create"
+      },
+      {
+        "method": "funnels.business.get",
+        "target": "business-agency.funnels.business.get"
+      },
+      {
+        "method": "funnels.business.list",
+        "target": "business-agency.funnels.business.list"
+      },
+      {
+        "method": "funnels.business.update",
+        "target": "business-agency.funnels.business.update"
+      },
+      {
+        "method": "funnels.create",
+        "target": "business-agency.funnels.create"
+      },
+      {
+        "method": "funnels.get",
+        "target": "business-agency.funnels.get"
+      },
+      {
+        "method": "funnels.list",
+        "target": "business-agency.funnels.list"
+      },
+      {
+        "method": "funnels.update",
+        "target": "business-agency.funnels.update"
+      },
+      {
+        "method": "funnels.delete",
+        "target": "business-agency.funnels.delete"
+      },
+      {
+        "method": "funnels.duplicate",
+        "target": "business-agency.funnels.duplicate"
+      },
+      {
+        "method": "funnels.analytics",
+        "target": "business-agency.funnels.analytics"
+      },
+      {
+        "method": "funnels.stage.add",
+        "target": "business-agency.funnels.stage.add"
+      },
+      {
+        "method": "funnels.stage.update",
+        "target": "business-agency.funnels.stage.update"
+      },
+      {
+        "method": "funnels.stage.delete",
+        "target": "business-agency.funnels.stage.delete"
+      },
+      {
+        "method": "funnels.stage.connect",
+        "target": "business-agency.funnels.stage.connect"
+      },
+      {
+        "method": "funnels.stage.disconnect",
+        "target": "business-agency.funnels.stage.disconnect"
+      },
+      {
+        "method": "funnels.stage.reorder",
+        "target": "business-agency.funnels.stage.reorder"
+      },
+      {
+        "method": "funnels.stage.kpis",
+        "target": "business-agency.funnels.stage.kpis"
+      },
+      {
+        "method": "funnels.lead.create",
+        "target": "business-agency.funnels.lead.create"
+      },
+      {
+        "method": "funnels.lead.get",
+        "target": "business-agency.funnels.lead.get"
+      },
+      {
+        "method": "funnels.lead.update",
+        "target": "business-agency.funnels.lead.update"
+      },
+      {
+        "method": "funnels.lead.search",
+        "target": "business-agency.funnels.lead.search"
+      },
+      {
+        "method": "funnels.lead.score",
+        "target": "business-agency.funnels.lead.score"
+      },
+      {
+        "method": "funnels.lead.qualify",
+        "target": "business-agency.funnels.lead.qualify"
+      },
+      {
+        "method": "funnels.lead.matchOffer",
+        "target": "business-agency.funnels.lead.matchOffer"
+      },
+      {
+        "method": "funnels.lead.assignFunnel",
+        "target": "business-agency.funnels.lead.assignFunnel"
+      },
+      {
+        "method": "funnels.lead.moveStage",
+        "target": "business-agency.funnels.lead.moveStage"
+      },
+      {
+        "method": "funnels.kpi.log",
+        "target": "business-agency.funnels.kpi.log"
+      },
+      {
+        "method": "funnels.kpi.get",
+        "target": "business-agency.funnels.kpi.get"
+      },
+      {
+        "method": "funnels.kpi.compare",
+        "target": "business-agency.funnels.kpi.compare"
+      },
+      {
+        "method": "funnels.task.create",
+        "target": "business-agency.funnels.task.create"
+      },
+      {
+        "method": "funnels.task.update",
+        "target": "business-agency.funnels.task.update"
+      },
+      {
+        "method": "funnels.task.complete",
+        "target": "business-agency.funnels.task.complete"
+      },
+      {
+        "method": "funnels.task.getChecklist",
+        "target": "business-agency.funnels.task.getChecklist"
+      },
+      {
+        "method": "funnels.offer.create",
+        "target": "business-agency.funnels.offer.create"
+      },
+      {
+        "method": "funnels.offer.update",
+        "target": "business-agency.funnels.offer.update"
+      },
+      {
+        "method": "funnels.offer.toggle",
+        "target": "business-agency.funnels.offer.toggle"
+      },
+      {
+        "method": "funnels.offer.list",
+        "target": "business-agency.funnels.offer.list"
+      },
+      {
+        "method": "funnels.offer.checkEligibility",
+        "target": "business-agency.funnels.offer.checkEligibility"
+      },
+      {
+        "method": "funnels.canvas.getLayout",
+        "target": "business-agency.funnels.canvas.getLayout"
+      },
+      {
+        "method": "funnels.canvas.saveLayout",
+        "target": "business-agency.funnels.canvas.saveLayout"
+      },
+      {
+        "method": "funnels.flowmap.get",
+        "target": "business-agency.funnels.flowmap.get"
+      },
+      {
+        "method": "funnels.flowmap.list",
+        "target": "business-agency.funnels.flowmap.list"
+      },
+      {
+        "method": "funnels.flowmap.save",
+        "target": "business-agency.funnels.flowmap.save"
+      },
+      {
+        "method": "funnels.flowmap.promote",
+        "target": "business-agency.funnels.flowmap.promote"
+      },
+      {
+        "method": "funnels.flowmap.delete",
+        "target": "business-agency.funnels.flowmap.delete"
+      },
+      {
+        "method": "funnels.integrations.platforms",
+        "target": "business-agency.funnels.integrations.platforms"
+      },
+      {
+        "method": "funnels.integrations.platform",
+        "target": "business-agency.funnels.integrations.platform"
+      },
+      {
+        "method": "funnels.page.config.get",
+        "target": "business-agency.funnels.page.config.get"
+      },
+      {
+        "method": "funnels.page.config.set",
+        "target": "business-agency.funnels.page.config.set"
+      },
+      {
+        "method": "funnels.page.publish",
+        "target": "business-agency.funnels.page.publish"
+      },
+      {
+        "method": "funnels.page.preview",
+        "target": "business-agency.funnels.page.preview"
+      },
+      {
+        "method": "funnels.page.submissions",
+        "target": "business-agency.funnels.page.submissions"
+      },
+      {
+        "method": "funnels.form.bind",
+        "target": "business-agency.funnels.form.bind"
+      },
+      {
+        "method": "funnels.form.unbind",
+        "target": "business-agency.funnels.form.unbind"
+      },
+      {
+        "method": "funnels.form.list_bindings",
+        "target": "business-agency.funnels.form.list_bindings"
+      },
+      {
+        "method": "funnels.page.bind",
+        "target": "business-agency.funnels.page.bind"
+      },
+      {
+        "method": "funnels.page.unbind",
+        "target": "business-agency.funnels.page.unbind"
+      },
+      {
+        "method": "funnels.page.list_bindings",
+        "target": "business-agency.funnels.page.list_bindings"
+      },
+      {
+        "method": "funnels.flow.snapshot",
+        "target": "business-agency.funnels.flow.snapshot"
+      },
+      {
+        "method": "funnels.lead.source",
+        "target": "business-agency.funnels.lead.source"
+      },
+      {
+        "method": "campaigns.list",
+        "target": "business-agency.campaigns.list"
+      },
+      {
+        "method": "campaigns.get",
+        "target": "business-agency.campaigns.get"
+      },
+      {
+        "method": "campaigns.create",
+        "target": "business-agency.campaigns.create"
+      },
+      {
+        "method": "campaigns.update",
+        "target": "business-agency.campaigns.update"
+      },
+      {
+        "method": "campaigns.delete",
+        "target": "business-agency.campaigns.delete"
+      },
+      {
+        "method": "campaigns.assignLead",
+        "target": "business-agency.campaigns.assignLead"
+      },
+      {
+        "method": "campaigns.context",
+        "target": "business-agency.campaigns.context"
+      },
+      {
+        "method": "campaigns.stats",
+        "target": "business-agency.campaigns.stats"
+      },
+      {
+        "method": "campaigns.assignClient",
+        "target": "business-agency.campaigns.assignClient"
+      },
+      {
+        "method": "campaigns.contextForClient",
+        "target": "business-agency.campaigns.contextForClient"
+      },
+      {
+        "method": "agency.ops.agencies.list",
+        "target": "business-agency.agency.ops.agencies.list"
+      },
+      {
+        "method": "agency.ops.replication.status",
+        "target": "business-agency.agency.ops.replication.status"
+      },
+      {
+        "method": "agency.ops.replication.export",
+        "target": "business-agency.agency.ops.replication.export"
+      },
+      {
+        "method": "agency.ops.replication.merge",
+        "target": "business-agency.agency.ops.replication.merge"
+      },
+      {
+        "method": "agency.ops.replication.sync",
+        "target": "business-agency.agency.ops.replication.sync"
+      },
+      {
+        "method": "agency.ops.replication.conflicts.list",
+        "target": "business-agency.agency.ops.replication.conflicts.list"
+      },
+      {
+        "method": "agency.ops.migration.preview",
+        "target": "business-agency.agency.ops.migration.preview"
+      },
+      {
+        "method": "agency.ops.migration.run",
+        "target": "business-agency.agency.ops.migration.run"
+      },
+      {
+        "method": "agency.ops.agency.create",
+        "target": "business-agency.agency.ops.agency.create"
+      },
+      {
+        "method": "agency.ops.agency.share",
+        "target": "business-agency.agency.ops.agency.share"
+      },
+      {
+        "method": "agency.ops.agency.invite.accept",
+        "target": "business-agency.agency.ops.agency.invite.accept"
+      },
+      {
+        "method": "agency.ops.collaboration.status",
+        "target": "business-agency.agency.ops.collaboration.status"
+      },
+      {
+        "method": "agency.ops.collaboration.enable",
+        "target": "business-agency.agency.ops.collaboration.enable"
+      },
+      {
+        "method": "agency.ops.database.health",
+        "target": "business-agency.agency.ops.database.health"
+      },
+      {
+        "method": "agency.ops.database.schema.status",
+        "target": "business-agency.agency.ops.database.schema.status"
+      },
+      {
+        "method": "agency.ops.database.backups.list",
+        "target": "business-agency.agency.ops.database.backups.list"
+      },
+      {
+        "method": "agency.ops.database.backup.create",
+        "target": "business-agency.agency.ops.database.backup.create"
+      },
+      {
+        "method": "agency.ops.database.backup.ensure",
+        "target": "business-agency.agency.ops.database.backup.ensure"
+      },
+      {
+        "method": "agency.ops.database.backup.verify",
+        "target": "business-agency.agency.ops.database.backup.verify"
+      },
+      {
+        "method": "agency.ops.database.backups.prune",
+        "target": "business-agency.agency.ops.database.backups.prune"
+      },
+      {
+        "method": "agency.ops.database.restore.prepare",
+        "target": "business-agency.agency.ops.database.restore.prepare"
+      },
+      {
+        "method": "agency.ops.database.restore.cancel",
+        "target": "business-agency.agency.ops.database.restore.cancel"
+      },
+      {
+        "method": "agency.ops.database.restore.activate",
+        "target": "business-agency.agency.ops.database.restore.activate"
+      },
+      {
+        "method": "agency.ops.dashboard",
+        "target": "business-agency.agency.ops.dashboard"
+      },
+      {
+        "method": "agency.ops.pipeline.list",
+        "target": "business-agency.agency.ops.pipeline.list"
+      },
+      {
+        "method": "agency.ops.pipeline.deal.create",
+        "target": "business-agency.agency.ops.pipeline.deal.create"
+      },
+      {
+        "method": "agency.ops.engagements.list",
+        "target": "business-agency.agency.ops.engagements.list"
+      },
+      {
+        "method": "agency.ops.engagement.create",
+        "target": "business-agency.agency.ops.engagement.create"
+      },
+      {
+        "method": "agency.ops.approvals.list",
+        "target": "business-agency.agency.ops.approvals.list"
+      },
+      {
+        "method": "agency.ops.approval.resolve",
+        "target": "business-agency.agency.ops.approval.resolve"
+      },
+      {
+        "method": "agency.ops.employees.list",
+        "target": "business-agency.agency.ops.employees.list"
+      },
+      {
+        "method": "agency.ops.employee.create",
+        "target": "business-agency.agency.ops.employee.create"
+      },
+      {
+        "method": "agency.ops.employee.capacity.update",
+        "target": "business-agency.agency.ops.employee.capacity.update"
+      },
+      {
+        "method": "agency.ops.employee.update",
+        "target": "business-agency.agency.ops.employee.update"
+      },
+      {
+        "method": "agency.ops.employee.deactivate",
+        "target": "business-agency.agency.ops.employee.deactivate"
+      },
+      {
+        "method": "agency.ops.finance.summary",
+        "target": "business-agency.agency.ops.finance.summary"
+      },
+      {
+        "method": "agency.ops.invoices.parse",
+        "target": "business-agency.agency.ops.invoices.parse"
+      },
+      {
+        "method": "agency.ops.invoices.ingest",
+        "target": "business-agency.agency.ops.invoices.ingest"
+      },
+      {
+        "method": "agency.ops.invoices.list",
+        "target": "business-agency.agency.ops.invoices.list"
+      },
+      {
+        "method": "agency.ops.invoices.payment.record",
+        "target": "business-agency.agency.ops.invoices.payment.record"
+      },
+      {
+        "method": "agency.ops.invoice.paymentLink.create",
+        "target": "business-agency.agency.ops.invoice.paymentLink.create"
+      },
+      {
+        "method": "agency.ops.payments.provider.get",
+        "target": "business-agency.agency.ops.payments.provider.get"
+      },
+      {
+        "method": "agency.ops.payments.provider.set",
+        "target": "business-agency.agency.ops.payments.provider.set"
+      },
+      {
+        "method": "agency.ops.invoice.paymentLink.get",
+        "target": "business-agency.agency.ops.invoice.paymentLink.get"
+      },
+      {
+        "method": "agency.ops.invoice.paymentLink.detach",
+        "target": "business-agency.agency.ops.invoice.paymentLink.detach"
+      },
+      {
+        "method": "agency.ops.payments.reconcile",
+        "target": "business-agency.agency.ops.payments.reconcile"
+      },
+      {
+        "method": "agency.ops.payments.unmatched.list",
+        "target": "business-agency.agency.ops.payments.unmatched.list"
+      },
+      {
+        "method": "agency.ops.payments.unmatched.assign",
+        "target": "business-agency.agency.ops.payments.unmatched.assign"
+      },
+      {
+        "method": "agency.ops.payments.unmatched.ignore",
+        "target": "business-agency.agency.ops.payments.unmatched.ignore"
+      },
+      {
+        "method": "agency.ops.invoice.number.next",
+        "target": "business-agency.agency.ops.invoice.number.next"
+      },
+      {
+        "method": "agency.ops.payment-accounts.list",
+        "target": "business-agency.agency.ops.payment-accounts.list"
+      },
+      {
+        "method": "agency.ops.payment-accounts.upsert",
+        "target": "business-agency.agency.ops.payment-accounts.upsert"
+      },
+      {
+        "method": "agency.ops.payment-accounts.delete",
+        "target": "business-agency.agency.ops.payment-accounts.delete"
+      },
+      {
+        "method": "agency.ops.invoice.create",
+        "target": "business-agency.agency.ops.invoice.create"
+      },
+      {
+        "method": "agency.ops.invoice.get",
+        "target": "business-agency.agency.ops.invoice.get"
+      },
+      {
+        "method": "agency.ops.invoice.update",
+        "target": "business-agency.agency.ops.invoice.update"
+      },
+      {
+        "method": "agency.ops.invoice.lineItem.add",
+        "target": "business-agency.agency.ops.invoice.lineItem.add"
+      },
+      {
+        "method": "agency.ops.invoice.lineItem.update",
+        "target": "business-agency.agency.ops.invoice.lineItem.update"
+      },
+      {
+        "method": "agency.ops.invoice.lineItem.remove",
+        "target": "business-agency.agency.ops.invoice.lineItem.remove"
+      },
+      {
+        "method": "agency.ops.invoice.lineItems.reorder",
+        "target": "business-agency.agency.ops.invoice.lineItems.reorder"
+      },
+      {
+        "method": "agency.ops.invoice.projects.set",
+        "target": "business-agency.agency.ops.invoice.projects.set"
+      },
+      {
+        "method": "agency.ops.invoice.issue",
+        "target": "business-agency.agency.ops.invoice.issue"
+      },
+      {
+        "method": "agency.ops.invoice.void",
+        "target": "business-agency.agency.ops.invoice.void"
+      },
+      {
+        "method": "agency.ops.invoice.payments.list",
+        "target": "business-agency.agency.ops.invoice.payments.list"
+      },
+      {
+        "method": "agency.ops.invoice.backlog.record",
+        "target": "business-agency.agency.ops.invoice.backlog.record"
+      },
+      {
+        "method": "agency.ops.invoice.backlog.import",
+        "target": "business-agency.agency.ops.invoice.backlog.import"
+      },
+      {
+        "method": "agency.ops.invoice.document.preview",
+        "target": "business-agency.agency.ops.invoice.document.preview"
+      },
+      {
+        "method": "agency.ops.invoice.document.render",
+        "target": "business-agency.agency.ops.invoice.document.render"
+      },
+      {
+        "method": "agency.ops.proposal.document.preview",
+        "target": "business-agency.agency.ops.proposal.document.preview"
+      },
+      {
+        "method": "agency.ops.proposal.document.render",
+        "target": "business-agency.agency.ops.proposal.document.render"
+      },
+      {
+        "method": "agency.ops.proposal.create",
+        "target": "business-agency.agency.ops.proposal.create"
+      },
+      {
+        "method": "agency.ops.proposal.get",
+        "target": "business-agency.agency.ops.proposal.get"
+      },
+      {
+        "method": "agency.ops.proposal.list",
+        "target": "business-agency.agency.ops.proposal.list"
+      },
+      {
+        "method": "agency.ops.proposal.update",
+        "target": "business-agency.agency.ops.proposal.update"
+      },
+      {
+        "method": "agency.ops.proposal.status.set",
+        "target": "business-agency.agency.ops.proposal.status.set"
+      },
+      {
+        "method": "agency.ops.proposal.accept",
+        "target": "business-agency.agency.ops.proposal.accept"
+      },
+      {
+        "method": "agency.ops.revenue.summary",
+        "target": "business-agency.agency.ops.revenue.summary"
+      },
+      {
+        "method": "agency.ops.members.list",
+        "target": "business-agency.agency.ops.members.list"
+      },
+      {
+        "method": "agency.ops.member.role.update",
+        "target": "business-agency.agency.ops.member.role.update"
+      },
+      {
+        "method": "agency.ops.member.remove",
+        "target": "business-agency.agency.ops.member.remove"
+      },
+      {
+        "method": "agency.ops.audit.list",
+        "target": "business-agency.agency.ops.audit.list"
+      },
+      {
+        "method": "agency.ops.employee.detail",
+        "target": "business-agency.agency.ops.employee.detail"
+      },
+      {
+        "method": "agency.ops.assignments.list",
+        "target": "business-agency.agency.ops.assignments.list"
+      },
+      {
+        "method": "agency.ops.assignment.create",
+        "target": "business-agency.agency.ops.assignment.create"
+      },
+      {
+        "method": "agency.ops.assignment.suitability",
+        "target": "business-agency.agency.ops.assignment.suitability"
+      },
+      {
+        "method": "agency.ops.assignment.hybrid-plan",
+        "target": "business-agency.agency.ops.assignment.hybrid-plan"
+      },
+      {
+        "method": "agency.ops.employee.inbox.list",
+        "target": "business-agency.agency.ops.employee.inbox.list"
+      },
+      {
+        "method": "agency.ops.employee.work-item.create",
+        "target": "business-agency.agency.ops.employee.work-item.create"
+      },
+      {
+        "method": "agency.ops.employee.work-item.transition",
+        "target": "business-agency.agency.ops.employee.work-item.transition"
+      },
+      {
+        "method": "agency.ops.employee.work-item.execution.list",
+        "target": "business-agency.agency.ops.employee.work-item.execution.list"
+      },
+      {
+        "method": "agency.ops.employee.work-item.execution.status",
+        "target": "business-agency.agency.ops.employee.work-item.execution.status"
+      },
+      {
+        "method": "agency.ops.employee.schedules.list",
+        "target": "business-agency.agency.ops.employee.schedules.list"
+      },
+      {
+        "method": "agency.ops.employee.schedule.create",
+        "target": "business-agency.agency.ops.employee.schedule.create"
+      },
+      {
+        "method": "agency.ops.employee.responsibilities.list",
+        "target": "business-agency.agency.ops.employee.responsibilities.list"
+      },
+      {
+        "method": "agency.ops.employee.responsibility.create",
+        "target": "business-agency.agency.ops.employee.responsibility.create"
+      },
+      {
+        "method": "agency.ops.employee.reviews.list",
+        "target": "business-agency.agency.ops.employee.reviews.list"
+      },
+      {
+        "method": "agency.ops.employee.review-cycle.create",
+        "target": "business-agency.agency.ops.employee.review-cycle.create"
+      },
+      {
+        "method": "agency.ops.employee.review-cycle.complete",
+        "target": "business-agency.agency.ops.employee.review-cycle.complete"
+      },
+      {
+        "method": "agency.ops.employee.memory.list",
+        "target": "business-agency.agency.ops.employee.memory.list"
+      },
+      {
+        "method": "agency.ops.employee.memory.upsert",
+        "target": "business-agency.agency.ops.employee.memory.upsert"
+      },
+      {
+        "method": "agency.ops.employee.loop.tick",
+        "target": "business-agency.agency.ops.employee.loop.tick"
+      },
+      {
+        "method": "agency.ops.sops.list",
+        "target": "business-agency.agency.ops.sops.list"
+      },
+      {
+        "method": "agency.ops.sops.seed",
+        "target": "business-agency.agency.ops.sops.seed"
+      },
+      {
+        "method": "agency.ops.employee.communication.get",
+        "target": "business-agency.agency.ops.employee.communication.get"
+      },
+      {
+        "method": "agency.ops.employee.communication.update",
+        "target": "business-agency.agency.ops.employee.communication.update"
+      },
+      {
+        "method": "agency.ops.employee.communication.preview",
+        "target": "business-agency.agency.ops.employee.communication.preview"
+      },
+      {
+        "method": "agency.ops.escalations.list",
+        "target": "business-agency.agency.ops.escalations.list"
+      },
+      {
+        "method": "agency.ops.escalation.get",
+        "target": "business-agency.agency.ops.escalation.get"
+      },
+      {
+        "method": "agency.ops.escalation.raise",
+        "target": "business-agency.agency.ops.escalation.raise"
+      },
+      {
+        "method": "agency.ops.escalation.answer",
+        "target": "business-agency.agency.ops.escalation.answer"
+      },
+      {
+        "method": "agency.ops.escalation.approve",
+        "target": "business-agency.agency.ops.escalation.approve"
+      },
+      {
+        "method": "agency.ops.escalation.reject",
+        "target": "business-agency.agency.ops.escalation.reject"
+      },
+      {
+        "method": "agency.ops.escalation.resolve",
+        "target": "business-agency.agency.ops.escalation.resolve"
+      },
+      {
+        "method": "agency.ops.escalation.retry",
+        "target": "business-agency.agency.ops.escalation.retry"
+      },
+      {
+        "method": "agency.ops.escalation.cancel",
+        "target": "business-agency.agency.ops.escalation.cancel"
+      },
+      {
+        "method": "agency.ops.escalation.reply.ingest",
+        "target": "business-agency.agency.ops.escalation.reply.ingest"
+      },
+      {
+        "method": "agency.ops.escalations.dispatch",
+        "target": "business-agency.agency.ops.escalations.dispatch"
+      },
+      {
+        "method": "agency.ops.escalation.policy.get",
+        "target": "business-agency.agency.ops.escalation.policy.get"
+      },
+      {
+        "method": "agency.ops.escalation.policy.update",
+        "target": "business-agency.agency.ops.escalation.policy.update"
+      },
+      {
+        "method": "agency.ops.channels.catalog",
+        "target": "business-agency.agency.ops.channels.catalog"
+      },
+      {
+        "method": "agency.ops.employee.channels.list",
+        "target": "business-agency.agency.ops.employee.channels.list"
+      },
+      {
+        "method": "agency.ops.employee.channel.bind",
+        "target": "business-agency.agency.ops.employee.channel.bind"
+      },
+      {
+        "method": "agency.ops.employee.channel.unbind",
+        "target": "business-agency.agency.ops.employee.channel.unbind"
+      },
+      {
+        "method": "agency.ops.employee.execution.get",
+        "target": "business-agency.agency.ops.employee.execution.get"
+      },
+      {
+        "method": "agency.ops.employee.execution.update",
+        "target": "business-agency.agency.ops.employee.execution.update"
+      },
+      {
+        "method": "agency.ops.sop.get",
+        "target": "business-agency.agency.ops.sop.get"
+      },
+      {
+        "method": "agency.ops.sop.create",
+        "target": "business-agency.agency.ops.sop.create"
+      },
+      {
+        "method": "agency.ops.sop.update",
+        "target": "business-agency.agency.ops.sop.update"
+      },
+      {
+        "method": "agency.ops.sop.delete",
+        "target": "business-agency.agency.ops.sop.delete"
+      },
+      {
+        "method": "agency.ops.sop.schedules.list",
+        "target": "business-agency.agency.ops.sop.schedules.list"
+      },
+      {
+        "method": "agency.ops.sop.schedule.attach",
+        "target": "business-agency.agency.ops.sop.schedule.attach"
+      },
+      {
+        "method": "agency.ops.sop.schedule.detach",
+        "target": "business-agency.agency.ops.sop.schedule.detach"
+      },
+      {
+        "method": "agency.ops.sop.run",
+        "target": "business-agency.agency.ops.sop.run"
+      },
+      {
+        "method": "agency.ops.sop.runs.list",
+        "target": "business-agency.agency.ops.sop.runs.list"
+      },
+      {
+        "method": "agency.ops.funnels.overview",
+        "target": "business-agency.agency.ops.funnels.overview"
+      },
+      {
+        "method": "agency.ops.funnels.context",
+        "target": "business-agency.agency.ops.funnels.context"
+      },
+      {
+        "method": "agency.ops.funnels.map.get",
+        "target": "business-agency.agency.ops.funnels.map.get"
+      },
+      {
+        "method": "agency.ops.funnels.map.upsert",
+        "target": "business-agency.agency.ops.funnels.map.upsert"
+      },
+      {
+        "method": "agency.ops.funnels.connection.upsert",
+        "target": "business-agency.agency.ops.funnels.connection.upsert"
+      },
+      {
+        "method": "agency.ops.funnels.connection.check",
+        "target": "business-agency.agency.ops.funnels.connection.check"
+      },
+      {
+        "method": "agency.ops.funnels.health.check",
+        "target": "business-agency.agency.ops.funnels.health.check"
+      },
+      {
+        "method": "agency.ops.funnels.kpi.record",
+        "target": "business-agency.agency.ops.funnels.kpi.record"
+      },
+      {
+        "method": "agency.ops.clients.list",
+        "target": "business-agency.agency.ops.clients.list"
+      },
+      {
+        "method": "agency.ops.clients.source.status",
+        "target": "business-agency.agency.ops.clients.source.status"
+      },
+      {
+        "method": "agency.ops.clients.create",
+        "target": "business-agency.agency.ops.clients.create"
+      },
+      {
+        "method": "agency.ops.clients.update",
+        "target": "business-agency.agency.ops.clients.update"
+      },
+      {
+        "method": "agency.ops.projects.list",
+        "target": "business-agency.agency.ops.projects.list"
+      },
+      {
+        "method": "agency.ops.projects.create",
+        "target": "business-agency.agency.ops.projects.create"
+      },
+      {
+        "method": "agency.ops.projects.transition",
+        "target": "business-agency.agency.ops.projects.transition"
+      },
+      {
+        "method": "agency.ops.projects.update",
+        "target": "business-agency.agency.ops.projects.update"
+      },
+      {
+        "method": "agency.ops.client.mrr.set",
+        "target": "business-agency.agency.ops.client.mrr.set"
+      },
+      {
+        "method": "agency.ops.project.mrr.set",
+        "target": "business-agency.agency.ops.project.mrr.set"
+      },
+      {
+        "method": "agency.ops.tasks.list",
+        "target": "business-agency.agency.ops.tasks.list"
+      },
+      {
+        "method": "agency.ops.tasks.create",
+        "target": "business-agency.agency.ops.tasks.create"
+      },
+      {
+        "method": "agency.ops.tasks.transition",
+        "target": "business-agency.agency.ops.tasks.transition"
+      },
+      {
+        "method": "agency.ops.tasks.assign",
+        "target": "business-agency.agency.ops.tasks.assign"
+      },
+      {
+        "method": "agency.ops.tasks.update",
+        "target": "business-agency.agency.ops.tasks.update"
+      },
+      {
+        "method": "agency.ops.routing.preview",
+        "target": "business-agency.agency.ops.routing.preview"
+      },
+      {
+        "method": "agency.ops.routing.apply",
+        "target": "business-agency.agency.ops.routing.apply"
+      },
+      {
+        "method": "agency.ops.routing.decisions.list",
+        "target": "business-agency.agency.ops.routing.decisions.list"
+      },
+      {
+        "method": "agency.ops.routing.task.assign",
+        "target": "business-agency.agency.ops.routing.task.assign"
+      },
+      {
+        "method": "agency.ops.routing.task.unassign",
+        "target": "business-agency.agency.ops.routing.task.unassign"
+      },
+      {
+        "method": "agency.ops.routing.stage",
+        "target": "business-agency.agency.ops.routing.stage"
+      },
+      {
+        "method": "agency.ops.routing.policy.get",
+        "target": "business-agency.agency.ops.routing.policy.get"
+      },
+      {
+        "method": "agency.ops.routing.policy.update",
+        "target": "business-agency.agency.ops.routing.policy.update"
+      },
+      {
+        "method": "agency.ops.provisioning.status",
+        "target": "business-agency.agency.ops.provisioning.status"
+      },
+      {
+        "method": "agency.ops.provisioning.ensure",
+        "target": "business-agency.agency.ops.provisioning.ensure"
+      },
+      {
+        "method": "agency.ops.relations.client",
+        "target": "business-agency.agency.ops.relations.client"
+      },
+      {
+        "method": "agency.ops.relations.project",
+        "target": "business-agency.agency.ops.relations.project"
+      },
+      {
+        "method": "agency.ops.relations.project.client.set",
+        "target": "business-agency.agency.ops.relations.project.client.set"
+      },
+      {
+        "method": "agency.ops.relations.integrity",
+        "target": "business-agency.agency.ops.relations.integrity"
+      },
+      {
+        "method": "agency.ops.notion.databases.list",
+        "target": "business-agency.agency.ops.notion.databases.list"
+      },
+      {
+        "method": "agency.ops.notion.connect",
+        "target": "business-agency.agency.ops.notion.connect"
+      },
+      {
+        "method": "agency.ops.notion.disconnect",
+        "target": "business-agency.agency.ops.notion.disconnect"
+      },
+      {
+        "method": "agency.ops.notion.status",
+        "target": "business-agency.agency.ops.notion.status"
+      },
+      {
+        "method": "agency.ops.notion.pull",
+        "target": "business-agency.agency.ops.notion.pull"
+      },
+      {
+        "method": "agency.ops.notion.push",
+        "target": "business-agency.agency.ops.notion.push"
+      },
+      {
+        "method": "agency.ops.notion.sync",
+        "target": "business-agency.agency.ops.notion.sync"
+      },
+      {
+        "method": "agency.ops.notion.links.list",
+        "target": "business-agency.agency.ops.notion.links.list"
+      },
+      {
+        "method": "agency.ops.notion.drift.check",
+        "target": "business-agency.agency.ops.notion.drift.check"
+      },
+      {
+        "method": "clients.list",
+        "target": "business-agency.clients.list"
+      },
+      {
+        "method": "clients.get",
+        "target": "business-agency.clients.get"
+      },
+      {
+        "method": "clients.create",
+        "target": "business-agency.clients.create"
+      },
+      {
+        "method": "clients.update",
+        "target": "business-agency.clients.update"
+      },
+      {
+        "method": "clients.delete",
+        "target": "business-agency.clients.delete"
+      },
+      {
+        "method": "clients.findByOrigin",
+        "target": "business-agency.clients.findByOrigin"
+      },
+      {
+        "method": "clients.notion.status",
+        "target": "business-agency.clients.notion.status"
+      },
+      {
+        "method": "clients.notion.schema",
+        "target": "business-agency.clients.notion.schema"
+      },
+      {
+        "method": "clients.notion.connect",
+        "target": "business-agency.clients.notion.connect"
+      },
+      {
+        "method": "clients.notion.disconnect",
+        "target": "business-agency.clients.notion.disconnect"
+      },
+      {
+        "method": "clients.notion.import",
+        "target": "business-agency.clients.notion.import"
+      },
+      {
+        "method": "clients.notion.sync",
+        "target": "business-agency.clients.notion.sync"
+      },
+      {
+        "method": "clients.notion.create",
+        "target": "business-agency.clients.notion.create"
+      },
+      {
+        "method": "clients.revenue.list",
+        "target": "business-agency.clients.revenue.list"
+      },
+      {
+        "method": "clients.revenue.log",
+        "target": "business-agency.clients.revenue.log"
+      },
+      {
+        "method": "clients.activity.list",
+        "target": "business-agency.clients.activity.list"
+      },
+      {
+        "method": "clients.activity.log",
+        "target": "business-agency.clients.activity.log"
+      },
+      {
+        "method": "clients.contacts.get",
+        "target": "business-agency.clients.contacts.get"
+      },
+      {
+        "method": "clients.import",
+        "target": "business-agency.clients.import"
+      },
+      {
+        "method": "network.contacts.list",
+        "target": "business-agency.network.contacts.list"
+      },
+      {
+        "method": "network.contacts.get",
+        "target": "business-agency.network.contacts.get"
+      },
+      {
+        "method": "network.contacts.create",
+        "target": "business-agency.network.contacts.create"
+      },
+      {
+        "method": "network.contacts.update",
+        "target": "business-agency.network.contacts.update"
+      },
+      {
+        "method": "network.contacts.delete",
+        "target": "business-agency.network.contacts.delete"
+      },
+      {
+        "method": "network.contacts.promoteClient",
+        "target": "business-agency.network.contacts.promoteClient"
+      },
+      {
+        "method": "network.clients.search",
+        "target": "business-agency.network.clients.search"
+      },
+      {
+        "method": "network.connections.list",
+        "target": "business-agency.network.connections.list"
+      },
+      {
+        "method": "network.connections.create",
+        "target": "business-agency.network.connections.create"
+      },
+      {
+        "method": "network.connections.update",
+        "target": "business-agency.network.connections.update"
+      },
+      {
+        "method": "network.connections.delete",
+        "target": "business-agency.network.connections.delete"
+      },
+      {
+        "method": "network.opportunities.link",
+        "target": "business-agency.network.opportunities.link"
+      },
+      {
+        "method": "network.opportunities.unlink",
+        "target": "business-agency.network.opportunities.unlink"
+      },
+      {
+        "method": "network.graph",
+        "target": "business-agency.network.graph"
+      },
+      {
+        "method": "network.path",
+        "target": "business-agency.network.path"
+      },
+      {
+        "method": "network.context",
+        "target": "business-agency.network.context"
+      },
+      {
+        "method": "network.history",
+        "target": "business-agency.network.history"
+      },
+      {
+        "method": "network.links.list",
+        "target": "business-agency.network.links.list"
+      },
+      {
+        "method": "network.links.add",
+        "target": "business-agency.network.links.add"
+      },
+      {
+        "method": "network.links.remove",
+        "target": "business-agency.network.links.remove"
+      },
+      {
+        "method": "network.links.search",
+        "target": "business-agency.network.links.search"
+      },
+      {
+        "method": "hq.progress.get",
+        "target": "business-agency.hq.progress.get"
+      },
+      {
+        "method": "hq.progress.snapshot",
+        "target": "business-agency.hq.progress.snapshot"
+      },
+      {
+        "method": "hq.settings.set",
+        "target": "business-agency.hq.settings.set"
+      },
+      {
+        "method": "hq.snooze",
+        "target": "business-agency.hq.snooze"
+      },
+      {
+        "method": "hub.autopilot.campaigns.get",
+        "target": "business-agency.hub.autopilot.campaigns.get"
+      },
+      {
+        "method": "hub.autopilot.campaigns.launch",
+        "target": "business-agency.hub.autopilot.campaigns.launch"
+      },
+      {
+        "method": "hub.autopilot.campaigns.list",
+        "target": "business-agency.hub.autopilot.campaigns.list"
+      },
+      {
+        "method": "hub.autopilot.campaigns.pause",
+        "target": "business-agency.hub.autopilot.campaigns.pause"
+      },
+      {
+        "method": "hub.autopilot.campaigns.resume",
+        "target": "business-agency.hub.autopilot.campaigns.resume"
+      },
+      {
+        "method": "hub.autopilot.campaigns.runNow",
+        "target": "business-agency.hub.autopilot.campaigns.runNow"
+      },
+      {
+        "method": "hub.autopilot.campaigns.save",
+        "target": "business-agency.hub.autopilot.campaigns.save"
+      },
+      {
+        "method": "hub.autopilot.campaigns.stop",
+        "target": "business-agency.hub.autopilot.campaigns.stop"
+      },
+      {
+        "method": "hub.autopilot.inbox.list",
+        "target": "business-agency.hub.autopilot.inbox.list"
+      },
+      {
+        "method": "hub.autopilot.inbox.simulate",
+        "target": "business-agency.hub.autopilot.inbox.simulate"
+      },
+      {
+        "method": "hub.autopilot.inbox.update",
+        "target": "business-agency.hub.autopilot.inbox.update"
+      },
+      {
+        "method": "hub.autopilot.kpis",
+        "target": "business-agency.hub.autopilot.kpis"
+      },
+      {
+        "method": "hub.autopilot.messages.approve",
+        "target": "business-agency.hub.autopilot.messages.approve"
+      },
+      {
+        "method": "hub.autopilot.messages.list",
+        "target": "business-agency.hub.autopilot.messages.list"
+      },
+      {
+        "method": "hub.autopilot.settings.get",
+        "target": "business-agency.hub.autopilot.settings.get"
+      },
+      {
+        "method": "hub.autopilot.settings.killSwitch",
+        "target": "business-agency.hub.autopilot.settings.killSwitch"
+      },
+      {
+        "method": "hub.autopilot.timeline",
+        "target": "business-agency.hub.autopilot.timeline"
+      },
+      {
+        "method": "hub.bookings.availability",
+        "target": "business-agency.hub.bookings.availability"
+      },
+      {
+        "method": "hub.bookings.book",
+        "target": "business-agency.hub.bookings.book"
+      },
+      {
+        "method": "hub.bookings.list",
+        "target": "business-agency.hub.bookings.list"
+      },
+      {
+        "method": "hub.clients.get",
+        "target": "business-agency.hub.clients.get"
+      },
+      {
+        "method": "hub.clients.list",
+        "target": "business-agency.hub.clients.list"
+      },
+      {
+        "method": "hub.companies.get",
+        "target": "business-agency.hub.companies.get"
+      },
+      {
+        "method": "hub.companies.list",
+        "target": "business-agency.hub.companies.list"
+      },
+      {
+        "method": "hub.companies.merge",
+        "target": "business-agency.hub.companies.merge"
+      },
+      {
+        "method": "hub.companies.save",
+        "target": "business-agency.hub.companies.save"
+      },
+      {
+        "method": "hub.contacts.bulk",
+        "target": "business-agency.hub.contacts.bulk"
+      },
+      {
+        "method": "hub.contacts.delete",
+        "target": "business-agency.hub.contacts.delete"
+      },
+      {
+        "method": "hub.contacts.duplicates",
+        "target": "business-agency.hub.contacts.duplicates"
+      },
+      {
+        "method": "hub.contacts.get",
+        "target": "business-agency.hub.contacts.get"
+      },
+      {
+        "method": "hub.contacts.list",
+        "target": "business-agency.hub.contacts.list"
+      },
+      {
+        "method": "hub.contacts.merge",
+        "target": "business-agency.hub.contacts.merge"
+      },
+      {
+        "method": "hub.contacts.note",
+        "target": "business-agency.hub.contacts.note"
+      },
+      {
+        "method": "hub.contacts.save",
+        "target": "business-agency.hub.contacts.save"
+      },
+      {
+        "method": "hub.contacts.tag",
+        "target": "business-agency.hub.contacts.tag"
+      },
+      {
+        "method": "hub.deals.delete",
+        "target": "business-agency.hub.deals.delete"
+      },
+      {
+        "method": "hub.deals.get",
+        "target": "business-agency.hub.deals.get"
+      },
+      {
+        "method": "hub.deals.list",
+        "target": "business-agency.hub.deals.list"
+      },
+      {
+        "method": "hub.deals.move",
+        "target": "business-agency.hub.deals.move"
+      },
+      {
+        "method": "hub.deals.save",
+        "target": "business-agency.hub.deals.save"
+      },
+      {
+        "method": "hub.email.campaigns.delete",
+        "target": "business-agency.hub.email.campaigns.delete"
+      },
+      {
+        "method": "hub.email.campaigns.enroll",
+        "target": "business-agency.hub.email.campaigns.enroll"
+      },
+      {
+        "method": "hub.email.campaigns.get",
+        "target": "business-agency.hub.email.campaigns.get"
+      },
+      {
+        "method": "hub.email.campaigns.list",
+        "target": "business-agency.hub.email.campaigns.list"
+      },
+      {
+        "method": "hub.email.campaigns.metrics",
+        "target": "business-agency.hub.email.campaigns.metrics"
+      },
+      {
+        "method": "hub.email.campaigns.pause",
+        "target": "business-agency.hub.email.campaigns.pause"
+      },
+      {
+        "method": "hub.email.campaigns.resume",
+        "target": "business-agency.hub.email.campaigns.resume"
+      },
+      {
+        "method": "hub.email.campaigns.runNow",
+        "target": "business-agency.hub.email.campaigns.runNow"
+      },
+      {
+        "method": "hub.email.campaigns.save",
+        "target": "business-agency.hub.email.campaigns.save"
+      },
+      {
+        "method": "hub.email.campaigns.start",
+        "target": "business-agency.hub.email.campaigns.start"
+      },
+      {
+        "method": "hub.email.campaigns.stop",
+        "target": "business-agency.hub.email.campaigns.stop"
+      },
+      {
+        "method": "hub.email.campaigns.testSend",
+        "target": "business-agency.hub.email.campaigns.testSend"
+      },
+      {
+        "method": "hub.email.segments.delete",
+        "target": "business-agency.hub.email.segments.delete"
+      },
+      {
+        "method": "hub.email.segments.list",
+        "target": "business-agency.hub.email.segments.list"
+      },
+      {
+        "method": "hub.email.segments.preview",
+        "target": "business-agency.hub.email.segments.preview"
+      },
+      {
+        "method": "hub.email.segments.save",
+        "target": "business-agency.hub.email.segments.save"
+      },
+      {
+        "method": "hub.email.sendOne",
+        "target": "business-agency.hub.email.sendOne"
+      },
+      {
+        "method": "hub.email.senders.list",
+        "target": "business-agency.hub.email.senders.list"
+      },
+      {
+        "method": "hub.email.senders.remove",
+        "target": "business-agency.hub.email.senders.remove"
+      },
+      {
+        "method": "hub.email.senders.save",
+        "target": "business-agency.hub.email.senders.save"
+      },
+      {
+        "method": "hub.email.senders.test",
+        "target": "business-agency.hub.email.senders.test"
+      },
+      {
+        "method": "hub.email.settings.get",
+        "target": "business-agency.hub.email.settings.get"
+      },
+      {
+        "method": "hub.email.settings.save",
+        "target": "business-agency.hub.email.settings.save"
+      },
+      {
+        "method": "hub.email.suppressions.add",
+        "target": "business-agency.hub.email.suppressions.add"
+      },
+      {
+        "method": "hub.email.suppressions.import",
+        "target": "business-agency.hub.email.suppressions.import"
+      },
+      {
+        "method": "hub.email.suppressions.list",
+        "target": "business-agency.hub.email.suppressions.list"
+      },
+      {
+        "method": "hub.email.suppressions.remove",
+        "target": "business-agency.hub.email.suppressions.remove"
+      },
+      {
+        "method": "hub.email.templates.delete",
+        "target": "business-agency.hub.email.templates.delete"
+      },
+      {
+        "method": "hub.email.templates.get",
+        "target": "business-agency.hub.email.templates.get"
+      },
+      {
+        "method": "hub.email.templates.list",
+        "target": "business-agency.hub.email.templates.list"
+      },
+      {
+        "method": "hub.email.templates.preview",
+        "target": "business-agency.hub.email.templates.preview"
+      },
+      {
+        "method": "hub.email.templates.save",
+        "target": "business-agency.hub.email.templates.save"
+      },
+      {
+        "method": "hub.imports.commit",
+        "target": "business-agency.hub.imports.commit"
+      },
+      {
+        "method": "hub.imports.get",
+        "target": "business-agency.hub.imports.get"
+      },
+      {
+        "method": "hub.imports.list",
+        "target": "business-agency.hub.imports.list"
+      },
+      {
+        "method": "hub.imports.preview",
+        "target": "business-agency.hub.imports.preview"
+      },
+      {
+        "method": "hub.imports.revalidate",
+        "target": "business-agency.hub.imports.revalidate"
+      },
+      {
+        "method": "hub.imports.undo",
+        "target": "business-agency.hub.imports.undo"
+      },
+      {
+        "method": "hub.intake.lead",
+        "target": "business-agency.hub.intake.lead"
+      },
+      {
+        "method": "hub.leadgen.config.set",
+        "target": "business-agency.hub.leadgen.config.set"
+      },
+      {
+        "method": "hub.leadgen.enrich",
+        "target": "business-agency.hub.leadgen.enrich"
+      },
+      {
+        "method": "hub.leadgen.import",
+        "target": "business-agency.hub.leadgen.import"
+      },
+      {
+        "method": "hub.leadgen.job",
+        "target": "business-agency.hub.leadgen.job"
+      },
+      {
+        "method": "hub.leadgen.jobs",
+        "target": "business-agency.hub.leadgen.jobs"
+      },
+      {
+        "method": "hub.leadgen.providers",
+        "target": "business-agency.hub.leadgen.providers"
+      },
+      {
+        "method": "hub.leadgen.search",
+        "target": "business-agency.hub.leadgen.search"
+      },
+      {
+        "method": "hub.leadgen.verifyEmail",
+        "target": "business-agency.hub.leadgen.verifyEmail"
+      },
+      {
+        "method": "hub.migration.run",
+        "target": "business-agency.hub.migration.run"
+      },
+      {
+        "method": "hub.migration.status",
+        "target": "business-agency.hub.migration.status"
+      },
+      {
+        "method": "hub.offers.catalog",
+        "target": "business-agency.hub.offers.catalog"
+      },
+      {
+        "method": "hub.offers.get",
+        "target": "business-agency.hub.offers.get"
+      },
+      {
+        "method": "hub.offers.handleObjection",
+        "target": "business-agency.hub.offers.handleObjection"
+      },
+      {
+        "method": "hub.offers.list",
+        "target": "business-agency.hub.offers.list"
+      },
+      {
+        "method": "hub.offers.save",
+        "target": "business-agency.hub.offers.save"
+      },
+      {
+        "method": "hub.offers.testPitch",
+        "target": "business-agency.hub.offers.testPitch"
+      },
+      {
+        "method": "hub.overview",
+        "target": "business-agency.hub.overview"
+      },
+      {
+        "method": "hub.pipeline.event",
+        "target": "business-agency.hub.pipeline.event"
+      },
+      {
+        "method": "hub.pipeline.get",
+        "target": "business-agency.hub.pipeline.get"
+      },
+      {
+        "method": "hub.pipeline.metrics",
+        "target": "business-agency.hub.pipeline.metrics"
+      },
+      {
+        "method": "hub.pipeline.saveRules",
+        "target": "business-agency.hub.pipeline.saveRules"
+      },
+      {
+        "method": "hub.pipeline.saveStages",
+        "target": "business-agency.hub.pipeline.saveStages"
+      },
+      {
+        "method": "hub.pipeline.syncReminders",
+        "target": "business-agency.hub.pipeline.syncReminders"
+      },
+      {
+        "method": "hub.revenue.accounts.connect",
+        "target": "business-agency.hub.revenue.accounts.connect"
+      },
+      {
+        "method": "hub.revenue.accounts.discover",
+        "target": "business-agency.hub.revenue.accounts.discover"
+      },
+      {
+        "method": "hub.revenue.accounts.list",
+        "target": "business-agency.hub.revenue.accounts.list"
+      },
+      {
+        "method": "hub.revenue.accounts.remove",
+        "target": "business-agency.hub.revenue.accounts.remove"
+      },
+      {
+        "method": "hub.revenue.accounts.update",
+        "target": "business-agency.hub.revenue.accounts.update"
+      },
+      {
+        "method": "hub.revenue.arAging",
+        "target": "business-agency.hub.revenue.arAging"
+      },
+      {
+        "method": "hub.revenue.invoices.sync",
+        "target": "business-agency.hub.revenue.invoices.sync"
+      },
+      {
+        "method": "hub.revenue.ledger",
+        "target": "business-agency.hub.revenue.ledger"
+      },
+      {
+        "method": "hub.revenue.projectMappings.list",
+        "target": "business-agency.hub.revenue.projectMappings.list"
+      },
+      {
+        "method": "hub.revenue.projectMappings.set",
+        "target": "business-agency.hub.revenue.projectMappings.set"
+      },
+      {
+        "method": "hub.revenue.reconcile",
+        "target": "business-agency.hub.revenue.reconcile"
+      },
+      {
+        "method": "hub.revenue.subscriptions",
+        "target": "business-agency.hub.revenue.subscriptions"
+      },
+      {
+        "method": "hub.revenue.summary",
+        "target": "business-agency.hub.revenue.summary"
+      },
+      {
+        "method": "hub.revenue.sync",
+        "target": "business-agency.hub.revenue.sync"
+      },
+      {
+        "method": "hub.revenue.syncStatus",
+        "target": "business-agency.hub.revenue.syncStatus"
+      },
+      {
+        "method": "hub.settings.get",
+        "target": "business-agency.hub.settings.get"
+      },
+      {
+        "method": "hub.settings.set",
+        "target": "business-agency.hub.settings.set"
+      },
+      {
+        "method": "hub.sources.list",
+        "target": "business-agency.hub.sources.list"
+      },
+      {
+        "method": "hub.tags.list",
+        "target": "business-agency.hub.tags.list"
+      },
+      {
+        "method": "hub.timeline",
+        "target": "business-agency.hub.timeline"
+      },
+      {
+        "method": "hub.tracking.events",
+        "target": "business-agency.hub.tracking.events"
+      },
+      {
+        "method": "hub.tracking.sites.delete",
+        "target": "business-agency.hub.tracking.sites.delete"
+      },
+      {
+        "method": "hub.tracking.sites.list",
+        "target": "business-agency.hub.tracking.sites.list"
+      },
+      {
+        "method": "hub.tracking.sites.save",
+        "target": "business-agency.hub.tracking.sites.save"
+      },
+      {
+        "method": "hub.tracking.snippet",
+        "target": "business-agency.hub.tracking.snippet"
+      },
+      {
+        "method": "hub.tracking.stats",
+        "target": "business-agency.hub.tracking.stats"
+      }
+    ],
+    "http": [
+      "/plugins/business-agency/t/s.js",
+      "/plugins/business-agency/t/c",
+      "/plugins/business-agency/t/o",
+      "/plugins/business-agency/t/k",
+      "/plugins/business-agency/u",
+      "/plugins/business-agency/webhooks/email",
+      "/plugins/business-agency/webhooks/revenue",
+      "/plugins/business-agency/book",
+      "/plugins/business-agency/book/ics"
+    ],
+    "services": [
+      "business-hub"
+    ],
+    "tools": [
+      {
+        "name": "lead_generation",
+        "trust": "write"
+      },
+      {
+        "name": "lead_scrape",
+        "trust": "write"
+      },
+      {
+        "name": "client_contacts",
+        "trust": "read"
+      },
+      {
+        "name": "business_objects",
+        "trust": "write"
+      },
+      {
+        "name": "business_hub",
+        "trust": "write"
+      },
+      {
+        "name": "people_network",
+        "trust": "write"
+      }
+    ],
+    "agents": [
+      "agents/roster.json"
+    ],
+    "cron": [
+      {
+        "id": "agency-operating-loop",
+        "label": "Agency operating loop",
+        "description": "Ticks every agency's workforce (routing, work items, escalations). Seeded by core only while this plugin is on."
+      },
+      {
+        "id": "agency-sop",
+        "label": "Agency SOP schedules",
+        "description": "agency-sop:<slug>:<worker> jobs created from agency SOPs."
+      },
+      {
+        "id": "ceo-hourly-insights",
+        "label": "CEO hourly insights report",
+        "description": "Hourly CEO report."
+      },
+      {
+        "id": "oversight-client-snapshot",
+        "label": "Weekly client snapshot",
+        "description": "Per-client progress, last touch and next deliverable (oversight report)."
+      }
+    ],
+    "mapRoom": {
+      "title": "Agency Boardroom",
+      "theme": "boardroom",
+      "size": "L",
+      "placement": "south"
+    },
+    "selfAuthHttp": [
+      "/plugins/business-agency/t/s.js",
+      "/plugins/business-agency/t/c",
+      "/plugins/business-agency/t/o",
+      "/plugins/business-agency/t/k",
+      "/plugins/business-agency/u",
+      "/plugins/business-agency/webhooks/email",
+      "/plugins/business-agency/webhooks/revenue",
+      "/plugins/business-agency/book",
+      "/plugins/business-agency/book/ics"
+    ]
+  },
+  "optionalPlugins": [
+    "products"
+  ],
+  "permissions": {
+    "network": [
+      "api.whop.com (optional key)",
+      "api.stripe.com (optional key)",
+      "connect.squareup.com (optional key)",
+      "api.notion.com (only when a Notion sync is configured)",
+      "api.netlify.com (lead-qualifier forms, only when connected)"
+    ],
+    "fs": [
+      "<stateDir>/agency-operations/agency.db, business.json, business/income.json (existing paths, unchanged)",
+      "<stateDir>/opportunity.db, decision.db, risk.db, commitment.db, person.db, hq-progress.json (existing paths, unchanged)",
+      "<stateDir>/funnels/, campaigns/, lead-qualifier.json (existing paths, unchanged)",
+      "<stateDir>/plugin-data/business-agency"
+    ],
+    "exec": false,
+    "secrets": [
+      "whopApiKey",
+      "stripeSecretKey",
+      "squareAccessToken",
+      "WHOP_API_KEY",
+      "STRIPE_API_KEY",
+      "SQUARE_API_KEY"
+    ],
+    "channels": [],
+    "credits": false
+  },
+  "appearance": {
+    "accent": "token:primary",
+    "tint": "none",
+    "tintStrength": 0.06,
+    "density": "comfortable",
+    "fontScale": 1,
+    "icon": "briefcase",
+    "monogram": "BA"
+  },
+  "listing": {
+    "tagline": "Run the business side of your AI OS — HQ, command center, clients, pipeline and agencies in one place.",
+    "description": "**Business & Agency** turns InfiniBot into the operating system for a business or an agency.\n\n- **Business HQ** — today's focus, decision-ready items and progress across your whole business.\n- **Command** — executive and operations views, the daily agency board, agencies and their topology.\n- **Clients** — a CRM with invoicing and payment links.\n- **Sales Pipeline** — leads moving through your stages to won deals.\n- **Register** — opportunities, decisions, risks, commitments and people.\n- **Leads & Funnels** — lead capture, the qualifier, funnels and campaigns.\n- **Business settings** — your business profile and income sync (Whop, Stripe, Square keys are write-only settings).\n- **Agency selector** in the top bar, plus the client-director, outreach, ledger, scout, briefer and monitor agents.\n\nWorks with the **Products** plugin when it is on (product cards on Business HQ). Turning the plugin off hides every page, the agency selector, the business agents and the business schedules; your data stays exactly where it is.",
+    "category": "apps",
+    "tags": [
+      "business",
+      "agency",
+      "crm",
+      "clients",
+      "pipeline",
+      "invoicing",
+      "command-center"
+    ],
+    "cover": "assets/cover.svg",
+    "icon": "assets/icon.svg",
+    "screenshots": [
+      {
+        "src": "assets/shot-hq.webp",
+        "caption": "Business HQ — today's focus and progress"
+      },
+      {
+        "src": "assets/shot-clients.webp",
+        "caption": "Clients — CRM with invoicing and payment links"
+      },
+      {
+        "src": "assets/shot-command.webp",
+        "caption": "Command — executive view across the business"
+      }
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  }
+}

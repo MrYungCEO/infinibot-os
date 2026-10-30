@@ -1,0 +1,394 @@
+{
+  "manifestVersion": 2,
+  "id": "robovoice",
+  "name": "Robovoice",
+  "version": "2026.10.4",
+  "minHostVersion": "2026.6.30",
+  "publisher": "infinibot",
+  "license": "FSL-1.1-ALv2",
+  "description": "Power InfiniBot's voice with Robovoice: link this install to a Robovoice org (it becomes a location), give agents Robovoice characters, and hold voice calls — self-hosted or robovoice.io. Optional and free; local voice stays the default.",
+  "listing": {
+    "tagline": "Give your agents a voice — Robovoice characters, pipelines and live calls.",
+    "description": "**Robovoice** plugs into InfiniBot's voice layer as a voice provider.\n\n- **Cloud voice option** — InfiniBot's voice runs locally by default; choose *Cloud voice (Robovoice)* in Voice settings when you want studio voices or a device can't run voice locally (your self-hosted Robovoice stack or Robovoice cloud). Free, no credits.\n- **Character mapping** — give each InfiniBot agent its own Robovoice character, with a default for the rest.\n- **Location pipeline** — edit your Robovoice location's speech-to-text → model → text-to-speech pipeline and per-agent overrides from InfiniBot, with inherited vs overridden values shown.\n- **InfiniBot answers** — InfiniBot agents become Robovoice location agents; the model step is InfiniBot itself (a gateway agent or a CLI agent), streamed back for low-latency speech.\n- **Free cloud voice** — no credits or top-ups. If Robovoice is busy, one click switches you back to local voice.\n- **Agent tools over MCP** — Robovoice agents can call a curated set of InfiniBot tools at `/plugins/robovoice/mcp`.\n\nDevice keys and tokens are stored write-only.",
+    "category": "apps",
+    "tags": [
+      "voice",
+      "livekit",
+      "characters",
+      "speech"
+    ],
+    "cover": "assets/cover.svg",
+    "icon": "assets/icon.svg",
+    "screenshots": [
+      {
+        "src": "assets/shot-1.webp",
+        "caption": "Pick the voice provider for InfiniBot"
+      },
+      {
+        "src": "assets/shot-2.webp",
+        "caption": "Connect a self-hosted stack or Robovoice cloud"
+      }
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "engines": {
+    "infinibot-plugin-api": "^2.0.0"
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "deployment": {
+        "type": "string",
+        "enum": [
+          "self-hosted",
+          "cloud"
+        ]
+      },
+      "baseUrl": {
+        "type": "string"
+      },
+      "deviceId": {
+        "type": "string"
+      },
+      "locationId": {
+        "type": "string"
+      },
+      "defaultCharacterId": {
+        "type": "string"
+      },
+      "expressive": {
+        "type": "boolean"
+      },
+      "deviceKey": {
+        "type": "string",
+        "writeOnly": true,
+        "description": "Edge device key (secret). Stored write-only; the Robovoice page and env ROBOVOICE_DEVICE_KEY also work."
+      },
+      "edgeToken": {
+        "type": "string",
+        "writeOnly": true,
+        "description": "Edge token (secret). Env ROBOVOICE_EDGE_TOKEN also works."
+      },
+      "mcpPublicUrl": {
+        "type": "string"
+      }
+    }
+  },
+  "uiHints": {
+    "baseUrl": {
+      "label": "Robovoice URL",
+      "placeholder": "https://robovoice.io or http://<host>:3011"
+    },
+    "deviceId": {
+      "label": "Edge device id"
+    },
+    "deployment": {
+      "label": "Deployment"
+    },
+    "locationId": {
+      "label": "Location id",
+      "advanced": true
+    },
+    "defaultCharacterId": {
+      "label": "Default character id"
+    },
+    "expressive": {
+      "label": "Expressive voice tier"
+    },
+    "deviceKey": {
+      "label": "Device key",
+      "sensitive": true
+    },
+    "edgeToken": {
+      "label": "Edge token",
+      "sensitive": true
+    },
+    "mcpPublicUrl": {
+      "label": "Public gateway URL (agent tools + InfiniBot voice LLM)",
+      "placeholder": "https://<host>.ts.net"
+    }
+  },
+  "contributes": {
+    "learn": "learn.json",
+    "nav": [
+      {
+        "tab": "robovoice",
+        "label": "Robovoice",
+        "icon": "mic",
+        "group": "Settings"
+      }
+    ],
+    "pages": [
+      {
+        "tab": "robovoice",
+        "route": "/robovoice",
+        "builtin": "robovoice",
+        "title": "Robovoice"
+      }
+    ],
+    "rpc": [
+      {
+        "method": "robovoice.status",
+        "scope": "read"
+      },
+      {
+        "method": "robovoice.settings.get",
+        "scope": "read"
+      },
+      {
+        "method": "robovoice.settings.set",
+        "scope": "admin"
+      },
+      {
+        "method": "robovoice.secrets.set",
+        "scope": "admin"
+      },
+      {
+        "method": "robovoice.test",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "robovoice.characters.list",
+        "scope": "read",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "robovoice.mapping.set",
+        "scope": "write"
+      },
+      {
+        "method": "robovoice.mapping.resolve",
+        "scope": "read"
+      },
+      {
+        "method": "robovoice.pipeline.get",
+        "scope": "read",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "robovoice.credits.get",
+        "scope": "read",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "robovoice.config.validate",
+        "scope": "write",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "robovoice.link.status",
+        "scope": "read"
+      },
+      {
+        "method": "robovoice.link.start",
+        "scope": "admin"
+      },
+      {
+        "method": "robovoice.link.cancel",
+        "scope": "admin"
+      },
+      {
+        "method": "robovoice.link.sync",
+        "scope": "admin"
+      },
+      {
+        "method": "robovoice.unlink",
+        "scope": "admin"
+      },
+      {
+        "method": "robovoice.logout",
+        "scope": "admin"
+      },
+      {
+        "method": "robovoice.agents.list",
+        "scope": "read"
+      },
+      {
+        "method": "robovoice.agents.link",
+        "scope": "admin"
+      },
+      {
+        "method": "robovoice.agents.unlink",
+        "scope": "admin"
+      },
+      {
+        "method": "robovoice.call.start",
+        "scope": "write"
+      },
+      {
+        "method": "robovoice.call.status",
+        "scope": "read"
+      },
+      {
+        "method": "robovoice.call.end",
+        "scope": "write"
+      },
+      {
+        "method": "robovoice.account.get",
+        "scope": "read",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "robovoice.location.select",
+        "scope": "admin"
+      },
+      {
+        "method": "robovoice.pipeline.config.get",
+        "scope": "read",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "robovoice.pipeline.catalog.get",
+        "scope": "read",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "robovoice.pipeline.config.set",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "robovoice.voiceAgents.list",
+        "scope": "read"
+      },
+      {
+        "method": "robovoice.voiceAgent.set",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "robovoice.voiceLlm.status",
+        "scope": "read"
+      },
+      {
+        "method": "robovoice.voiceLlm.set",
+        "scope": "admin"
+      },
+      {
+        "method": "robovoice.voiceLlm.rotate",
+        "scope": "admin",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "robovoice.voiceLlm.test",
+        "scope": "admin"
+      },
+      {
+        "method": "robovoice.speech.catalog",
+        "scope": "read",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "robovoice.speech.estimate",
+        "scope": "read",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "robovoice.speech.tts",
+        "scope": "write",
+        "requires": [
+          "network"
+        ]
+      },
+      {
+        "method": "robovoice.speech.stt",
+        "scope": "write",
+        "requires": [
+          "network"
+        ]
+      }
+    ],
+    "http": [
+      {
+        "path": "/plugins/robovoice/connection-details",
+        "requires": [
+          "network"
+        ]
+      },
+      "/plugins/robovoice/mcp",
+      "/plugins/robovoice/agent-mcp",
+      "/plugins/robovoice/voice-llm/v1/chat/completions"
+    ],
+    "tools": [
+      {
+        "name": "robovoice_call",
+        "trust": "write",
+        "requires": [
+          "network"
+        ]
+      }
+    ],
+    "services": [],
+    "voiceProviders": [
+      "robovoice"
+    ],
+    "mapRoom": {
+      "title": "Robovoice Studio",
+      "theme": "voice-studio",
+      "size": "M",
+      "placement": "east"
+    },
+    "selfAuthHttp": [
+      "/plugins/robovoice/agent-mcp",
+      "/plugins/robovoice/voice-llm/v1/chat/completions"
+    ]
+  },
+  "permissions": {
+    "network": [
+      "<configured Robovoice URL>",
+      "https://robovoice.io"
+    ],
+    "fs": [
+      "<stateDir>/plugin-data/robovoice",
+      "<sharedDir>/plugin-data/robovoice"
+    ],
+    "exec": false,
+    "secrets": [
+      "robovoice.deviceKey",
+      "robovoice.edgeToken",
+      "robovoice.mcpTokens",
+      "robovoice.voiceLlmTokens"
+    ],
+    "channels": [],
+    "credits": false
+  },
+  "appearance": {
+    "accent": "token:accent",
+    "tint": "none",
+    "tintStrength": 0.06,
+    "density": "comfortable",
+    "fontScale": 1,
+    "icon": "mic",
+    "monogram": "RV"
+  }
+}

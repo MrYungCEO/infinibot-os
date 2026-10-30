@@ -1,0 +1,108 @@
+/* ============================================
+   Scroll-Driven Animations & Effects
+   ============================================ */
+
+/* --- Scroll Progress Bar --- */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-accent-2));
+  z-index: 999;
+  width: 0%;
+  transition: width 100ms linear;
+}
+
+/* --- Scroll Reveal (fade-in on scroll) --- */
+.scroll-reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.scroll-reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered children — add data-stagger to parent */
+[data-stagger] .scroll-reveal:nth-child(1) { transition-delay: 0ms; }
+[data-stagger] .scroll-reveal:nth-child(2) { transition-delay: 100ms; }
+[data-stagger] .scroll-reveal:nth-child(3) { transition-delay: 200ms; }
+[data-stagger] .scroll-reveal:nth-child(4) { transition-delay: 300ms; }
+[data-stagger] .scroll-reveal:nth-child(5) { transition-delay: 400ms; }
+[data-stagger] .scroll-reveal:nth-child(6) { transition-delay: 500ms; }
+
+/* Direction variants */
+.scroll-reveal.from-left {
+  transform: translateX(-40px);
+}
+.scroll-reveal.from-left.visible {
+  transform: translateX(0);
+}
+
+.scroll-reveal.from-right {
+  transform: translateX(40px);
+}
+.scroll-reveal.from-right.visible {
+  transform: translateX(0);
+}
+
+.scroll-reveal.from-scale {
+  transform: scale(0.9);
+}
+.scroll-reveal.from-scale.visible {
+  transform: scale(1);
+}
+
+/* --- Parallax --- */
+[data-parallax] {
+  will-change: transform;
+  transition: transform 50ms linear;
+}
+
+/* --- Sticky Section --- */
+.scroll-sticky-section {
+  position: sticky;
+  top: 0;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* --- Horizontal Scroll Wrapper --- */
+.horizontal-scroll-wrapper {
+  overflow: hidden;
+  position: relative;
+}
+
+.horizontal-scroll-track {
+  display: flex;
+  gap: var(--space-lg);
+  will-change: transform;
+  transition: transform 100ms ease-out;
+}
+
+.horizontal-scroll-track > * {
+  min-width: 300px;
+  flex-shrink: 0;
+}
+
+/* --- Scroll Counter --- */
+.scroll-counter {
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- Reduce motion preference --- */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+  [data-parallax] { transform: none !important; }
+  .scroll-progress { transition: none; }
+}

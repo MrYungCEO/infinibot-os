@@ -1,0 +1,209 @@
+{
+  "manifestVersion": 2,
+  "id": "part-scan",
+  "rpcNamespace": "partscan",
+  "name": "Part Scan",
+  "version": "2026.9.28",
+  "minHostVersion": "2026.6.30",
+  "publisher": "infinibot",
+  "license": "FSL-1.1-ALv2",
+  "description": "Capture a part from a camera, reconstruct a metric color-textured 3D model, and inspect or export it in a native 3D viewer.",
+  "engines": {
+    "infinibot-plugin-api": "^2.0.0"
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {
+      "workerMode": {
+        "type": "string",
+        "enum": [
+          "docker",
+          "local-cli",
+          "off"
+        ],
+        "default": "off"
+      },
+      "workerImage": {
+        "type": "string",
+        "default": "infinibot/part-scan-worker:cuda12.8"
+      },
+      "gpu": {
+        "type": "boolean",
+        "default": true
+      },
+      "markerSquareMm": {
+        "type": "number",
+        "minimum": 1,
+        "maximum": 200,
+        "default": 20
+      },
+      "markerDictionary": {
+        "type": "string",
+        "default": "DICT_5X5_100"
+      },
+      "boardCols": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 12,
+        "default": 5
+      },
+      "boardRows": {
+        "type": "integer",
+        "minimum": 2,
+        "maximum": 16,
+        "default": 7
+      },
+      "quality": {
+        "type": "string",
+        "enum": [
+          "fast",
+          "balanced",
+          "high"
+        ],
+        "default": "balanced"
+      }
+    }
+  },
+  "uiHints": {
+    "workerMode": {
+      "label": "Worker mode"
+    },
+    "workerImage": {
+      "label": "Docker worker image",
+      "advanced": true
+    },
+    "gpu": {
+      "label": "Use NVIDIA GPU"
+    },
+    "markerSquareMm": {
+      "label": "ChArUco square size (mm)"
+    },
+    "markerDictionary": {
+      "label": "ArUco dictionary",
+      "advanced": true
+    },
+    "boardCols": {
+      "label": "Board columns"
+    },
+    "boardRows": {
+      "label": "Board rows"
+    },
+    "quality": {
+      "label": "Reconstruction quality"
+    }
+  },
+  "contributes": {
+    "nav": [
+      {
+        "tab": "part-scan",
+        "label": "Part Scan",
+        "icon": "camera",
+        "group": "Tools"
+      }
+    ],
+    "pages": [
+      {
+        "tab": "part-scan",
+        "route": "/part-scan",
+        "builtin": "part-scan",
+        "title": "Part Scan"
+      }
+    ],
+    "rpc": [
+      {
+        "method": "partscan.create",
+        "scope": "write"
+      },
+      {
+        "method": "partscan.list",
+        "scope": "read"
+      },
+      {
+        "method": "partscan.get",
+        "scope": "read"
+      },
+      {
+        "method": "partscan.delete",
+        "scope": "write"
+      },
+      {
+        "method": "partscan.uploadImage",
+        "scope": "write"
+      },
+      {
+        "method": "partscan.start",
+        "scope": "write"
+      },
+      {
+        "method": "partscan.status",
+        "scope": "read"
+      },
+      {
+        "method": "partscan.cancel",
+        "scope": "write"
+      },
+      {
+        "method": "partscan.fileUrl",
+        "scope": "read"
+      }
+    ],
+    "http": [
+      "/plugins/part-scan/file",
+      "/plugins/part-scan/sample.glb",
+      "/plugins/part-scan/board.svg",
+      "/plugins/part-scan/board.pdf"
+    ],
+    "services": [
+      "part-scan-worker"
+    ],
+    "tools": [
+      {
+        "name": "part_scan",
+        "trust": "write"
+      }
+    ],
+    "mapRoom": {
+      "title": "Part Scan Lab",
+      "theme": "generic",
+      "size": "S",
+      "placement": "auto"
+    }
+  },
+  "permissions": {
+    "network": [],
+    "fs": [
+      "<stateDir>/plugin-data/part-scan"
+    ],
+    "exec": true,
+    "secrets": [],
+    "channels": [],
+    "credits": false
+  },
+  "appearance": {
+    "accent": "token:accent",
+    "tint": "none",
+    "tintStrength": 0.06,
+    "density": "comfortable",
+    "fontScale": 1,
+    "icon": "camera",
+    "monogram": "PS"
+  },
+  "listing": {
+    "tagline": "Scan a part with your camera and get a measured, textured 3D model.",
+    "description": "**Part Scan** turns photos of a physical part into a metric, color-textured 3D model.\n\n- **Capture** — guided camera capture on a printed ChArUco turntable mat, which sets the real-world scale.\n- **Reconstruct** — COLMAP + OpenMVS photogrammetry in a GPU worker container.\n- **Inspect** — a native 3D viewer with dimension measurement in millimetres.\n- **Export** — GLB and STL downloads.\n- **Agent tool** — agents can list scans and read their measurements.\n\n**Requirements:** reconstruction runs in the Part Scan worker (Docker, NVIDIA GPU with CUDA 12.8). The worker is off by default; turn it on in the plugin settings on a machine with a supported GPU. Hosted cloud workspaces have no GPU, so reconstruction needs a self-hosted install.",
+    "category": "apps",
+    "tags": [
+      "3d",
+      "photogrammetry",
+      "scanning",
+      "measurement",
+      "cad"
+    ],
+    "cover": "assets/cover.svg",
+    "icon": "assets/icon.svg",
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  }
+}

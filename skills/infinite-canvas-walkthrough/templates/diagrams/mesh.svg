@@ -1,0 +1,12 @@
+<svg viewBox="0 0 440 220">
+  <rect x="14" y="14" width="412" height="192" rx="14" fill="rgba(95,176,255,.05)" stroke="rgba(95,176,255,.25)"/>
+  <text x="30" y="36" font-family="Segoe UI" font-size="10" fill="#5fb0ff" letter-spacing="2">ACTIVITY MESH</text>
+  <g font-family="Segoe UI" font-size="9" fill="#aab2cc">
+    <rect x="40" y="60" width="90" height="40" rx="8" fill="rgba(212,175,55,.08)" stroke="rgba(212,175,55,.3)"/><text x="85" y="84" text-anchor="middle" fill="#f4d77a">tool sector</text>
+    <rect x="310" y="60" width="90" height="40" rx="8" fill="rgba(155,140,255,.08)" stroke="rgba(155,140,255,.3)"/><text x="355" y="84" text-anchor="middle" fill="#c9bfff">conduit →node</text>
+    <rect x="175" y="150" width="90" height="38" rx="8" fill="rgba(127,212,200,.08)" stroke="rgba(127,212,200,.3)"/><text x="220" y="173" text-anchor="middle" fill="#7fd4c8">concourse · idle</text>
+  </g>
+  <circle r="5" fill="#f4d77a"><animateMotion path="M220,110 L85,80 L220,110 L355,80 L220,110 L220,169" dur="5s" repeatCount="indefinite"/></circle>
+  <circle cx="220" cy="110" r="9" fill="rgba(244,215,122,.3)" stroke="#f4d77a"/>
+  <line x1="355" y1="80" x2="395" y2="60" stroke="#9b8cff" stroke-dasharray="4 4"><animate attributeName="stroke-dashoffset" from="0" to="-30" dur="1.2s" repeatCount="indefinite"/></line>
+</svg>

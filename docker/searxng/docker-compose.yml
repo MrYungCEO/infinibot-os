@@ -1,0 +1,37 @@
+# Local SearXNG for Secure Mode research (docs/security/secure-mode.md).
+#
+# Bound to 127.0.0.1 only: the gateway is the only client. SearXNG forwards
+# the (already sanitized) query text to public search engines; it keeps no
+# query log, sets no cookies on the engines and adds no tracking.
+#
+#   docker compose -f docker/searxng/docker-compose.yml up -d
+#   curl -s 'http://127.0.0.1:8888/search?q=test&format=json' | head -c 200
+#   curl -s http://127.0.0.1:8888/healthz        # -> OK
+#
+# Then (optional, this is the default):
+#   secureMode.research.searxngUrl = "http://127.0.0.1:8888"
+name: infinibot-searxng
+services:
+  searxng:
+    image: docker.io/searxng/searxng:latest
+    container_name: infinibot-searxng
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8888:8080"
+    environment:
+      SEARXNG_BASE_URL: "http://127.0.0.1:8888/"
+      # Overrides server.secret_key in settings.yml. Any random string works;
+      # docker compose reads it from the environment or ./.env.
+      SEARXNG_SECRET: "${SEARXNG_SECRET:-change-me-local-only}"
+    volumes:
+      - ./settings.yml:/etc/searxng/settings.yml:ro
+    cap_drop: [ALL]
+    cap_add: [CHOWN, SETGID, SETUID]
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:8080/healthz || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    logging:
+      driver: json-file
+      options: { max-size: "1m", max-file: "1" }

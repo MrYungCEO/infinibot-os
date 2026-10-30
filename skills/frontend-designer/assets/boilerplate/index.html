@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Your site description here">
+  
+  <!-- Open Graph -->
+  <meta property="og:title" content="Site Title">
+  <meta property="og:description" content="Site description">
+  <meta property="og:image" content="/og-image.png">
+  <meta property="og:type" content="website">
+  
+  <title>Site Title</title>
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- Styles -->
+  <link rel="stylesheet" href="css/reset.css">
+  <link rel="stylesheet" href="css/tokens.css">
+  <link rel="stylesheet" href="css/components.css">
+  
+  <!-- Tailwind CDN (optional - remove if using build) -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+          },
+        },
+      },
+    }
+  </script>
+</head>
+<body class="font-sans antialiased text-gray-900 bg-white">
+  
+  <!-- Navigation -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-white/80 backdrop-blur-md border-b border-gray-100">
+    <nav class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex items-center justify-between h-16">
+        <!-- Logo -->
+        <a href="/" class="flex items-center gap-2 font-bold text-xl">
+          <span class="text-blue-600">●</span>
+          <span>Brand</span>
+        </a>
+        
+        <!-- Desktop Nav -->
+        <div class="hidden md:flex items-center gap-8">
+          <a href="#features" class="text-gray-600 hover:text-gray-900 transition-colors">Features</a>
+          <a href="#pricing" class="text-gray-600 hover:text-gray-900 transition-colors">Pricing</a>
+          <a href="#about" class="text-gray-600 hover:text-gray-900 transition-colors">About</a>
+          <a href="#contact" class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
+            Get Started
+          </a>
+        </div>
+        
+        <!-- Mobile Menu Button -->
+        <button class="md:hidden p-2" id="mobile-menu-btn" aria-label="Toggle menu">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+          </svg>
+        </button>
+      </div>
+    </nav>
+    
+    <!-- Mobile Menu -->
+    <div class="hidden md:hidden bg-white border-t border-gray-100" id="mobile-menu">
+      <div class="px-4 py-4 space-y-3">
+        <a href="#features" class="block py-2 text-gray-600 hover:text-gray-900">Features</a>
+        <a href="#pricing" class="block py-2 text-gray-600 hover:text-gray-900">Pricing</a>
+        <a href="#about" class="block py-2 text-gray-600 hover:text-gray-900">About</a>
+        <a href="#contact" class="block py-2 px-4 bg-blue-600 text-white text-center rounded-lg">Get Started</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero Section -->
+    <section class="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-4xl mx-auto text-center">
+        <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight text-gray-900 scroll-reveal">
+          Your Headline Goes Here
+        </h1>
+        <p class="mt-6 text-xl text-gray-600 max-w-2xl mx-auto scroll-reveal">
+          A compelling subtitle that explains your value proposition in one or two sentences.
+        </p>
+        <div class="mt-10 flex flex-col sm:flex-row gap-4 justify-center scroll-reveal">
+          <a href="#" class="px-8 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-all hover:scale-105 shadow-lg shadow-blue-500/25">
+            Get Started Free
+          </a>
+          <a href="#" class="px-8 py-3 bg-gray-100 text-gray-900 font-medium rounded-lg hover:bg-gray-200 transition-colors">
+            Learn More →
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features Section -->
+    <section id="features" class="py-20 px-4 sm:px-6 lg:px-8 bg-gray-50">
+      <div class="max-w-7xl mx-auto">
+        <div class="text-center mb-16">
+          <h2 class="text-3xl sm:text-4xl font-bold text-gray-900 scroll-reveal">Features</h2>
+          <p class="mt-4 text-lg text-gray-600 scroll-reveal">Everything you need to succeed</p>
+        </div>
+        
+        <div class="grid md:grid-cols-3 gap-8">
+          <!-- Feature Card -->
+          <div class="p-6 bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 scroll-reveal">
+            <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-blue-100 text-blue-600">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+              </svg>
+            </div>
+            <h3 class="mt-4 text-lg font-semibold text-gray-900">Feature One</h3>
+            <p class="mt-2 text-gray-600">Description of this amazing feature and how it helps users.</p>
+          </div>
+          
+          <!-- Feature Card -->
+          <div class="p-6 bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 scroll-reveal">
+            <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-green-100 text-green-600">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+              </svg>
+            </div>
+            <h3 class="mt-4 text-lg font-semibold text-gray-900">Feature Two</h3>
+            <p class="mt-2 text-gray-600">Description of this amazing feature and how it helps users.</p>
+          </div>
+          
+          <!-- Feature Card -->
+          <div class="p-6 bg-white rounded-2xl shadow-sm hover:shadow-xl transition-all duration-300 scroll-reveal">
+            <div class="w-12 h-12 flex items-center justify-center rounded-xl bg-purple-100 text-purple-600">
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100-4m0 4v2m0-6V4"/>
+              </svg>
+            </div>
+            <h3 class="mt-4 text-lg font-semibold text-gray-900">Feature Three</h3>
+            <p class="mt-2 text-gray-600">Description of this amazing feature and how it helps users.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="py-20 px-4 sm:px-6 lg:px-8 bg-gradient-to-r from-blue-600 to-blue-700">
+      <div class="max-w-4xl mx-auto text-center">
+        <h2 class="text-3xl sm:text-4xl font-bold text-white scroll-reveal">Ready to get started?</h2>
+        <p class="mt-4 text-xl text-blue-100 scroll-reveal">Join thousands of happy customers today.</p>
+        <a href="#" class="mt-8 inline-block px-8 py-3 bg-white text-blue-600 font-medium rounded-lg hover:bg-gray-100 transition-colors scroll-reveal">
+          Start Free Trial
+        </a>
+      </div>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="py-12 px-4 sm:px-6 lg:px-8 bg-gray-900 text-gray-400">
+    <div class="max-w-7xl mx-auto">
+      <div class="grid md:grid-cols-4 gap-8">
+        <div>
+          <a href="/" class="flex items-center gap-2 font-bold text-xl text-white">
+            <span class="text-blue-500">●</span>
+            <span>Brand</span>
+          </a>
+          <p class="mt-4 text-sm">Making the world a better place through quality products.</p>
+        </div>
+        <div>
+          <h4 class="font-semibold text-white mb-4">Product</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="#" class="hover:text-white transition-colors">Features</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Pricing</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Integrations</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold text-white mb-4">Company</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="#" class="hover:text-white transition-colors">About</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Blog</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Careers</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4 class="font-semibold text-white mb-4">Legal</h4>
+          <ul class="space-y-2 text-sm">
+            <li><a href="#" class="hover:text-white transition-colors">Privacy</a></li>
+            <li><a href="#" class="hover:text-white transition-colors">Terms</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="mt-12 pt-8 border-t border-gray-800 text-sm text-center">
+        © 2026 Brand. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <!-- Scripts -->
+  <script src="js/main.js"></script>
+</body>
+</html>

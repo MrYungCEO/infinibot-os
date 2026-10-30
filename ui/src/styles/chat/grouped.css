@@ -1,0 +1,597 @@
+/* =============================================
+   GROUPED CHAT LAYOUT (Slack-style)
+   ============================================= */
+
+/* Chat Group Layout - default (assistant/other on left) */
+.chat-group {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  margin-left: 4px;
+  margin-right: 16px;
+}
+
+/* User messages on right */
+.chat-group.user {
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+}
+
+.chat-group-messages {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  max-width: min(900px, calc(100% - 60px));
+}
+
+/* User messages align content right */
+.chat-group.user .chat-group-messages {
+  align-items: flex-end;
+}
+
+.chat-group.user .chat-group-footer {
+  justify-content: flex-end;
+}
+
+/* Footer at bottom of message group (role + time) */
+.chat-group-footer {
+  display: flex;
+  gap: 8px;
+  align-items: baseline;
+  margin-top: 6px;
+}
+
+.chat-sender-name {
+  font-weight: 500;
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.chat-group-timestamp {
+  font-size: 11px;
+  color: var(--muted);
+  opacity: 0.7;
+}
+
+/* Avatar Styles - Hexagonal Tech */
+.chat-avatar {
+  width: 36px;
+  height: 36px;
+  /* Hexagonal clip path */
+  clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
+  background: var(--panel-strong);
+  display: grid;
+  place-items: center;
+  font-weight: 700;
+  font-size: 14px;
+  flex-shrink: 0;
+  align-self: flex-start;
+  /* Align top */
+  margin-top: 4px;
+  border: 1px solid color-mix(in srgb, var(--g-primary) 20%, transparent);
+}
+
+.chat-avatar.user {
+  background: color-mix(in srgb, var(--g-primary) 10%, transparent);
+  color: var(--accent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--g-primary) 20%, transparent);
+}
+
+.chat-avatar.assistant {
+  background: rgba(0, 255, 0, 0.1);
+  color: #0f0;
+  border-color: rgba(0, 255, 0, 0.3);
+  box-shadow: 0 0 10px rgba(0, 255, 0, 0.1);
+}
+
+.chat-avatar.tool {
+  background: rgba(0, 255, 255, 0.1);
+  color: #0ff;
+  border-color: rgba(0, 255, 255, 0.3);
+}
+
+/* Image avatar support */
+img.chat-avatar {
+  display: block;
+  object-fit: cover;
+  object-position: center;
+}
+
+/* Minimal Terminal Bubble Design */
+.chat-bubble {
+  position: relative;
+  display: inline-block;
+  border: none;
+  background: transparent;
+  /* No bubble background */
+  padding: 4px 0;
+  max-width: 100%;
+  word-wrap: break-word;
+  font-family: var(--mono);
+  /* Terminal font */
+  color: var(--text-strong);
+}
+
+/* User Bubble - Right aligned, gold text */
+/* User Bubble - Right aligned container, but LEFT aligned text for readability */
+.chat-group.user .chat-bubble {
+  color: var(--accent);
+  text-shadow: 0 0 2px color-mix(in srgb, var(--g-primary) 30%, transparent);
+  background: transparent;
+  text-align: left;
+  /* FIX: Keep text readable */
+}
+
+/* Assistant Bubble - Green/Terminal text */
+.chat-group:not(.user) .chat-bubble {
+  color: #e4e4e7;
+  text-shadow: 0 0 2px rgba(255, 255, 255, 0.1);
+}
+
+/* Streaming animation - Blinking cursor at end */
+.chat-bubble.streaming::after {
+  content: "▋";
+  display: inline-block;
+  color: var(--accent);
+  animation: blink 1s step-end infinite;
+  margin-left: 4px;
+  vertical-align: middle;
+}
+
+@keyframes blink {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0;
+  }
+}
+
+.chat-bubble.fade-in {
+  animation: fade-in 200ms ease-out;
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* =============================================
+   MESSAGE ACTION BUTTONS (Copy + Save overlays)
+   ============================================= */
+
+/* Action buttons container — floating overlay on assistant messages */
+.chat-bubble-actions {
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  display: flex;
+  gap: 4px;
+  opacity: 0.4;
+  transition: opacity 0.2s, transform 0.15s;
+  z-index: 20;
+  transform: translateY(0);
+}
+
+/* Show buttons on hover with full opacity */
+.chat-bubble:hover .chat-bubble-actions {
+  opacity: 1;
+}
+
+/* Also show when any button is focused */
+.chat-bubble-actions:focus-within {
+  opacity: 1;
+}
+
+/* Base button style for both copy and save */
+.chat-copy-btn,
+.chat-save-btn {
+  background: rgba(20, 20, 20, 0.85);
+  color: #888;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.chat-copy-btn:hover,
+.chat-save-btn:hover {
+  background: rgba(30, 30, 30, 0.95);
+  color: var(--c-accent, var(--g-primary));
+  border-color: var(--c-accent, var(--g-primary));
+  transform: scale(1.05);
+  box-shadow: 0 0 12px color-mix(in srgb, var(--g-primary) 30%, transparent);
+}
+
+.chat-copy-btn:active,
+.chat-save-btn:active {
+  transform: scale(0.95);
+}
+
+/* Copy button specific */
+.chat-copy-btn__icon {
+  display: flex;
+  position: relative;
+  width: 14px;
+  height: 14px;
+}
+
+.chat-copy-btn__icon-copy,
+.chat-copy-btn__icon-check {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.chat-copy-btn__icon-check {
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+/* Copied state */
+.chat-copy-btn[data-copied="1"] {
+  background: rgba(34, 197, 94, 0.2);
+  border-color: #22c55e;
+  color: #22c55e;
+}
+
+.chat-copy-btn[data-copied="1"] .chat-copy-btn__icon-copy {
+  opacity: 0;
+  transform: scale(0.5);
+}
+
+.chat-copy-btn[data-copied="1"] .chat-copy-btn__icon-check {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Error state */
+.chat-copy-btn[data-error="1"] {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+/* Save button specific */
+.chat-save-btn__icon {
+  display: flex;
+  width: 14px;
+  height: 14px;
+}
+
+/* Icon sizing */
+.chat-copy-btn svg,
+.chat-save-btn svg,
+.chat-copy-btn__icon svg,
+.chat-save-btn__icon svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Ensure bubbles with actions have proper padding for the overlay */
+.chat-bubble.has-copy {
+  padding-top: 8px;
+  padding-right: 120px; /* Make room for buttons (3 now) */
+}
+
+/* Per-snippet copy affordances injected after markdown sanitization. */
+.md-copyable--block {
+  display: block;
+  position: relative;
+  margin: 10px 0;
+}
+.md-copyable--block > pre {
+  margin: 0;
+  padding-top: 34px;
+}
+.md-copyable--inline {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+.md-copy-button {
+  position: absolute;
+  top: 6px;
+  right: 7px;
+  z-index: 1;
+  height: 23px;
+  padding: 0 8px;
+  border: 1px solid var(--g-border, rgba(255, 255, 255, 0.15));
+  border-radius: 6px;
+  background: rgba(8, 8, 11, 0.84);
+  color: var(--muted, #aaa);
+  font: 600 10px/1 var(--font-mono, ui-monospace, monospace);
+  cursor: pointer;
+}
+.md-copy-button:hover,
+.md-copy-button:focus-visible,
+.md-copy-button[data-copied="1"] {
+  color: var(--g-primary, #d6b35a);
+  border-color: color-mix(in srgb, var(--g-primary, #d6b35a) 50%, transparent);
+  outline: none;
+}
+.md-copy-button--inline {
+  position: static;
+  height: 19px;
+  padding: 0 5px;
+  font-size: 9px;
+  opacity: 0.15;
+}
+.md-copyable--inline:hover .md-copy-button--inline,
+.md-copy-button--inline:focus-visible,
+.md-copy-button--inline[data-copied="1"] {
+  opacity: 1;
+}
+
+/* ============================================================
+   TTS Button - Text to Speech
+   ============================================================ */
+
+.chat-tts-btn {
+  background: rgba(20, 20, 20, 0.85);
+  color: #888;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-size: 11px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.chat-tts-btn:hover {
+  background: rgba(30, 30, 30, 0.95);
+  color: #6366f1; /* Indigo for TTS */
+  border-color: #6366f1;
+  transform: scale(1.05);
+  box-shadow: 0 0 12px rgba(99, 102, 241, 0.3);
+}
+
+.chat-tts-btn:active {
+  transform: scale(0.95);
+}
+
+.tts-btn__icon {
+  display: flex;
+  position: relative;
+  width: 14px;
+  height: 14px;
+}
+
+.tts-btn__icon-play,
+.tts-btn__icon-stop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  transition: opacity 0.2s, transform 0.2s;
+}
+
+.chat-tts-btn svg {
+  width: 14px;
+  height: 14px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+/* Playing state */
+.chat-tts-btn[data-playing="1"] {
+  background: rgba(99, 102, 241, 0.2);
+  border-color: #6366f1;
+  color: #6366f1;
+  animation: tts-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes tts-pulse {
+  0%, 100% { box-shadow: 0 0 8px rgba(99, 102, 241, 0.3); }
+  50% { box-shadow: 0 0 16px rgba(99, 102, 241, 0.6); }
+}
+
+/* Loading state */
+.chat-tts-btn[data-loading="1"] {
+  opacity: 0.6;
+  cursor: wait;
+}
+
+/* Error state */
+.chat-tts-btn[data-error="1"] {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: #ef4444;
+  color: #ef4444;
+}
+
+/* ============================================================
+   TTS Context Menu - Voice Selection
+   ============================================================ */
+
+.tts-context-menu {
+  position: fixed;
+  z-index: 10000;
+  background: rgba(20, 20, 20, 0.98);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 12px;
+  padding: 8px 0;
+  min-width: 220px;
+  max-width: 280px;
+  max-height: 400px;
+  overflow-y: auto;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  animation: tts-menu-appear 0.15s ease-out;
+}
+
+@keyframes tts-menu-appear {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+.tts-menu-header {
+  padding: 8px 16px 12px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  margin-bottom: 8px;
+}
+
+.tts-menu-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+}
+
+.tts-menu-section {
+  padding: 4px 8px;
+}
+
+.tts-menu-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 12px;
+  color: #888;
+  padding: 4px 8px;
+}
+
+.tts-speed-value {
+  color: #6366f1;
+  font-weight: 600;
+}
+
+.tts-speed-slider {
+  width: 100%;
+  height: 4px;
+  margin: 8px 0;
+  -webkit-appearance: none;
+  appearance: none;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
+  outline: none;
+}
+
+.tts-speed-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 14px;
+  height: 14px;
+  background: #6366f1;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: transform 0.15s;
+}
+
+.tts-speed-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.2);
+}
+
+.tts-menu-category {
+  font-size: 10px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 8px 8px 4px;
+  margin-top: 4px;
+}
+
+.tts-voice-option {
+  display: block;
+  width: 100%;
+  padding: 8px 12px;
+  background: none;
+  border: none;
+  color: #aaa;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.1s;
+  border-radius: 6px;
+  margin: 2px 0;
+}
+
+.tts-voice-option:hover {
+  background: rgba(99, 102, 241, 0.15);
+  color: #fff;
+}
+
+.tts-voice-option.selected {
+  background: rgba(99, 102, 241, 0.25);
+  color: #6366f1;
+  font-weight: 500;
+}
+
+.tts-menu-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 8px 0;
+}
+
+.tts-menu-action {
+  display: block;
+  width: calc(100% - 16px);
+  margin: 4px 8px;
+  padding: 10px 12px;
+  background: rgba(99, 102, 241, 0.15);
+  border: 1px solid rgba(99, 102, 241, 0.3);
+  border-radius: 8px;
+  color: #6366f1;
+  font-size: 13px;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.tts-menu-action:hover {
+  background: rgba(99, 102, 241, 0.25);
+  border-color: #6366f1;
+  transform: scale(1.02);
+}
+/* Brand-logo assistant avatar: keep the whole logo visible, undistorted. */
+img.chat-avatar.chat-logo-avatar {
+  object-fit: contain;
+  user-select: none;
+}
+
+/* Stock logo: crop its transparent margins so the emblem fills the frame. */
+img.chat-logo-avatar--mark {
+  object-view-box: inset(18% 21% 23% 20.5%);
+}

@@ -1,0 +1,92 @@
+# Polish facts (grep over mobile/src at 64d908ba)
+screens total: 77
+files using RefreshControl (pull-to-refresh): 39
+screens WITHOUT RefreshControl:
+  src/screens/GlassesScreen.js
+  src/screens/OpportunitiesScreen.js
+  src/screens/OperationsCommandCenterScreen.js
+  src/screens/VideoScreen.js
+  src/screens/NotificationsPreferencesScreen.js
+  src/screens/GridScreen.js
+  src/screens/MoreScreen.js
+  src/screens/CommitmentsScreen.js
+  src/screens/ConnectionsScreen.js
+  src/screens/OpsAgentsScreen.js
+  src/screens/DecisionsScreen.js
+  src/screens/WebSurfaceScreen.js
+  src/screens/TerminalsScreen.js
+  src/screens/ConnectionChooserScreen.js
+  src/screens/BusinessProfileScreen.js
+  src/screens/ExecutiveCommandCenterScreen.js
+  src/screens/NotificationDetailScreen.js
+  src/screens/PeopleScreen.js
+  src/screens/NeuralMeshScreen.js
+  src/screens/ProductsScreen.js
+  src/screens/RisksScreen.js
+  src/screens/content/ContentGenerationScreen.js
+  src/screens/content/trendsApi.js
+  src/screens/content/ScriptEditorScreen.js
+  src/screens/content/CMOChatScreen.js
+  src/screens/content/contentIntelApi.js
+  src/screens/content/contentApi.js
+  src/screens/notes/HandwritingEditor.js
+  src/screens/notes/DocumentsBrowser.js
+  src/screens/notes/freehand.js
+  src/screens/notes/canvasFormat.js
+  src/screens/command/CeoRequestCard.js
+  src/screens/command/command-shared.js
+  src/screens/command/CommandBlocks.js
+  src/screens/agency-world/world-html.js
+  src/screens/agency-world/world-bridge.js
+  src/screens/agency-world/agent-sprite-data.js
+  src/screens/agency-world/world-html.bundled.js
+  src/screens/agency-world/AgencyWorldView.js
+  src/screens/discipline/DisciplineBlockDetailScreen.js
+  src/screens/discipline/DisciplineSettingsScreen.js
+files with a skeleton/placeholder loader (Skeleton|skel): 20
+  src/chat/ChatTranscript.js
+  src/chat/ChatSessionsPanel.js
+  src/screens/OperationsCommandCenterScreen.js
+  src/hooks/useCredits.js
+  src/screens/OpsAgentsScreen.js
+  src/hooks/useGatewayResource.js
+  src/screens/CreditsScreen.js
+  src/screens/DisciplineScreen.js
+  src/screens/ChatScreen.js
+  src/screens/NotificationsCenterScreen.js
+  src/screens/ExecutiveCommandCenterScreen.js
+  src/screens/ReportsScreen.js
+  src/ui-kit/tokens.js
+  src/ui-kit/Skeleton.js
+  src/kis/ui.js
+  src/screens/content/CMOChatScreen.js
+  src/ui-kit/index.js
+  src/ui-kit/StatCard.js
+  src/components/RelatedPanel.js
+  src/components/credits/Skeletons.js
+emoji left in source (non-comment):
+  src/screens/FederationDirectoryScreen.js:655:        icon: '📁',
+  src/screens/content/ContentPagesScreen.js:728:      setResult('✓ Sent');
+  src/screens/content/ContentPagesScreen.js:781:            <Text style={[styles.errText, result.startsWith('✓') && { color: '#37d
+  src/screens/content/ContentPagesScreen.js:782:              {/* '✓' prefix is an internal success marker — drawn as a vector i
+  src/screens/content/ContentPagesScreen.js:783:              {result.startsWith('✓') ? <Ionicons name="checkmark-circle" size={13
+  src/screens/content/ContentPagesScreen.js:784:              {result.startsWith('✓') ? result.slice(1) : result}
+  src/screens/content/ContentGenerationScreen.js:100:      setStatus(found.length ? `✓ ${found.length} asset(s) produced` : 'Finis
+  src/screens/content/ContentGenerationScreen.js:147:      setStatus('✓ Attached to page');
+  src/screens/content/ContentGenerationScreen.js:231:            <Text style={[styles.status, status.startsWith('✓') && { color: '
+  src/screens/content/ContentGenerationScreen.js:232:              {/* '✓' prefix is an internal success marker — drawn as a vec
+  src/screens/content/ContentGenerationScreen.js:233:              {status.startsWith('✓') ? <Ionicons name="checkmark-circle" siz
+  src/screens/content/ContentGenerationScreen.js:234:              {status.startsWith('✓') ? status.slice(1) : status}
+  src/screens/content/ScriptEditorScreen.js:121:        setStatus(res.savedTo?.pageRowId ? '✓ Saved to page' : '✓ Generated');
+  src/screens/content/ScriptEditorScreen.js:154:      setStatus('✓ Draft streamed — tap Save to attach');
+  src/screens/content/ScriptEditorScreen.js:199:        setStatus('✓ Refined');
+  src/screens/content/ScriptEditorScreen.js:226:        setStatus('✓ Saved');
+  src/screens/content/ScriptEditorScreen.js:246:        setStatus('✓ Saved to page');
+  src/screens/content/ScriptEditorScreen.js:356:            <Text style={[styles.status, status.startsWith('✓') && { color: '#37d6
+  src/screens/content/ScriptEditorScreen.js:357:              {/* '✓' prefix is an internal success marker — drawn as a vector i
+  src/screens/content/ScriptEditorScreen.js:358:              {status.startsWith('✓') ? <Ionicons name="checkmark-circle" size={13
+  src/screens/content/ScriptEditorScreen.js:359:              {status.startsWith('✓') ? status.slice(1) : status}
+  src/constants/terminal-theme.js:269:  user: '❯',
+  src/constants/terminal-theme.js:272:  error: '✗',
+haptics call sites: 8 files
+navigator-level KeyboardAvoidingView: 4 refs in ScreenErrorBoundary.js

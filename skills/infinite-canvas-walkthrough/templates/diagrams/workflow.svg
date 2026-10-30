@@ -1,0 +1,23 @@
+<svg viewBox="0 0 440 210">
+  <g font-family="Segoe UI" font-size="10">
+    <text x="20" y="40" fill="#c9a227" font-weight="700">STATIC · one-shot</text>
+    <g fill="rgba(201,162,39,.16)" stroke="#c9a227">
+      <rect x="20" y="50" width="70" height="34" rx="7"/><rect x="110" y="50" width="70" height="34" rx="7"/><rect x="200" y="50" width="70" height="34" rx="7"/>
+    </g>
+    <g stroke="#c9a227" stroke-width="1.6" fill="none" marker-end="url(#ar)">
+      <line x1="90" y1="67" x2="108" y2="67"/><line x1="180" y1="67" x2="198" y2="67"/>
+    </g>
+    <circle r="3.5" fill="#f4d77a"><animateMotion path="M30,67 H260" dur="2.4s" repeatCount="indefinite"/></circle>
+    <text x="290" y="71" fill="#6b7392">finish ✓</text>
+
+    <text x="20" y="135" fill="#d4af37" font-weight="700">CONTINUOUS · daemon loop</text>
+    <g fill="rgba(212,175,55,.16)" stroke="#d4af37">
+      <rect x="20" y="145" width="70" height="34" rx="7"/><rect x="150" y="145" width="70" height="34" rx="7"/></g>
+    <path d="M90,162 H148" stroke="#d4af37" fill="none"/>
+    <path d="M220,162 q60,0 60,-26 q0,-26 -130,-26 q-130,0 -130,26 q0,26 60,26" stroke="#d4af37" stroke-width="1.4" fill="none" stroke-dasharray="6 6">
+      <animate attributeName="stroke-dashoffset" from="0" to="-200" dur="3s" repeatCount="indefinite"/></path>
+    <circle r="3.5" fill="#f4d77a"><animateMotion path="M90,162 H220 q60,0 60,-26 q0,-26 -130,-26 q-130,0 -130,26 q0,26 60,26 H90" dur="3.4s" repeatCount="indefinite"/></circle>
+    <text x="300" y="166" fill="#6b7392">until stop</text>
+  </g>
+  <defs><marker id="ar" markerWidth="7" markerHeight="7" refX="5" refY="3.5" orient="auto"><path d="M0,0 L6,3.5 L0,7" fill="#c9a227"/></marker></defs>
+</svg>

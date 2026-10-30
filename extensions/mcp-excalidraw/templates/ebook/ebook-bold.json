@@ -1,0 +1,55 @@
+{
+  "id": "ebook-bold",
+  "category": "ebook",
+  "name": "Ebook · Bold",
+  "width": 1240,
+  "height": 1754,
+  "background": "#0b0b14",
+  "createdAt": "2026-06-09",
+  "scene": {
+    "elements": [
+      {
+        "id": "ebook-bold-bg-accent",
+        "type": "rectangle",
+        "x": 0,
+        "y": 1368.1200000000001,
+        "width": 1240,
+        "height": 105.24,
+        "backgroundColor": "#22d3ee",
+        "fillStyle": "solid",
+        "strokeColor": "transparent",
+        "strokeWidth": 0,
+        "roughness": 0
+      },
+      {
+        "id": "ebook-bold-title",
+        "type": "text",
+        "x": 124,
+        "y": 613.9,
+        "width": 992,
+        "height": 96,
+        "text": "Ebook title",
+        "fontSize": 64,
+        "fontFamily": 1,
+        "textAlign": "center",
+        "strokeColor": "#ffffff"
+      },
+      {
+        "id": "ebook-bold-subtitle",
+        "type": "text",
+        "x": 124,
+        "y": 841.92,
+        "width": 992,
+        "height": 48,
+        "text": "Bold · 1240×1754",
+        "fontSize": 28,
+        "fontFamily": 2,
+        "textAlign": "center",
+        "strokeColor": "#ffffff",
+        "opacity": 70
+      }
+    ],
+    "appState": {},
+    "files": {}
+  }
+}

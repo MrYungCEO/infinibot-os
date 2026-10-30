@@ -1,0 +1,42 @@
+/*
+ * Low-power mode styles — applied when <html class="low-power"> (see ui/perf.ts).
+ * Targets the effects that thrash integrated GPUs / low-RAM machines: animated
+ * backgrounds, backdrop blur, transitions, and heavy filters. The goal is a
+ * responsive (if less flashy) UI on ~8 GB / older devices.
+ */
+
+/* Kill CSS animations + transitions (spinners stay visible, just static). */
+.low-power *,
+.low-power *::before,
+.low-power *::after {
+  animation: none !important;
+  transition: none !important;
+  /* backdrop-filter is one of the biggest GPU costs in glassy UIs. */
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  /* Drop will-change hints that pin layers on the GPU. */
+  will-change: auto !important;
+}
+
+/* Remove decorative blur filters (keep functional ones like drop-shadow icons
+   small — these target full-surface blurs). */
+.low-power .blur,
+.low-power [data-blur],
+.low-power .glass,
+.low-power .frosted {
+  filter: none !important;
+}
+
+/* Hide animated background / FX overlays outright in case any mount directly
+   (the app-branding gate already forces the static gradient, this is belt &
+   suspenders for directly-rendered effect elements). */
+.low-power #bg-effect,
+.low-power [data-bg-effect],
+.low-power aurora-bg,
+.low-power ambient-grid,
+.low-power agent-fx-layer,
+.low-power agent-emotes-layer,
+.low-power faulty-terminal,
+.low-power .reactbits-effect {
+  display: none !important;
+}

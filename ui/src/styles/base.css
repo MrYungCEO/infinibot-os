@@ -1,0 +1,546 @@
+/* ============================================================================
+   NEON-GLOW AMBIENT LAYER  (futuristic gold/obsidian — "amber lightsaber")
+   ----------------------------------------------------------------------------
+   Opt-in utilities + tokens. Same palette (gold #fbbf24 / obsidian), amplified
+   with a warm-amber halo. No cyan/magenta/rainbow. Honors prefers-reduced-motion.
+
+   DROP-ON UTILITIES (no restructuring needed — add the class to any element):
+
+     <button class="u-glow-gold">       static soft gold halo
+     <div    class="u-glow-gold-strong"> static strong gold halo (hero / focus)
+     <div    class="u-glow-pulse">       breathing gold halo (>=1.6s, reduced-motion safe)
+     <h1     class="u-neon-text">         saturated amber text with glow
+     <span   class="u-neon-text u-neon-flicker"> neon sign flicker on text
+     <div    class="u-neon-border">       glowing gold border + outer halo
+     <div    class="u-neon-border u-glow-pulse"> pulsing glowing border
+
+   RAW TOKENS (compose your own):
+     box-shadow:  var(--glow-gold-soft) | var(--glow-gold-strong) | var(--glow-gold-pulse);
+     text-shadow: var(--neon-text-shadow);
+     box-shadow:  var(--neon-border-glow);
+
+   CAPS (accessibility): glow blur <= 24px, pulse/flicker duration >= 1.6s,
+   hue-rotation <= 10deg. Animations auto-disable under prefers-reduced-motion.
+   ============================================================================ */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+
+:root {
+  /* Background - Deep Black */
+  --bg: #050505;
+  --bg-accent: #0a0a0a;
+  --bg-elevated: #111111;
+  --bg-hover: #1a1a1a;
+  --bg-muted: #1a1a1a;
+
+  /* Card / Surface - Dark and sleek */
+  --card: #0f0f0f;
+  --card-foreground: #e4e4e7;
+  --card-highlight: color-mix(in srgb, var(--g-primary) 5%, transparent);
+  /* Gold highlight */
+  --popover: #0f0f0f;
+  --popover-foreground: #e4e4e7;
+
+  /* Panel */
+  --panel: #050505;
+  --panel-strong: #0a0a0a;
+  --panel-hover: #1a1a1a;
+  --chrome: rgba(5, 5, 5, 0.95);
+  --chrome-strong: rgba(5, 5, 5, 0.98);
+
+  /* Text - Crisp white/off-white */
+  --text: #e4e4e7;
+  --text-strong: #ffffff;
+  --chat-text: #e4e4e7;
+  --muted: #a1a1aa;
+  --muted-strong: #71717a;
+  --muted-foreground: #a1a1aa;
+
+  /* Border - Subtle gold hint or neutral */
+  --border: #27272a;
+  --border-strong: #3f3f46;
+  --border-hover: var(--g-primary);
+  /* Gold hover */
+  --input: #18181b;
+  --ring: var(--g-primary);
+  /* Gold ring */
+
+  /* Accent - Luxurious Gold */
+  --accent: var(--g-primary);
+  --accent-hover: #FDB931;
+  --accent-muted: #C5A028;
+  --accent-subtle: color-mix(in srgb, var(--g-primary) 15%, transparent);
+  --accent-foreground: #000000;
+  --accent-glow: color-mix(in srgb, var(--g-primary) 30%, transparent);
+  --primary: var(--g-primary);
+  --primary-foreground: #000000;
+
+  /* Secondary - Neutral dark */
+  --secondary: #18181b;
+  --secondary-foreground: #fafafa;
+  --accent-2: var(--g-primary);
+  /* Darker Gold */
+  --accent-2-muted: color-mix(in srgb, var(--g-primary) 70%, transparent);
+  --accent-2-subtle: color-mix(in srgb, var(--g-primary) 15%, transparent);
+
+  /* Semantic - Keeping functional colors but slightly adjusted */
+  --ok: #22c55e;
+  --ok-muted: rgba(34, 197, 94, 0.75);
+  --ok-subtle: rgba(34, 197, 94, 0.12);
+  --destructive: #ef4444;
+  --destructive-foreground: #fafafa;
+  --warn: #f59e0b;
+  --warn-muted: rgba(245, 158, 11, 0.75);
+  --warn-subtle: rgba(245, 158, 11, 0.12);
+  --danger: #ef4444;
+  --danger-muted: rgba(239, 68, 68, 0.75);
+  --danger-subtle: rgba(239, 68, 68, 0.12);
+  --info: #3b82f6;
+
+  /* Focus - Gold Glow */
+  --focus: color-mix(in srgb, var(--g-primary) 25%, transparent);
+  --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring);
+  --focus-glow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring), 0 0 20px var(--accent-glow);
+
+  /* Grid */
+  --grid-line: rgba(255, 255, 255, 0.04);
+
+  /* Theme transition */
+  --theme-switch-x: 50%;
+  --theme-switch-y: 50%;
+
+  /* Typography - Space Grotesk for personality */
+  --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  /* Radii - Sharp for terminal feel */
+  --radius-sm: 1px;
+  --radius-md: 2px;
+  --radius-lg: 4px;
+  --radius-xl: 6px;
+  --radius-full: 9999px;
+  /* Keep mainly for pills/badges */
+
+  /* Typography - Force Mono */
+  --font-body: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  --font-display: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+  --radius: 8px;
+
+  /* Transitions - Snappy but smooth */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+  --duration-fast: 120ms;
+  --duration-normal: 200ms;
+  --duration-slow: 350ms;
+
+  color-scheme: dark;
+}
+
+/* Light theme - Clean with subtle warmth */
+:root[data-theme="light"] {
+  --bg: #fafafa;
+  --bg-accent: #f5f5f5;
+  --bg-elevated: #ffffff;
+  --bg-hover: #f0f0f0;
+  --bg-muted: #f0f0f0;
+  --bg-content: #f5f5f5;
+
+  --card: #ffffff;
+  --card-foreground: #18181b;
+  --card-highlight: rgba(0, 0, 0, 0.03);
+  --popover: #ffffff;
+  --popover-foreground: #18181b;
+
+  --panel: #fafafa;
+  --panel-strong: #f5f5f5;
+  --panel-hover: #ebebeb;
+  --chrome: rgba(250, 250, 250, 0.95);
+  --chrome-strong: rgba(250, 250, 250, 0.98);
+
+  --text: #3f3f46;
+  --text-strong: #18181b;
+  --chat-text: #3f3f46;
+  --muted: #71717a;
+  --muted-strong: #52525b;
+  --muted-foreground: #71717a;
+
+  --border: #e4e4e7;
+  --border-strong: #d4d4d8;
+  --border-hover: #a1a1aa;
+  --input: #e4e4e7;
+
+  --accent: #dc2626;
+  --accent-hover: #ef4444;
+  --accent-muted: #dc2626;
+  --accent-subtle: rgba(220, 38, 38, 0.12);
+  --accent-foreground: #ffffff;
+  --accent-glow: rgba(220, 38, 38, 0.15);
+  --primary: #dc2626;
+  --primary-foreground: #ffffff;
+
+  --secondary: #f4f4f5;
+  --secondary-foreground: #3f3f46;
+  --accent-2: #0d9488;
+  --accent-2-muted: rgba(13, 148, 136, 0.75);
+  --accent-2-subtle: rgba(13, 148, 136, 0.12);
+
+  --ok: #16a34a;
+  --ok-muted: rgba(22, 163, 74, 0.75);
+  --ok-subtle: rgba(22, 163, 74, 0.1);
+  --destructive: #dc2626;
+  --destructive-foreground: #fafafa;
+  --warn: #d97706;
+  --warn-muted: rgba(217, 119, 6, 0.75);
+  --warn-subtle: rgba(217, 119, 6, 0.1);
+  --danger: #dc2626;
+  --danger-muted: rgba(220, 38, 38, 0.75);
+  --danger-subtle: rgba(220, 38, 38, 0.1);
+  --info: #2563eb;
+
+  --focus: rgba(220, 38, 38, 0.2);
+  --focus-glow: 0 0 0 2px var(--bg), 0 0 0 4px var(--ring), 0 0 16px var(--accent-glow);
+
+  --grid-line: rgba(0, 0, 0, 0.05);
+
+  /* Light shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.06);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  --shadow-lg: 0 12px 28px rgba(0, 0, 0, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  --shadow-xl: 0 24px 48px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.04);
+  --shadow-glow: 0 0 24px var(--accent-glow);
+
+  /* ── Neon-glow ambient layer (warm-amber halo, gold/obsidian palette) ──
+     Resolves off the live gold accent (--g-primary, default #fbbf24) so it
+     follows the active theme. Blur capped at 24px per accessibility rules. */
+  --neon-gold: var(--g-primary, #d4af37);
+  --neon-gold-warm: color-mix(in srgb, var(--neon-gold) 80%, #ff8a00 20%);
+  --glow-gold-soft: 0 0 8px color-mix(in srgb, var(--neon-gold) 35%, transparent);
+  --glow-gold-strong:
+    0 0 10px color-mix(in srgb, var(--neon-gold) 55%, transparent),
+    0 0 20px color-mix(in srgb, var(--neon-gold-warm) 30%, transparent);
+  --glow-gold-pulse:
+    0 0 14px color-mix(in srgb, var(--neon-gold) 65%, transparent),
+    0 0 24px color-mix(in srgb, var(--neon-gold-warm) 38%, transparent);
+  --neon-text-shadow:
+    0 0 4px color-mix(in srgb, var(--neon-gold) 60%, transparent),
+    0 0 12px color-mix(in srgb, var(--neon-gold-warm) 40%, transparent);
+  --neon-border-glow:
+    inset 0 0 0 1px color-mix(in srgb, var(--neon-gold) 70%, transparent),
+    0 0 6px color-mix(in srgb, var(--neon-gold) 45%, transparent),
+    0 0 16px color-mix(in srgb, var(--neon-gold-warm) 28%, transparent);
+
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  height: 100%;
+  /* Theme tokens drive background; .hud-aurora layer sits behind the shell. */
+  background: var(--g-bg, var(--bg, #050505));
+  background-image: var(--g-gradient-bg, none);
+}
+
+/* Override browser's fullscreen backdrop to show terminal */
+::backdrop {
+  background: transparent !important;
+}
+
+:fullscreen::backdrop {
+  background: transparent !important;
+}
+
+body {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font: 400 14px/1.55 var(--font-body);
+  letter-spacing: -0.02em;
+  /* Body itself is transparent so html background + aurora show. */
+  background: transparent;
+  color: var(--g-fg, var(--text));
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Theme transition */
+@keyframes theme-circle-transition {
+  0% {
+    clip-path: circle(0% at var(--theme-switch-x, 50%) var(--theme-switch-y, 50%));
+  }
+
+  100% {
+    clip-path: circle(150% at var(--theme-switch-x, 50%) var(--theme-switch-y, 50%));
+  }
+}
+
+html.theme-transition {
+  view-transition-name: theme;
+}
+
+html.theme-transition::view-transition-old(theme) {
+  mix-blend-mode: normal;
+  animation: none;
+  z-index: 1;
+}
+
+html.theme-transition::view-transition-new(theme) {
+  mix-blend-mode: normal;
+  z-index: 2;
+  animation: theme-circle-transition 0.4s var(--ease-out) forwards;
+}
+
+@media (prefers-reduced-motion: reduce) {
+
+  html.theme-transition::view-transition-old(theme),
+  html.theme-transition::view-transition-new(theme) {
+    animation: none !important;
+  }
+}
+
+infinibot-app {
+  display: block;
+  position: relative;
+  /* No z-index - don't create stacking context so the animated background
+     layer (.infinibot-bg-layer at z-index:-3 on body) shows through. */
+  min-height: 100vh;
+  /* Host is transparent — html carries the theme background, and the
+     animated-background layer sits behind the shell. */
+  background: transparent;
+}
+
+a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--accent-subtle);
+  color: var(--text-strong);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--radius-full);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--border-strong);
+}
+
+/* Animations - Polished with spring feel */
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes dashboard-enter {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+@keyframes pulse-subtle {
+
+  0%,
+  100% {
+    opacity: 1;
+  }
+
+  50% {
+    opacity: 0.7;
+  }
+}
+
+@keyframes glow-pulse {
+
+  0%,
+  100% {
+    box-shadow: 0 0 0 rgba(255, 92, 92, 0);
+  }
+
+  50% {
+    box-shadow: 0 0 20px var(--accent-glow);
+  }
+}
+
+/* ── Neon-glow ambient layer: keyframes ──────────────────────────────────
+   Slow breathing halo + subtle (<=10deg) warm hue drift. Duration >=1.6s so
+   it reads as ambient, never seizure-grade flicker. */
+@keyframes neon-glow-pulse {
+
+  0%,
+  100% {
+    box-shadow: var(--glow-gold-soft);
+    filter: hue-rotate(0deg);
+  }
+
+  50% {
+    box-shadow: var(--glow-gold-pulse);
+    filter: hue-rotate(-8deg);
+  }
+}
+
+/* Neon-sign flicker — gentle opacity stutter, no hard on/off blink. */
+@keyframes neon-flicker {
+
+  0%,
+  18%,
+  22%,
+  56%,
+  100% {
+    opacity: 1;
+    text-shadow: var(--neon-text-shadow);
+  }
+
+  20%,
+  54% {
+    opacity: 0.82;
+    text-shadow: 0 0 2px color-mix(in srgb, var(--neon-gold) 40%, transparent);
+  }
+}
+
+/* ── Neon-glow ambient layer: drop-on utility classes ────────────────────
+   Opt-in only — add to existing elements without restructuring. */
+.u-glow-gold {
+  box-shadow: var(--glow-gold-soft);
+}
+
+.u-glow-gold-strong {
+  box-shadow: var(--glow-gold-strong);
+}
+
+.u-glow-pulse {
+  box-shadow: var(--glow-gold-soft);
+  animation: neon-glow-pulse 2.6s ease-in-out infinite;
+  will-change: box-shadow, filter;
+}
+
+.u-neon-text {
+  color: var(--neon-gold);
+  text-shadow: var(--neon-text-shadow);
+}
+
+.u-neon-flicker {
+  animation: neon-flicker 3.2s steps(1, end) infinite;
+  will-change: opacity, text-shadow;
+}
+
+.u-neon-border {
+  border: 1px solid color-mix(in srgb, var(--neon-gold) 60%, transparent);
+  box-shadow: var(--neon-border-glow);
+}
+
+/* Accessibility: opt-out users get the static glow, never the motion. */
+@media (prefers-reduced-motion: reduce) {
+
+  .u-glow-pulse {
+    animation: none;
+    box-shadow: var(--glow-gold-strong);
+  }
+
+  .u-neon-flicker {
+    animation: none;
+    opacity: 1;
+  }
+}
+
+/* Stagger animation delays for grouped elements */
+.stagger-1 {
+  animation-delay: 0ms;
+}
+
+.stagger-2 {
+  animation-delay: 50ms;
+}
+
+.stagger-3 {
+  animation-delay: 100ms;
+}
+
+.stagger-4 {
+  animation-delay: 150ms;
+}
+
+.stagger-5 {
+  animation-delay: 200ms;
+}
+
+.stagger-6 {
+  animation-delay: 250ms;
+}
+
+/* Focus visible styles */
+:focus-visible {
+  outline: none;
+  box-shadow: var(--focus-ring);
+}

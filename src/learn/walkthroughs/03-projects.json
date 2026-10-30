@@ -1,0 +1,47 @@
+{
+  "id": "projects",
+  "title": "Projects & Kanban",
+  "description": "Kanban-style projects, tasks, auto-run with the agent, business linking, and the Databases sub-view.",
+  "audience": "all",
+  "order": 20,
+  "category": "Projects",
+  "steps": [
+    {
+      "id": "create",
+      "title": "Create your first project",
+      "estMinutes": 2,
+      "body": "Open the **Projects** tab and click **+ New Project**. Give it a name. The kanban opens with three default columns: To Do, In Progress, Done.\n\nProjects are the unit of organized work. Anything the agent does that takes more than one prompt — a refactor, a research run, a multi-step deliverable — should live in one.",
+      "cta": { "label": "Open Projects", "tab": "projects" }
+    },
+    {
+      "id": "tasks",
+      "title": "Add tasks the agent can run",
+      "estMinutes": 2,
+      "body": "Click `+` on a column to add a task. A task is just a card with a title, description, and (optionally) a checklist.\n\nThe magic: drag a task to **In Progress** and click the ⚡ **Run** button. The agent reads the task, plans, and executes — running shell commands, editing files, searching the web — until the checklist is satisfied. You watch the live log; you can pause/cancel any time.\n\nIf the agent hits a destructive action (delete, force-push), it stops and asks your approval via Telegram (when configured)."
+    },
+    {
+      "id": "criticality",
+      "title": "Criticality + GitHub precheck",
+      "estMinutes": 2,
+      "body": "When you click Run, the agent classifies the task by criticality (low / medium / high / critical). Higher criticality triggers an approval gate before any code lands.\n\nIf the project is linked to a GitHub repo, a precheck runs first: pulls latest, ensures clean working tree, confirms the branch matches the project's expected branch. Failures block the run instead of merging into a dirty state."
+    },
+    {
+      "id": "business",
+      "title": "Link a project to a business",
+      "estMinutes": 1,
+      "body": "Open the project's **Edit** dialog. The **Linked business** dropdown scopes the project to one of your businesses (Settings → Business). Once linked:\n\n- The project shows in the business's command center\n- The agent treats the business's context as primary when running tasks\n- Income tracking ties to that business\n\nUnlinking is reversible — click `(none)` to clear."
+    },
+    {
+      "id": "databases",
+      "title": "Databases — the Notion-style sub-view",
+      "estMinutes": 3,
+      "body": "Inside Projects there's a **Databases** sub-view (top tabs). These are flexible tables: rows + custom properties (text, select, relation, etc.). Use cases:\n\n- A clients database with `name, status, mrr, owner`\n- A research database where each row is a paper + tags\n- An inventory tracker, content calendar, anything tabular\n\nThe agent can query and write to databases via tool calls — *\"Add a row to my clients DB for Acme Corp\"* just works. Each database can also sync two-way with Notion if you've connected it."
+    },
+    {
+      "id": "review",
+      "title": "Reviewing what the agent did",
+      "estMinutes": 1,
+      "body": "Every run leaves a trail:\n\n- **Activity tab** — every tool call the agent made, in order\n- **Files tab** (in the project) — every file the agent created/changed, diffable\n- **Checkpoints** — the agent snapshots state before risky operations; you can roll back to any checkpoint\n\nIf something went sideways, restoring a checkpoint is a single click."
+    }
+  ]
+}

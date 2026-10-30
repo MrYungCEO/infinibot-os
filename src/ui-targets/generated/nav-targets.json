@@ -1,0 +1,1749 @@
+{
+  "generatedFrom": "ui/src/ui/guide/derive-nav-targets.ts",
+  "targets": [
+    {
+      "id": "page:channels",
+      "kind": "page",
+      "title": "Channels",
+      "description": "Manage channels and settings.",
+      "keywords": ["Channels", "channels page", "messaging channels", "Settings"],
+      "route": "/channels",
+      "tab": "channels",
+      "source": "navigation"
+    },
+    {
+      "id": "page:channels/inbox",
+      "kind": "page",
+      "title": "Channels › Inbox",
+      "description": "Cross-channel client inbox — threads from every connected channel, replies, and draft approvals.",
+      "keywords": ["Inbox", "Comms Hub", "comms", "messages", "agent inbox"],
+      "route": "/channels?view=inbox",
+      "selectors": [".host-subtabs[data-host-subtabs=\"channels\"] [data-host-view=\"inbox\"]"],
+      "tab": "comms",
+      "parent": "page:channels",
+      "source": "host-subview",
+      "aliases": ["page:comms", "page:messages"]
+    },
+    {
+      "id": "page:instances",
+      "kind": "page",
+      "title": "Instances",
+      "description": "Presence beacons from connected clients and nodes.",
+      "keywords": ["Instances", "clients", "connected clients", "presence", "Agents"],
+      "route": "/instances",
+      "tab": "instances",
+      "source": "navigation",
+      "availability": {
+        "note": "Not in the sidebar — reachable by link, launchpad and ⌘K."
+      }
+    },
+    {
+      "id": "page:sessions",
+      "kind": "page",
+      "title": "Sessions",
+      "description": "Monitor active agents, concurrent tasks, and real-time workload.",
+      "keywords": ["Sessions", "session monitor", "active sessions", "Chat & Voice"],
+      "route": "/sessions",
+      "tab": "sessions",
+      "parent": "page:webchat",
+      "source": "navigation"
+    },
+    {
+      "id": "page:schedule",
+      "kind": "page",
+      "title": "Schedule",
+      "description": "Google Calendar integration — view meetings, events, and manage your schedule with MCP tools.",
+      "keywords": [
+        "Schedule",
+        "calendar",
+        "events",
+        "meetings",
+        "Work",
+        "cron",
+        "Cron Jobs",
+        "scheduled tasks",
+        "wakeups"
+      ],
+      "aliases": ["page:cron"],
+      "route": "/schedule",
+      "tab": "schedule",
+      "source": "navigation"
+    },
+    {
+      "id": "page:projects",
+      "kind": "page",
+      "title": "Projects",
+      "description": "Projects & databases — Kanban board + generic Notion-style databases with system-role registry.",
+      "keywords": ["Projects", "project", "kanban", "kanban board", "boards", "task board", "Work"],
+      "route": "/projects",
+      "tab": "projects",
+      "source": "navigation"
+    },
+    {
+      "id": "page:projects/databases",
+      "kind": "page",
+      "title": "Projects › Databases",
+      "description": "Connect any Notion database — auto-detect schema, manage pages with grid, table, and kanban views.",
+      "keywords": ["Databases", "database", "tables", "notion databases", "data"],
+      "route": "/projects?view=databases",
+      "selectors": [".host-subtabs[data-host-subtabs=\"projects\"] [data-host-view=\"databases\"]"],
+      "tab": "databases",
+      "parent": "page:projects",
+      "source": "host-subview",
+      "aliases": ["page:databases"]
+    },
+    {
+      "id": "page:agents",
+      "kind": "page",
+      "title": "Agents",
+      "description": "Create and manage AI agents and sub-agents.",
+      "keywords": ["Agents", "agent", "agent list"],
+      "route": "/agents",
+      "tab": "agents",
+      "source": "navigation"
+    },
+    {
+      "id": "page:activity",
+      "kind": "page",
+      "title": "Activity",
+      "description": "Real-time monitoring of all running agents, sub-agents, and their chain-of-thought.",
+      "keywords": ["Activity", "live activity", "agent activity", "Agents"],
+      "route": "/activity",
+      "tab": "activity",
+      "source": "navigation"
+    },
+    {
+      "id": "page:autonomy",
+      "kind": "page",
+      "title": "Autonomy",
+      "description": "Trust infrastructure — audit logging, task queue, pause control, API monitoring, and cage interference detection.",
+      "keywords": ["Autonomy", "trust", "audit", "Agents"],
+      "route": "/autonomy",
+      "tab": "autonomy",
+      "source": "navigation"
+    },
+    {
+      "id": "page:memory",
+      "kind": "page",
+      "title": "Memory",
+      "description": "Deep memory architecture — identity, beliefs, values, relationships, and semantic memory search.",
+      "keywords": ["Memory", "memories", "long term memory", "Agents"],
+      "aliases": ["page:memory/agents"],
+      "route": "/memory",
+      "tab": "memory",
+      "source": "navigation"
+    },
+    {
+      "id": "page:memory/memory",
+      "kind": "page",
+      "title": "Memory › Memory",
+      "keywords": ["Memory"],
+      "route": "/memory?view=memory",
+      "selectors": [".host-subtabs[data-host-subtabs=\"memory\"] [data-host-view=\"memory\"]"],
+      "tab": "memory",
+      "parent": "page:memory",
+      "source": "host-subview"
+    },
+    {
+      "id": "page:memory/graph",
+      "kind": "page",
+      "title": "Memory › Knowledge graph",
+      "keywords": ["Knowledge graph", "knowledge-graph"],
+      "route": "/memory?view=graph",
+      "selectors": [".host-subtabs[data-host-subtabs=\"memory\"] [data-host-view=\"graph\"]"],
+      "tab": "knowledge-graph",
+      "parent": "page:memory",
+      "source": "host-subview",
+      "aliases": ["page:knowledge-graph"]
+    },
+    {
+      "id": "page:workflows",
+      "kind": "page",
+      "title": "Workflows",
+      "description": "Create and manage reusable markdown instruction workflows.",
+      "keywords": ["Workflows", "workflow", "automations", "Agents"],
+      "route": "/workflows",
+      "tab": "workflows",
+      "source": "navigation"
+    },
+    {
+      "id": "page:workflows/templates",
+      "kind": "page",
+      "title": "Workflows › Prompt templates",
+      "description": "Reusable instruction blueprints — author once, point any agent at a template to apply a consistent style or workflow.",
+      "keywords": ["Prompt templates", "prompt-templates"],
+      "route": "/workflows?view=templates",
+      "selectors": [
+        ".host-subtabs[data-host-subtabs=\"workflows\"] [data-host-view=\"templates\"]"
+      ],
+      "tab": "prompt-templates",
+      "parent": "page:workflows",
+      "source": "host-subview",
+      "aliases": ["page:prompt-templates"]
+    },
+    {
+      "id": "page:skills",
+      "kind": "page",
+      "title": "Skills",
+      "description": "Manage skill availability and API key injection.",
+      "keywords": ["Skills", "skill", "Settings"],
+      "route": "/skills",
+      "tab": "skills",
+      "source": "navigation"
+    },
+    {
+      "id": "page:nodes",
+      "kind": "page",
+      "title": "Nodes",
+      "description": "Paired devices, capabilities, and command exposure.",
+      "keywords": ["Nodes", "devices", "paired devices", "Agents"],
+      "route": "/nodes",
+      "tab": "nodes",
+      "source": "navigation",
+      "availability": {
+        "note": "Not in the sidebar — reachable by link, launchpad and ⌘K."
+      }
+    },
+    {
+      "id": "page:grid",
+      "kind": "page",
+      "title": "Grid",
+      "description": "Draggable, resizable multi-session masonry chat grid for parallel conversations.",
+      "keywords": [
+        "Grid",
+        "chat grid",
+        "multi chat",
+        "masonry",
+        "Chat & Voice",
+        "chat",
+        "chat page",
+        "conversation"
+      ],
+      "aliases": ["page:chat"],
+      "route": "/grid",
+      "tab": "grid",
+      "source": "navigation"
+    },
+    {
+      "id": "page:voice",
+      "kind": "page",
+      "title": "Voice",
+      "description": "Talk to your agents or straight to a CLI agent. Voice runs locally by default; cloud voice (Robovoice) is optional.",
+      "keywords": [
+        "Voice",
+        "voice page",
+        "voice chat",
+        "Chat & Voice",
+        "voicecommands",
+        "Voice Commands"
+      ],
+      "aliases": ["page:voicecommands"],
+      "route": "/voice",
+      "tab": "voice",
+      "source": "navigation"
+    },
+    {
+      "id": "page:webchat",
+      "kind": "page",
+      "title": "Chat",
+      "description": "Full-page chat with persistent, searchable sessions for any agent.",
+      "keywords": ["Chat", "sessions", "Chat & Voice"],
+      "route": "/webchat",
+      "tab": "webchat",
+      "source": "navigation"
+    },
+    {
+      "id": "page:apikeys",
+      "kind": "page",
+      "title": "API Keys",
+      "description": "Manage API keys for AI providers, services, and integrations.",
+      "keywords": ["API Keys", "credentials", "tokens", "Settings"],
+      "aliases": ["page:apikeys/keys"],
+      "route": "/apikeys",
+      "tab": "apikeys",
+      "source": "navigation"
+    },
+    {
+      "id": "page:apikeys/usage",
+      "kind": "page",
+      "title": "API Keys › Usage & plans",
+      "description": "Tokens & subscriptions — real token usage per agent, your provider plans + quota, and approx USD spend (BYOK).",
+      "keywords": ["Usage & plans", "Tokens", "credits", "budget", "spend", "api spend"],
+      "route": "/apikeys?view=usage",
+      "selectors": [".host-subtabs[data-host-subtabs=\"apikeys\"] [data-host-view=\"usage\"]"],
+      "tab": "credits",
+      "parent": "page:apikeys",
+      "source": "host-subview",
+      "aliases": ["page:credits", "page:budget"]
+    },
+    {
+      "id": "page:logs",
+      "kind": "page",
+      "title": "Logs",
+      "description": "Live tail of the gateway file logs.",
+      "keywords": ["Logs", "log", "gateway logs", "Settings"],
+      "route": "/logs",
+      "tab": "logs",
+      "source": "navigation"
+    },
+    {
+      "id": "page:logs/debug",
+      "kind": "page",
+      "title": "Logs › Debug",
+      "description": "Gateway snapshots, events, and manual RPC calls.",
+      "keywords": ["Debug", "debug page", "gateway debug"],
+      "route": "/logs?view=debug",
+      "selectors": [".host-subtabs[data-host-subtabs=\"logs\"] [data-host-view=\"debug\"]"],
+      "tab": "debug",
+      "parent": "page:logs",
+      "source": "host-subview",
+      "aliases": ["page:debug"]
+    },
+    {
+      "id": "page:mcp",
+      "kind": "page",
+      "title": "MCP",
+      "description": "MCP server status, agent tool config, and server management.",
+      "keywords": ["MCP", "mcp servers", "model context protocol", "Settings"],
+      "route": "/mcp",
+      "tab": "mcp",
+      "source": "navigation"
+    },
+    {
+      "id": "page:notes",
+      "kind": "page",
+      "title": "Documents",
+      "description": "Folders, rich markdown docs, uploaded files and Notion imports — all readable by your agents.",
+      "keywords": ["Documents", "note", "notes page", "scratchpad", "Work"],
+      "aliases": ["page:notes/documents"],
+      "route": "/notes",
+      "tab": "notes",
+      "source": "navigation"
+    },
+    {
+      "id": "page:notes/ideas",
+      "kind": "page",
+      "title": "Documents › Ideas",
+      "keywords": ["Ideas"],
+      "route": "/notes?view=ideas",
+      "selectors": [".host-subtabs[data-host-subtabs=\"notes\"] [data-host-view=\"ideas\"]"],
+      "tab": "notes",
+      "parent": "page:notes",
+      "source": "host-subview"
+    },
+    {
+      "id": "page:issues",
+      "kind": "page",
+      "title": "Issues",
+      "description": "System Issues / Improvement Log — capture bugs, broken functions, automation failures, workflow friction, and improvement opportunities.",
+      "keywords": ["Issues", "Agents"],
+      "route": "/issues",
+      "tab": "issues",
+      "source": "navigation"
+    },
+    {
+      "id": "page:research",
+      "kind": "page",
+      "title": "Research",
+      "description": "Automated news & finance intelligence — topics, watchlists, sentiment analysis, and Notion sync.",
+      "keywords": ["Research", "intel", "intelligence", "news", "Work"],
+      "route": "/research",
+      "tab": "research",
+      "source": "navigation"
+    },
+    {
+      "id": "page:terminals",
+      "kind": "page",
+      "title": "Terminals",
+      "description": "Multi-terminal session management with CLI agent integration.",
+      "keywords": ["Terminals", "terminal", "shell", "Agents"],
+      "route": "/terminals",
+      "tab": "terminals",
+      "source": "navigation"
+    },
+    {
+      "id": "page:android-ops",
+      "kind": "page",
+      "title": "Droid Swarm",
+      "description": "Droid Swarm — four-phone rack operations: live device health, account assignment, scheduled jobs, human checkpoints, compliance-safe control.",
+      "keywords": ["Droid Swarm", "Agents"],
+      "route": "/android-ops",
+      "tab": "android-ops",
+      "source": "navigation",
+      "availability": {
+        "note": "Not in the sidebar — reachable by link, launchpad and ⌘K."
+      }
+    },
+    {
+      "id": "page:files",
+      "kind": "page",
+      "title": "Files",
+      "description": "Browse, upload, and manage files in the InfiniBot workspace with tree view and preview.",
+      "keywords": ["Files", "file browser", "file tree", "Agents"],
+      "route": "/files",
+      "tab": "files",
+      "source": "navigation"
+    },
+    {
+      "id": "page:files/directories",
+      "kind": "page",
+      "title": "Files › Directory map",
+      "description": "Map local directories to projects, Notion databases, and agents for automatic context injection.",
+      "keywords": ["Directory map", "Directories", "mapped directories", "linked directories"],
+      "route": "/files?view=directories",
+      "selectors": [".host-subtabs[data-host-subtabs=\"files\"] [data-host-view=\"directories\"]"],
+      "tab": "directories",
+      "parent": "page:files",
+      "source": "host-subview",
+      "aliases": ["page:directories"]
+    },
+    {
+      "id": "page:browser",
+      "kind": "page",
+      "title": "Browser",
+      "description": "Embedded Chromium browser with persistent cookies and session context for web automation.",
+      "keywords": ["Browser", "embedded browser", "chromium", "Agents"],
+      "route": "/browser",
+      "tab": "browser",
+      "source": "navigation"
+    },
+    {
+      "id": "page:setup",
+      "kind": "page",
+      "title": "Setup",
+      "description": "MCP integration, Docker deployment, setup wizard, and instance configuration management.",
+      "keywords": ["Setup", "wizard", "setup wizard", "Settings"],
+      "route": "/setup",
+      "tab": "setup",
+      "source": "navigation"
+    },
+    {
+      "id": "page:setup/config",
+      "kind": "page",
+      "title": "Setup › Config",
+      "description": "Edit ~/.infinibot/infinibot.json safely.",
+      "keywords": [
+        "Config",
+        "settings",
+        "settings page",
+        "preferences",
+        "config form",
+        "raw config",
+        "config file",
+        "infinibot.json"
+      ],
+      "route": "/setup?view=config",
+      "selectors": [".host-subtabs[data-host-subtabs=\"setup\"] [data-host-view=\"config\"]"],
+      "tab": "config",
+      "parent": "page:setup",
+      "source": "host-subview",
+      "aliases": ["page:config"]
+    },
+    {
+      "id": "page:setup/components",
+      "kind": "section",
+      "title": "Setup › Components",
+      "keywords": ["Components"],
+      "route": "/setup?view=components",
+      "tab": "setup",
+      "parent": "page:setup",
+      "source": "host-subview",
+      "aliases": ["page:components"]
+    },
+    {
+      "id": "page:setup/coders",
+      "kind": "section",
+      "title": "Setup › Coders",
+      "keywords": [
+        "Coders",
+        "install claude code",
+        "claude code",
+        "install codex",
+        "codex cli",
+        "opencode",
+        "gemini cli",
+        "qwen code",
+        "aider",
+        "coding agent",
+        "coder cli"
+      ],
+      "route": "/setup?view=coders",
+      "tab": "setup",
+      "parent": "page:setup",
+      "source": "host-subview",
+      "aliases": ["page:coders"]
+    },
+    {
+      "id": "page:federation",
+      "kind": "page",
+      "title": "Federation",
+      "description": "Multi-node network configuration — connect satellites, manage nodes, and route compute.",
+      "keywords": ["Federation", "satellites", "network", "Agents", "robopark"],
+      "aliases": ["page:robopark"],
+      "route": "/federation",
+      "tab": "federation",
+      "source": "navigation"
+    },
+    {
+      "id": "page:federation/hardware",
+      "kind": "page",
+      "title": "Federation › Hardware",
+      "description": "Real-time hardware analysis HUD — live CPU, GPU, RAM, disk, and network metrics with insights.",
+      "keywords": ["Hardware"],
+      "route": "/federation?view=hardware",
+      "selectors": [
+        ".host-subtabs[data-host-subtabs=\"federation\"] [data-host-view=\"hardware\"]"
+      ],
+      "tab": "hardware",
+      "parent": "page:federation",
+      "source": "host-subview",
+      "aliases": ["page:hardware"]
+    },
+    {
+      "id": "page:federation/ollama",
+      "kind": "page",
+      "title": "Federation › Ollama",
+      "description": "Local Ollama command center — server status, GPU/VRAM gauges, and per-model load / unload.",
+      "keywords": ["Ollama"],
+      "route": "/federation?view=ollama",
+      "selectors": [".host-subtabs[data-host-subtabs=\"federation\"] [data-host-view=\"ollama\"]"],
+      "tab": "ollama",
+      "parent": "page:federation",
+      "source": "host-subview",
+      "aliases": ["page:ollama"]
+    },
+    {
+      "id": "page:storyboard",
+      "kind": "page",
+      "title": "Storyboard Studio",
+      "description": "Automated storyboard generation — script writing, scene splitting, and AI image generation for video production.",
+      "keywords": ["Storyboard Studio", "scenes", "Work"],
+      "route": "/storyboard",
+      "tab": "storyboard",
+      "source": "navigation",
+      "availability": {
+        "note": "Not in the sidebar — reachable by link, launchpad and ⌘K."
+      }
+    },
+    {
+      "id": "page:appearance",
+      "kind": "page",
+      "title": "Appearance",
+      "description": "Theme, colors, glass-HUD intensity, app name, logo.",
+      "keywords": ["Appearance", "theme", "look and feel", "colors", "Settings"],
+      "route": "/appearance",
+      "tab": "appearance",
+      "source": "navigation"
+    },
+    {
+      "id": "page:sites",
+      "kind": "page",
+      "title": "Sites",
+      "description": "Drag-and-drop landing pages — block builder, AI code control, Netlify hosting, per-business CRM capture and KPIs.",
+      "keywords": ["Sites", "site builder", "landing", "Work"],
+      "route": "/sites",
+      "tab": "sites",
+      "source": "navigation",
+      "availability": {
+        "note": "Not in the sidebar — reachable by link, launchpad and ⌘K."
+      }
+    },
+    {
+      "id": "page:workspace",
+      "kind": "page",
+      "title": "Workspace",
+      "description": "Per-project IDE — file tree, code/diff/preview, Claude Coder chat — Bolt-style with HUD glassmorphism.",
+      "keywords": [
+        "Workspace",
+        "per project workspace",
+        "ide",
+        "Agents",
+        "vcs",
+        "Version Control",
+        "worktrees",
+        "git"
+      ],
+      "aliases": ["page:vcs"],
+      "route": "/workspace",
+      "tab": "workspace",
+      "source": "navigation"
+    },
+    {
+      "id": "page:docs",
+      "kind": "page",
+      "title": "Docs",
+      "description": "Detailed reference for every feature, command, channel, and integration.",
+      "keywords": ["Docs", "documentation", "help", "Settings"],
+      "route": "/docs",
+      "tab": "docs",
+      "source": "navigation"
+    },
+    {
+      "id": "page:users",
+      "kind": "page",
+      "title": "Users",
+      "keywords": ["Users", "accounts", "user list", "Settings"],
+      "route": "/users",
+      "tab": "users",
+      "source": "navigation",
+      "availability": {
+        "note": "Not in the sidebar — reachable by link, launchpad and ⌘K."
+      }
+    },
+    {
+      "id": "page:access",
+      "kind": "page",
+      "title": "Team & Access",
+      "description": "Workspace users, signup invites and the visibility matrix — decide who sees which projects, documents, chats and reports.",
+      "keywords": ["Team & Access", "Settings"],
+      "route": "/access",
+      "tab": "access",
+      "source": "navigation"
+    },
+    {
+      "id": "page:profiles",
+      "kind": "page",
+      "title": "Profiles",
+      "description": "Password-free user profiles — separate data & agent memory per person, shared services. Add, rename, re-theme, switch, or delete profiles.",
+      "keywords": ["Profiles", "Settings"],
+      "route": "/profiles",
+      "tab": "profiles",
+      "source": "navigation"
+    },
+    {
+      "id": "page:mobile",
+      "kind": "page",
+      "title": "Mobile",
+      "keywords": ["Mobile", "phone", "ios", "android", "Settings"],
+      "aliases": ["page:mobile/expo"],
+      "route": "/mobile",
+      "tab": "mobile",
+      "source": "navigation"
+    },
+    {
+      "id": "page:mobile/build",
+      "kind": "page",
+      "title": "Mobile › Build the app",
+      "keywords": ["Build the app"],
+      "route": "/mobile?view=build",
+      "selectors": [".host-subtabs[data-host-subtabs=\"mobile\"] [data-host-view=\"build\"]"],
+      "tab": "mobile",
+      "parent": "page:mobile",
+      "source": "host-subview"
+    },
+    {
+      "id": "page:mobile/web",
+      "kind": "page",
+      "title": "Mobile › Web Preview",
+      "keywords": ["Web Preview", "mobilepage", "Mobile Page"],
+      "route": "/mobile?view=web",
+      "selectors": [".host-subtabs[data-host-subtabs=\"mobile\"] [data-host-view=\"web\"]"],
+      "tab": "mobile",
+      "parent": "page:mobile",
+      "source": "host-subview",
+      "aliases": ["page:mobilepage"]
+    },
+    {
+      "id": "page:learn",
+      "kind": "page",
+      "title": "Learn",
+      "keywords": ["Learn", "tutorials", "lessons", "Home"],
+      "route": "/learn",
+      "tab": "learn",
+      "source": "navigation"
+    },
+    {
+      "id": "page:apps",
+      "kind": "page",
+      "title": "Apps & Sites",
+      "keywords": ["Apps & Sites", "sites", "landing pages", "apps and sites", "websites", "Home"],
+      "route": "/apps",
+      "tab": "apps",
+      "source": "navigation",
+      "availability": {
+        "note": "Not in the sidebar — reachable by link, launchpad and ⌘K."
+      }
+    },
+    {
+      "id": "page:inbox",
+      "kind": "page",
+      "title": "Inbox",
+      "description": "Unified inbox — account-segmented All Mail, AI-triaged lead Replies, and Insights with Telegram alert rules.",
+      "keywords": [
+        "Inbox",
+        "Chat & Voice",
+        "email",
+        "Gmail",
+        "mass email",
+        "campaigns",
+        "loops",
+        "emails"
+      ],
+      "aliases": ["page:inbox/mail", "page:email", "page:emails"],
+      "route": "/inbox",
+      "tab": "inbox",
+      "source": "navigation"
+    },
+    {
+      "id": "page:inbox/replies",
+      "kind": "page",
+      "title": "Inbox › Replies",
+      "keywords": ["Replies", "reply-inbox", "Reply Inbox"],
+      "route": "/inbox?view=replies",
+      "selectors": [".host-subtabs[data-host-subtabs=\"inbox\"] [data-host-view=\"replies\"]"],
+      "tab": "inbox",
+      "parent": "page:inbox",
+      "source": "host-subview",
+      "aliases": ["page:reply-inbox"]
+    },
+    {
+      "id": "page:inbox/insights",
+      "kind": "page",
+      "title": "Inbox › Insights",
+      "keywords": ["Insights"],
+      "route": "/inbox?view=insights",
+      "selectors": [".host-subtabs[data-host-subtabs=\"inbox\"] [data-host-view=\"insights\"]"],
+      "tab": "inbox",
+      "parent": "page:inbox",
+      "source": "host-subview"
+    },
+    {
+      "id": "page:design",
+      "kind": "page",
+      "title": "Design",
+      "description": "AI-driven design generation — skills + design systems + Claude Coder, with live iframe preview and per-project artifacts.",
+      "keywords": ["Design", "Work"],
+      "route": "/design",
+      "tab": "design",
+      "source": "navigation",
+      "availability": {
+        "note": "Not in the sidebar — reachable by link, launchpad and ⌘K."
+      }
+    },
+    {
+      "id": "page:dashboard",
+      "kind": "page",
+      "title": "Dashboard",
+      "description": "Home — your AI OS at a glance: chat, voice, projects, notes, schedule, inbox, research and agents.",
+      "keywords": [
+        "Dashboard",
+        "Home",
+        "overview",
+        "gateway overview",
+        "systems",
+        "Systems Intelligence",
+        "image-studio",
+        "Image Studio"
+      ],
+      "aliases": ["page:overview", "page:systems", "page:image-studio"],
+      "route": "/dashboard",
+      "tab": "dashboard",
+      "source": "navigation"
+    },
+    {
+      "id": "page:reports",
+      "kind": "page",
+      "title": "Reports",
+      "description": "Stylized PDF reporting — scheduled, triggered, and on-demand. List, preview, download, resend, with schedules & triggers.",
+      "keywords": ["Reports", "Agents"],
+      "route": "/reports",
+      "tab": "reports",
+      "source": "navigation"
+    },
+    {
+      "id": "page:reviews",
+      "kind": "page",
+      "title": "Reviews",
+      "description": "In-depth review of every agent run — summary, files touched, issues, built / not-built, and one-click follow-ups.",
+      "keywords": ["Reviews", "Agents"],
+      "route": "/reviews",
+      "tab": "reviews",
+      "source": "navigation"
+    },
+    {
+      "id": "page:reviews/oversight",
+      "kind": "page",
+      "title": "Reviews › Oversight",
+      "description": "Post-task review — quality scores, blockers, next steps, and build status for every completed agent run.",
+      "keywords": ["Oversight", "subagents", "Sub-Agents", "sub agents", "subagent monitor"],
+      "route": "/reviews?view=oversight",
+      "selectors": [".host-subtabs[data-host-subtabs=\"reviews\"] [data-host-view=\"oversight\"]"],
+      "tab": "oversight",
+      "parent": "page:reviews",
+      "source": "host-subview",
+      "aliases": ["page:oversight", "page:subagents"]
+    },
+    {
+      "id": "page:mesh",
+      "kind": "page",
+      "title": "Agent Mesh",
+      "description": "Live isometric map of every agent, sub-agent and session moving across the mesh.",
+      "keywords": ["Agent Mesh", "Agents"],
+      "route": "/mesh",
+      "tab": "mesh",
+      "source": "navigation"
+    },
+    {
+      "id": "page:plugins",
+      "kind": "page",
+      "title": "Plugins",
+      "description": "Browse, buy and manage plugins: apps, channels and integrations, with what each one adds.",
+      "keywords": ["Plugins", "Home"],
+      "route": "/plugins",
+      "tab": "plugins",
+      "source": "navigation"
+    },
+    {
+      "id": "page:vault",
+      "kind": "page",
+      "title": "Vault",
+      "description": "Community vault HUD — Discord members, tiers, courses, moderation log and automation rules.",
+      "keywords": ["Vault", "Work"],
+      "route": "/vault",
+      "tab": "vault",
+      "source": "navigation",
+      "availability": {
+        "note": "Not in the sidebar — reachable by link, launchpad and ⌘K."
+      }
+    },
+    {
+      "id": "nav:sidebar/dashboard",
+      "kind": "nav",
+      "title": "Sidebar › Home › Dashboard",
+      "description": "The \"Dashboard\" entry in the Home group of the left sidebar.",
+      "keywords": ["Dashboard"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "dashboard"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"dashboard\"]"],
+      "tab": "dashboard",
+      "parent": "page:dashboard",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/learn",
+      "kind": "nav",
+      "title": "Sidebar › Home › Learn",
+      "description": "The \"Learn\" entry in the Home group of the left sidebar.",
+      "keywords": ["Learn", "tutorials", "lessons"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "learn"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"learn\"]"],
+      "tab": "learn",
+      "parent": "page:learn",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/plugins",
+      "kind": "nav",
+      "title": "Sidebar › Home › Plugins",
+      "description": "The \"Plugins\" entry in the Home group of the left sidebar.",
+      "keywords": ["Plugins"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "plugins"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"plugins\"]"],
+      "tab": "plugins",
+      "parent": "page:plugins",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/webchat",
+      "kind": "nav",
+      "title": "Sidebar › Chat & Voice › Chat",
+      "description": "The \"Chat\" entry in the Chat & Voice group of the left sidebar.",
+      "keywords": ["Chat"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "webchat"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"webchat\"]"],
+      "tab": "webchat",
+      "parent": "page:webchat",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/grid",
+      "kind": "nav",
+      "title": "Sidebar › Chat & Voice › Grid",
+      "description": "The \"Grid\" entry in the Chat & Voice group of the left sidebar.",
+      "keywords": ["Grid", "chat grid", "multi chat", "masonry"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "grid"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"grid\"]"],
+      "tab": "grid",
+      "parent": "page:grid",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/voice",
+      "kind": "nav",
+      "title": "Sidebar › Chat & Voice › Voice",
+      "description": "The \"Voice\" entry in the Chat & Voice group of the left sidebar.",
+      "keywords": ["Voice", "voice page", "voice chat"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "voice"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"voice\"]"],
+      "tab": "voice",
+      "parent": "page:voice",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/inbox",
+      "kind": "nav",
+      "title": "Sidebar › Chat & Voice › Inbox",
+      "description": "The \"Inbox\" entry in the Chat & Voice group of the left sidebar.",
+      "keywords": ["Inbox"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "inbox"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"inbox\"]"],
+      "tab": "inbox",
+      "parent": "page:inbox",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/projects",
+      "kind": "nav",
+      "title": "Sidebar › Work › Projects",
+      "description": "The \"Projects\" entry in the Work group of the left sidebar.",
+      "keywords": ["Projects", "project", "kanban", "kanban board", "boards", "task board"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "projects"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"projects\"]"],
+      "tab": "projects",
+      "parent": "page:projects",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/notes",
+      "kind": "nav",
+      "title": "Sidebar › Work › Documents",
+      "description": "The \"Documents\" entry in the Work group of the left sidebar.",
+      "keywords": ["Documents", "note", "notes page", "scratchpad"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "notes"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"notes\"]"],
+      "tab": "notes",
+      "parent": "page:notes",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/schedule",
+      "kind": "nav",
+      "title": "Sidebar › Work › Schedule",
+      "description": "The \"Schedule\" entry in the Work group of the left sidebar.",
+      "keywords": ["Schedule", "calendar", "events", "meetings"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "schedule"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"schedule\"]"],
+      "tab": "schedule",
+      "parent": "page:schedule",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/research",
+      "kind": "nav",
+      "title": "Sidebar › Work › Research",
+      "description": "The \"Research\" entry in the Work group of the left sidebar.",
+      "keywords": ["Research", "intel", "intelligence", "news"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "research"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"research\"]"],
+      "tab": "research",
+      "parent": "page:research",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/agents",
+      "kind": "nav",
+      "title": "Sidebar › Agents › Agents",
+      "description": "The \"Agents\" entry in the Agents group of the left sidebar.",
+      "keywords": ["Agents", "agent", "agent list"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "agents"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"agents\"]"],
+      "tab": "agents",
+      "parent": "page:agents",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/activity",
+      "kind": "nav",
+      "title": "Sidebar › Agents › Activity",
+      "description": "The \"Activity\" entry in the Agents group of the left sidebar.",
+      "keywords": ["Activity", "live activity", "agent activity"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "activity"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"activity\"]"],
+      "tab": "activity",
+      "parent": "page:activity",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/mesh",
+      "kind": "nav",
+      "title": "Sidebar › Agents › Agent Mesh",
+      "description": "The \"Agent Mesh\" entry in the Agents group of the left sidebar.",
+      "keywords": ["Agent Mesh"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "mesh"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"mesh\"]"],
+      "tab": "mesh",
+      "parent": "page:mesh",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/reviews",
+      "kind": "nav",
+      "title": "Sidebar › Agents › Reviews",
+      "description": "The \"Reviews\" entry in the Agents group of the left sidebar.",
+      "keywords": ["Reviews"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "reviews"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"reviews\"]"],
+      "tab": "reviews",
+      "parent": "page:reviews",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/reports",
+      "kind": "nav",
+      "title": "Sidebar › Agents › Reports",
+      "description": "The \"Reports\" entry in the Agents group of the left sidebar.",
+      "keywords": ["Reports"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "reports"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"reports\"]"],
+      "tab": "reports",
+      "parent": "page:reports",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/autonomy",
+      "kind": "nav",
+      "title": "Sidebar › Agents › Autonomy",
+      "description": "The \"Autonomy\" entry in the Agents group of the left sidebar.",
+      "keywords": ["Autonomy", "trust", "audit"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "autonomy"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"autonomy\"]"],
+      "tab": "autonomy",
+      "parent": "page:autonomy",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/workflows",
+      "kind": "nav",
+      "title": "Sidebar › Agents › Workflows",
+      "description": "The \"Workflows\" entry in the Agents group of the left sidebar.",
+      "keywords": ["Workflows", "workflow", "automations"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "workflows"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"workflows\"]"],
+      "tab": "workflows",
+      "parent": "page:workflows",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/memory",
+      "kind": "nav",
+      "title": "Sidebar › Agents › Memory",
+      "description": "The \"Memory\" entry in the Agents group of the left sidebar.",
+      "keywords": ["Memory", "memories", "long term memory"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "memory"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"memory\"]"],
+      "tab": "memory",
+      "parent": "page:memory",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/issues",
+      "kind": "nav",
+      "title": "Sidebar › Agents › Issues",
+      "description": "The \"Issues\" entry in the Agents group of the left sidebar.",
+      "keywords": ["Issues"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "issues"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"issues\"]"],
+      "tab": "issues",
+      "parent": "page:issues",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/terminals",
+      "kind": "nav",
+      "title": "Sidebar › Agents › Terminals",
+      "description": "The \"Terminals\" entry in the Agents group of the left sidebar.",
+      "keywords": ["Terminals", "terminal", "shell"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "terminals"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"terminals\"]"],
+      "tab": "terminals",
+      "parent": "page:terminals",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/workspace",
+      "kind": "nav",
+      "title": "Sidebar › Agents › Workspace",
+      "description": "The \"Workspace\" entry in the Agents group of the left sidebar.",
+      "keywords": ["Workspace", "per project workspace", "ide"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "workspace"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"workspace\"]"],
+      "tab": "workspace",
+      "parent": "page:workspace",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/files",
+      "kind": "nav",
+      "title": "Sidebar › Agents › Files",
+      "description": "The \"Files\" entry in the Agents group of the left sidebar.",
+      "keywords": ["Files", "file browser", "file tree"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "files"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"files\"]"],
+      "tab": "files",
+      "parent": "page:files",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/browser",
+      "kind": "nav",
+      "title": "Sidebar › Agents › Browser",
+      "description": "The \"Browser\" entry in the Agents group of the left sidebar.",
+      "keywords": ["Browser", "embedded browser", "chromium"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "browser"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"browser\"]"],
+      "tab": "browser",
+      "parent": "page:browser",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/federation",
+      "kind": "nav",
+      "title": "Sidebar › Agents › Federation",
+      "description": "The \"Federation\" entry in the Agents group of the left sidebar.",
+      "keywords": ["Federation", "satellites", "network"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "federation"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"federation\"]"],
+      "tab": "federation",
+      "parent": "page:federation",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/setup",
+      "kind": "nav",
+      "title": "Sidebar › Settings › Setup",
+      "description": "The \"Setup\" entry in the Settings group of the left sidebar.",
+      "keywords": ["Setup", "wizard", "setup wizard"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "setup"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"setup\"]"],
+      "tab": "setup",
+      "parent": "page:setup",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/channels",
+      "kind": "nav",
+      "title": "Sidebar › Settings › Channels",
+      "description": "The \"Channels\" entry in the Settings group of the left sidebar.",
+      "keywords": ["Channels", "channels page", "messaging channels"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "channels"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"channels\"]"],
+      "tab": "channels",
+      "parent": "page:channels",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/apikeys",
+      "kind": "nav",
+      "title": "Sidebar › Settings › API Keys",
+      "description": "The \"API Keys\" entry in the Settings group of the left sidebar.",
+      "keywords": ["API Keys", "credentials", "tokens"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "apikeys"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"apikeys\"]"],
+      "tab": "apikeys",
+      "parent": "page:apikeys",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/mcp",
+      "kind": "nav",
+      "title": "Sidebar › Settings › MCP",
+      "description": "The \"MCP\" entry in the Settings group of the left sidebar.",
+      "keywords": ["MCP", "mcp servers", "model context protocol"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "mcp"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"mcp\"]"],
+      "tab": "mcp",
+      "parent": "page:mcp",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/skills",
+      "kind": "nav",
+      "title": "Sidebar › Settings › Skills",
+      "description": "The \"Skills\" entry in the Settings group of the left sidebar.",
+      "keywords": ["Skills", "skill"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "skills"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"skills\"]"],
+      "tab": "skills",
+      "parent": "page:skills",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/profiles",
+      "kind": "nav",
+      "title": "Sidebar › Settings › Profiles",
+      "description": "The \"Profiles\" entry in the Settings group of the left sidebar.",
+      "keywords": ["Profiles"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "profiles"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"profiles\"]"],
+      "tab": "profiles",
+      "parent": "page:profiles",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/access",
+      "kind": "nav",
+      "title": "Sidebar › Settings › Team & Access",
+      "description": "The \"Team & Access\" entry in the Settings group of the left sidebar.",
+      "keywords": ["Team & Access"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "access"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"access\"]"],
+      "tab": "access",
+      "parent": "page:access",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/appearance",
+      "kind": "nav",
+      "title": "Sidebar › Settings › Appearance",
+      "description": "The \"Appearance\" entry in the Settings group of the left sidebar.",
+      "keywords": ["Appearance", "theme", "look and feel", "colors"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "appearance"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"appearance\"]"],
+      "tab": "appearance",
+      "parent": "page:appearance",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/mobile",
+      "kind": "nav",
+      "title": "Sidebar › Settings › Mobile",
+      "description": "The \"Mobile\" entry in the Settings group of the left sidebar.",
+      "keywords": ["Mobile", "phone", "ios", "android"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "mobile"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"mobile\"]"],
+      "tab": "mobile",
+      "parent": "page:mobile",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/docs",
+      "kind": "nav",
+      "title": "Sidebar › Settings › Docs",
+      "description": "The \"Docs\" entry in the Settings group of the left sidebar.",
+      "keywords": ["Docs", "documentation", "help"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "docs"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"docs\"]"],
+      "tab": "docs",
+      "parent": "page:docs",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar/logs",
+      "kind": "nav",
+      "title": "Sidebar › Settings › Logs",
+      "description": "The \"Logs\" entry in the Settings group of the left sidebar.",
+      "keywords": ["Logs", "log", "gateway logs"],
+      "reveal": [
+        {
+          "kind": "sidebar",
+          "tab": "logs"
+        }
+      ],
+      "selectors": [".nav-item[data-tab-pill=\"logs\"]"],
+      "tab": "logs",
+      "parent": "page:logs",
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar-group/home",
+      "kind": "nav",
+      "title": "Sidebar group › Home",
+      "description": "The Home group of the left sidebar (Dashboard, Learn, Plugins).",
+      "keywords": ["sidebar group"],
+      "selectors": [".nav-group[data-section-id=\"default-home\"] .nav-category-header"],
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar-group/chat-voice",
+      "kind": "nav",
+      "title": "Sidebar group › Chat & Voice",
+      "description": "The Chat & Voice group of the left sidebar (Chat, Grid, Voice, Inbox).",
+      "keywords": ["sidebar group"],
+      "selectors": [".nav-group[data-section-id=\"default-chat-&-voice\"] .nav-category-header"],
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar-group/work",
+      "kind": "nav",
+      "title": "Sidebar group › Work",
+      "description": "The Work group of the left sidebar (Projects, Documents, Schedule, Research).",
+      "keywords": ["sidebar group"],
+      "selectors": [".nav-group[data-section-id=\"default-work\"] .nav-category-header"],
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar-group/agents",
+      "kind": "nav",
+      "title": "Sidebar group › Agents",
+      "description": "The Agents group of the left sidebar (Agents, Activity, Agent Mesh, Reviews, Reports, Autonomy, Workflows, Memory, Issues, Terminals, Workspace, Files, Browser, Federation).",
+      "keywords": ["sidebar group"],
+      "selectors": [".nav-group[data-section-id=\"default-agents\"] .nav-category-header"],
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar-group/settings",
+      "kind": "nav",
+      "title": "Sidebar group › Settings",
+      "description": "The Settings group of the left sidebar (Setup, Channels, API Keys, MCP, Skills, Profiles, Team & Access, Appearance, Mobile, Docs, Logs).",
+      "keywords": ["sidebar group"],
+      "selectors": [".nav-group[data-section-id=\"default-settings\"] .nav-category-header"],
+      "source": "navigation"
+    },
+    {
+      "id": "nav:sidebar",
+      "kind": "nav",
+      "title": "Sidebar (left navigation)",
+      "description": "The left sidebar: every page grouped by area, plus plugin sections. ☰ collapses it to an icon rail.",
+      "keywords": ["sidebar", "left menu", "navigation", "nav bar", "side menu", "menu"],
+      "selectors": ["aside.nav.enhanced"],
+      "source": "navigation"
+    },
+    {
+      "id": "control:sidebar/collapse",
+      "kind": "control",
+      "title": "Collapse / expand sidebar",
+      "description": "The ☰ button at the top-left: collapses the sidebar to an icon rail or expands it.",
+      "keywords": [
+        "hamburger",
+        "menu button",
+        "icon rail",
+        "hide sidebar",
+        "show sidebar",
+        "collapse sidebar"
+      ],
+      "selectors": [".topbar .nav-collapse-toggle"],
+      "source": "navigation"
+    },
+    {
+      "id": "control:topbar/tabctx",
+      "kind": "control",
+      "title": "Topbar › Page context",
+      "description": "The current page name and its quick actions.",
+      "keywords": ["topbar", "top bar", "current page"],
+      "selectors": ["[data-cb] [data-cb-item=\"tabctx\"]"],
+      "fallbackSelectors": ["[data-cb] [data-cb-more] .cb-more__btn", "[data-cb] [data-cb-more]"],
+      "fallbackHint": "It's tucked into this ⋯ menu at this window width.",
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/federation",
+      "kind": "control",
+      "title": "Topbar › Connected UI tabs",
+      "description": "Every InfiniBot window/tab connected to this gateway (Alpha, Bravo…).",
+      "keywords": ["topbar", "top bar", "Connected UI tabs", "windows", "tabs", "connected tabs"],
+      "selectors": ["[data-cb] [data-cb-item=\"federation\"]"],
+      "fallbackSelectors": ["[data-cb] [data-cb-more] .cb-more__btn", "[data-cb] [data-cb-more]"],
+      "fallbackHint": "It's tucked into this ⋯ menu at this window width.",
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/devices",
+      "kind": "control",
+      "title": "Topbar › Devices",
+      "keywords": ["topbar", "top bar", "Devices"],
+      "selectors": ["[data-cb] [data-cb-item=\"devices\"]"],
+      "fallbackSelectors": ["[data-cb] [data-cb-more] .cb-more__btn", "[data-cb] [data-cb-more]"],
+      "fallbackHint": "It's tucked into this ⋯ menu at this window width.",
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/brand",
+      "kind": "control",
+      "title": "Topbar › InfiniBot logo",
+      "description": "Brand mark — opens the launchpad of every page.",
+      "keywords": ["topbar", "top bar", "logo", "launchpad", "home"],
+      "selectors": ["[data-cb] [data-cb-item=\"brand\"]"],
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/coder",
+      "kind": "control",
+      "title": "Topbar › Coding backend",
+      "description": "Which coding agent (Claude Code, Codex, OpenCode…) sub-agents use.",
+      "keywords": [
+        "topbar",
+        "top bar",
+        "Coding backend",
+        "claude code",
+        "codex",
+        "opencode",
+        "coding agent"
+      ],
+      "selectors": ["[data-cb] [data-cb-item=\"coder\"]"],
+      "fallbackSelectors": ["[data-cb] [data-cb-more] .cb-more__btn", "[data-cb] [data-cb-more]"],
+      "fallbackHint": "It's tucked into this ⋯ menu at this window width.",
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/health",
+      "kind": "control",
+      "title": "Topbar › Gateway health",
+      "description": "Gateway health: connected, degraded or offline.",
+      "keywords": ["topbar", "top bar", "Gateway health", "status", "connection", "online"],
+      "selectors": ["[data-cb] [data-cb-item=\"health\"]"],
+      "fallbackSelectors": ["[data-cb] [data-cb-more] .cb-more__btn", "[data-cb] [data-cb-more]"],
+      "fallbackHint": "It's tucked into this ⋯ menu at this window width.",
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/instance",
+      "kind": "control",
+      "title": "Topbar › Instance",
+      "description": "Which InfiniBot instance this window is connected to.",
+      "keywords": ["topbar", "top bar", "Instance", "instance name"],
+      "selectors": ["[data-cb] [data-cb-item=\"instance\"]"],
+      "fallbackSelectors": ["[data-cb] [data-cb-more] .cb-more__btn", "[data-cb] [data-cb-more]"],
+      "fallbackHint": "It's tucked into this ⋯ menu at this window width.",
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/satellite",
+      "kind": "control",
+      "title": "Topbar › Satellite link",
+      "description": "Federation link to the master node (satellite installs).",
+      "keywords": ["topbar", "top bar", "Satellite link", "master", "federation link"],
+      "selectors": ["[data-cb] [data-cb-item=\"satellite\"]"],
+      "fallbackSelectors": ["[data-cb] [data-cb-more] .cb-more__btn", "[data-cb] [data-cb-more]"],
+      "fallbackHint": "It's tucked into this ⋯ menu at this window width.",
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/agency",
+      "kind": "control",
+      "title": "Topbar › Agency",
+      "description": "Active agency selector (Business & Agency plugin).",
+      "keywords": ["topbar", "top bar", "Agency", "business"],
+      "selectors": ["[data-cb] [data-cb-item=\"agency\"]"],
+      "fallbackSelectors": ["[data-cb] [data-cb-more] .cb-more__btn", "[data-cb] [data-cb-more]"],
+      "fallbackHint": "It's tucked into this ⋯ menu at this window width.",
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/language",
+      "kind": "control",
+      "title": "Topbar › Language",
+      "description": "Interface language.",
+      "keywords": ["topbar", "top bar", "Language", "translate", "locale"],
+      "selectors": ["[data-cb] [data-cb-item=\"language\"]"],
+      "fallbackSelectors": ["[data-cb] [data-cb-more] .cb-more__btn", "[data-cb] [data-cb-more]"],
+      "fallbackHint": "It's tucked into this ⋯ menu at this window width.",
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/newwindow",
+      "kind": "control",
+      "title": "Topbar › Open new window",
+      "description": "Open another InfiniBot window.",
+      "keywords": ["topbar", "top bar", "Open new window", "new tab", "second window"],
+      "selectors": ["[data-cb] [data-cb-item=\"newwindow\"]"],
+      "fallbackSelectors": ["[data-cb] [data-cb-more] .cb-more__btn", "[data-cb] [data-cb-more]"],
+      "fallbackHint": "It's tucked into this ⋯ menu at this window width.",
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/restart",
+      "kind": "control",
+      "title": "Topbar › Restart gateway",
+      "description": "Restart the gateway (reloads plugins and config).",
+      "keywords": ["topbar", "top bar", "Restart gateway", "reboot", "reload gateway"],
+      "selectors": ["[data-cb] [data-cb-item=\"restart\"]"],
+      "fallbackSelectors": ["[data-cb] [data-cb-more] .cb-more__btn", "[data-cb] [data-cb-more]"],
+      "fallbackHint": "It's tucked into this ⋯ menu at this window width.",
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/canvas",
+      "kind": "control",
+      "title": "Topbar › Canvas",
+      "description": "Open the holo canvas overlay.",
+      "keywords": ["topbar", "top bar", "Canvas", "holo canvas", "whiteboard"],
+      "selectors": ["[data-cb] [data-cb-item=\"canvas\"]"],
+      "fallbackSelectors": ["[data-cb] [data-cb-more] .cb-more__btn", "[data-cb] [data-cb-more]"],
+      "fallbackHint": "It's tucked into this ⋯ menu at this window width.",
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/chart",
+      "kind": "control",
+      "title": "Topbar › Chart",
+      "description": "Open the live chart panel (market data).",
+      "keywords": ["topbar", "top bar", "Chart", "price chart", "candles", "chart panel"],
+      "selectors": ["[data-cb] [data-cb-item=\"chart\"]"],
+      "fallbackSelectors": ["[data-cb] [data-cb-more] .cb-more__btn", "[data-cb] [data-cb-more]"],
+      "fallbackHint": "It's tucked into this ⋯ menu at this window width.",
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/chat",
+      "kind": "control",
+      "title": "Topbar › Chat with an agent",
+      "description": "Open a chat with any agent in a floating modal.",
+      "keywords": [
+        "topbar",
+        "top bar",
+        "Chat with an agent",
+        "talk to agent",
+        "agent chat",
+        "message agent"
+      ],
+      "selectors": ["[data-cb] [data-cb-item=\"chat\"]"],
+      "fallbackSelectors": ["[data-cb] [data-cb-more] .cb-more__btn", "[data-cb] [data-cb-more]"],
+      "fallbackHint": "It's tucked into this ⋯ menu at this window width.",
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/live",
+      "kind": "control",
+      "title": "Topbar › Live Action",
+      "description": "Live Action mode: voice + the agent drives the UI.",
+      "keywords": ["topbar", "top bar", "Live Action", "voice control", "hands free"],
+      "selectors": ["[data-cb] [data-cb-item=\"live\"]"],
+      "fallbackSelectors": ["[data-cb] [data-cb-more] .cb-more__btn", "[data-cb] [data-cb-more]"],
+      "fallbackHint": "It's tucked into this ⋯ menu at this window width.",
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/plugin-right",
+      "kind": "control",
+      "title": "Topbar › Plugin topbar controls",
+      "description": "Controls plugins add to the topbar (e.g. the Solatrix wallet chip).",
+      "keywords": ["topbar", "top bar", "plugin controls"],
+      "selectors": ["[data-cb] [data-cb-item=\"plugin-right\"]"],
+      "fallbackSelectors": ["[data-cb] [data-cb-more] .cb-more__btn", "[data-cb] [data-cb-more]"],
+      "fallbackHint": "It's tucked into this ⋯ menu at this window width.",
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/learn",
+      "kind": "control",
+      "title": "Topbar › Learn",
+      "description": "Guided walkthroughs and courses for this page.",
+      "keywords": ["topbar", "top bar", "Learn", "tutorial", "tour", "help"],
+      "selectors": ["[data-cb] [data-cb-item=\"learn\"]"],
+      "fallbackSelectors": ["[data-cb] [data-cb-more] .cb-more__btn", "[data-cb] [data-cb-more]"],
+      "fallbackHint": "It's tucked into this ⋯ menu at this window width.",
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/agent",
+      "kind": "control",
+      "title": "Topbar › Agent sidebar",
+      "description": "Show or hide the agent sidebar.",
+      "keywords": ["topbar", "top bar", "Agent sidebar", "agent panel"],
+      "selectors": ["[data-cb] [data-cb-item=\"agent\"]"],
+      "fallbackSelectors": ["[data-cb] [data-cb-more] .cb-more__btn", "[data-cb] [data-cb-more]"],
+      "fallbackHint": "It's tucked into this ⋯ menu at this window width.",
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/activity",
+      "kind": "control",
+      "title": "Topbar › Agent activity",
+      "description": "Live agent activity feed.",
+      "keywords": ["topbar", "top bar", "Agent activity", "activity feed", "what agents are doing"],
+      "selectors": ["[data-cb] [data-cb-item=\"activity\"]"],
+      "fallbackSelectors": ["[data-cb] [data-cb-more] .cb-more__btn", "[data-cb] [data-cb-more]"],
+      "fallbackHint": "It's tucked into this ⋯ menu at this window width.",
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/approvals",
+      "kind": "control",
+      "title": "Topbar › Approvals",
+      "description": "Pending approvals from agents (exec, trades, messages).",
+      "keywords": [
+        "topbar",
+        "top bar",
+        "Approvals",
+        "approve",
+        "pending approvals",
+        "approval inbox"
+      ],
+      "selectors": ["[data-cb] [data-cb-item=\"approvals\"]"],
+      "source": "control-bar"
+    },
+    {
+      "id": "control:topbar/more",
+      "kind": "control",
+      "title": "Topbar › ⋯ overflow menu",
+      "description": "Topbar controls that don't fit at this window width move into this menu.",
+      "keywords": ["more", "overflow", "three dots", "ellipsis"],
+      "selectors": ["[data-cb] [data-cb-more] .cb-more__btn", "[data-cb] [data-cb-more]"],
+      "source": "control-bar"
+    }
+  ]
+}

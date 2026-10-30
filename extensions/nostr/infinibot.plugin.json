@@ -1,0 +1,23 @@
+{
+  "id": "nostr",
+  "name": "Nostr",
+  "listing": {
+    "tagline": "Encrypted direct messages on the Nostr protocol (NIP-04).",
+    "category": "channels",
+    "tags": [
+      "open-protocol",
+      "encrypted"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "channels": [
+    "nostr"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

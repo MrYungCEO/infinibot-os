@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta http-equiv="Content-Security-Policy"
+    content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline';" />
+  <title>InfiniBot — Setup</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0a0a0a;
+      color: #e2e8f0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Sidebar ── */
+    .sidebar {
+      width: 220px;
+      background: #0f172a;
+      border-right: 1px solid #1e293b;
+      padding: 32px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .sidebar-logo {
+      font-size: 1.4rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, #a78bfa, #38bdf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 24px;
+    }
+
+    .step-item {
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      color: #64748b;
+      cursor: default;
+      transition: all 0.15s;
+    }
+
+    .step-item.active {
+      background: #1e293b;
+      color: #e2e8f0;
+    }
+
+    /* ── Content ── */
+    .content {
+      flex: 1;
+      padding: 48px 56px;
+      overflow-y: auto;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 8px;
+      color: #f1f5f9;
+    }
+
+    p.subtitle {
+      color: #64748b;
+      font-size: 0.9rem;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    .step-panel { display: none; }
+    .step-panel.active { display: block; }
+
+    /* Log area */
+    #log {
+      margin-top: 16px;
+      background: #0f172a;
+      border: 1px solid #1e293b;
+      border-radius: 8px;
+      padding: 12px 16px;
+      height: 120px;
+      overflow-y: auto;
+      font-family: "Cascadia Code", monospace;
+      font-size: 0.72rem;
+      color: #475569;
+    }
+
+    .log-line.error { color: #f87171; }
+    .log-line.warn  { color: #fbbf24; }
+
+    /* Nav buttons */
+    .nav-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 32px;
+    }
+
+    button {
+      padding: 9px 22px;
+      border-radius: 7px;
+      font-size: 0.85rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      transition: opacity 0.15s;
+    }
+
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #7c3aed, #0ea5e9);
+      color: #fff;
+    }
+
+    .btn-secondary {
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid #334155;
+    }
+
+    .tag {
+      display: inline-block;
+      font-size: 0.7rem;
+      padding: 2px 8px;
+      border-radius: 99px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .tag-optional { background: #1e293b; color: #64748b; }
+    .tag-required { background: #1a0f3e; color: #a78bfa; }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-logo">InfiniBot</div>
+    <div id="step-nav"></div>
+  </div>
+
+  <div class="content">
+
+    <!-- Step: Welcome -->
+    <div class="step-panel" data-step="welcome">
+      <h1>Welcome to InfiniBot</h1>
+      <p class="subtitle">
+        InfiniBot is your personal AI gateway — agents, voice calls, kanban,
+        multi-channel messaging, and more, all running locally on your machine.
+        This wizard will get you set up in under 2 minutes.
+      </p>
+      <ul style="color:#64748b;font-size:0.85rem;line-height:2;padding-left:20px;margin-bottom:32px;">
+        <li>Your data stays local (gateway runs at <code>127.0.0.1:47913</code>)</li>
+        <li>Voice runs on Robovoice — nothing to install on this machine</li>
+        <li>You can reconfigure any time from the Settings panel</li>
+      </ul>
+      <div class="nav-row">
+        <button class="btn-primary" id="btn-next-welcome">Get Started →</button>
+      </div>
+    </div>
+
+    <!-- Step: Voice (Robovoice) -->
+    <div class="step-panel" data-step="voice">
+      <h1>Voice <span class="tag tag-optional">Optional</span></h1>
+      <p class="subtitle">
+        Voice runs on Robovoice — calls, speech-to-text and text-to-speech are
+        handled there, so nothing is installed on this machine. Linking is
+        optional: open the <strong>Voice</strong> page in the app after launch
+        (or use <em>Open Voice</em> in the tray menu), or run
+        <code>infinibot robovoice login</code> from a terminal.
+      </p>
+
+      <div class="nav-row">
+        <button class="btn-secondary" id="btn-back-voice">← Back</button>
+        <button class="btn-primary" id="btn-next-voice">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step: AI Provider -->
+    <div class="step-panel" data-step="provider">
+      <h1>AI Provider <span class="tag tag-required">Required</span></h1>
+      <p class="subtitle">
+        InfiniBot needs at least one LLM provider. You can configure API keys
+        inside the app's Quickstart / Settings screens after launch — this step
+        is just a reminder. All credentials are stored locally in
+        <code>~/.infinibot/infinibot.json</code>.
+      </p>
+      <ul style="color:#64748b;font-size:0.85rem;line-height:2;padding-left:20px;margin-bottom:32px;">
+        <li>Anthropic Claude (recommended) — <code>ANTHROPIC_API_KEY</code></li>
+        <li>OpenAI — <code>OPENAI_API_KEY</code></li>
+        <li>Google Gemini — <code>GEMINI_API_KEY</code></li>
+        <li>CLI fallback — Claude Code / OpenCode / Codex (no API key needed)</li>
+      </ul>
+      <div class="nav-row">
+        <button class="btn-secondary" id="btn-back-provider">← Back</button>
+        <button class="btn-primary" id="btn-next-provider">Next →</button>
+      </div>
+    </div>
+
+    <!-- Step: Launch -->
+    <div class="step-panel" data-step="done">
+      <h1>All Set — Launch InfiniBot</h1>
+      <p class="subtitle">
+        Click Launch to start the gateway and open the dashboard. The app will
+        live in your system tray — closing the window keeps the gateway running.
+      </p>
+      <div class="nav-row">
+        <button class="btn-secondary" id="btn-back-done">← Back</button>
+        <button class="btn-primary" id="btn-launch">Launch Gateway</button>
+      </div>
+      <div id="log"></div>
+    </div>
+
+  </div>
+
+  <!-- first-run.ts compiled output (added by build step) -->
+  <!-- In dev, tsc outputs to dist-electron/first-run.js;
+       but since this is a renderer script with no Node APIs, we inline the
+       logic rather than load a separate file. The TypeScript source at
+       src/first-run.ts is the authoritative version; keep them in sync. -->
+  <script>
+    // ── Step nav wiring ───────────────────────────────────────────────────────
+    const STEPS = ['welcome','voice','provider','done'];
+
+    function showStep(id) {
+      document.querySelectorAll('.step-panel').forEach(p => {
+        p.style.display = p.dataset.step === id ? 'block' : 'none';
+      });
+      document.querySelectorAll('.step-item').forEach(i => {
+        i.classList.toggle('active', i.dataset.step === id);
+      });
+    }
+
+    // Build sidebar nav
+    const nav = document.getElementById('step-nav');
+    [
+      { id: 'welcome',  label: 'Welcome' },
+      { id: 'voice',    label: 'Voice' },
+      { id: 'provider', label: 'AI Provider' },
+      { id: 'done',     label: 'Launch' },
+    ].forEach(({ id, label }) => {
+      const el = document.createElement('div');
+      el.className = 'step-item';
+      el.dataset.step = id;
+      el.textContent = label;
+      nav.appendChild(el);
+    });
+
+    document.getElementById('btn-next-welcome')?.addEventListener('click', () => showStep('voice'));
+    document.getElementById('btn-next-voice')?.addEventListener('click', () => showStep('provider'));
+    document.getElementById('btn-next-provider')?.addEventListener('click', () => showStep('done'));
+    document.getElementById('btn-back-voice')?.addEventListener('click', () => showStep('welcome'));
+    document.getElementById('btn-back-provider')?.addEventListener('click', () => showStep('voice'));
+    document.getElementById('btn-back-done')?.addEventListener('click', () => showStep('provider'));
+
+    // Launch button
+    function appendLog(msg, type = 'info') {
+      const log = document.getElementById('log');
+      if (!log) return;
+      const line = document.createElement('div');
+      line.className = 'log-line ' + type;
+      line.textContent = msg;
+      log.appendChild(line);
+      log.scrollTop = log.scrollHeight;
+    }
+
+    document.getElementById('btn-launch')?.addEventListener('click', async () => {
+      const btn = document.getElementById('btn-launch');
+      btn.disabled = true;
+      btn.textContent = 'Launching…';
+
+      try {
+        await window.firstRunBridge?.complete();
+        appendLog('Gateway starting…', 'info');
+
+        window.gatewayBridge?.onLog(({ type, message }) => {
+          appendLog(message.trim(), type);
+        });
+
+        const deadline = Date.now() + 60_000;
+        const poll = setInterval(async () => {
+          const st = await window.gatewayBridge?.status();
+          if (st?.ready) {
+            clearInterval(poll);
+            appendLog('✓ Gateway ready — opening dashboard…', 'info');
+            btn.textContent = 'Opening…';
+          } else if (Date.now() > deadline) {
+            clearInterval(poll);
+            appendLog('Timed out. Check logs.', 'error');
+            btn.disabled = false;
+            btn.textContent = 'Retry';
+          }
+        }, 800);
+      } catch (err) {
+        appendLog('Error: ' + err, 'error');
+        btn.disabled = false;
+        btn.textContent = 'Try Again';
+      }
+    });
+
+    showStep('welcome');
+  </script>
+</body>
+</html>

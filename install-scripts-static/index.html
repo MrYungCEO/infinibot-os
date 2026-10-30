@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Infinibot Install</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      color: #eee;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .container { max-width: 700px; text-align: center; }
+    h1 { font-size: 2.5em; margin-bottom: 10px; }
+    .fire { color: #f39c12; }
+    p { color: #aaa; margin-bottom: 30px; font-size: 1.1em; }
+    .install-box {
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      padding: 25px;
+      margin-bottom: 20px;
+    }
+    .install-box h3 { margin-bottom: 15px; color: #58a6ff; }
+    code {
+      display: block;
+      background: #161b22;
+      padding: 15px;
+      border-radius: 8px;
+      font-size: 0.95em;
+      overflow-x: auto;
+      white-space: nowrap;
+      color: #7ee787;
+      margin-bottom: 10px;
+    }
+    .copy-btn {
+      background: #238636;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9em;
+    }
+    .copy-btn:hover { background: #2ea043; }
+    .links { margin-top: 30px; }
+    .links a {
+      color: #58a6ff;
+      margin: 0 15px;
+      text-decoration: none;
+    }
+    .links a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1><span class="fire">🔥</span> InfiniBot</h1>
+    <p>Install the infinibot npm package and open setup, in one line</p>
+    
+    <div class="install-box">
+      <h3>🪟 Windows (PowerShell)</h3>
+      <code id="win-cmd">iwr -useb https://infinibotos.com/install.ps1 | iex</code>
+      <button class="copy-btn" onclick="copy('win-cmd')">📋 Copy</button>
+    </div>
+    
+    <div class="install-box">
+      <h3>🍎 macOS / 🐧 Linux</h3>
+      <code id="unix-cmd">curl -fsSL https://infinibotos.com/install.sh | bash</code>
+      <button class="copy-btn" onclick="copy('unix-cmd')">📋 Copy</button>
+    </div>
+    
+    <div class="install-box">
+      <h3>📦 npm (any OS with Node 22.12+ and git)</h3>
+      <code id="npm-cmd">npm i -g infinibot &amp;&amp; infinibot onboard</code>
+      <button class="copy-btn" onclick="copy('npm-cmd')">📋 Copy</button>
+    </div>
+
+    <div class="links">
+      <a href="https://infinibotos.com/docs/install/">📚 Docs</a>
+      <a href="https://www.npmjs.com/package/infinibot">npm</a>
+      <a href="/install.sh">install.sh</a>
+      <a href="/install.ps1">install.ps1</a>
+    </div>
+  </div>
+  
+  <script>
+    function copy(id) {
+      const text = document.getElementById(id).textContent;
+      navigator.clipboard.writeText(text);
+      event.target.textContent = '✅ Copied!';
+      setTimeout(() => event.target.textContent = '📋 Copy', 2000);
+    }
+  </script>
+</body>
+</html>

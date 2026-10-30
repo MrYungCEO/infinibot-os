@@ -1,0 +1,10 @@
+// Copy to Local.xcconfig (same folder, gitignored) and fill in.
+// Find your Team ID: developer.apple.com → Membership, or run
+// scripts/ios-team-id.sh from the repo root.
+
+DEVELOPMENT_TEAM = XXXXXXXXXX
+PRODUCT_BUNDLE_IDENTIFIER = com.yourname.infinibot.ios
+
+// Automatic signing is the default. For manual signing, also set:
+// CODE_SIGN_STYLE = Manual
+// PROVISIONING_PROFILE_SPECIFIER = com.yourname.infinibot.ios Development

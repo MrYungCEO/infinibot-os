@@ -1,0 +1,22 @@
+packages:
+  - .
+  - ui
+  - packages/*
+  - extensions/*
+  - apps/*
+
+# Flat, npm-style node_modules (real dirs, NO symlinks into the pnpm store).
+# REQUIRED for distribution: electron-builder copies node_modules verbatim into
+# the packaged app, and pnpm's default symlinked layout points at absolute paths
+# on the build machine — those dangle on any other device and break the app with
+# ERR_MODULE_NOT_FOUND (json5 at the coder-backends step, chalk at launch, …).
+nodeLinker: hoisted
+
+onlyBuiltDependencies:
+  - '@whiskeysockets/baileys'
+  - '@lydell/node-pty'
+  - '@matrix-org/matrix-sdk-crypto-nodejs'
+  - authenticate-pam
+  - esbuild
+  - protobufjs
+  - sharp

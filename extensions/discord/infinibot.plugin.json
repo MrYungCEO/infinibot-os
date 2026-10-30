@@ -1,0 +1,23 @@
+{
+  "id": "discord",
+  "name": "Discord",
+  "listing": {
+    "tagline": "Chat with your agents in Discord servers and direct messages.",
+    "category": "channels",
+    "tags": [
+      "chat",
+      "community"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "channels": [
+    "discord"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

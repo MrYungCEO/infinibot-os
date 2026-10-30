@@ -1,0 +1,116 @@
+#!/usr/bin/env bash
+# infinibot-build — cooperative build / heavy-op queue for hosted tenants.
+#
+#   infinibot-build <command> [args...]
+#
+# Runs <command> once one of N build slots is free, where N comes from the
+# tenant plan's RAM budget (starter/pro 1, business 2, scale 3 — see
+# src/agents/plan-limits.ts). Slots are `flock` locks on
+# $INFINIBOT_BUILD_QUEUE_DIR/slots/<i>.lock, so:
+#   - the kernel drops a slot the moment this wrapper exits, even on SIGKILL /
+#     OOM kill — a crashed build can never wedge the queue;
+#   - the command runs as a CHILD with the lock fd closed, so a daemon it
+#     leaves behind can't pin the slot either;
+#   - nested calls (pnpm build → pnpm -C ui build → vite build) see
+#     INFINIBOT_BUILD_SLOT and pass straight through instead of waiting on the
+#     slot their parent holds (no self-deadlock);
+#   - after INFINIBOT_BUILD_QUEUE_TIMEOUT seconds (default 1800) of waiting it
+#     runs unqueued rather than hang an agent forever.
+# Before running it also waits (up to INFINIBOT_BUILD_MEM_WAIT s, default 120)
+# for MemAvailable >= INFINIBOT_BUILD_MIN_FREE_MB (default 300).
+#
+# Installed by src/agents/build-queue.ts (ensureBuildQueueInstalled) together
+# with the PATH shims in scripts/infinibot-build-shim. Docs: docs/saas/BUILD_QUEUE.md
+set -u
+
+if [ "$#" -eq 0 ]; then
+  echo "usage: infinibot-build <command> [args...]" >&2
+  exit 64
+fi
+
+say() { echo "[infinibot-build] $*" >&2; }
+
+# Pass-through cases: already inside a slot, queue disabled, no flock.
+if [ -n "${INFINIBOT_BUILD_SLOT:-}" ] || [ "${INFINIBOT_BUILD_QUEUE:-1}" = "0" ] \
+  || ! command -v flock >/dev/null 2>&1; then
+  exec "$@"
+fi
+
+Q="${INFINIBOT_BUILD_QUEUE_DIR:-${TMPDIR:-/tmp}/infinibot-build-queue-$(id -u)}"
+max="$(cat "$Q/limit" 2>/dev/null || echo 1)"
+case "$max" in
+  '' | *[!0-9]*) max=1 ;;
+esac
+# 0 = unlimited (owner / non-gated plans).
+[ "$max" -eq 0 ] && exec "$@"
+mkdir -p "$Q/slots" 2>/dev/null || exec "$@"
+
+timeout="${INFINIBOT_BUILD_QUEUE_TIMEOUT:-1800}"
+min_free_mb="${INFINIBOT_BUILD_MIN_FREE_MB:-300}"
+mem_wait="${INFINIBOT_BUILD_MEM_WAIT:-120}"
+
+mem_available_mb() {
+  awk '/^MemAvailable:/ { print int($2 / 1024); exit }' /proc/meminfo 2>/dev/null
+}
+
+wait_for_memory() {
+  local waited=0 avail
+  while :; do
+    avail="$(mem_available_mb)"
+    [ -z "$avail" ] && return 0
+    [ "$avail" -ge "$min_free_mb" ] && return 0
+    if [ "$waited" -ge "$mem_wait" ]; then
+      say "only ${avail}MB free after ${mem_wait}s; running anyway"
+      return 0
+    fi
+    [ "$waited" -eq 0 ] && say "waiting for memory (${avail}MB free, want ${min_free_mb}MB)…"
+    sleep 2
+    waited=$((waited + 2))
+  done
+}
+
+run_in_slot() {
+  local slot="$1"
+  shift
+  export INFINIBOT_BUILD_SLOT="$slot"
+  wait_for_memory
+  # Child runs with the lock fd closed; the wrapper (holding fd 9) waits for it
+  # and forwards termination signals.
+  "$@" 9>&- &
+  local child=$!
+  trap 'kill -TERM "$child" 2>/dev/null' TERM INT HUP
+  local rc
+  while :; do
+    wait "$child"
+    rc=$?
+    # wait returns >128 when interrupted by a trapped signal; keep waiting
+    # until the child has really gone.
+    kill -0 "$child" 2>/dev/null || break
+  done
+  exit "$rc"
+}
+
+start=$SECONDS
+announced=0
+while :; do
+  i=0
+  while [ "$i" -lt "$max" ]; do
+    # (grouped so the 2>/dev/null applies to this open only, not the shell)
+    if { exec 9>>"$Q/slots/$i.lock"; } 2>/dev/null; then
+      if flock -n 9; then
+        run_in_slot "$i" "$@"
+      fi
+      exec 9>&-
+    fi
+    i=$((i + 1))
+  done
+  if [ $((SECONDS - start)) -ge "$timeout" ]; then
+    say "waited ${timeout}s for a build slot; running unqueued"
+    exec "$@"
+  fi
+  if [ "$announced" -eq 0 ]; then
+    say "all $max build slot(s) busy on this plan; queued: $*"
+    announced=1
+  fi
+  sleep 1
+done

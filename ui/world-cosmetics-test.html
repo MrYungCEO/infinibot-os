@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="en" data-world-theme="black-gold">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>World Audio + Cosmetics — test harness</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        height: 100%;
+        background: var(--world-bg, #050505);
+        color: var(--world-text, #e4e4e7);
+        font-family: ui-monospace, monospace;
+      }
+      /* Fake "world" surface so theme tokens are visibly applied. */
+      #world {
+        position: fixed;
+        inset: 0;
+        background:
+          radial-gradient(120% 80% at 50% -10%, color-mix(in srgb, var(--world-accent, #f5c451) 10%, transparent), transparent 60%),
+          var(--world-bg, #050505);
+      }
+      #world .grid {
+        position: absolute;
+        inset: 0;
+        background:
+          repeating-linear-gradient(0deg, var(--world-grid, rgba(255,255,255,.08)) 0 1px, transparent 1px 40px),
+          repeating-linear-gradient(90deg, var(--world-grid, rgba(255,255,255,.08)) 0 1px, transparent 1px 40px);
+        mask-image: radial-gradient(80% 80% at 50% 40%, #000 40%, transparent 100%);
+      }
+      .agent {
+        position: absolute;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        box-shadow: 0 0 22px 3px currentColor;
+      }
+      .beam {
+        position: absolute;
+        height: 3px;
+        border-radius: 3px;
+        top: 220px;
+        left: 220px;
+        width: 360px;
+        transform: rotate(-12deg);
+        transform-origin: left center;
+        background: linear-gradient(90deg, transparent, var(--world-beam, #fff));
+        box-shadow: 0 0 14px var(--world-beam, #fff);
+      }
+      .label {
+        position: fixed;
+        top: 16px;
+        left: 16px;
+        font-size: 12px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+        color: var(--world-muted, #aaa);
+      }
+      .label b {
+        color: var(--world-accent, #f5c451);
+      }
+    </style>
+  </head>
+  <body>
+    <div id="world">
+      <div class="grid"></div>
+      <div class="agent" style="left:200px;top:200px;color:var(--world-accent)"></div>
+      <div class="agent" style="left:560px;top:160px;color:var(--world-accent-strong)"></div>
+      <div class="agent" style="left:420px;top:340px;color:var(--world-status-complete)"></div>
+      <div class="agent" style="left:680px;top:300px;color:var(--world-status-error)"></div>
+      <div class="beam"></div>
+    </div>
+    <div class="label">Theme: <b id="theme-name">Black &amp; Gold</b></div>
+    <script type="module" src="/__world-cosmetics-test.ts"></script>
+  </body>
+</html>

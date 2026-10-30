@@ -1,0 +1,177 @@
+[
+ {
+  "id": "goal",
+  "label": "What brings you to YCS?",
+  "type": "single",
+  "weight": 30,
+  "options": [
+   {
+    "value": "ai",
+    "label": "Use AI to run my business / life",
+    "points": 90,
+    "offer": "infinibot",
+    "role": "interest-infinibot"
+   },
+   {
+    "value": "learn",
+    "label": "Learn skills (free & paid courses)",
+    "points": 75,
+    "offer": "kinglyvault",
+    "role": "interest-kinglyvault"
+   },
+   {
+    "value": "plugins",
+    "label": "Get InfiniBot plugins",
+    "points": 85,
+    "offer": "kinglyvault",
+    "role": "interest-infinibot"
+   },
+   {
+    "value": "trading",
+    "label": "Trading",
+    "points": 70,
+    "role": "interest-pulse"
+   },
+   {
+    "value": "network",
+    "label": "Networking with other founders",
+    "points": 30,
+    "offer": "infinibot"
+   },
+   {
+    "value": "explore",
+    "label": "Just exploring",
+    "points": 40,
+    "offer": "infinibot",
+    "role": "interest-infinibot"
+   }
+  ]
+ },
+ {
+  "id": "age",
+  "label": "Are you 18 or older?",
+  "type": "single",
+  "weight": 10,
+  "options": [
+   {
+    "value": "yes",
+    "label": "Yes, I'm 18+",
+    "points": 100
+   },
+   {
+    "value": "no",
+    "label": "No, I'm under 18",
+    "points": 0,
+    "offer": "kinglyvault"
+   }
+  ]
+ },
+ {
+  "id": "trading",
+  "label": "Trading: where are you?",
+  "type": "single",
+  "weight": 15,
+  "options": [
+   {
+    "value": "never",
+    "label": "Not interested / never traded",
+    "points": 20,
+    "offer": "kinglyvault"
+   },
+   {
+    "value": "learning-no-capital",
+    "label": "Learning, not ready to fund $100",
+    "points": 20,
+    "offer": "kinglyvault"
+   },
+   {
+    "value": "region-unsure",
+    "label": "My country may not be supported / not sure",
+    "points": 30,
+    "offer": "kinglyvault"
+   },
+   {
+    "value": "ready-100",
+    "label": "Ready to fund $100+ I can afford to lose (supported country)",
+    "points": 70,
+    "offer": "pulse"
+   },
+   {
+    "value": "active",
+    "label": "Active trader (supported country)",
+    "points": 85,
+    "offer": "pulse"
+   }
+  ]
+ },
+ {
+  "id": "now",
+  "label": "Where are you right now?",
+  "type": "single",
+  "weight": 15,
+  "options": [
+   {
+    "value": "student",
+    "label": "Student / just starting",
+    "points": 20,
+    "offer": "kinglyvault"
+   },
+   {
+    "value": "side",
+    "label": "Side hustle",
+    "points": 50,
+    "offer": "kinglyvault"
+   },
+   {
+    "value": "business",
+    "label": "Running a business (with revenue)",
+    "points": 90,
+    "offer": "infinibot"
+   },
+   {
+    "value": "agency",
+    "label": "Agency / freelancer",
+    "points": 100,
+    "offer": "infinibot"
+   }
+  ]
+ },
+ {
+  "id": "budget",
+  "label": "Monthly budget for tools and education?",
+  "type": "single",
+  "weight": 30,
+  "options": [
+   {
+    "value": "0",
+    "label": "$0 (free plans)",
+    "points": 0,
+    "offer": "infinibot"
+   },
+   {
+    "value": "lt20",
+    "label": "Under $20",
+    "points": 25,
+    "offer": "kinglyvault"
+   },
+   {
+    "value": "20-50",
+    "label": "$20 \u2013 $50",
+    "points": 50,
+    "offer": "infinibot"
+   },
+   {
+    "value": "50-200",
+    "label": "$50 \u2013 $200",
+    "points": 80,
+    "offer": "infinibot"
+   },
+   {
+    "value": "200+",
+    "label": "$200+",
+    "points": 100,
+    "offer": "infinibot"
+   }
+  ]
+ }
+]

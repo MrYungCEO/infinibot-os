@@ -1,0 +1,1189 @@
+<!doctype html>
+<!-- Public links point at infinibotos.com (the source repo is private). Flip the Docker tab once an image is published, and the macOS line once a Mac build ships. -->
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#fbbf24" />
+  <title>InfiniBot — Setup &amp; Quickstart</title>
+  <meta name="description" content="Install, configure, and run InfiniBot — the local-first AI control plane for chat, voice, kanban, automations, and more." />
+
+  <!--
+    Single-file landing page for InfiniBot setup. No build step, no JS
+    framework, no external requests. Drop it on any web server (or open it
+    locally in a browser) and it works. Theme tokens mirror the in-app HUD
+    palette so the page reads as part of the same product surface.
+  -->
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" />
+
+  <style>
+    /* ── Theme tokens (mirrored from InfiniBot HUD palette) ── */
+    :root {
+      --g-bg: #050505;
+      --g-bg-deep: #000000;
+      --g-bg-elevated: #0a0a0a;
+      --g-primary: #fbbf24;
+      --g-primary-soft: color-mix(in srgb, var(--g-primary) 8%, transparent);
+      --g-primary-muted: color-mix(in srgb, var(--g-primary) 18%, transparent);
+      --g-primary-strong: color-mix(in srgb, var(--g-primary) 35%, transparent);
+      --g-primary-glow: color-mix(in srgb, var(--g-primary) 30%, transparent);
+      --g-accent: #f59e0b;
+      --g-accent-soft: color-mix(in srgb, var(--g-accent) 8%, transparent);
+
+      --text: #e4e4e7;
+      --text-strong: #ffffff;
+      --text-muted: color-mix(in srgb, #e4e4e7 60%, transparent);
+      --text-faint: color-mix(in srgb, #e4e4e7 38%, transparent);
+
+      --surface: rgba(255, 255, 255, 0.045);
+      --surface-strong: rgba(255, 255, 255, 0.085);
+      --surface-hover: rgba(255, 255, 255, 0.075);
+      --border: color-mix(in srgb, var(--g-primary) 18%, rgba(255, 255, 255, 0.08));
+      --border-strong: color-mix(in srgb, var(--g-primary) 40%, transparent);
+      --border-soft: rgba(255, 255, 255, 0.06);
+
+      --radius: 14px;
+      --radius-sm: 10px;
+      --radius-lg: 22px;
+      --radius-xs: 6px;
+
+      --blur: blur(28px) saturate(190%);
+      --blur-heavy: blur(42px) saturate(220%);
+
+      --shadow-sm: 0 6px 20px rgba(0, 0, 0, 0.45);
+      --shadow: 0 18px 60px rgba(0, 0, 0, 0.7);
+      --shadow-lg: 0 36px 110px rgba(0, 0, 0, 0.85);
+
+      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas, monospace;
+      --font-sans: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+
+      --ok: #10b981;
+      --warn: #f59e0b;
+      --error: #ef4444;
+    }
+
+    /* ── Reset + base ── */
+    *, *::before, *::after { box-sizing: border-box; }
+    html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+    body {
+      margin: 0;
+      font-family: var(--font-sans);
+      color: var(--text);
+      background: var(--g-bg-deep);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+      text-rendering: optimizeLegibility;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Animated ambient backdrop — three slow gradients drift behind every
+       section. Mirrors the in-app glass effect without needing extra DOM. */
+    body::before {
+      content: "";
+      position: fixed; inset: 0;
+      pointer-events: none;
+      background:
+        radial-gradient(ellipse 60% 50% at 20% 0%, color-mix(in srgb, var(--g-primary) 12%, transparent), transparent 60%),
+        radial-gradient(ellipse 50% 40% at 100% 30%, color-mix(in srgb, var(--g-accent) 10%, transparent), transparent 60%),
+        radial-gradient(ellipse 70% 60% at 50% 100%, color-mix(in srgb, var(--g-primary) 7%, transparent), transparent 70%),
+        var(--g-bg-deep);
+      animation: ambient 18s ease-in-out infinite alternate;
+      z-index: -2;
+    }
+    @keyframes ambient {
+      0%   { transform: translate3d(0, 0, 0) scale(1); }
+      50%  { transform: translate3d(-2%, 1%, 0) scale(1.05); }
+      100% { transform: translate3d(2%, -1%, 0) scale(1); }
+    }
+
+    /* Scanline grid — subtle, evokes the HUD aesthetic. */
+    body::after {
+      content: "";
+      position: fixed; inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.018) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.018) 1px, transparent 1px);
+      background-size: 48px 48px;
+      z-index: -1;
+      mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    }
+
+    a { color: var(--g-primary); text-decoration: none; }
+    a:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+    code, pre, kbd, .mono { font-family: var(--font-mono); }
+
+    button { font-family: inherit; }
+
+    /* ── Layout ── */
+    .wrap {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* ── Top nav ── */
+    header.nav {
+      position: sticky; top: 0; z-index: 50;
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      background: color-mix(in srgb, var(--g-bg-deep) 70%, transparent);
+      border-bottom: 1px solid var(--border-soft);
+    }
+    .nav__inner {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      padding: 14px 24px;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+    .brand {
+      display: inline-flex; align-items: center; gap: 10px;
+      font-family: var(--font-mono); font-weight: 800;
+      letter-spacing: 0.18em; font-size: 13px;
+      color: var(--text-strong);
+    }
+    .brand__dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--g-primary);
+      box-shadow: 0 0 10px var(--g-primary-glow);
+    }
+    .nav__links {
+      margin-left: auto;
+      display: flex; gap: 4px; flex-wrap: wrap;
+    }
+    .nav__links a {
+      color: var(--text-muted);
+      font-size: 12px; font-weight: 600;
+      letter-spacing: 0.08em; text-transform: uppercase;
+      padding: 6px 10px; border-radius: var(--radius-xs);
+      transition: color 0.15s ease, background 0.15s ease;
+    }
+    .nav__links a:hover {
+      color: var(--g-primary);
+      background: var(--g-primary-soft);
+      text-decoration: none;
+    }
+    .nav__cta {
+      display: inline-flex; align-items: center; gap: 6px;
+      padding: 6px 14px; border-radius: var(--radius-xs);
+      background: var(--g-primary); color: #000;
+      font-size: 11px; font-weight: 700; letter-spacing: 0.12em;
+      text-transform: uppercase; text-decoration: none;
+      box-shadow: 0 6px 18px var(--g-primary-glow);
+      transition: transform 0.15s ease;
+    }
+    .nav__cta:hover { transform: translateY(-1px); text-decoration: none; }
+
+    /* ── Hero ── */
+    section.hero {
+      padding: 96px 0 60px;
+      text-align: center;
+    }
+    .eyebrow {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 6px 14px; border-radius: 999px;
+      background: var(--g-primary-soft);
+      border: 1px solid var(--border-strong);
+      color: var(--g-primary);
+      font-family: var(--font-mono);
+      font-size: 11px; font-weight: 700; letter-spacing: 0.18em;
+      text-transform: uppercase;
+      margin-bottom: 20px;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 6px; height: 6px; border-radius: 50%;
+      background: var(--g-primary);
+      box-shadow: 0 0 8px var(--g-primary);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50%      { opacity: 0.5; transform: scale(1.3); }
+    }
+    .hero h1 {
+      font-family: var(--font-mono);
+      font-size: clamp(38px, 6vw, 68px);
+      font-weight: 800;
+      letter-spacing: -0.02em;
+      line-height: 1.05;
+      margin: 0 0 20px;
+      color: var(--text-strong);
+    }
+    .hero h1 .accent {
+      background: linear-gradient(135deg, var(--g-primary) 0%, var(--g-accent) 60%, #fef3c7 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+      filter: drop-shadow(0 0 24px var(--g-primary-glow));
+    }
+    .hero p {
+      max-width: 640px;
+      margin: 0 auto 32px;
+      font-size: 17px;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+    .hero__cta {
+      display: inline-flex; gap: 12px; flex-wrap: wrap; justify-content: center;
+    }
+    .btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 13px 22px;
+      border-radius: var(--radius-sm);
+      font-family: var(--font-mono);
+      font-size: 13px; font-weight: 700; letter-spacing: 0.1em;
+      text-transform: uppercase;
+      text-decoration: none;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: transform 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn--primary {
+      background: var(--g-primary);
+      color: #000;
+      box-shadow: 0 10px 32px var(--g-primary-glow);
+    }
+    .btn--primary:hover {
+      transform: translateY(-2px);
+      text-decoration: none;
+      box-shadow: 0 16px 44px var(--g-primary-glow);
+    }
+    .btn--ghost {
+      background: transparent;
+      color: var(--text);
+      border-color: var(--border);
+    }
+    .btn--ghost:hover {
+      border-color: var(--g-primary);
+      background: var(--g-primary-soft);
+      color: var(--g-primary);
+      text-decoration: none;
+    }
+
+    /* Stats row under hero */
+    .stats {
+      margin-top: 56px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 14px;
+      max-width: 800px;
+      margin-left: auto; margin-right: auto;
+    }
+    .stat {
+      padding: 18px;
+      background: var(--surface);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius);
+      text-align: center;
+    }
+    .stat__num {
+      font-family: var(--font-mono);
+      font-size: 28px; font-weight: 800;
+      color: var(--g-primary);
+      letter-spacing: -0.02em;
+      font-variant-numeric: tabular-nums;
+    }
+    .stat__label {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--text-faint);
+      margin-top: 4px;
+    }
+
+    /* ── Section header ── */
+    section { padding: 80px 0; }
+    .section-head {
+      text-align: center;
+      margin-bottom: 48px;
+    }
+    .section-head__tag {
+      font-family: var(--font-mono);
+      font-size: 11px; font-weight: 700; letter-spacing: 0.22em;
+      color: var(--g-primary); text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+    .section-head h2 {
+      font-family: var(--font-mono);
+      font-size: clamp(28px, 4vw, 40px);
+      font-weight: 700;
+      letter-spacing: -0.01em;
+      margin: 0 0 12px;
+      color: var(--text-strong);
+    }
+    .section-head p {
+      max-width: 580px;
+      margin: 0 auto;
+      color: var(--text-muted);
+    }
+
+    /* ── Features grid ── */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .feature {
+      padding: 24px;
+      background: var(--surface);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius);
+      transition: transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+      position: relative;
+      overflow: hidden;
+    }
+    .feature::before {
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(135deg, var(--g-primary-soft) 0%, transparent 60%);
+      opacity: 0;
+      transition: opacity 0.18s ease;
+      pointer-events: none;
+    }
+    .feature:hover {
+      transform: translateY(-3px);
+      border-color: var(--border-strong);
+    }
+    .feature:hover::before { opacity: 1; }
+    .feature__icon {
+      width: 40px; height: 40px;
+      display: inline-flex; align-items: center; justify-content: center;
+      border-radius: 10px;
+      background: var(--g-primary-soft);
+      border: 1px solid var(--border-strong);
+      margin-bottom: 14px;
+      color: var(--g-primary);
+      position: relative; z-index: 1;
+    }
+    .feature__icon svg {
+      width: 20px; height: 20px;
+      stroke: currentColor; fill: none;
+      stroke-width: 1.75;
+      stroke-linecap: round; stroke-linejoin: round;
+    }
+    .feature h3 {
+      font-family: var(--font-mono);
+      font-size: 15px; font-weight: 700;
+      margin: 0 0 8px;
+      color: var(--text-strong);
+      letter-spacing: -0.005em;
+      position: relative; z-index: 1;
+    }
+    .feature p {
+      margin: 0;
+      font-size: 13px;
+      color: var(--text-muted);
+      line-height: 1.6;
+      position: relative; z-index: 1;
+    }
+
+    /* ── Setup steps ── */
+    .steps {
+      display: grid;
+      gap: 16px;
+      counter-reset: step;
+    }
+    .step {
+      display: grid;
+      grid-template-columns: 56px 1fr;
+      gap: 20px;
+      padding: 26px;
+      background: var(--surface);
+      backdrop-filter: var(--blur);
+      -webkit-backdrop-filter: var(--blur);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius);
+      transition: border-color 0.18s ease;
+    }
+    .step:hover { border-color: var(--border-strong); }
+    .step__num {
+      counter-increment: step;
+      width: 56px; height: 56px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--g-primary), var(--g-accent));
+      color: #000;
+      font-family: var(--font-mono);
+      font-size: 22px; font-weight: 800;
+      font-variant-numeric: tabular-nums;
+      box-shadow: 0 8px 24px var(--g-primary-glow);
+    }
+    .step__num::before { content: counter(step); }
+    .step__body h3 {
+      margin: 0 0 8px;
+      font-family: var(--font-mono);
+      font-size: 18px; font-weight: 700;
+      color: var(--text-strong);
+      letter-spacing: -0.005em;
+    }
+    .step__body p {
+      margin: 0 0 14px;
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+    .step__body p:last-child { margin-bottom: 0; }
+    .step__body ul {
+      margin: 0 0 14px;
+      padding-left: 20px;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+    .step__body ul li { margin: 4px 0; }
+
+    /* ── Code blocks ── */
+    .code {
+      position: relative;
+      background: var(--g-bg-deep);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      padding: 16px 50px 16px 18px;
+      margin: 12px 0;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--text-strong);
+      overflow-x: auto;
+      line-height: 1.6;
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+    }
+    .code::before {
+      content: "$";
+      position: absolute; left: 18px; top: 16px;
+      color: var(--g-primary);
+      opacity: 0.5;
+      font-weight: 700;
+    }
+    .code--multiline { padding-left: 18px; }
+    .code--multiline::before { display: none; }
+    .code--multiline pre {
+      margin: 0;
+      white-space: pre;
+      color: var(--text-strong);
+      font-size: 12.5px;
+      line-height: 1.7;
+    }
+    .code__copy {
+      position: absolute; right: 8px; top: 8px;
+      background: var(--surface-strong);
+      border: 1px solid var(--border-soft);
+      color: var(--text-muted);
+      padding: 4px 8px;
+      border-radius: var(--radius-xs);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.1em;
+      cursor: pointer;
+      transition: color 0.15s ease, background 0.15s ease;
+    }
+    .code__copy:hover {
+      color: var(--g-primary);
+      background: var(--g-primary-soft);
+    }
+    .code__copy.copied {
+      color: var(--ok);
+      border-color: var(--ok);
+    }
+    /* The "$" prefix only makes sense for single-line shell commands. */
+    .code:not(.code--multiline) > span:first-child { padding-left: 16px; }
+
+    /* Inline code */
+    p code, li code {
+      background: var(--g-bg-deep);
+      border: 1px solid var(--border-soft);
+      padding: 2px 7px;
+      border-radius: 4px;
+      font-size: 0.88em;
+      color: var(--g-primary);
+    }
+
+    /* ── Callout ── */
+    .callout {
+      display: flex; gap: 12px; align-items: flex-start;
+      padding: 14px 16px;
+      background: var(--g-primary-soft);
+      border: 1px solid var(--border-strong);
+      border-left: 4px solid var(--g-primary);
+      border-radius: var(--radius-sm);
+      margin: 14px 0;
+      font-size: 13px;
+      color: var(--text);
+    }
+    .callout strong { color: var(--g-primary); font-family: var(--font-mono); letter-spacing: 0.04em; }
+    .callout--warn {
+      background: color-mix(in srgb, var(--warn) 10%, transparent);
+      border-color: color-mix(in srgb, var(--warn) 32%, transparent);
+      border-left-color: var(--warn);
+    }
+    .callout--warn strong { color: var(--warn); }
+
+    /* ── Tabs ── */
+    .tabs {
+      display: flex; gap: 0;
+      border-bottom: 1px solid var(--border-soft);
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+    }
+    .tabs__btn {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      color: var(--text-muted);
+      padding: 10px 18px;
+      font-family: var(--font-mono);
+      font-size: 11px; font-weight: 700; letter-spacing: 0.14em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: color 0.15s ease, border-color 0.15s ease;
+    }
+    .tabs__btn:hover { color: var(--text); }
+    .tabs__btn.is-active {
+      color: var(--g-primary);
+      border-bottom-color: var(--g-primary);
+    }
+    .tabs__panel { display: none; }
+    .tabs__panel.is-active { display: block; }
+
+    /* ── FAQ ── */
+    .faq__item {
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      margin-bottom: 10px;
+      background: var(--surface);
+      overflow: hidden;
+      transition: border-color 0.15s ease;
+    }
+    .faq__item:hover { border-color: var(--border-strong); }
+    .faq__item summary {
+      padding: 16px 18px;
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: var(--font-mono);
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-strong);
+      letter-spacing: -0.005em;
+    }
+    .faq__item summary::-webkit-details-marker { display: none; }
+    .faq__item summary::after {
+      content: "+";
+      margin-left: auto;
+      width: 24px; height: 24px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 6px;
+      background: var(--g-primary-soft);
+      color: var(--g-primary);
+      font-size: 18px;
+      font-weight: 700;
+      transition: transform 0.18s ease;
+    }
+    .faq__item[open] summary::after { content: "−"; }
+    .faq__item .faq__body {
+      padding: 0 18px 18px;
+      color: var(--text-muted);
+      font-size: 13.5px;
+      line-height: 1.7;
+    }
+    .faq__body p { margin: 0 0 8px; }
+    .faq__body p:last-child { margin: 0; }
+
+    /* ── Tools grid (scenario coverage) ── */
+    .tools {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 10px;
+    }
+    .tool {
+      padding: 14px;
+      background: var(--surface);
+      border: 1px solid var(--border-soft);
+      border-radius: var(--radius-sm);
+      transition: border-color 0.15s ease, transform 0.15s ease;
+    }
+    .tool:hover {
+      border-color: var(--g-primary);
+      transform: translateY(-2px);
+    }
+    .tool__head {
+      display: flex; align-items: center; gap: 8px;
+      margin-bottom: 6px;
+    }
+    .tool__dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--g-primary);
+      box-shadow: 0 0 8px var(--g-primary-glow);
+    }
+    .tool__name {
+      font-family: var(--font-mono);
+      font-size: 12px; font-weight: 700;
+      color: var(--text-strong);
+      letter-spacing: 0.04em;
+    }
+    .tool__desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+
+    /* ── CTA banner ── */
+    .cta-banner {
+      padding: 48px 36px;
+      text-align: center;
+      background:
+        radial-gradient(ellipse 60% 80% at 50% 0%, var(--g-primary-soft), transparent),
+        var(--surface);
+      backdrop-filter: var(--blur);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-lg);
+      margin-top: 24px;
+    }
+    .cta-banner h3 {
+      font-family: var(--font-mono);
+      font-size: clamp(24px, 3vw, 32px);
+      margin: 0 0 12px;
+      color: var(--text-strong);
+      letter-spacing: -0.01em;
+    }
+    .cta-banner p {
+      color: var(--text-muted);
+      max-width: 540px;
+      margin: 0 auto 24px;
+      font-size: 15px;
+    }
+
+    /* ── Footer ── */
+    footer {
+      padding: 40px 0 36px;
+      border-top: 1px solid var(--border-soft);
+      margin-top: 60px;
+    }
+    footer .wrap {
+      display: flex; gap: 18px; flex-wrap: wrap;
+      align-items: center; justify-content: space-between;
+      color: var(--text-faint);
+      font-size: 12px;
+    }
+    footer a { color: var(--text-muted); margin-left: 16px; }
+    footer a:first-of-type { margin-left: 0; }
+
+    /* ── Mobile ── */
+    @media (max-width: 720px) {
+      .nav__inner { padding: 12px 16px; }
+      .nav__links a { padding: 4px 8px; font-size: 11px; }
+      .wrap { padding: 0 16px; }
+      section { padding: 56px 0; }
+      section.hero { padding: 64px 0 40px; }
+      .step { grid-template-columns: 1fr; gap: 12px; padding: 20px; }
+      .step__num { width: 44px; height: 44px; font-size: 18px; }
+      .cta-banner { padding: 36px 20px; }
+    }
+
+    /* Reduced-motion users get static everything. */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ── Top nav ─────────────────────────────────────────────── -->
+  <header class="nav">
+    <div class="nav__inner">
+      <a href="#top" class="brand">
+        <span class="brand__dot"></span> INFINIBOT
+      </a>
+      <nav class="nav__links">
+        <a href="#features">Features</a>
+        <a href="#install">Install</a>
+        <a href="#configure">Configure</a>
+        <a href="#run">Run</a>
+        <a href="#tools">Tools</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+      <a href="#install" class="nav__cta">Get started →</a>
+    </div>
+  </header>
+
+  <main id="top">
+
+    <!-- ── Hero ─────────────────────────────────────────────── -->
+    <section class="hero">
+      <div class="wrap">
+        <span class="eyebrow">Local-first AI control plane · v1.0</span>
+        <h1>Your <span class="accent">entire stack</span><br />in one calm terminal.</h1>
+        <p>
+          InfiniBot runs on your machine. One gateway, every channel — chat, voice,
+          kanban, calendars, automations, browser sessions, and a self-improving skills
+          system. Bring your own model. Keep your data.
+        </p>
+        <div class="hero__cta">
+          <a href="#install" class="btn btn--primary">Install InfiniBot</a>
+          <a href="https://infinibotos.com/download" target="_blank" rel="noopener" class="btn btn--ghost">Download the desktop app →</a>
+        </div>
+
+        <div class="stats">
+          <div class="stat">
+            <div class="stat__num">100%</div>
+            <div class="stat__label">Local-first</div>
+          </div>
+          <div class="stat">
+            <div class="stat__num">7+</div>
+            <div class="stat__label">Channels</div>
+          </div>
+          <div class="stat">
+            <div class="stat__num">Any</div>
+            <div class="stat__label">LLM provider</div>
+          </div>
+          <div class="stat">
+            <div class="stat__num">~5m</div>
+            <div class="stat__label">To first message</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Features ─────────────────────────────────────────── -->
+    <section id="features">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="section-head__tag">What's inside</div>
+          <h2>Everything you'd duct-tape together, ready out of the box.</h2>
+          <p>One install, one config file, one binary. Each subsystem lives behind a single tab in the UI.</p>
+        </div>
+
+        <div class="features">
+          <div class="feature">
+            <div class="feature__icon">
+              <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+            </div>
+            <h3>Multi-session chat</h3>
+            <p>Single-pane chat or multi-session grid. Bring your own model — Anthropic, OpenAI, local Ollama, anything OpenAI-compatible.</p>
+          </div>
+
+          <div class="feature">
+            <div class="feature__icon">
+              <svg viewBox="0 0 24 24"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" x2="12" y1="19" y2="23"/><line x1="8" x2="16" y1="23" y2="23"/></svg>
+            </div>
+            <h3>Voice in &amp; out</h3>
+            <p>Wake-word, push-to-talk, full duplex. TTS pipes back to whichever device summoned you.</p>
+          </div>
+
+          <div class="feature">
+            <div class="feature__icon">
+              <svg viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M8 7v7"/><path d="M12 7v4"/><path d="M16 7v9"/></svg>
+            </div>
+            <h3>Kanban &amp; projects</h3>
+            <p>Notion-synced tasks, drag-and-drop board, autonomous agents per task. Bound to discipline blocks for time-blocking.</p>
+          </div>
+
+          <div class="feature">
+            <div class="feature__icon">
+              <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <h3>Calendar + cron</h3>
+            <p>Google Calendar &amp; Calendly sync, plus a full cron scheduler for recurring agent jobs and workflow automations.</p>
+          </div>
+
+          <div class="feature">
+            <div class="feature__icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <h3>Discipline / time-blocking</h3>
+            <p>Plan your day in blocks, get nudges via Telegram, score yourself nightly. Templates persist across days.</p>
+          </div>
+
+          <div class="feature">
+            <div class="feature__icon">
+              <svg viewBox="0 0 24 24"><path d="M19.439 7.85a2.5 2.5 0 0 0 0 1.75l1.568 1.568a2.4 2.4 0 0 1 0 3.408l-1.568 1.568a2.5 2.5 0 0 0 0 1.75l-1.611 1.611a.98.98 0 0 1-.837.276 2.5 2.5 0 1 0-3.214 3.214 2.4 2.4 0 0 1-1.705.707"/></svg>
+            </div>
+            <h3>Self-improving skills</h3>
+            <p>Cumulative skills package distills successful agent runs into reusable <code>SKILL.md</code> files and refines them over time.</p>
+          </div>
+
+          <div class="feature">
+            <div class="feature__icon">
+              <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+            </div>
+            <h3>Browser sandbox</h3>
+            <p>Spawn headed or headless browser sessions per agent. Page snapshots, click, type, screenshot.</p>
+          </div>
+
+          <div class="feature">
+            <div class="feature__icon">
+              <svg viewBox="0 0 24 24"><path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z"/><polyline points="14 2 14 8 20 8"/></svg>
+            </div>
+            <h3>Markdown workflows</h3>
+            <p>Reusable agent workflows authored as plain markdown with typed inputs, preflight checks, and run history.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Install ────────────────────────────────────────── -->
+    <section id="install">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="section-head__tag">Step 1</div>
+          <h2>Install InfiniBot.</h2>
+          <p>Pick the install path that matches your machine.</p>
+        </div>
+
+        <div class="tabs" role="tablist">
+          <button class="tabs__btn is-active" data-tab="npm" role="tab">npm</button>
+          <button class="tabs__btn" data-tab="bun" role="tab">bun</button>
+          <button class="tabs__btn" data-tab="docker" role="tab">docker (build)</button>
+          <button class="tabs__btn" data-tab="macos" role="tab">desktop app</button>
+        </div>
+
+        <div class="tabs__panel is-active" data-panel="npm">
+          <div class="step">
+            <div class="step__num"></div>
+            <div class="step__body">
+              <h3>Install with npm</h3>
+              <p>Needs Node 22.12 or later. Installs the gateway binary plus the UI to your user-global path.</p>
+              <div class="code"><span>npm install -g infinibot</span><button class="code__copy" data-copy="npm install -g infinibot">Copy</button></div>
+              <p>Verify the install:</p>
+              <div class="code"><span>infinibot --version</span><button class="code__copy" data-copy="infinibot --version">Copy</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tabs__panel" data-panel="bun">
+          <div class="step">
+            <div class="step__num"></div>
+            <div class="step__body">
+              <h3>Install with bun</h3>
+              <p>Faster cold-start than Node. Note: bun is fine for general use, but use Node for WhatsApp/Telegram channel runtimes.</p>
+              <div class="code"><span>bun install -g infinibot</span><button class="code__copy" data-copy="bun install -g infinibot">Copy</button></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="tabs__panel" data-panel="docker">
+          <div class="step">
+            <div class="step__num"></div>
+            <div class="step__body">
+              <h3>Run with Docker (build locally)</h3>
+              <p><strong>No prebuilt image is published yet</strong> (coming soon). Build the image from a clone of the repo; the compose file exposes the gateway on 18789 and keeps state in <code>~/.infinibot</code>.</p>
+              <div class="code code--multiline"><pre>docker build -t infinibot:local .
+docker compose up -d infinibot-gateway</pre><button class="code__copy" data-copy="docker build -t infinibot:local . &amp;&amp; docker compose up -d infinibot-gateway">Copy</button></div>
+              <p>Open <code>http://localhost:18789</code> once it's up.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="tabs__panel" data-panel="macos">
+          <div class="step">
+            <div class="step__num"></div>
+            <div class="step__body">
+              <h3>Desktop app</h3>
+              <p>Download it from <a href="https://infinibotos.com/download" target="_blank" rel="noopener">infinibotos.com/download</a>: Windows 10/11 x64 (<code>InfiniBot-Setup-x64.exe</code>) and Linux x86_64 (<code>InfiniBot-x86_64.AppImage</code> or <code>infinibot_amd64.deb</code>). macOS is coming soon. Installed apps update themselves.</p>
+              <p>Windows may show a blue <strong>"Windows protected your PC"</strong> screen. Click <strong>More info</strong>, then <strong>Run anyway</strong>. This happens because InfiniBot is a new app that isn't code-signed yet, not because anything is wrong. Want to double-check? Compare the file's SHA-256 with the checksum on the download page (PowerShell: <code>Get-FileHash .\InfiniBot-Setup-x64.exe</code>).</p>
+              <p>Prefer not to install anything? Try <a href="https://cloud.infinibotos.com" target="_blank" rel="noopener">InfiniBot Cloud</a> in your browser (the Free plan, no card).</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Configure ────────────────────────────────────── -->
+    <section id="configure">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="section-head__tag">Step 2</div>
+          <h2>Connect a model + a channel.</h2>
+          <p>InfiniBot is BYOM (bring-your-own-model). Plug in any provider; pick at least one channel to talk to it through.</p>
+        </div>
+
+        <div class="steps">
+          <div class="step">
+            <div class="step__num"></div>
+            <div class="step__body">
+              <h3>Add your model API key</h3>
+              <p>Store credentials in <code>~/.infinibot/infinibot.json</code>. Anthropic, OpenAI, Gemini, Ollama, and any OpenAI-compatible endpoint are supported. No key? Use a free local model (Ollama), or the free tiers of Google Gemini or Groq.</p>
+              <div class="code code--multiline"><pre>{
+  "providers": {
+    "anthropic": { "apiKey": "sk-ant-..." },
+    "openai":    { "apiKey": "sk-..." },
+    "ollama":    { "baseUrl": "http://localhost:11434" }
+  },
+  "defaultModel": "anthropic/claude-sonnet-4-6"
+}</pre><button class="code__copy" data-copy='{ "providers": { "anthropic": { "apiKey": "sk-ant-..." }, "openai": { "apiKey": "sk-..." } }, "defaultModel": "anthropic/claude-sonnet-4-6" }'>Copy</button></div>
+              <div class="callout">
+                <div><strong>Tip ·</strong> The Settings panel in the UI writes the same file. You can edit it by hand or click your way through.</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step__num"></div>
+            <div class="step__body">
+              <h3>Wire up a channel</h3>
+              <p>A channel is how the agent reaches the world: WhatsApp, Telegram, Discord, Slack, Signal, iMessage, or just the in-app chat.</p>
+              <ul>
+                <li><strong>Telegram</strong>: paste a bot token from <code>@BotFather</code>.</li>
+                <li><strong>WhatsApp</strong>: scan the QR shown on first run (Baileys-based).</li>
+                <li><strong>Discord</strong>: bot token + server invite.</li>
+                <li><strong>iMessage / Signal</strong>: companion bridge runs on macOS.</li>
+              </ul>
+              <p>Set the bot token via the Channels page in the UI, or directly:</p>
+              <div class="code"><span>infinibot config set channels.telegram.botToken "123:ABC..."</span><button class="code__copy" data-copy='infinibot config set channels.telegram.botToken "123:ABC..."'>Copy</button></div>
+            </div>
+          </div>
+
+          <div class="step">
+            <div class="step__num"></div>
+            <div class="step__body">
+              <h3>(Optional) Connect Notion, Google Calendar, GitHub</h3>
+              <p>Each integration shows up as its own tab in the UI with a one-click OAuth flow. The Calendar page handles Google + Calendly; the Kanban page reads/writes a Notion database; the Workspace page can wire to GitHub repos.</p>
+              <div class="callout">
+                <div><strong>Privacy ·</strong> Tokens are stored locally under <code>~/.infinibot/</code>. They never leave your machine unless you explicitly enable cloud sync.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Run ────────────────────────────────────── -->
+    <section id="run">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="section-head__tag">Step 3</div>
+          <h2>Start the gateway.</h2>
+          <p>One command spins up the WebSocket gateway, the channel adapters, and the web UI.</p>
+        </div>
+
+        <div class="step">
+          <div class="step__num"></div>
+          <div class="step__body">
+            <h3>Run it</h3>
+            <div class="code"><span>infinibot start</span><button class="code__copy" data-copy="infinibot start">Copy</button></div>
+            <p>Open the UI at <code>http://127.0.0.1:18789</code>. The terminal logs ping you when each subsystem is ready.</p>
+
+            <h3 style="margin-top:24px;">Common commands</h3>
+            <div class="code code--multiline"><pre>infinibot start              # run the gateway in the foreground
+infinibot start --daemon     # run detached (logs to ~/.infinibot/logs/)
+infinibot stop               # stop a daemon
+infinibot status             # health, uptime, channels, model
+infinibot logs --tail 100    # tail recent gateway logs
+infinibot config show        # print resolved config
+infinibot doctor             # verify env, ports, providers, channels</pre><button class="code__copy" data-copy="infinibot start">Copy</button></div>
+
+            <div class="callout callout--warn">
+              <div><strong>Port in use? ·</strong> The default gateway port is <code>18789</code>. Override with <code>--port</code> or by setting <code>gateway.port</code> in your config.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── Tools coverage ───────────────────────── -->
+    <section id="tools">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="section-head__tag">Tool surface</div>
+          <h2>What the agent can actually do.</h2>
+          <p>Every tool below is wired through the gateway and exposed to your model via MCP. Disable individually in <code>tool-policy</code>.</p>
+        </div>
+
+        <div class="tools">
+          <div class="tool"><div class="tool__head"><span class="tool__dot"></span><span class="tool__name">message.send</span></div><div class="tool__desc">Send to any channel — WhatsApp, Telegram, Discord, Slack, Signal, iMessage.</div></div>
+          <div class="tool"><div class="tool__head"><span class="tool__dot"></span><span class="tool__name">cron.add / list / run</span></div><div class="tool__desc">Schedule one-shot, interval, or cron-expr jobs. Isolated or main session.</div></div>
+          <div class="tool"><div class="tool__head"><span class="tool__dot"></span><span class="tool__name">workflows.run</span></div><div class="tool__desc">Execute a markdown workflow with typed inputs + preflight gates.</div></div>
+          <div class="tool"><div class="tool__head"><span class="tool__dot"></span><span class="tool__name">kanban.tasks.*</span></div><div class="tool__desc">Notion-backed kanban CRUD. Drag tasks onto discipline blocks for time-boxing.</div></div>
+          <div class="tool"><div class="tool__head"><span class="tool__dot"></span><span class="tool__name">browser.run</span></div><div class="tool__desc">Headed/headless browser session per agent. Snapshot, click, type, screenshot.</div></div>
+          <div class="tool"><div class="tool__head"><span class="tool__dot"></span><span class="tool__name">research.*</span></div><div class="tool__desc">Brave / Exa / web fetch under one interface. Rate-limited per-provider.</div></div>
+          <div class="tool"><div class="tool__head"><span class="tool__dot"></span><span class="tool__name">tts / vision</span></div><div class="tool__desc">Speak responses, analyze image attachments, OCR documents.</div></div>
+          <div class="tool"><div class="tool__head"><span class="tool__dot"></span><span class="tool__name">memory.*</span></div><div class="tool__desc">Per-agent persistent memory + cumulative skill capture.</div></div>
+          <div class="tool"><div class="tool__head"><span class="tool__dot"></span><span class="tool__name">canvas.*</span></div><div class="tool__desc">Generative UI surface — agent renders interactive widgets back to you.</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FAQ ─────────────────────────────────── -->
+    <section id="faq">
+      <div class="wrap" style="max-width:820px;">
+        <div class="section-head">
+          <div class="section-head__tag">Questions</div>
+          <h2>Frequently answered.</h2>
+        </div>
+
+        <details class="faq__item">
+          <summary>Is it safe?</summary>
+          <div class="faq__body">
+            <p>The Windows installer isn't code-signed yet, so Windows may show "Windows protected your PC" (click <strong>More info</strong>, then <strong>Run anyway</strong>), and you can verify the file's SHA-256 checksum on the download page. InfiniBot runs on your computer, and Secure Mode keeps chats on local models only. The source is available under the FSL-1.1-ALv2 license.</p>
+          </div>
+        </details>
+
+        <details class="faq__item">
+          <summary>Do I need an API key?</summary>
+          <div class="faq__body">
+            <p>No. Sign in with the Claude, ChatGPT, Google or Grok plan you already have (desktop app), run a free local model (Ollama), or use a provider's free tier (Google Gemini, Groq).</p>
+          </div>
+        </details>
+
+        <details class="faq__item">
+          <summary>What does it cost?</summary>
+          <div class="faq__body">
+            <p>The desktop app and self-hosting are free. Cloud plans run from Free ($0) to $199/mo. Some plugins are a one-time purchase ($19 to $49). Your own AI provider bills you separately, or a local model is $0.</p>
+          </div>
+        </details>
+
+        <details class="faq__item">
+          <summary>Is there a Mac app?</summary>
+          <div class="faq__body">
+            <p>Coming soon. For now, use <a href="https://cloud.infinibotos.com" target="_blank" rel="noopener">InfiniBot Cloud</a> in your browser, or <code>npm i -g infinibot</code> (Node 22.12+) on a Mac.</p>
+          </div>
+        </details>
+
+        <details class="faq__item">
+          <summary>Does my data stay on my machine?</summary>
+          <div class="faq__body">
+            <p>The gateway, UI, scheduler, kanban, and skills system all run on your machine. The only network calls go to (a) your chosen LLM provider and (b) external services you opt into — Notion, Google Calendar, channel APIs, etc. Tokens and conversation history stay under <code>~/.infinibot/</code>.</p>
+          </div>
+        </details>
+
+        <details class="faq__item">
+          <summary>Which model providers are supported?</summary>
+          <div class="faq__body">
+            <p>Anthropic (Claude), OpenAI (GPT), Google (Gemini), and any OpenAI-compatible endpoint — including local Ollama, LM Studio, and vLLM deployments. Per-job model overrides let you mix cheap local inference for routine work with frontier models for hard problems.</p>
+          </div>
+        </details>
+
+        <details class="faq__item">
+          <summary>Can I run multiple agents at once?</summary>
+          <div class="faq__body">
+            <p>Yes. The grid view runs N parallel sessions side-by-side. Each agent has its own workspace, skills, and tool policy. Schedule them via cron, or trigger them from a workflow / channel message.</p>
+          </div>
+        </details>
+
+        <details class="faq__item">
+          <summary>How do I add a custom skill?</summary>
+          <div class="faq__body">
+            <p>Drop a folder containing a <code>SKILL.md</code> (with YAML frontmatter) into <code>~/.infinibot/skills/</code> or <code>&lt;workspace&gt;/skills/</code>. The watcher hot-reloads it. The cumulative-skills system also auto-distills successful runs into new skills you can review and refine.</p>
+          </div>
+        </details>
+
+        <details class="faq__item">
+          <summary>Where do logs and state live?</summary>
+          <div class="faq__body">
+            <p>Everything mutable lives under <code>~/.infinibot/</code> by default — config, tokens, kanban DB, cron jobs, run history, skills, memory. Override with <code>INFINIBOT_STATE_DIR</code> if you want it elsewhere. Logs land in <code>~/.infinibot/logs/</code>.</p>
+          </div>
+        </details>
+
+        <details class="faq__item">
+          <summary>How do I update?</summary>
+          <div class="faq__body">
+            <p>The desktop app updates itself. For npm, re-run your installer: <code>npm install -g infinibot@latest</code> (or <code>bun install -g infinibot@latest</code>). If you built the Docker image, pull the latest code and rebuild it. State on disk is forward-compatible across minor versions; the changelog flags any breaking migrations.</p>
+          </div>
+        </details>
+
+        <details class="faq__item">
+          <summary>Telegram says "unknown method: message.send" — what now?</summary>
+          <div class="faq__body">
+            <p>That's the legacy method name. The current gateway exposes the action as <code>send</code> with params <code>{ channel: "telegram", to: "&lt;chatId&gt;", message, idempotencyKey }</code>. If you hit it from a custom integration, update the method name; the in-app UI is already on the new shape.</p>
+          </div>
+        </details>
+
+        <details class="faq__item">
+          <summary>Can the agent see my screen / control my computer?</summary>
+          <div class="faq__body">
+            <p>Only when you explicitly grant it via the screen-analyze, mouse, and exec-approval tools. By default everything destructive is gated behind an approval prompt; you can bulk-allow patterns once you trust a workflow.</p>
+          </div>
+        </details>
+      </div>
+    </section>
+
+    <!-- ── Final CTA ─────────────────────────── -->
+    <section style="padding-top:30px;">
+      <div class="wrap">
+        <div class="cta-banner">
+          <h3>Ready in five minutes.</h3>
+          <p>Install, paste an API key, click start. The gateway boots, the UI opens, and you're talking to your stack.</p>
+          <div class="hero__cta">
+            <a href="#install" class="btn btn--primary">Install now →</a>
+            <a href="https://infinibotos.com/docs/start/getting-started/" target="_blank" rel="noopener" class="btn btn--ghost">Read the quickstart</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <div class="wrap">
+      <div>
+        <span class="brand">
+          <span class="brand__dot"></span> INFINIBOT
+        </span>
+        <span style="margin-left:14px;">© 2026 Kingly Intelligence Systems, LLC — Local-first by design.</span>
+      </div>
+      <div>
+        <a href="https://infinibotos.com" target="_blank" rel="noopener">Website</a>
+        <a href="https://infinibotos.com/docs/" target="_blank" rel="noopener">Docs</a>
+        <a href="#top">Back to top ↑</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // ── Tabs ──────────────────────────────────────────────────
+    document.querySelectorAll(".tabs").forEach((tabs) => {
+      const buttons = tabs.querySelectorAll(".tabs__btn");
+      // Panels are siblings of the tabs node, not children — find by data-panel.
+      const root = tabs.parentElement;
+      const panels = root.querySelectorAll(".tabs__panel");
+      buttons.forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const target = btn.dataset.tab;
+          buttons.forEach((b) => b.classList.toggle("is-active", b === btn));
+          panels.forEach((p) => p.classList.toggle("is-active", p.dataset.panel === target));
+        });
+      });
+    });
+
+    // ── Copy buttons ─────────────────────────────────────────
+    document.querySelectorAll(".code__copy").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        const text = btn.dataset.copy ?? "";
+        try {
+          await navigator.clipboard.writeText(text);
+          btn.textContent = "Copied";
+          btn.classList.add("copied");
+          setTimeout(() => {
+            btn.textContent = "Copy";
+            btn.classList.remove("copied");
+          }, 1400);
+        } catch {
+          btn.textContent = "Press Ctrl+C";
+          setTimeout(() => { btn.textContent = "Copy"; }, 1400);
+        }
+      });
+    });
+
+    // ── Smooth scroll offset for sticky nav ──────────────────
+    // Modern browsers handle this via scroll-margin-top, set on each section.
+    document.querySelectorAll("section[id]").forEach((s) => {
+      s.style.scrollMarginTop = "72px";
+    });
+  </script>
+
+</body>
+</html>

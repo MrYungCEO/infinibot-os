@@ -1,0 +1,12 @@
+{
+  "name": "@infinibot/business-agency",
+  "version": "2026.11.1",
+  "type": "module",
+  "description": "Business & Agency: Business HQ, Command, Clients, Sales Pipeline, Register, Leads & Funnels, business settings, the agency selector and the business agents",
+  "license": "FSL-1.1-ALv2",
+  "infinibot": {
+    "extensions": [
+      "./index.ts"
+    ]
+  }
+}

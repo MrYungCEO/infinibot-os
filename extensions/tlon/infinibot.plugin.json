@@ -1,0 +1,23 @@
+{
+  "id": "tlon",
+  "name": "Tlon",
+  "listing": {
+    "tagline": "Decentralized messaging on Urbit.",
+    "category": "channels",
+    "tags": [
+      "open-protocol",
+      "urbit"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "channels": [
+    "tlon"
+  ],
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

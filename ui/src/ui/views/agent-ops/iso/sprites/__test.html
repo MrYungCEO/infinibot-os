@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Agent sprite variants — 9 backends × 5 variants</title>
+<style>
+  :root { color-scheme: dark; }
+  body {
+    margin: 0; padding: 28px 24px 40px;
+    background: radial-gradient(1200px 700px at 30% -10%, #14233f, #070b14 60%);
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    color: #cbd5e1;
+  }
+  h1 { font-size: 16px; letter-spacing: .04em; margin: 0 0 4px; color: #e2e8f0; }
+  p.sub { margin: 0 0 22px; font-size: 11px; color: #64748b; }
+  table { border-collapse: separate; border-spacing: 10px; }
+  th { font-size: 10px; font-weight: 600; color: #7c8aa0; text-transform: uppercase; letter-spacing: .08em; padding-bottom: 4px; }
+  th.kind { text-align: right; padding-right: 8px; color: #94a3b8; }
+  td { text-align: center; }
+  .cell {
+    position: relative; width: 76px; height: 76px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, rgba(30,41,59,.55), rgba(15,23,42,.55));
+    box-shadow: inset 0 0 0 1px rgba(148,163,184,.10);
+    display: grid; place-items: center;
+  }
+  .sprite {
+    width: 32px; height: 32px;
+    background-repeat: no-repeat;
+    background-position: -64px 0px; /* idle-se cell (col 2, row 0) */
+    transform: scale(2.0);
+    image-rendering: auto;
+  }
+  .acc {
+    position: absolute; top: 4px; left: 50%;
+    width: 26px; height: 26px; transform: translateX(-50%);
+    pointer-events: none;
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,.6));
+  }
+  .badge {
+    position: absolute; right: 5px; bottom: 4px;
+    width: 22px; height: 22px;
+    filter: drop-shadow(0 1px 2px rgba(0,0,0,.7));
+  }
+  .vname { font-size: 9px; color: #64748b; margin-top: 4px; }
+  .kindlabel { font-size: 11px; color: #cbd5e1; white-space: nowrap; }
+</style>
+</head>
+<body>
+  <h1>Per-agent sprite variants</h1>
+  <p class="sub">Quick Win #1 — 9 backends × 5 deterministic variants (hue tint + accessory). Last column shows a 6th duplicate with numeric badge fallback.</p>
+  <table id="grid"></table>
+
+<script>
+const BACKENDS = ["claude-coder","codex-coder","opencode-coder","gemini-coder","voice","federation","review","mesh","unknown"];
+// Mirror of variants.ts VARIANT_DEFS (kept in sync manually for this static page).
+const VARIANTS = [
+  { name: "halo",       hueRotate: 0,   acc: "halo.svg" },
+  { name: "sky cap",    hueRotate: 28,  acc: "cap.svg" },
+  { name: "antenna",    hueRotate: 196, acc: "antenna.svg" },
+  { name: "scarf",      hueRotate: 330, acc: "scarf.svg" },
+  { name: "star badge", hueRotate: 264, acc: "star-badge.svg" },
+];
+const ASSET = "/assets/sprites/agents";
+
+function numericBadgeDataUri(n, color = "#0b1220") {
+  const svg =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24" height="24">' +
+    '<circle cx="12" cy="12" r="10" fill="' + color + '" stroke="#ffffff" stroke-width="1.5"/>' +
+    '<text x="12" y="16" text-anchor="middle" font-size="11" font-family="ui-monospace,monospace" font-weight="900" fill="#ffffff">' + n + '</text>' +
+    '</svg>';
+  return "data:image/svg+xml;utf8," + encodeURIComponent(svg);
+}
+
+const grid = document.getElementById("grid");
+
+// header
+const head = document.createElement("tr");
+head.appendChild(Object.assign(document.createElement("th"), { className: "kind", textContent: "backend" }));
+VARIANTS.forEach((v, i) => head.appendChild(Object.assign(document.createElement("th"), { textContent: "v" + i })));
+head.appendChild(Object.assign(document.createElement("th"), { textContent: "dup #6" }));
+grid.appendChild(head);
+
+function cell(backend, variantIndex, badgeNumber) {
+  const v = VARIANTS[variantIndex];
+  const wrap = document.createElement("div");
+  wrap.className = "cell";
+
+  const sp = document.createElement("div");
+  sp.className = "sprite";
+  sp.style.backgroundImage = `url(${ASSET}/${backend}.svg)`;
+  sp.style.filter = `hue-rotate(${v.hueRotate}deg)`;
+  wrap.appendChild(sp);
+
+  const acc = document.createElement("img");
+  acc.className = "acc";
+  acc.src = `${ASSET}/accessories/${v.acc}`;
+  wrap.appendChild(acc);
+
+  if (badgeNumber) {
+    const b = document.createElement("img");
+    b.className = "badge";
+    b.src = numericBadgeDataUri(badgeNumber);
+    wrap.appendChild(b);
+  }
+  return wrap;
+}
+
+for (const backend of BACKENDS) {
+  const tr = document.createElement("tr");
+  const label = document.createElement("td");
+  label.className = "kind";
+  label.innerHTML = `<div class="kindlabel">${backend}</div>`;
+  tr.appendChild(label);
+
+  for (let i = 0; i < VARIANTS.length; i++) {
+    const td = document.createElement("td");
+    td.appendChild(cell(backend, i, null));
+    td.appendChild(Object.assign(document.createElement("div"), { className: "vname", textContent: VARIANTS[i].name }));
+    tr.appendChild(td);
+  }
+  // 6th duplicate -> cycles to variant 0 + numeric badge "6"
+  const dup = document.createElement("td");
+  dup.appendChild(cell(backend, 0, 6));
+  dup.appendChild(Object.assign(document.createElement("div"), { className: "vname", textContent: "halo +6" }));
+  tr.appendChild(dup);
+
+  grid.appendChild(tr);
+}
+</script>
+</body>
+</html>

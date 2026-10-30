@@ -1,0 +1,55 @@
+{
+  "id": "invoice-minimal",
+  "category": "invoice",
+  "name": "Invoice · Minimal",
+  "width": 1240,
+  "height": 1754,
+  "background": "#ffffff",
+  "createdAt": "2026-06-09",
+  "scene": {
+    "elements": [
+      {
+        "id": "invoice-minimal-bg-accent",
+        "type": "rectangle",
+        "x": 0,
+        "y": 1368.1200000000001,
+        "width": 1240,
+        "height": 105.24,
+        "backgroundColor": "#4f46e5",
+        "fillStyle": "solid",
+        "strokeColor": "transparent",
+        "strokeWidth": 0,
+        "roughness": 0
+      },
+      {
+        "id": "invoice-minimal-title",
+        "type": "text",
+        "x": 124,
+        "y": 613.9,
+        "width": 992,
+        "height": 96,
+        "text": "Invoice title",
+        "fontSize": 64,
+        "fontFamily": 1,
+        "textAlign": "center",
+        "strokeColor": "#0b0b14"
+      },
+      {
+        "id": "invoice-minimal-subtitle",
+        "type": "text",
+        "x": 124,
+        "y": 841.92,
+        "width": 992,
+        "height": 48,
+        "text": "Minimal · 1240×1754",
+        "fontSize": 28,
+        "fontFamily": 2,
+        "textAlign": "center",
+        "strokeColor": "#0b0b14",
+        "opacity": 70
+      }
+    ],
+    "appState": {},
+    "files": {}
+  }
+}

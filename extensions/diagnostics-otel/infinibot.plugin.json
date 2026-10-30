@@ -1,0 +1,20 @@
+{
+  "id": "diagnostics-otel",
+  "name": "OpenTelemetry diagnostics",
+  "listing": {
+    "tagline": "Export InfiniBot diagnostics over OpenTelemetry.",
+    "category": "developer",
+    "tags": [
+      "observability",
+      "telemetry"
+    ],
+    "publisher": {
+      "name": "InfiniBot"
+    }
+  },
+  "configSchema": {
+    "type": "object",
+    "additionalProperties": false,
+    "properties": {}
+  }
+}

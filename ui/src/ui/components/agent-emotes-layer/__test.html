@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>&lt;agent-emotes-layer&gt; test harness</title>
+  <style>
+    :root { color-scheme: dark; }
+    body {
+      margin: 0;
+      font-family: "JetBrains Mono", ui-monospace, monospace;
+      background: radial-gradient(120% 90% at 50% -10%, #14082b 0%, #06000f 60%, #03000a 100%);
+      color: #e8e2ff;
+      overflow: hidden;
+    }
+    /* Fake world box — emotes layer fills this same positioned box. */
+    #world {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+    }
+    .agent {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      margin: -15px 0 0 -15px;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 30%, #6f5bff, #2a1d6b);
+      box-shadow: 0 0 14px rgba(120, 90, 255, .6), inset 0 0 6px rgba(255,255,255,.3);
+      border: 1px solid rgba(255, 255, 255, .25);
+    }
+    .agent::after {
+      content: attr(data-label);
+      position: absolute;
+      top: 34px; left: 50%; transform: translateX(-50%);
+      font-size: 10px; color: #b9aef0; white-space: nowrap;
+    }
+    .toolbar {
+      position: fixed; top: 12px; left: 12px; z-index: 99;
+      display: flex; gap: 6px; flex-wrap: wrap; max-width: 70vw;
+    }
+    .toolbar button {
+      font: inherit; font-size: 11px; padding: 5px 9px; cursor: pointer;
+      background: rgba(255,255,255,.06); color: #e8e2ff;
+      border: 1px solid rgba(212,175,55,.4); border-radius: 6px;
+    }
+    .toolbar button:hover { background: rgba(212,175,55,.18); }
+    #count { position: fixed; bottom: 10px; right: 14px; font-size: 11px; color: #8a7fc0; z-index:99; }
+  </style>
+</head>
+<body>
+  <div class="toolbar" id="bar"></div>
+  <div id="count"></div>
+  <div id="world">
+    <agent-emotes-layer id="layer"></agent-emotes-layer>
+  </div>
+
+  <!-- Bundle is produced by esbuild into this same folder (see build cmd). -->
+  <script type="module" src="./__test.bundle.js"></script>
+  <script type="module">
+    const TYPES = ["success","fail","blocked","shipping","spawn","levelup","thinking"];
+
+    // Lay out demo agents on a grid and publish positions on the
+    // window.__agentFxState contract the layer reads.
+    const world = document.getElementById("world");
+    const cols = TYPES.length;
+    const agents = TYPES.map((t, i) => {
+      const x = ((i + 0.5) / cols) * window.innerWidth;
+      const y = window.innerHeight * 0.5;
+      const dot = document.createElement("div");
+      dot.className = "agent";
+      dot.dataset.label = t;
+      dot.style.left = x + "px";
+      dot.style.top = y + "px";
+      world.appendChild(dot);
+      return { id: "agent-" + t, x, y };
+    });
+    window.__agentFxState = agents;
+
+    // Toolbar buttons.
+    const bar = document.getElementById("bar");
+    for (const t of TYPES) {
+      const b = document.createElement("button");
+      b.textContent = t;
+      b.onclick = () => window.agentEmote("agent-" + t, t);
+      bar.appendChild(b);
+    }
+    const all = document.createElement("button");
+    all.textContent = "ALL";
+    all.onclick = () => TYPES.forEach((t) => window.agentEmote("agent-" + t, t));
+    bar.appendChild(all);
+
+    // Live count for perf/cap inspection.
+    const countEl = document.getElementById("count");
+    setInterval(() => {
+      const layer = document.getElementById("layer");
+      countEl.textContent = "active emotes: " + (layer?.activeCount ?? 0);
+    }, 120);
+
+    // Headless driver hook: fire one type on its dedicated agent.
+    window.__fireEmote = (type, opts) => window.agentEmote("agent-" + type, type, opts);
+    window.__fireAll = () => TYPES.forEach((t) => window.agentEmote("agent-" + t, t));
+    window.__emotesReady = true;
+  </script>
+</body>
+</html>

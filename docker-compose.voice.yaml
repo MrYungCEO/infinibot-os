@@ -1,0 +1,266 @@
+# =============================================================================
+# MOLTBOT VOICE INFRASTRUCTURE
+# =============================================================================
+# Shared voice services for all InfiniBot instances
+# Ports: 7882 (LiveKit WS), 7881 (WebRTC TCP fallback), 8002 (STT), 8882 (TTS)
+#
+# Usage:
+#   docker compose -f docker-compose.voice.yaml up -d
+#
+# Architecture:
+#   Browser → LiveKit (7882) → Voice Agent → InfiniBot Gateway (47913) → Infini
+#                ↓                  ↓
+#           Speaches (STT)    Kokoro (TTS)
+# =============================================================================
+
+services:
+  # ===========================================================================
+  # LiveKit Server - WebRTC Infrastructure
+  # ===========================================================================
+  livekit:
+    image: livekit/livekit-server:latest
+    container_name: infinibot-livekit
+    # Host networking — required for browser ICE on Linux. The previous
+    # bridge + port-mapping setup broke for Firefox because:
+    #   • Firefox 150 mDNS-obfuscates host candidates (`abc-def.local`)
+    #     by default (`media.peerconnection.ice.obfuscate_host_addresses`).
+    #   • LiveKit-in-bridge has no mDNS resolver → those candidates show up
+    #     as `[filtered] udp host :NNNN` in the room logs and are dropped.
+    #   • The only unfiltered candidate left is the user's public srflx IP,
+    #     which can't loop back through the NAT → ICE fails after ~8 STUN
+    #     binding requests with zero responses.
+    # In host mode LiveKit binds directly to the host's interfaces, can
+    # use the host's mDNS resolver (avahi via NSS), and advertises the
+    # host's real LAN IP — so browser ↔ LiveKit pairs succeed without
+    # tweaking Firefox prefs.
+    # Caveat: `network_mode: host` is Linux-only. On Mac/Windows Docker the
+    # "host" is the Docker VM, not the user's machine — those setups need
+    # to revert to bridge + ports + tell users to set Firefox's
+    # `media.peerconnection.ice.obfuscate_host_addresses` to false.
+    network_mode: host
+    # Keys are injected via env so they live in .env (gitignored), not in the
+    # bind-mounted yaml. LiveKit's --keys flag overrides anything in the file.
+    # Drop --node-ip so LiveKit auto-detects the host's primary interface.
+    command: >-
+      --config /etc/livekit.yaml
+      --keys "${LIVEKIT_API_KEY:?LIVEKIT_API_KEY must be set in .env}: ${LIVEKIT_API_SECRET:?LIVEKIT_API_SECRET must be set in .env}"
+    volumes:
+      - ./livekit-infinibot.yaml:/etc/livekit.yaml:ro
+    restart: unless-stopped
+    healthcheck:
+      # WebSocket API now binds on host port 7882 (set via livekit-infinibot.yaml).
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:7882"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+
+  # ===========================================================================
+  # Speaches - Speech-to-Text (Faster-Whisper)
+  # ===========================================================================
+  speaches:
+    image: ghcr.io/speaches-ai/speaches:latest-cuda-12.6.3
+    container_name: infinibot-speaches
+    ports:
+      - "8002:8000"
+    volumes:
+      - infinibot-speaches-cache:/home/ubuntu/.cache/huggingface
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    restart: unless-stopped
+    networks:
+      - infinibot-voice
+    environment:
+      # large-v3-turbo: ~8x faster than large-v3, marginally less accurate,
+      # noticeably better than medium on short utterances (wake-words,
+      # commands). Override here if you need a smaller model for low-VRAM
+      # GPUs — medium is the safe fallback.
+      - WHISPER_MODEL=deepdml/faster-whisper-large-v3-turbo-ct2
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 60s
+
+  # ===========================================================================
+  # Speaches model bootstrap — Speaches doesn't auto-download the configured
+  # WHISPER_MODEL on startup, so on a fresh install the voice agent's first
+  # STT call gets HTTP 404 "Model not installed locally" and the LiveKit
+  # agent session bails out as unrecoverable. This one-shot container hits
+  # POST /v1/models/Systran/faster-whisper-medium once after Speaches becomes
+  # healthy, then exits. The model persists in the speaches-cache volume.
+  # ===========================================================================
+  speaches-init:
+    image: curlimages/curl:8.10.1
+    container_name: infinibot-speaches-init
+    depends_on:
+      speaches:
+        condition: service_healthy
+    networks:
+      - infinibot-voice
+    command: >-
+      sh -c "echo 'Bootstrapping Whisper model (large-v3-turbo)...' &&
+             curl -fsS -X POST http://infinibot-speaches:8000/v1/models/deepdml/faster-whisper-large-v3-turbo-ct2 &&
+             echo 'Model ready.'"
+    restart: "no"
+
+  # ===========================================================================
+  # TTS — Kokoro neural voices via kokoro-fastapi-cpu (OpenAI-compatible).
+  #
+  # History of image changes (newest first):
+  #
+  # 2026-05-25 → ghcr.io/remsky/kokoro-fastapi-cpu:latest
+  #   Problem: openedai-speech-min only serves Piper/OpenAI voice names.
+  #   Kokoro voices (af_heart, af_nova, etc.) returned HTTP 400
+  #   "KeyError: 'af_heart'" — the Live Action panel was silently muted.
+  #   Fix: switch to kokoro-fastapi-cpu which bundles all 67 Kokoro voice
+  #   packs and maps OpenAI alias names via openai_mappings.json:
+  #     alloy→am_v0adam  ash→af_v0nicole  coral→bf_v0emma
+  #     echo→af_v0bella  fable→af_sarah   onyx→bm_george
+  #     nova→bf_v0isabella  sage→am_michael  shimmer→af_sky
+  #   The image bundles af_heart, af_nova, am_onyx, bm_george, etc. as .pt
+  #   files — no model download on first boot. CPU-only; no GPU required,
+  #   so no Blackwell sm_120 compatibility concern at all.
+  #   Internal port: 8880 (not 8000 — updated port mapping and KOKORO_URL).
+  #   Voice-agent's TTS_VOICE=onyx maps to bm_george (deep British male).
+  #   Image digest: sha256:d7df384acb57929f88a696d892c1a2e0c6b60fa934802ebec9a88626003b8e9a
+  #   Image size: 5.4 GB (model weights bundled; no runtime download).
+  #
+  # 2026-05-?? → ghcr.io/matatonic/openedai-speech-min:latest
+  #   Replaced kokoro-fastapi-gpu because it shipped an old PyTorch without
+  #   sm_120 (Blackwell) kernels. RTX 5090 host hit "SystemError: unknown
+  #   opcode" inside torch's JIT overload parser — server never booted.
+  #   openedai-speech-min is CPU-only Piper; fast (~50ms/sentence) but
+  #   lacks Kokoro af_* voices.
+  #
+  # The container name `kokoro` is preserved so existing wiring and
+  # voice-chat's localhost:8882/v1/audio/speech path work unchanged.
+  # ===========================================================================
+  kokoro:
+    image: ghcr.io/remsky/kokoro-fastapi-cpu:latest
+    container_name: infinibot-kokoro
+    ports:
+      - "8882:8880"
+    volumes:
+      # Fix the stale OpenAI→Kokoro voice mapping bundled in the image:
+      # upstream maps nova→bf_isabella but the voice file is bf_v0isabella.
+      - ./docker/kokoro/openai_mappings.json:/app/api/src/core/openai_mappings.json:ro
+      # Retain the volume so it isn't orphaned. kokoro-fastapi-cpu doesn't
+      # use /app/voices (voices are bundled in /app/api/src/voices/v1_0/)
+      # but mounting an unused path is harmless.
+      - infinibot-kokoro-cache:/app/voices
+    restart: unless-stopped
+    # Docker's restart policy only fires on container exit, but kokoro's
+    # PID 1 (`uv run` wrapper) stays alive even when its uvicorn child
+    # zombies — leaving the container "running" but serving nothing. The
+    # autoheal sidecar below watches for `unhealthy` status on labelled
+    # containers and force-restarts them, which is what actually recovers
+    # this case.
+    labels:
+      autoheal: "true"
+    networks:
+      - infinibot-voice
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8880/v1/models"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 60s
+
+  # ===========================================================================
+  # Autoheal — restarts any container labelled `autoheal=true` once its
+  # Docker healthcheck flips to `unhealthy`. Covers the kokoro zombie-worker
+  # case where the container stays "Up" but stops serving.
+  # ===========================================================================
+  autoheal:
+    image: willfarrell/autoheal:latest
+    container_name: infinibot-autoheal
+    restart: unless-stopped
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=autoheal
+      - AUTOHEAL_INTERVAL=15
+      - AUTOHEAL_START_PERIOD=60
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
+  # ===========================================================================
+  # InfiniBot Voice Agent
+  # Routes voice through InfiniBot Gateway to get Infini's responses
+  # ===========================================================================
+  voice-agent:
+    build:
+      context: ./voice-agent
+      dockerfile: Dockerfile
+    container_name: infinibot-voice-agent
+    environment:
+      # LiveKit moved to host networking (see the livekit service block) — the
+      # voice-agent stays on the bridge network and reaches LiveKit via
+      # host.docker.internal (mapped through extra_hosts below). Port 7882
+      # matches livekit-infinibot.yaml's `port:` setting.
+      - LIVEKIT_URL=ws://host.docker.internal:7882
+      - LIVEKIT_API_KEY=${LIVEKIT_API_KEY:?LIVEKIT_API_KEY must be set in .env}
+      - LIVEKIT_API_SECRET=${LIVEKIT_API_SECRET:?LIVEKIT_API_SECRET must be set in .env}
+      # InfiniBot Gateway — defaults to canonical 47913, override in .env
+      - INFINIBOT_GATEWAY_URL=${INFINIBOT_GATEWAY_URL:-http://host.docker.internal:47913}
+      # Gateway HTTP auth (every /api/* route needs a credential, no loopback
+      # trust). The agent sends this as `Authorization: Bearer`; the gateway
+      # accepts either its token or its password there. Set
+      # INFINIBOT_GATEWAY_TOKEN in .env, or it falls back to the same
+      # INFINIBOT_GATEWAY_PASSWORD the gateway uses. Empty = every gateway
+      # call from the voice agent gets 401.
+      - INFINIBOT_GATEWAY_TOKEN=${INFINIBOT_GATEWAY_TOKEN:-${INFINIBOT_GATEWAY_PASSWORD:-}}
+      # STT/TTS services — go through Docker internal DNS so we use the
+      # speaches container's HTTP API (OpenAI-compatible /v1/audio/transcriptions).
+      # The previous host.docker.internal:8765 endpoint was a WebSocket-only
+      # server that returned HTTP 426 Upgrade Required to LiveKit's STT plugin
+      # and broke every transcription with "Connection error".
+      - SPEACHES_URL=http://infinibot-speaches:8000
+      # kokoro-fastapi-cpu serves on 8880 inside the container.
+      - KOKORO_URL=http://infinibot-kokoro:8880
+      # Voice settings — `onyx` maps to bm_george (deep British male Kokoro
+      # voice) via docker/kokoro/openai_mappings.json. Male alternatives:
+      # alloy (am_v0adam), sage (am_michael). Female: nova, shimmer, fable.
+      - TTS_VOICE=onyx
+      - AGENT_NAME=Infini
+    depends_on:
+      livekit:
+        condition: service_started
+      speaches:
+        condition: service_healthy
+      # Wait for the bootstrap container to finish downloading the Whisper
+      # model — without this, the agent's first STT call hits a 404 and the
+      # LiveKit session closes with an "unrecoverable error".
+      speaches-init:
+        condition: service_completed_successfully
+      # kokoro-fastapi-cpu (CPU image) boots reliably in ~10-15s and its
+      # /v1/models healthcheck is stable. service_healthy is safe here.
+      kokoro:
+        condition: service_healthy
+    networks:
+      - infinibot-voice
+    restart: unless-stopped
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+# =============================================================================
+# Networks
+# =============================================================================
+networks:
+  infinibot-voice:
+    name: infinibot-voice
+    driver: bridge
+
+# =============================================================================
+# Volumes
+# =============================================================================
+volumes:
+  infinibot-speaches-cache:
+    name: infinibot-speaches-cache
+  infinibot-kokoro-cache:
+    name: infinibot-kokoro-cache

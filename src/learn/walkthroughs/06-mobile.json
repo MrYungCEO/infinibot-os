@@ -1,0 +1,53 @@
+{
+  "id": "mobile",
+  "title": "Mobile (Expo Go + EAS Build)",
+  "description": "Pair your phone in 30 seconds via Expo Go, or build a personal IPA for production-grade installation.",
+  "audience": "all",
+  "order": 50,
+  "category": "Mobile",
+  "steps": [
+    {
+      "id": "expo-intro",
+      "title": "Expo Go — instant phone pairing",
+      "estMinutes": 1,
+      "body": "Settings → Mobile. The first tab, **Try in Expo Go**, gets you on your phone in under a minute.\n\n**On your phone:** install **Expo Go** from the App Store or Play Store (free). Open it. That's it.\n\n**On the dashboard:** click Start Expo dev server. The QR code that appears encodes the connection.",
+      "cta": { "label": "Open Mobile", "tab": "mobile" }
+    },
+    {
+      "id": "modes",
+      "title": "Tunnel vs LAN vs Localhost",
+      "estMinutes": 2,
+      "body": "Three connection modes:\n\n- **Tunnel** — works anywhere (cellular, different Wi-Fi, behind NAT). Slower because traffic routes through Expo's servers. Recommended.\n- **LAN** — same Wi-Fi only. Fastest because direct.\n- **Localhost** — same machine only. Use for the iOS simulator or web preview.\n\nTunnel is the default. Switch only if you have a reason."
+    },
+    {
+      "id": "url-token",
+      "title": "Pre-baked credentials",
+      "estMinutes": 1,
+      "body": "Before starting Metro, the dashboard writes your gateway URL + your password to `<expoProject>/.env.local`. The Expo app reads these at boot — you never type them on your phone.\n\nIf your phone is on cellular and the gateway is on your laptop, you'll need a public URL (Cloudflare Tunnel, Tailscale, ngrok). Paste it into the **Gateway URL** field on the page; click Save default so the next start uses it."
+    },
+    {
+      "id": "scan",
+      "title": "Scan the QR",
+      "estMinutes": 1,
+      "body": "**iOS:** open the Camera app, point at the QR. Tap the banner that appears. Expo Go opens with the app loaded.\n\n**Android:** open Expo Go, tap **Scan QR code**, point at the QR.\n\nThe app boots, sees the env vars, connects to your gateway with your token. Done."
+    },
+    {
+      "id": "limits",
+      "title": "What Expo Go can't do",
+      "estMinutes": 1,
+      "body": "Expo Go is the right call for trying things, demos, temporary access. But:\n\n- **Push notifications won't fire** — Apple requires the bundle id of a built app\n- Native widgets / share extensions don't appear\n- Background tasks pause when Expo Go is closed\n\nWhen any of those matter, switch to the **Build my own IPA** tab."
+    },
+    {
+      "id": "ipa-prereqs",
+      "title": "IPA build — prerequisites",
+      "estMinutes": 3,
+      "body": "Building a personal IPA requires three things, each one-time:\n\n1. **Apple Developer account** — $99/year, signup at `developer.apple.com/programs`. Apple takes 24-48 hours to approve. There's no way around this if you want the app on your iPhone.\n2. **Expo account** (free) at `expo.dev`.\n3. **EAS CLI** installed: open a terminal, run `npm install -g eas-cli`, then `eas login`.\n\nAfter that, run `eas credentials` once — pick iOS, follow the prompts, EAS auto-fetches certificates and provisioning profiles using your Apple ID."
+    },
+    {
+      "id": "build",
+      "title": "Kick the build",
+      "estMinutes": 2,
+      "body": "Settings → Mobile → **Build my own IPA** tab. Click **Build iOS Preview**. The build queues on Expo's servers and finishes in ~15-25 minutes.\n\nWatch progress in the Recent Builds table — refresh button polls EAS for status. When it's done you get an email with a download QR; scan that on your iPhone, Safari handles the install.\n\nFirst time only: Settings → General → VPN & Device Management → tap your developer profile → Trust. Then the InfiniBot icon appears on your home screen."
+    }
+  ]
+}
